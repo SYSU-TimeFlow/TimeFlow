@@ -1,0 +1,24 @@
+# Logs
+code/logs
+code/*.log
+code/npm-debug.log*
+code/yarn-debug.log*
+code/yarn-error.log*
+code/pnpm-debug.log*
+code/lerna-debug.log*
+
+code/node_modules
+code/dist
+code/dist-ssr
+*.local
+
+# Editor directories and files
+.vscode
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
