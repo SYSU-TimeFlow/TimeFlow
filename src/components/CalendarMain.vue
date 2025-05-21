@@ -269,9 +269,8 @@
     </div>
   </main>
 </template>
-
 <script setup>
-import { defineProps } from "vue";
+import { defineProps, toRefs } from "vue";
 
 const props = defineProps({
   currentView: String,
@@ -279,11 +278,14 @@ const props = defineProps({
   calendarDays: Array,
   weekViewDays: Array,
   dayViewEvents: Array,
-  events: Object, // 确保 events 是数组类型
+  events: Object, // 保持为 Object，因为它是 Ref
   calendarTitle: String,
   dayViewTitle: String,
 });
-// const { events } = toRefs(props); // 使用 toRefs 解包 Ref
+
+// 使用 toRefs 解包 events 以确保响应性
+const { events } = toRefs(props);
+
 defineEmits([
   "navigate-calendar",
   "go-to-today",
@@ -305,14 +307,19 @@ const weekDays = [
 ];
 
 function getEventsForDay(date) {
-  // Check if props.events and props.events.value exist
-  if (!props.events || !props.events.value) {
+  // 调试日志
+  console.log('props.events:', props.events);
+  console.log('events.value:', events.value);
+  
+  // 检查 events 是否存在
+  if (!events.value) {
     console.warn('Events are not available');
     return [];
   }
-  const eventsArray = props.events.value;
+  
+  const eventsArray = events.value;
   if (!Array.isArray(eventsArray)) {
-    console.warn('Events is not an array');
+    console.warn('Events is not an array:', eventsArray);
     return [];
   }
 
@@ -321,7 +328,7 @@ function getEventsForDay(date) {
   const end = new Date(date);
   end.setHours(23, 59, 59, 999);
 
-  return eventsArray
+  const filteredEvents = eventsArray
     .filter((event) => {
       const eventStart = new Date(event.start);
       const eventEnd = new Date(event.end);
@@ -339,7 +346,12 @@ function getEventsForDay(date) {
       }
       return aStart - bStart;
     });
+
+  console.log('Filtered events for', date.toISOString(), ':', filteredEvents);
+  return filteredEvents;
 }
+
+// 其余函数保持不变
 function formatEventTime(event) {
   const start = new Date(event.start);
   const end = new Date(event.end);
