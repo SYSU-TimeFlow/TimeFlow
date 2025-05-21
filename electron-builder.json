@@ -1,0 +1,7 @@
+{
+  "productName": "TimeFlow",
+  "files": ["main.js", "./dist"],
+  "directories": {
+    "output": "./build"
+  }
+}
