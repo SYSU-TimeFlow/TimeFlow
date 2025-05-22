@@ -5,17 +5,28 @@ import { app, BrowserWindow } from "electron/main";
 import path from "path";
 import { fileURLToPath } from "url";
 import isDev from "electron-is-dev";
+import WindowState from "electron-win-state";
 
 // 获取当前文件的路径
-const __filename = fileURLToPath(import.meta.url)
-const __dirname = path.dirname(__filename)
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // 创建窗口函数
 const createWindow = () => {
-  const win = new BrowserWindow({
-    width: 800,
-    height: 600,
+  // 创建窗口状态管理器
+  const winState = new WindowState.default({
+    defaultWidth: 1200,
+    defaultHeight: 800,
   });
+
+  const win = new BrowserWindow({
+    ...winState.winOptions,
+    minWidth: 900,
+    minHeight: 700,
+  });
+
+  // 监听窗口状态变化
+  winState.manage(win);
 
   // 根据 模式 加载不同的页面
   if (isDev) {
