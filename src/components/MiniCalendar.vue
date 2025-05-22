@@ -8,7 +8,7 @@
   <!-- 迷你日历根元素 -->
   <div class="mini-calendar mx-4 my-3 bg-white rounded-lg shadow-sm p-3">
     <!-- 迷你日历头部，包含月份显示和切换按钮 -->
-    <div class="flex justify-between items-center mb-2">
+    <div :class="['flex items-center mb-2',sidebarCollapsed ? 'justify-center' : 'justify-between']">
       <!-- 月份年份标题，仅在侧边栏未折叠时显示 -->
       <span v-if="!sidebarCollapsed" class="text-sm font-medium">{{
         miniCalendarTitle

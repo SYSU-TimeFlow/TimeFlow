@@ -15,7 +15,10 @@
     <!-- 侧边栏折叠/展开切换按钮 -->
     <button
       @click="$emit('toggle-sidebar')"
-      class="sidebar-toggle self-end p-2 m-2 text-gray-500 hover:text-gray-700 cursor-pointer !rounded-button whitespace-nowrap"
+      :class="[
+        'sidebar-toggle text-gray-500 hover:text-gray-700 cursor-pointer !rounded-button whitespace-nowrap transition-all',
+        sidebarCollapsed ? 'mx-auto my-3 w-8 h-8 flex items-center justify-center rounded-full' : 'self-end p-2 m-2', // 根据折叠状态设置不同的边距
+      ]"
     >
       <i
         :class="
@@ -28,7 +31,12 @@
       @click="$emit('open-new-event-modal')"
       class="add-event-btn mx-4 my-3 py-2 px-4 bg-blue-600 text-white rounded-lg flex items-center justify-center hover:bg-blue-700 transition cursor-pointer !rounded-button whitespace-nowrap"
     >
-      <i class="fas fa-plus mr-2"></i>
+      <i 
+        :class="[
+          'fas fa-plus',
+          !sidebarCollapsed ? 'mr-2' : '' // 根据折叠状态设置边距
+        ]"
+      ></i>
       <span v-if="!sidebarCollapsed">Add Event</span>
       <!-- 仅在侧边栏展开时显示文字 -->
     </button>
