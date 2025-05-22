@@ -342,6 +342,8 @@ const props = defineProps({
   calendarTitle: String,
   /** @property {String} dayViewTitle - 日视图头部显示的标题 (例如 "2023年7月15日") */
   dayViewTitle: String,
+  /** @property {Array} categories - 所有分类对象数组 */
+  categories: Array,
 });
 
 // 使用 toRefs 解包 props.events 以在 getEventsForDay 函数中保持响应性
@@ -393,6 +395,9 @@ function getEventsForDay(date) {
     return []; // 如果不是数组，返回空数组
   }
 
+  // 获取当前激活的分类ID数组
+  const activeCategoryIds = getActiveCategoryIds();
+
   // 设置查询日期的开始和结束时间（00:00:00 到 23:59:59）
   const start = new Date(date);
   start.setHours(0, 0, 0, 0);
@@ -407,11 +412,17 @@ function getEventsForDay(date) {
     .filter((event) => {
       const eventStart = new Date(event.start);
       const eventEnd = new Date(event.end);
-      return (
+      // 先检查事件日期是否符合条件
+      const dateMatches = (
         (eventStart >= start && eventStart <= end) || // 条件1
         (eventEnd >= start && eventEnd <= end) || // 条件2
         (eventStart <= start && eventEnd >= end) // 条件3
-      );
+      ); 
+      // 再检查事件分类是否被选中
+      const categoryMatches = activeCategoryIds.length === 0 || 
+                            activeCategoryIds.includes(event.categoryId);
+      // 同时满足日期和分类两个条件
+      return dateMatches && categoryMatches;
     })
     // 排序事件：首先按开始时间升序，如果开始时间相同，则按结束时间升序
     .sort((a, b) => {
@@ -511,6 +522,23 @@ function getContrastColor(hexColor) {
   const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
   // 如果亮度大于0.5，背景较亮，使用黑色文本；否则使用白色文本
   return luminance > 0.5 ? "#000000" : "#ffffff";
+}
+
+/**
+ * @function getActiveCategoryIds
+ * @description 获取当前所有激活状态的分类ID数组
+ * @returns {Array<string|number>} 激活状态的分类ID数组
+ */
+function getActiveCategoryIds() {
+  // 检查categories是否存在且为数组
+  if (!Array.isArray(props.categories)) {
+    console.warn('Categories is not an array or is undefined');
+    return [];
+  }
+  // 过滤出激活状态的分类，并提取其ID
+  return props.categories
+    .filter((category) => Boolean(category?.active))
+    .map((category) => category.id);
 }
 </script>
 
