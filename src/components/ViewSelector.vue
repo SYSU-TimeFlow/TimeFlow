@@ -6,7 +6,10 @@
  */
 <template>
   <!-- 视图选择器根元素 -->
-  <div class="view-selector mx-4 my-3">
+  <div :class="[
+    'view-selector my-3',
+    sidebarCollapsed ? 'mx-auto' : 'mx-4', // 根据折叠状态设置不同的边距
+  ]">
     <!-- "View" 标题，仅在侧边栏未折叠时显示 -->
     <div
       v-if="!sidebarCollapsed"
