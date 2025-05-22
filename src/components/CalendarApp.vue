@@ -71,6 +71,7 @@
         :events="events"
         :calendar-title="calendarTitle"
         :day-view-title="dayViewTitle"
+        :categories="categories"
         @navigate-calendar="navigateCalendar"
         @go-to-today="goToToday"
         @handle-day-click="handleDayClick"
