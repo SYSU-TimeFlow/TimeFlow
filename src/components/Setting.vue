@@ -414,7 +414,7 @@
   @section: 变量与响应式数据
   说明：定义所有设置项的响应式变量，并统一收集到 settings 对象，便于保存和读取。
 */
-import { ref, computed } from "vue";
+import { ref, computed, onMounted } from "vue";
 
 const themeMode = ref("light"); // 主题模式（亮/暗）
 const fontSize = ref("medium"); // 字号
@@ -446,6 +446,34 @@ const settings = computed(() => ({
   weekStart: weekStart.value,
   language: language.value,
 }));
+
+/*
+  @section: 打开设置界面时读取已保存的设置
+  说明：组件挂载后读取 localStorage 中的设置项，如果存在则填充到表单中。
+*/
+onMounted(() => {
+  const saved = localStorage.getItem("settings");
+  if (saved) {
+    try {
+      const obj = JSON.parse(saved);
+      if (obj.themeMode) themeMode.value = obj.themeMode;
+      if (obj.fontSize) fontSize.value = obj.fontSize;
+      if (obj.iconStyle) iconStyle.value = obj.iconStyle;
+      if (typeof obj.notifications === "boolean")
+        notifications.value = obj.notifications;
+      if (typeof obj.notificationSound === "boolean")
+        notificationSound.value = obj.notificationSound;
+      if (typeof obj.soundEffect === "boolean")
+        soundEffect.value = obj.soundEffect;
+      if (typeof obj.hour24 === "boolean") hour24.value = obj.hour24;
+      if (typeof obj.showLunar === "boolean") showLunar.value = obj.showLunar;
+      if (obj.weekStart !== undefined) weekStart.value = obj.weekStart;
+      if (obj.language) language.value = obj.language;
+    } catch (e) {
+      // 解析失败忽略
+    }
+  }
+});
 
 /*
   @section: 保存设置方法

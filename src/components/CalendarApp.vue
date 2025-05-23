@@ -293,7 +293,13 @@ const dayViewTitle = computed(() => {
  */
 const calendarDays = computed(() => {
   // 月视图的日期格子数据
-  const days = []; // 初始化一个空数组，用于存储月视图的每一天的数据
+  const days: {
+    date: Date;
+    dayNumber: number;
+    isCurrentMonth: boolean;
+    isToday: boolean;
+    isWeekend: boolean;
+  }[] = []; // 初始化一个空数组，用于存储月视图的每一天的数据
   const monthStart = new Date(
     currentDate.value.getFullYear(), // 当前年份
     currentDate.value.getMonth(), // 当前月份 (0-11)
@@ -340,7 +346,13 @@ const calendarDays = computed(() => {
  */
 const miniCalendarDays = computed(() => {
   // 迷你日历的日期格子数据
-  const days = [];
+  const days: {
+    date: Date;
+    dayNumber: number;
+    isCurrentMonth: boolean;
+    isToday: boolean;
+    isSelected: boolean;
+  }[] = []; // 初始化一个空数组，用于存储迷你日历的每一天的数据
   const monthStart = new Date(
     miniCalendarDate.value.getFullYear(),
     miniCalendarDate.value.getMonth(),
@@ -381,7 +393,13 @@ const miniCalendarDays = computed(() => {
  */
 const weekViewDays = computed(() => {
   // 周视图的日期数据
-  const days = [];
+  const days: {
+    date: Date;
+    dayName: string;
+    dayNumber: number;
+    isToday: boolean;
+    events: any[];
+  }[] = []; // 初始化一个空数组，用于存储周视图的每一天的数据
   const startOfWeek = getStartOfWeek(currentDate.value);
   const today = new Date();
   today.setHours(0, 0, 0, 0);
