@@ -8,23 +8,23 @@
   <!-- 迷你日历根元素 -->
   <div class="mini-calendar mx-4 my-3 bg-white rounded-lg shadow-sm p-3">
     <!-- 迷你日历头部，包含月份显示和切换按钮 -->
-    <div :class="['flex items-center mb-2',sidebarCollapsed ? 'justify-center' : 'justify-between']">
+    <div :class="['flex items-center mb-2', uiStore.sidebarCollapsed ? 'justify-center' : 'justify-between']">
       <!-- 月份年份标题，仅在侧边栏未折叠时显示 -->
-      <span v-if="!sidebarCollapsed" class="text-sm font-medium">{{
-        miniCalendarTitle
+      <span v-if="!uiStore.sidebarCollapsed" class="text-sm font-medium">{{
+        uiStore.miniCalendarTitle
       }}</span>
       <!-- 月份切换按钮容器 -->
       <div class="flex space-x-1">
         <!-- 上一个月按钮 -->
         <button
-          @click="$emit('prev-month')"
+          @click="uiStore.prevMonth"
           class="text-gray-500 hover:text-gray-700 p-1 cursor-pointer !rounded-button whitespace-nowrap"
         >
           <i class="fas fa-chevron-left text-xs"></i>
         </button>
         <!-- 下一个月按钮 -->
         <button
-          @click="$emit('next-month')"
+          @click="uiStore.nextMonth"
           class="text-gray-500 hover:text-gray-700 p-1 cursor-pointer !rounded-button whitespace-nowrap"
         >
           <i class="fas fa-chevron-right text-xs"></i>
@@ -32,10 +32,10 @@
       </div>
     </div>
     <!-- 日期网格，仅在侧边栏未折叠时显示 -->
-    <div v-if="!sidebarCollapsed" class="grid grid-cols-7 gap-1 text-center">
+    <div v-if="!uiStore.sidebarCollapsed" class="grid grid-cols-7 gap-1 text-center">
       <!-- 星期表头 -->
       <span
-        v-for="day in weekDaysShort"
+        v-for="day in uiStore.weekDaysShort"
         :key="day"
         class="text-xs text-gray-500"
       >
@@ -43,7 +43,7 @@
       </span>
       <!-- 日期单元格 -->
       <div
-        v-for="(day, index) in miniCalendarDays"
+        v-for="(day, index) in uiStore.miniCalendarDays"
         :key="index"
         :class="[
           'mini-day text-xs p-1 rounded-full w-6 h-6 flex items-center justify-center cursor-pointer',
@@ -51,7 +51,7 @@
           day.isToday ? 'bg-blue-100 text-blue-600 font-medium' : '',
           day.isSelected ? 'bg-blue-600 text-white' : '',
         ]"
-        @click="$emit('select-date', day.date)"
+        @click="uiStore.selectDate(day.date)"
       >
         {{ day.dayNumber }}
       </div>
@@ -60,44 +60,8 @@
 </template>
 
 <script setup>
-import { computed } from "vue";
-import { defineProps, defineEmits } from "vue";
+import { useUiStore } from '../stores/ui';
 
-/**
- * @typedef {Object} MiniCalendarDay
- * @property {Date} date - 日期对象
- * @property {number} dayNumber - 月份中的日期数字
- * @property {boolean} isCurrentMonth - 是否属于当前显示的月份
- * @property {boolean} isToday - 是否是今天
- * @property {boolean} isSelected - 是否被选中
- */
-
-const props = defineProps({
-  miniCalendarDate: Date, // 迷你日历当前显示的月份的日期对象
-  selectedDate: Date, // 当前主日历选中的日期对象
-  miniCalendarDays: Array, // 构成迷你日历网格的日期数据数组
-  sidebarCollapsed: Boolean, // 指示侧边栏是否已折叠
-});
-
-defineEmits([
-  "prev-month", // 切换到上一个月的事件
-  "next-month", // 切换到下一个月的事件
-  "select-date", // 选择迷你日历中某个日期的事件, @type {Date} - 被选中的日期对象
-]);
-
-// 星期几的缩写，用于迷你日历表头
-const weekDaysShort = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
-
-/**
- * 计算属性：格式化迷你日历的标题（例如："July 2024"）
- * @returns {string} 格式化后的年月字符串
- */
-const miniCalendarTitle = computed(() => {
-  // 使用 Intl.DateTimeFormat API 来本地化日期格式
-  return new Intl.DateTimeFormat("en-US", {
-    // 可根据需要调整地区设置 'zh-CN'
-    month: "long", // 月份显示为完整名称
-    year: "numeric", // 年份显示为数字
-  }).format(props.miniCalendarDate); // 格式化 props.miniCalendarDate
-});
+// 使用Pinia仓库
+const uiStore = useUiStore();
 </script>

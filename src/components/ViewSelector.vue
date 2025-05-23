@@ -8,11 +8,11 @@
   <!-- 视图选择器根元素 -->
   <div :class="[
     'view-selector my-3',
-    sidebarCollapsed ? 'mx-auto' : 'mx-4', // 根据折叠状态设置不同的边距
+    uiStore.sidebarCollapsed ? 'mx-auto' : 'mx-4', // 根据折叠状态设置不同的边距
   ]">
     <!-- "View" 标题，仅在侧边栏未折叠时显示 -->
     <div
-      v-if="!sidebarCollapsed"
+      v-if="!uiStore.sidebarCollapsed"
       class="text-sm font-medium mb-2 text-gray-700"
     >
       View
@@ -21,38 +21,26 @@
     <div class="flex flex-col space-y-1">
       <!-- 遍历 calendarViews 数组，为每个视图创建一个切换按钮 -->
       <button
-        v-for="view in calendarViews"
+        v-for="view in uiStore.calendarViews"
         :key="view.id" 
-        @click="$emit('change-view', view.id)" 
+        @click="uiStore.changeView(view.id)" 
         :class="[
           'view-btn flex items-center py-2 px-3 rounded-lg cursor-pointer !rounded-button whitespace-nowrap',
-          currentView === view.id ? 'bg-blue-100 text-blue-600' : 'hover:bg-gray-200', // 当前选中视图高亮显示
+          uiStore.currentView === view.id ? 'bg-blue-100 text-blue-600' : 'hover:bg-gray-200', // 当前选中视图高亮显示
         ]"
       >
         <!-- 视图图标 -->
-        <i :class="`fas ${view.icon} ${sidebarCollapsed ? '' : 'mr-3'}`"></i> <!-- 根据侧边栏折叠状态调整图标右边距 -->
+        <i :class="`fas ${view.icon} ${uiStore.sidebarCollapsed ? '' : 'mr-3'}`"></i> <!-- 根据侧边栏折叠状态调整图标右边距 -->
         <!-- 视图标签文本，仅在侧边栏未折叠时显示 -->
-        <span v-if="!sidebarCollapsed">{{ view.label }}</span>
+        <span v-if="!uiStore.sidebarCollapsed">{{ view.label }}</span>
       </button>
     </div>
   </div>
 </template>
 
 <script setup>
-/**
- * @typedef {Object} CalendarViewItem
- * @property {string} id - 视图的唯一标识符 (例如 'dayGridMonth', 'timeGridWeek')
- * @property {string} label - 视图的显示名称 (例如 'Month', 'Week')
- * @property {string} icon - 视图对应的 Font Awesome 图标类名 (例如 'fa-calendar-alt')
- */
+import { useUiStore } from '../stores/ui';
 
-defineProps({
-    calendarViews: Array, // 可用的日历视图配置数组
-    currentView: String, // 当前选中的日历视图的ID
-    sidebarCollapsed: Boolean, // 指示侧边栏是否已折叠
-});
-
-defineEmits([
-    "change-view", // 更改日历视图的事件, 参数为被选中的新视图的ID
-]);
+// 使用Pinia仓库
+const uiStore = useUiStore();
 </script>

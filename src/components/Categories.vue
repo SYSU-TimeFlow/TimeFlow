@@ -8,7 +8,7 @@
   <div class="categories mx-4 my-3">
     <!-- 分类头部区域，仅在侧边栏未折叠时显示 -->
     <div
-      v-if="!sidebarCollapsed"
+      v-if="!uiStore.sidebarCollapsed"
       class="flex items-center justify-between mb-2"
     >
       <span class="text-sm font-medium text-gray-700">Categories</span>
@@ -23,24 +23,24 @@
     <div class="flex flex-col space-y-1">
       <!-- 遍历 categories 数组，为每个分类创建一个条目 -->
       <div
-        v-for="category in categories"
+        v-for="category in eventStore.categories"
         :key="category.id"
         :class="[
           'category-item flex items-center py-2 px-3 rounded-lg cursor-pointer hover:bg-gray-200',
           category.active ? '' : 'opacity-50', // 如果分类未激活，则降低其不透明度
         ]"
-        @click="$emit('toggle-category', category.id)"
+        @click="eventStore.toggleCategory(category.id)"
       >
         <!-- 分类颜色指示器 -->
         <span
           :class="[
             'category-color w-3 h-3 rounded-full',
-            sidebarCollapsed ? '' : 'mr-3', // 侧边栏折叠时不显示右边距
+            uiStore.sidebarCollapsed ? '' : 'mr-3', // 侧边栏折叠时不显示右边距
           ]"
           :style="{ backgroundColor: category.color }"
         ></span>
         <!-- 分类名称，仅在侧边栏未折叠时显示 -->
-        <span v-if="!sidebarCollapsed" class="text-sm">{{
+        <span v-if="!uiStore.sidebarCollapsed" class="text-sm">{{
           category.name
         }}</span>
       </div>
@@ -49,20 +49,10 @@
 </template>
 
 <script setup>
-/**
- * @typedef {Object} Category
- * @property {string} id - 分类的唯一标识符
- * @property {string} name - 分类的名称
- * @property {string} color - 分类的颜色代码 (例如 '#FF0000')
- * @property {boolean} active - 分类是否处于激活状态 (用于筛选)
- */
+import { useEventStore } from '../stores/event';
+import { useUiStore } from '../stores/ui';
 
-defineProps({
-    categories: Array, // 事件分类对象的数组
-    sidebarCollapsed: Boolean, // 指示侧边栏是否已折叠
-});
-
-defineEmits([
-  "toggle-category", // 切换分类激活状态的事件
-]);
+// 使用Pinia仓库
+const eventStore = useEventStore();
+const uiStore = useUiStore();
 </script>
