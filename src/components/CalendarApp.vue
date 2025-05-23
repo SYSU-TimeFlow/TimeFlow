@@ -21,7 +21,10 @@
           <i class="fas fa-bell"></i>
           <!-- 通知图标 -->
         </button>
-        <button class="text-gray-500 hover:text-gray-700 cursor-pointer">
+        <button
+          class="text-gray-500 hover:text-gray-700 cursor-pointer"
+          @click="showSetting = true"
+        >
           <i class="fas fa-cog"></i>
           <!-- 设置图标 -->
         </button>
@@ -89,6 +92,20 @@
       @save-event="saveEvent"
       @delete-event="deleteEvent"
     />
+
+    <!-- 设置弹窗及遮罩层 -->
+    <div
+      v-if="showSetting"
+      class="fixed inset-0 z-50 flex items-center justify-center"
+    >
+      <!-- 遮罩层 -->
+      <div
+        class="absolute inset-0 bg-black bg-opacity-40 transition-opacity"
+        @click="showSetting = false"
+      ></div>
+      <!-- 设置弹窗 -->
+      <Setting class="relative z-10" @close="showSetting = false" />
+    </div>
   </div>
 </template>
 
@@ -97,6 +114,7 @@ import { ref, computed, onMounted } from "vue";
 import Sidebar from "./Sidebar.vue"; // 导入侧边栏组件
 import CalendarMain from "./CalendarMain.vue"; // 导入主日历区域组件
 import EventModal from "./EventModal.vue"; // 导入事件模态框组件
+import Setting from "./Setting.vue"; // 导入设置组件
 
 // 定义日历视图选项
 const calendarViews = [
@@ -139,6 +157,7 @@ const currentEvent = ref({
   allDay: false,
   syncWithSystem: true,
 });
+const showSetting = ref(false); // 是否显示设置模态框
 
 // 示例事件数据（注意，这里是写死的，后面需要动态加载，永久化存储等）
 const events = ref([
@@ -274,7 +293,13 @@ const dayViewTitle = computed(() => {
  */
 const calendarDays = computed(() => {
   // 月视图的日期格子数据
-  const days = []; // 初始化一个空数组，用于存储月视图的每一天的数据
+  const days: {
+    date: Date;
+    dayNumber: number;
+    isCurrentMonth: boolean;
+    isToday: boolean;
+    isWeekend: boolean;
+  }[] = []; // 初始化一个空数组，用于存储月视图的每一天的数据
   const monthStart = new Date(
     currentDate.value.getFullYear(), // 当前年份
     currentDate.value.getMonth(), // 当前月份 (0-11)
@@ -321,7 +346,13 @@ const calendarDays = computed(() => {
  */
 const miniCalendarDays = computed(() => {
   // 迷你日历的日期格子数据
-  const days = [];
+  const days: {
+    date: Date;
+    dayNumber: number;
+    isCurrentMonth: boolean;
+    isToday: boolean;
+    isSelected: boolean;
+  }[] = []; // 初始化一个空数组，用于存储迷你日历的每一天的数据
   const monthStart = new Date(
     miniCalendarDate.value.getFullYear(),
     miniCalendarDate.value.getMonth(),
@@ -362,7 +393,13 @@ const miniCalendarDays = computed(() => {
  */
 const weekViewDays = computed(() => {
   // 周视图的日期数据
-  const days = [];
+  const days: {
+    date: Date;
+    dayName: string;
+    dayNumber: number;
+    isToday: boolean;
+    events: any[];
+  }[] = []; // 初始化一个空数组，用于存储周视图的每一天的数据
   const startOfWeek = getStartOfWeek(currentDate.value);
   const today = new Date();
   today.setHours(0, 0, 0, 0);
