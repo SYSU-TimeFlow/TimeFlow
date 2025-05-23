@@ -162,82 +162,97 @@
       v-else-if="currentView === 'week'"
       class="week-view flex-1 overflow-auto p-6"
     >
-      <!-- 周视图网格布局，包含时间标签列和每天的列 -->
-      <div class="grid grid-cols-8 h-full border border-gray-200">
-        <!-- 左侧时间标签列 -->
-        <div class="time-labels border-r border-gray-200 pt-16">
-          <!-- 渲染24小时的时间标签 -->
+      <!-- 周视图网格布局 -->
+      <div class="grid grid-cols-1 h-full border border-gray-200">
+        <!-- 周视图头部，显示本周7天 -->
+        <div class="grid grid-cols-8">
+          <!-- 左侧空白，用于对齐时间轴 -->
+          <div class="bg-white"></div>
+          <!-- 渲染每一天的表头（星期几和日期） -->
           <div
-            v-for="hour in 24"
-            :key="hour"
-            class="time-label h-12 -mt-3 text-xs text-gray-500 text-right pr-2"
-          >
-            {{ formatHour(hour - 1) }}
-          </div>
-        </div>
-        <!-- 每天的列 -->
-        <div
-          v-for="(day, index) in weekViewDays"
-          :key="index"
-          class="day-column relative"
-        >
-          <!-- 每天的头部，显示星期和日期 -->
-          <div
-            class="day-header text-center p-2 border-b border-gray-200 sticky top-0 bg-white z-10"
+            v-for="(day, idx) in weekViewDays"
+            :key="idx"
+            class="day-header text-center p-2 border-b border-gray-200 bg-white"
           >
             <div class="text-sm font-medium">{{ day.dayName }}</div>
             <div
-              :class="[
-                'text-lg rounded-full w-8 h-8 flex items-center justify-center mx-auto',
-                day.isToday ? 'bg-blue-600 text-white' : '', // 今天特殊样式
-              ]"
+              class="text-lg rounded-full w-8 h-8 flex items-center justify-center mx-auto"
+              :class="{ 'bg-blue-600 text-white': day.isToday }"
             >
               {{ day.dayNumber }}
             </div>
           </div>
-          <!-- 小时格子背景 -->
-          <div class="hours-grid">
+        </div>
+        <!-- 周视图主体内容，包含时间标签和每天的事件列 -->
+        <div class="flex h-full">
+          <!-- 左侧时间标签列 -->
+          <div class="time-labels border-r border-gray-200 pr-4 w-20">
+            <!-- 渲染24小时的时间标签 -->
             <div
               v-for="hour in 24"
               :key="hour"
-              class="hour-cell h-12 border-b border-gray-200 relative"
-              @click="$emit('handle-hour-click', day, hour - 1)"
-            ></div>
-          </div>
-          <!-- 事件渲染区域 -->
-          <div class="events absolute top-16 left-0 right-0">
-            <!-- 单个事件项 -->
-            <div
-              v-for="event in day.events"
-              :key="event.id"
-              class="week-event absolute rounded-sm px-1 overflow-hidden cursor-pointer"
-              :style="{
-                top: `${calculateEventTop(event)}px`, // 计算事件的垂直位置
-                height: `${calculateEventHeight(event)}px`, // 计算事件的高度
-                left: '2px',
-                right: '2px',
-                backgroundColor: event.categoryColor + '33',
-                borderLeft: `3px solid ${event.categoryColor}`,
-              }"
-              @click.stop="$emit('open-event-details', event)"
+              class="time-label h-16 text-xs text-gray-500 text-right -translate-y-3 flex items-start justify-end"
             >
+              {{ formatHour(hour - 1) }}
+            </div>
+          </div>
+          <!-- 事件网格区：每一列代表一天 -->
+          <div class="flex-1 grid grid-cols-7 relative">
+            <!-- 小时格子背景 -->
+            <div v-for="hour in 24" :key="hour" class="contents">
               <div
-                class="event-time text-xs font-medium"
-                :style="{ color: event.categoryColor }"
-              >
-                {{ formatEventTime(event) }}
-              </div>
+                v-for="(day, idx) in weekViewDays"
+                :key="idx"
+                class="hour-cell h-16 border-b border-gray-200 relative hover:bg-gray-50"
+                @click="$emit('handle-hour-click', day, hour-1)"
+              ></div>
+            </div>
+            <!-- 事件渲染区域 -->
+            <div
+              v-for="(day, idx) in weekViewDays"
+              :key="idx"
+              class="absolute left-0 top-0 h-full"
+              :style="{ width: `calc(100% / 7)`, left: `calc(${100 * idx / 7}% )` }"
+            >
+              <!-- 单个事件项 -->
               <div
-                class="event-title text-xs font-medium truncate"
-                :style="{ color: getContrastColor(event.categoryColor) }"
+                v-for="event in getEventsForDay(day.date)"
+                :key="event.id"
+                class="day-event absolute rounded-sm px-2 py-1 overflow-hidden cursor-pointer"
+                :style="{
+                  top: `${calculateEventTop(event)}px`, // 计算事件的垂直位置
+                  height: `${calculateEventHeight(event)}px`, // 计算事件的高度
+                  left: '4px',
+                  right: '4px',
+                  backgroundColor: event.categoryColor + '33',
+                  borderLeft: `3px solid ${event.categoryColor}`,
+                  zIndex: 10, // 保证事件渲染在网格之上
+                }"
+                @click.stop="$emit('open-event-details', event)"
               >
-                {{ event.title }}
+                <div
+                  class="event-time text-xs font-medium"
+                  :style="{ color: event.categoryColor }"
+                >
+                  {{ formatEventTime(event) }}
+                </div>
+                <div
+                  class="event-title text-sm font-medium truncate"
+                  :style="{ color: getContrastColor(event.categoryColor) }"
+                >
+                  {{ event.title }}
+                </div>
+                <div class="event-description text-xs truncate text-gray-600">
+                  {{ event.description }}
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
     </div>
+
+
 
     <!-- 日视图容器 -->
     <div
@@ -256,10 +271,11 @@
         <div class="flex h-full">
           <!-- 左侧时间标签列 -->
           <div class="time-labels border-r border-gray-200 pr-4 w-20">
+            <!-- 渲染24小时的时间标签 -->
             <div
               v-for="hour in 24"
               :key="hour"
-              class="time-label h-16 -mt-3 text-xs text-gray-500 text-right"
+              class="time-label h-16 text-xs text-gray-500 text-right -translate-y-3 flex items-start justify-end"
             >
               {{ formatHour(hour - 1) }}
             </div>
@@ -279,7 +295,7 @@
             <div class="events absolute top-0 left-0 right-0">
               <!-- 单个事件项 -->
               <div
-                v-for="event in dayViewEvents"
+                v-for="event in getEventsForDay(currentDate)"
                 :key="event.id"
                 class="day-event absolute rounded-sm px-2 py-1 overflow-hidden cursor-pointer"
                 :style="{
@@ -289,6 +305,7 @@
                   right: '4px',
                   backgroundColor: event.categoryColor + '33',
                   borderLeft: `3px solid ${event.categoryColor}`,
+                  zIndex: '10', // 确保事件在网格线上方
                 }"
                 @click.stop="$emit('open-event-details', event)"
               >
