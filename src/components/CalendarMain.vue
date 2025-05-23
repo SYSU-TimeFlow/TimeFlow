@@ -256,10 +256,11 @@
         <div class="flex h-full">
           <!-- 左侧时间标签列 -->
           <div class="time-labels border-r border-gray-200 pr-4 w-20">
+            <!-- 渲染24小时的时间标签 -->
             <div
               v-for="hour in 24"
               :key="hour"
-              class="time-label h-16 -mt-3 text-xs text-gray-500 text-right"
+              class="time-label h-16 text-xs text-gray-500 text-right -translate-y-3 flex items-start justify-end"
             >
               {{ formatHour(hour - 1) }}
             </div>
@@ -289,6 +290,7 @@
                   right: '4px',
                   backgroundColor: event.categoryColor + '33',
                   borderLeft: `3px solid ${event.categoryColor}`,
+                  zIndex: '10', // 确保事件在网格线上方
                 }"
                 @click.stop="$emit('open-event-details', event)"
               >
