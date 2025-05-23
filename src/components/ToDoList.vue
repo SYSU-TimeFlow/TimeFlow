@@ -1,53 +1,78 @@
 <template>
-  <div class="todo-list p-8 max-w-7xl mx-auto">
-    <h2 class="text-2xl font-semibold mb-4">ToDo 任务列表</h2>
-    <!-- 表单已移除，只显示待办事项列表 -->
-    <div v-if="todos.length === 0" class="text-gray-400">暂无待办事项</div>
-    <ul>
+  <div class="todo-list p-8 max-w-3xl mx-auto">
+    <h2 class="text-2xl font-bold mb-6 text-blue-700 flex items-center">
+      <i class="fas fa-list-check mr-2"></i> ToDo 任务列表
+    </h2>
+    <div v-if="todos.length === 0" class="text-gray-400 text-center py-12">
+      <i class="fas fa-inbox text-3xl mb-2"></i>
+      <div>暂无待办事项</div>
+    </div>
+    <ul class="space-y-6">
       <li
         v-for="todo in todos"
         :key="todo.id"
-        class="flex items-center mb-3 p-3 bg-gray-50 rounded shadow-sm"
+        class="flex items-start gap-8 p-10 bg-white rounded-[2rem] shadow-2xl hover:shadow-3xl transition group border-4 border-blue-400"
       >
         <!-- 完成勾选框 -->
         <input
           type="checkbox"
           :checked="todo.completed"
-          class="mr-3"
+          class="mt-2 accent-blue-600 w-7 h-7"
           @change="toggleTodo(todo.id)"
         />
-        <div class="font-medium" :class="{ 'line-through text-gray-400': todo.completed }">
-          {{ todo.title }}
-        </div>
-        <div class="flex-1">
-          <div class="text-xs text-gray-500">
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center gap-4 mb-3">
+            <span
+              class="inline-block w-4 h-4 rounded-full"
+              :style="{ background: todo.categoryColor || '#888' }"
+            ></span>
+            <span
+              class="font-semibold text-2xl truncate"
+              :class="{ 'line-through text-gray-400': todo.completed }"
+              :title="todo.title"
+            >
+              {{ todo.title }}
+            </span>
+            <span
+              v-if="todo.categoryName"
+              class="ml-4 px-4 py-1 rounded-full text-sm font-bold"
+              :style="{ background: todo.categoryColor + '22', color: todo.categoryColor }"
+            >
+              {{ todo.categoryName }}
+            </span>
+            <span
+              v-if="todo.completed"
+              class="ml-4 text-green-500 text-sm font-bold"
+            >已完成</span>
+          </div>
+          <div class="text-base text-gray-500 mb-2">
             <span v-if="isAllDay(todo.start, todo.end)">全天</span>
             <span v-else>
               {{ formatDate(todo.start) }} ~ {{ formatDate(todo.end) }}
             </span>
-            <span v-if="todo.categoryName" :style="{ color: todo.categoryColor }" class="ml-2">
-              [{{ todo.categoryName }}]
-            </span>
           </div>
-          <div class="text-xs text-gray-600">{{ todo.description }}</div>
+          <div class="text-lg text-gray-700 break-words mb-4">{{ todo.description }}</div>
+          <div class="flex items-center gap-8 mt-2">
+            <!-- 添加到日历选项 -->
+            <label class="flex items-center cursor-pointer select-none text-base">
+              <input
+                type="checkbox"
+                :checked="todo.addToCalendar"
+                @change="toggleSyncToCalendar(todo)"
+                :id="'sync-'+todo.id"
+                class="mr-2 accent-blue-600"
+              />
+              <span :for="'sync-'+todo.id">同步到日历</span>
+            </label>
+            <button
+              class="ml-6 text-red-500 hover:text-red-700 transition"
+              @click="deleteTodo(todo.id)"
+              title="删除"
+            >
+              <i class="fas fa-trash"></i>
+            </button>
+          </div>
         </div>
-        <!-- 添加到日历选项 -->
-        <div class="flex items-center mr-4">
-          <input
-            type="checkbox"
-            :checked="todo.addToCalendar"
-            @change="toggleSyncToCalendar(todo)"
-            :id="'sync-'+todo.id"
-            class="mr-1"
-          />
-          <label :for="'sync-'+todo.id" class="text-xs">同步到日历</label>
-        </div>
-        <button
-          class="ml-3 text-red-500 hover:text-red-700"
-          @click="deleteTodo(todo.id)"
-        >
-          <i class="fas fa-trash"></i>
-        </button>
       </li>
     </ul>
   </div>
