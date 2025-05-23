@@ -208,7 +208,7 @@
           <div class="events absolute top-16 left-0 right-0">
             <!-- 单个事件项 -->
             <div
-              v-for="event in day.events"
+              v-for="event in getEventsForDay(day.date)"
               :key="event.id"
               class="week-event absolute rounded-sm px-1 overflow-hidden cursor-pointer"
               :style="{
@@ -279,7 +279,7 @@
             <div class="events absolute top-0 left-0 right-0">
               <!-- 单个事件项 -->
               <div
-                v-for="event in dayViewEvents"
+                v-for="event in getEventsForDay(currentDate)"
                 :key="event.id"
                 class="day-event absolute rounded-sm px-2 py-1 overflow-hidden cursor-pointer"
                 :style="{
