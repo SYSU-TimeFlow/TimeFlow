@@ -1,3 +1,7 @@
+<!--
+    @ToDoList.vue
+    @description 待办事项的实现，能够实现将新建的日程添加到日历中，实现日历与待办事项的同步
+-->
 <template>
   <div class="todo-list p-8 max-w-3xl mx-auto">
     <h2 class="text-2xl font-bold mb-6 text-blue-700 flex items-center">
