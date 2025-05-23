@@ -34,6 +34,17 @@
         <!-- 视图标签文本，仅在侧边栏未折叠时显示 -->
         <span v-if="!uiStore.sidebarCollapsed">{{ view.label }}</span>
       </button>
+      <!-- 新增 ToDo 按钮 -->
+      <button
+        @click="$emit('change-view', 'todo')"
+        :class="[
+          'view-btn flex items-center py-2 px-3 rounded-lg cursor-pointer !rounded-button whitespace-nowrap',
+          currentView === 'todo' ? 'bg-blue-100 text-blue-600' : 'hover:bg-gray-200',
+        ]"
+      >
+        <i :class="`fas fa-list-check ${sidebarCollapsed ? '' : 'mr-3'}`"></i>
+        <span v-if="!sidebarCollapsed">ToDo</span>
+      </button>
     </div>
   </div>
 </template>
