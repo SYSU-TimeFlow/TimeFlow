@@ -94,9 +94,9 @@
 
 <script lang="ts" setup>
 import { ref, computed, onMounted } from "vue";
-import Sidebar from "./Sidebar.vue"; // 导入侧边栏组件
-import CalendarMain from "./CalendarMain.vue"; // 导入主日历区域组件
-import EventModal from "./EventModal.vue"; // 导入事件模态框组件
+import Sidebar from "../components/Sidebar.vue"; // 导入侧边栏组件
+import CalendarMain from "../components/CalendarMain.vue"; // 导入主日历区域组件
+import EventModal from "../components/EventModal.vue"; // 导入事件模态框组件
 
 // 定义日历视图选项
 const calendarViews = [
