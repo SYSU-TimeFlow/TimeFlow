@@ -1,51 +1,7 @@
 <template>
   <div class="todo-list p-8 max-w-7xl mx-auto">
     <h2 class="text-2xl font-semibold mb-4">ToDo 任务列表</h2>
-    <!-- 表单 -->
-    <form
-      @submit.prevent="handleAdd"
-      class="bg-gray-50 p-8 rounded mb-8 shadow flex flex-wrap gap-x-8 gap-y-4"
-    >
-      <div class="flex flex-col min-w-[180px]">
-        <label class="text-sm mb-1">类别</label>
-        <select v-model="form.categoryId" required class="border rounded px-4 py-2">
-          <option v-for="cat in categories" :key="cat.id" :value="cat.id">
-            {{ cat.name }}
-          </option>
-        </select>
-      </div>
-      <div class="flex flex-col min-w-[220px] flex-1">
-        <label class="text-sm mb-1">标题</label>
-        <input v-model="form.title" required class="border rounded px-4 py-2" />
-      </div>
-      <div class="flex flex-col min-w-[220px]">
-        <label class="text-sm mb-1">开始时间</label>
-        <input v-model="form.start" type="datetime-local" required class="border rounded px-4 py-2" />
-      </div>
-      <div class="flex flex-col min-w-[220px]">
-        <label class="text-sm mb-1">结束时间</label>
-        <input v-model="form.end" type="datetime-local" required class="border rounded px-4 py-2" />
-      </div>
-      <!-- 内容输入框单独一行，占满宽度 -->
-      <div class="flex flex-col w-full mt-2">
-        <label class="text-sm mb-1">内容</label>
-        <textarea v-model="form.description" rows="2" class="border rounded px-4 py-2 resize-none" />
-      </div>
-      <!-- 按钮和同步到日历选项单独一行，居左排列 -->
-      <div class="flex items-center w-full mt-2 gap-x-6">
-        <div class="flex items-center">
-          <input type="checkbox" v-model="form.addToCalendar" id="addToCalendar" class="mr-2" />
-          <label for="addToCalendar" class="text-sm">同步到日历</label>
-        </div>
-        <button
-          type="submit"
-          class="bg-blue-600 text-white px-8 py-2 rounded hover:bg-blue-700"
-        >
-          添加
-        </button>
-      </div>
-    </form>
-    <!-- ToDo 列表 -->
+    <!-- 表单已移除，只显示待办事项列表 -->
     <div v-if="todos.length === 0" class="text-gray-400">暂无待办事项</div>
     <ul>
       <li
