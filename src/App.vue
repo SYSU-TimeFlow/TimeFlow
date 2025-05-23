@@ -3,7 +3,7 @@
  @description: 该组件是 Vue 应用的入口点，包含了路由视图和其他全局组件。 
 -->
 <script setup>
-import CalendarApp from "./components/CalendarApp.vue";
+import CalendarApp from "./views/CalendarApp.vue";
 </script>
 
 <template>

@@ -8,7 +8,7 @@
 <template>
   <!-- 模态框容器，仅当 showEventModal 为 true 时显示 -->
   <div
-    v-if="showEventModal"
+    v-if="eventStore.showEventModal"
     class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
   >
     <!-- 事件模态框主体，阻止事件冒泡到父级 -->
@@ -19,15 +19,15 @@
       <!-- 模态框头部 -->
       <div
         class="modal-header p-4 border-b border-gray-200 flex justify-between items-center"
-        :style="{ backgroundColor: currentEvent.categoryColor + '33' }"
+        :style="{ backgroundColor: eventStore.currentEvent.categoryColor + '33' }"
       >
         <h3 class="text-lg font-semibold">
           <!-- 根据 isNewEvent 动态显示标题 -->
-          {{ isNewEvent ? "New Event" : "Edit Event" }}
+          {{ eventStore.isNewEvent ? "New Event" : "Edit Event" }}
         </h3>
         <!-- 关闭按钮 -->
         <button
-          @click="$emit('close-event-modal')"
+          @click="eventStore.closeEventModal"
           class="text-gray-500 hover:text-gray-700 cursor-pointer !rounded-button whitespace-nowrap"
         >
           <i class="fas fa-times"></i>
@@ -41,7 +41,7 @@
             >Title</label
           >
           <input
-            v-model="currentEvent.title"
+            v-model="eventStore.currentEvent.title"
             type="text"
             class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             placeholder="Event title"
@@ -54,7 +54,7 @@
               >Start</label
             >
             <input
-              v-model="currentEvent.start"
+              v-model="eventStore.currentEvent.start"
               type="datetime-local"
               class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
@@ -64,7 +64,7 @@
               >End</label
             >
             <input
-              v-model="currentEvent.end"
+              v-model="eventStore.currentEvent.end"
               type="datetime-local"
               class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
@@ -74,7 +74,7 @@
         <div class="form-group mb-4">
           <div class="flex items-center mb-2">
             <input
-              v-model="currentEvent.allDay"
+              v-model="eventStore.currentEvent.allDay"
               type="checkbox"
               id="allDay"
               class="mr-2"
@@ -92,18 +92,18 @@
           <div class="category-selector flex flex-wrap gap-2">
             <!-- 遍历分类列表并显示颜色按钮 -->
             <button
-              v-for="category in categories"
+              v-for="category in eventStore.categories"
               :key="category.id"
               :class="[
                 'category-option w-8 h-8 rounded-full border-2',
-                currentEvent.categoryId === category.id // 当前选中分类高亮显示
+                eventStore.currentEvent.categoryId === category.id // 当前选中分类高亮显示
                   ? 'border-gray-800'
                   : 'border-transparent',
               ]"
               :style="{ backgroundColor: category.color }"
               @click="
-                currentEvent.categoryId = category.id; // 更新当前事件的分类ID
-                currentEvent.categoryColor = category.color; // 更新当前事件的分类颜色
+                eventStore.currentEvent.categoryId = category.id; // 更新当前事件的分类ID
+                eventStore.currentEvent.categoryColor = category.color; // 更新当前事件的分类颜色
               "
               class="cursor-pointer !rounded-button whitespace-nowrap"
             ></button>
@@ -115,7 +115,7 @@
             >Description</label
           >
           <textarea
-            v-model="currentEvent.description"
+            v-model="eventStore.currentEvent.description"
             class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent h-24"
             placeholder="Event description"
           ></textarea>
@@ -124,7 +124,7 @@
         <div class="form-group mb-4">
           <div class="flex items-center mb-2">
             <input
-              v-model="currentEvent.syncWithSystem"
+              v-model="eventStore.currentEvent.syncWithSystem"
               type="checkbox"
               id="syncWithSystem"
               class="mr-2"
@@ -141,22 +141,22 @@
       >
         <!-- 删除按钮，仅在编辑事件时显示 (isNewEvent 为 false) -->
         <button
-          v-if="!isNewEvent"
-          @click="$emit('delete-event')"
+          v-if="!eventStore.isNewEvent"
+          @click="eventStore.deleteEvent"
           class="py-2 px-4 bg-red-600 text-white rounded-lg hover:bg-red-700 cursor-pointer !rounded-button whitespace-nowrap"
         >
           Delete
         </button>
         <!-- 取消按钮 -->
         <button
-          @click="$emit('close-event-modal')"
+          @click="eventStore.closeEventModal"
           class="py-2 px-4 border border-gray-300 rounded-lg hover:bg-gray-100 cursor-pointer !rounded-button whitespace-nowrap"
         >
           Cancel
         </button>
         <!-- 保存按钮 -->
         <button
-          @click="$emit('save-event')"
+          @click="eventStore.saveEvent"
           class="py-2 px-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 cursor-pointer !rounded-button whitespace-nowrap"
         >
           Save
@@ -167,38 +167,10 @@
 </template>
 
 <script setup>
-/**
- * @typedef {Object} EventData
- * @property {string} [id] - 事件ID (编辑时存在)
- * @property {string} title - 事件标题
- * @property {string} start - 事件开始时间 (ISO 格式)
- * @property {string} end - 事件结束时间 (ISO 格式)
- * @property {boolean} allDay - 是否为全天事件
- * @property {string} categoryId - 分类ID
- * @property {string} categoryColor - 分类颜色
- * @property {string} description - 事件描述
- * @property {boolean} syncWithSystem - 是否同步到系统日历
- */
+import { useEventStore } from '../stores/event';
 
-/**
- * @typedef {Object} Category
- * @property {string} id - 分类ID
- * @property {string} name - 分类名称
- * @property {string} color - 分类颜色 (十六进制)
- */
-
-defineProps({
-  showEventModal: Boolean, // 控制模态框的显示与隐藏
-  isNewEvent: Boolean, // 是否为新事件
-  currentEvent: Object, // 当前事件数据 (创建或编辑)
-  categories: Array, // 事件分类列表
-});
-
-defineEmits([
-  "close-event-modal", // 关闭模态框事件
-  "save-event", // 保存事件事件
-  "delete-event", // 删除事件事件
-]);
+// 使用Pinia仓库
+const eventStore = useEventStore();
 </script>
 
 <style scoped>
