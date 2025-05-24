@@ -212,6 +212,8 @@
                 class="hour-cell h-16 border-b border-r border-gray-200 relative hover:!bg-gray-50 cursor-pointer select-none"
                 style="z-index: 1"
                 @click="uiStore.handleHourClick(day.date, hour - 1)"
+                @dragover.prevent
+                @drop="uiStore.handleDrop($event, {...day, hour: hour - 1})"
               ></div>
             </div>
             <!-- 事件渲染区域 -->
@@ -239,6 +241,8 @@
                   zIndex: 10,
                 }"
                 @click.stop="eventStore.openEventDetails(event)"
+                draggable="true"
+                @dragstart="uiStore.handleDragStart($event, event)"
               >
                 <div
                   class="event-time text-xs font-medium"
@@ -300,6 +304,8 @@
                 :key="hour"
                 class="hour-cell h-16 border-b border-gray-200 relative"
                 @click="uiStore.handleHourClick(uiStore.currentDate, hour - 1)"
+                @dragover.prevent
+                @drop="uiStore.handleDrop($event, {date: uiStore.currentDate, hour: hour - 1})"
               ></div>
             </div>
             <!-- 事件渲染区域 -->
@@ -310,15 +316,17 @@
                 :key="event.id"
                 class="day-event absolute rounded-sm px-2 py-1 overflow-hidden cursor-pointer"
                 :style="{
-                  top: `${uiStore.calculateEventTop(event)}px`, // 计算事件的垂直位置
-                  height: `${uiStore.calculateEventHeight(event)}px`, // 计算事件的高度
+                  top: `${uiStore.calculateEventTop(event)}px`,
+                  height: `${uiStore.calculateEventHeight(event)}px`,
                   left: '4px',
                   right: '4px',
                   backgroundColor: event.categoryColor + '33',
                   borderLeft: `3px solid ${event.categoryColor}`,
-                  zIndex: '10', // 确保事件在网格线上方
+                  zIndex: '10',
                 }"
                 @click.stop="eventStore.openEventDetails(event)"
+                draggable="true"
+                @dragstart="uiStore.handleDragStart($event, event)"
               >
                 <div
                   class="event-time text-xs font-medium"
