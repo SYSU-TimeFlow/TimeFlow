@@ -2,7 +2,7 @@
   @component: CalendarApp
   @description: App主界面，承载其他子页面。包括侧边栏、主日历视图（月、周、日）、事件创建/编辑模态框以及各种交互功能。
   @author: liaohr
-  @modified: huzch
+  @modified: duxuan
   @date: 2025-05-24
 -->
 
@@ -66,12 +66,7 @@
     <EventModal />
 
     <!-- 设置模态框，仅在showSettings为true时显示 -->
-    <div
-      v-if="settingStore.showSettings"
-      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
-    >
-      <Setting @close="settingStore.closeSettings" />
-    </div>
+    <Setting />
   </div>
 </template>
 
