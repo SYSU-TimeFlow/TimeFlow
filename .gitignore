@@ -8,6 +8,7 @@ pnpm-debug.log*
 lerna-debug.log*
 
 pnpm-lock.yaml
+pnpm-workspace.yaml
 package-lock.json
 
 node_modules

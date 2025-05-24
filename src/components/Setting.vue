@@ -1,9 +1,10 @@
 <!--
   @component: Setting
   @description: 设置页面组件，提供主题、字号、图标风格、通知、声音、日期时间、语言等个性化选项的配置界面。
-  用户可通过本组件自定义应用外观和行为，所有设置项统一收集并可持久化保存。
+  用户可通过本组件自定义应用外观和行为，所有设置项统一使用Pinia进行状态管理。
   @author: lijzh89
-  @date: 2025-05-23
+  @modified: huzch
+  @date: 2025-05-24
 -->
 
 <template>
@@ -48,7 +49,7 @@
         主题
       </span>
       <select
-        v-model="themeMode"
+        v-model="settingStore.themeMode"
         class="border border-gray-300 rounded-md px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
       >
         <option value="light">亮</option>
@@ -86,7 +87,7 @@
         字号
       </span>
       <select
-        v-model="fontSize"
+        v-model="settingStore.fontSize"
         class="border border-gray-300 rounded-md px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
       >
         <option value="small">小</option>
@@ -114,7 +115,7 @@
         图标
       </span>
       <select
-        v-model="iconStyle"
+        v-model="settingStore.iconStyle"
         class="border border-gray-300 rounded-md px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
       >
         <option value="default">默认</option>
@@ -142,7 +143,7 @@
       </span>
       <input
         type="checkbox"
-        v-model="notifications"
+        v-model="settingStore.notifications"
         class="toggle-checkbox accent-blue-600"
       />
     </div>
@@ -165,7 +166,7 @@
       </span>
       <input
         type="checkbox"
-        v-model="notificationSound"
+        v-model="settingStore.notificationSound"
         class="toggle-checkbox accent-blue-600"
       />
     </div>
@@ -189,7 +190,7 @@
       </span>
       <input
         type="checkbox"
-        v-model="soundEffect"
+        v-model="settingStore.soundEffect"
         class="toggle-checkbox accent-blue-600"
       />
     </div>
@@ -232,7 +233,7 @@
         每周起始日
       </span>
       <select
-        v-model="weekStart"
+        v-model="settingStore.weekStart"
         class="border border-gray-300 rounded-md px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
       >
         <option value="0">星期日</option>
@@ -265,7 +266,7 @@
       </span>
       <input
         type="checkbox"
-        v-model="hour24"
+        v-model="settingStore.hour24"
         class="toggle-checkbox accent-blue-600"
       />
     </div>
@@ -320,7 +321,7 @@
       </span>
       <input
         type="checkbox"
-        v-model="showLunar"
+        v-model="settingStore.showLunar"
         class="toggle-checkbox accent-blue-600"
       />
     </div>
@@ -355,7 +356,7 @@
         语言
       </span>
       <select
-        v-model="language"
+        v-model="settingStore.language"
         class="border border-gray-300 rounded-md px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
       >
         <option value="zh-CN">简体中文</option>
@@ -392,7 +393,7 @@
     <!-- 保存按钮 -->
     <button
       class="mt-6 w-full py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition cursor-pointer !rounded-button whitespace-nowrap font-medium"
-      @click="saveSettings"
+      @click="saveAndClose"
     >
       保存设置
     </button>
@@ -410,80 +411,23 @@
 </template>
 
 <script setup>
-/*
-  @section: 变量与响应式数据
-  说明：定义所有设置项的响应式变量，并统一收集到 settings 对象，便于保存和读取。
-*/
-import { ref, computed, onMounted } from "vue";
+import { ref } from "vue";
+import { useSettingStore } from '../stores/setting';
 
-const themeMode = ref("light"); // 主题模式（亮/暗）
-const fontSize = ref("medium"); // 字号
-const iconStyle = ref("default"); // 图标风格
-const notifications = ref(true); // 通知开关
-const notificationSound = ref(false); // 通知声音开关
-const soundEffect = ref(false); // 声效开关
-const hour24 = ref(false); // 24小时制
-const showLunar = ref(false); // 农历显示
-const weekStart = ref("0"); // 每周起始日
-const language = ref("zh-CN"); // 语言
-
+// 使用Pinia仓库
+const settingStore = useSettingStore();
 const emit = defineEmits(["close"]);
 const showToast = ref(false);
 
-/*
-  @section: 统一设置项收集
-  说明：将所有设置项统一收集到 settings 变量，便于整体保存和读取。
-*/
-const settings = computed(() => ({
-  themeMode: themeMode.value,
-  fontSize: fontSize.value,
-  iconStyle: iconStyle.value,
-  notifications: notifications.value,
-  notificationSound: notificationSound.value,
-  soundEffect: soundEffect.value,
-  hour24: hour24.value,
-  showLunar: showLunar.value,
-  weekStart: weekStart.value,
-  language: language.value,
-}));
-
-/*
-  @section: 打开设置界面时读取已保存的设置
-  说明：组件挂载后读取 localStorage 中的设置项，如果存在则填充到表单中。
-*/
-onMounted(() => {
-  const saved = localStorage.getItem("settings");
-  if (saved) {
-    try {
-      const obj = JSON.parse(saved);
-      if (obj.themeMode) themeMode.value = obj.themeMode;
-      if (obj.fontSize) fontSize.value = obj.fontSize;
-      if (obj.iconStyle) iconStyle.value = obj.iconStyle;
-      if (typeof obj.notifications === "boolean")
-        notifications.value = obj.notifications;
-      if (typeof obj.notificationSound === "boolean")
-        notificationSound.value = obj.notificationSound;
-      if (typeof obj.soundEffect === "boolean")
-        soundEffect.value = obj.soundEffect;
-      if (typeof obj.hour24 === "boolean") hour24.value = obj.hour24;
-      if (typeof obj.showLunar === "boolean") showLunar.value = obj.showLunar;
-      if (obj.weekStart !== undefined) weekStart.value = obj.weekStart;
-      if (obj.language) language.value = obj.language;
-    } catch (e) {
-      // 解析失败忽略
-    }
-  }
-});
-
-/*
-  @section: 保存设置方法
-  说明：将所有设置项保存到 localStorage，并弹出自动消失的提示，随后自动关闭设置界面。
-*/
-function saveSettings() {
-  // 你可以直接使用 settings.value 获取所有设置项
-  // 例如保存到 localStorage
-  localStorage.setItem("settings", JSON.stringify(settings.value));
-
+/**
+ * 保存设置并关闭窗口
+ * 显示一个提示，然后在短暂延迟后关闭设置界面
+ */
+function saveAndClose() {
+  // 使用store的方法保存设置
+  settingStore.saveSettings();
+  
+  // 显示提示并延迟关闭
   showToast.value = true;
   setTimeout(() => {
     emit("close");

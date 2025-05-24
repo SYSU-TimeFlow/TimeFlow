@@ -68,7 +68,7 @@
       <!-- 星期头部 -->
       <div class="grid grid-cols-7 mb-2">
         <div
-          v-for="day in weekDays"
+          v-for="day in uiStore.weekDays"
           :key="day"
           class="text-sm font-medium text-gray-500 pb-2 text-center"
         >
@@ -125,7 +125,7 @@
           >
             <!-- 单个事件项 -->
             <div
-              v-for="event in getEventsForDay(day.date)"
+              v-for="event in eventStore.getEventsForDay(day.date)"
               :key="event.id"
               :class="[
                 'event-item text-xs p-1 rounded overflow-hidden cursor-pointer',
@@ -226,7 +226,7 @@
             >
               <!-- 单个事件项 -->
               <div
-                v-for="event in getEventsForDay(day.date)"
+                v-for="event in eventStore.getEventsForDay(day.date)"
                 :key="event.id"
                 class="day-event absolute rounded-sm px-2 py-1 overflow-hidden cursor-pointer"
                 :style="{
@@ -306,7 +306,7 @@
             <div class="events absolute top-0 left-0 right-0">
               <!-- 单个事件项 -->
               <div
-                v-for="event in getEventsForDay(uiStore.currentDate)"
+                v-for="event in eventStore.getEventsForDay(uiStore.currentDate)"
                 :key="event.id"
                 class="day-event absolute rounded-sm px-2 py-1 overflow-hidden cursor-pointer"
                 :style="{
@@ -357,79 +357,6 @@ import { useEventStore } from "../stores/event";
 // 使用 Pinia 仓库
 const uiStore = useUiStore();
 const eventStore = useEventStore();
-
-// 星期名称数组，用于月视图头部
-const weekDays = [
-  "Sunday",
-  "Monday",
-  "Tuesday",
-  "Wednesday",
-  "Thursday",
-  "Friday",
-  "Saturday",
-];
-
-/**
- * @function getEventsForDay
- * @description 获取指定日期的所有事件。
- * @param {Date} date - 需要获取事件的日期对象。
- * @returns {Array} - 过滤并排序后的事件数组。
- */
-function getEventsForDay(date) {
-  if (!date) return [];
-
-  // 获取当前激活的分类ID数组
-  const activeCategoryIds = getActiveCategoryIds();
-
-  // 设置查询日期的开始和结束时间（00:00:00 到 23:59:59）
-  const start = new Date(date);
-  start.setHours(0, 0, 0, 0);
-  const end = new Date(date);
-  end.setHours(23, 59, 59, 999);
-
-  // 过滤事件：
-  // 1. 事件开始时间在查询日期内
-  // 2. 事件结束时间在查询日期内
-  // 3. 事件跨越查询日期（事件开始于查询日期之前，结束于查询日期之后）
-  const filteredEvents = eventStore.events
-    .filter((event) => {
-      const eventStart = new Date(event.start);
-      const eventEnd = new Date(event.end);
-      // 先检查事件日期是否符合条件
-      const dateMatches =
-        (eventStart >= start && eventStart <= end) || // 条件1
-        (eventEnd >= start && eventEnd <= end) || // 条件2
-        (eventStart <= start && eventEnd >= end); // 条件3
-      // 再检查事件分类是否被选中
-      const categoryMatches =
-        activeCategoryIds.length === 0 ||
-        activeCategoryIds.includes(event.categoryId);
-      // 同时满足日期和分类两个条件
-      return dateMatches && categoryMatches;
-    })
-    // 排序事件：首先按开始时间升序，如果开始时间相同，则按结束时间升序
-    .sort((a, b) => {
-      const aStart = new Date(a.start).getTime();
-      const bStart = new Date(b.start).getTime();
-      if (aStart === bStart) {
-        return new Date(a.end).getTime() - new Date(b.end).getTime();
-      }
-      return aStart - bStart;
-    });
-
-  return filteredEvents;
-}
-
-/**
- * @function getActiveCategoryIds
- * @description 获取当前所有激活状态的分类ID数组
- * @returns {Array<string|number>} 激活状态的分类ID数组
- */
-function getActiveCategoryIds() {
-  return eventStore.categories
-    .filter((category) => category.active)
-    .map((category) => category.id);
-}
 </script>
 
 <style scoped>
