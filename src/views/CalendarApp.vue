@@ -3,7 +3,7 @@
   @description: App主界面，承载其他子页面。包括侧边栏、主日历视图（月、周、日）、事件创建/编辑模态框以及各种交互功能。
   @author: liaohr
   @modified: huzch
-  @date: 2025-05-23
+  @date: 2025-05-24
 -->
 
 <template>
@@ -22,9 +22,13 @@
           <i class="fas fa-bell"></i>
           <!-- 通知图标 -->
         </button>
-        <button class="text-gray-500 hover:text-gray-700 cursor-pointer">
+        <!-- 设置按钮，添加点击事件 -->
+        <button
+          @click="settingStore.toggleSettings"
+          class="text-gray-500 hover:text-gray-700 cursor-pointer"
+          title="打开设置"
+        >
           <i class="fas fa-cog"></i>
-          <!-- 设置图标 -->
         </button>
         <div class="window-actions flex space-x-2">
           <button
@@ -60,15 +64,25 @@
     </div>
     <!-- 事件模态框组件 (用于创建/编辑事件) -->
     <EventModal />
+
+    <!-- 设置模态框，仅在showSettings为true时显示 -->
+    <div
+      v-if="settingStore.showSettings"
+      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+    >
+      <Setting @close="settingStore.closeSettings" />
+    </div>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { onMounted } from "vue";
+import { onMounted, ref } from "vue";
 import Sidebar from "../components/Sidebar.vue";
 import CalendarMain from "../components/CalendarMain.vue";
 import EventModal from "../components/EventModal.vue";
+import Setting from "../components/Setting.vue"; // 导入设置组件
 import { useUiStore } from "../stores/ui";
+import { useSettingStore } from "../stores/setting";
 
 // 引入preload中定义的electronAPI
 // 该API用于与Electron主进程进行通信
@@ -76,10 +90,15 @@ const electronAPI = (window as any).electronAPI;
 
 // 使用UI仓库仅用于初始化
 const uiStore = useUiStore();
+const settingStore = useSettingStore();
 
 // 生命周期钩子
 onMounted(() => {
-  uiStore.goToToday(); // 组件挂载后，默认显示今天的日期
+  // 加载设置
+  settingStore.loadSettings();
+
+  // 组件挂载后，默认显示今天的日期
+  uiStore.goToToday();
 });
 </script>
 

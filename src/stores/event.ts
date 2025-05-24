@@ -1,7 +1,7 @@
-import { defineStore } from 'pinia';
-import { ref, computed } from 'vue';
+import { defineStore } from "pinia";
+import { ref, computed } from "vue";
 
-export const useEventStore = defineStore('event', () => {
+export const useEventStore = defineStore("event", () => {
   // 定义事件分类
   const categories = ref([
     { id: 1, name: "工作", color: "#4f46e5", active: true },
@@ -87,6 +87,10 @@ export const useEventStore = defineStore('event', () => {
 
   // 获取指定日期的所有事件
   function getEventsForDay(date: Date): any[] {
+    const activeCategoryIds = categories.value
+      .filter((category) => category.active)
+      .map((category) => category.id);
+
     const start = new Date(date);
     start.setHours(0, 0, 0, 0);
     const end = new Date(date);
@@ -95,11 +99,17 @@ export const useEventStore = defineStore('event', () => {
       .filter((event) => {
         const eventStart = new Date(event.start);
         const eventEnd = new Date(event.end);
-        return (
-          (eventStart >= start && eventStart <= end) ||
-          (eventEnd >= start && eventEnd <= end) ||
-          (eventStart <= start && eventEnd >= end)
-        );
+        // 先检查事件日期是否符合条件
+        const dateMatches =
+          (eventStart >= start && eventStart <= end) || // 条件1
+          (eventEnd >= start && eventEnd <= end) || // 条件2
+          (eventStart <= start && eventEnd >= end); // 条件3
+        // 再检查事件分类是否被选中
+        const categoryMatches =
+          activeCategoryIds.length === 0 ||
+          activeCategoryIds.includes(event.categoryId);
+        // 同时满足日期和分类两个条件
+        return dateMatches && categoryMatches;
       })
       .sort((a, b) => {
         const aStart = new Date(a.start).getTime();
@@ -226,6 +236,6 @@ export const useEventStore = defineStore('event', () => {
     closeEventModal,
     saveEvent,
     deleteEvent,
-    toggleCategory
+    toggleCategory,
   };
 });
