@@ -87,8 +87,7 @@
             day.isToday ? 'today' : '', // 如果是今天，添加 'today' 类
             day.isWeekend ? 'weekend' : '', // 如果是周末，添加 'weekend' 类
           ]"
-          @click="uiStore.handleDayClick(day)"
-          @dblclick="uiStore.handleDayClick(day, true)"
+          @click="uiStore.handleDayClick(day, true)"
           @dragover.prevent
           @drop="uiStore.handleDrop($event, day)"
         >
@@ -172,18 +171,18 @@
       <!-- 周视图网格布局 -->
       <div class="grid grid-cols-1 h-full border border-gray-200">
         <!-- 周视图头部，显示本周7天 -->
-        <div class="grid grid-cols-8">
+        <div class="grid grid-cols-[80px_repeat(7,1fr)]">
           <!-- 左侧空白，用于对齐时间轴 -->
           <div class="bg-white"></div>
           <!-- 渲染每一天的表头（星期几和日期） -->
           <div
             v-for="(day, idx) in uiStore.weekViewDays"
             :key="idx"
-            class="day-header text-center p-2 border-b border-gray-200 bg-white"
+            class="day-header flex flex-col items-center justify-center p-2 border-b border-gray-200 bg-white"
           >
             <div class="text-sm font-medium">{{ day.dayName }}</div>
             <div
-              class="text-lg rounded-full w-8 h-8 flex items-center justify-center mx-auto"
+              class="text-lg rounded-full w-8 h-8 flex items-center justify-center"
               :class="{ 'bg-blue-600 text-white': day.isToday }"
             >
               {{ day.dayNumber }}
@@ -210,8 +209,9 @@
               <div
                 v-for="(day, idx) in uiStore.weekViewDays"
                 :key="idx"
-                class="hour-cell h-16 border-b border-gray-200 relative hover:bg-gray-50"
-                @click="uiStore.handleHourClick(day, hour - 1)"
+                class="hour-cell h-16 border-b border-r border-gray-200 relative hover:!bg-gray-50 cursor-pointer select-none"
+                style="z-index: 1"
+                @click="uiStore.handleHourClick(day.date, hour - 1)"
               ></div>
             </div>
             <!-- 事件渲染区域 -->
@@ -230,13 +230,13 @@
                 :key="event.id"
                 class="day-event absolute rounded-sm px-2 py-1 overflow-hidden cursor-pointer"
                 :style="{
-                  top: `${uiStore.calculateEventTop(event)}px`, // 计算事件的垂直位置
-                  height: `${uiStore.calculateEventHeight(event)}px`, // 计算事件的高度
+                  top: `${uiStore.calculateEventTop(event)}px`,
+                  height: `${uiStore.calculateEventHeight(event)}px`,
                   left: '4px',
                   right: '4px',
                   backgroundColor: event.categoryColor + '33',
                   borderLeft: `3px solid ${event.categoryColor}`,
-                  zIndex: 10, // 保证事件渲染在网格之上
+                  zIndex: 10,
                 }"
                 @click.stop="eventStore.openEventDetails(event)"
               >

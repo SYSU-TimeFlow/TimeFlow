@@ -10,6 +10,7 @@
   <div
     v-if="eventStore.showEventModal"
     class="fixed inset-0 bg-transparent backdrop-blur-sm flex items-center justify-center z-50"
+    @click="eventStore.closeEventModal"
   >
     <!-- 事件模态框主体，阻止事件冒泡到父级 -->
     <div
