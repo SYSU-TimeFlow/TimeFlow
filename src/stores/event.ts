@@ -8,7 +8,7 @@ export const useEventStore = defineStore("event", () => {
     { id: 2, name: "个人", color: "#10b981", active: true },
     { id: 3, name: "家庭", color: "#f59e0b", active: true },
     { id: 4, name: "健康", color: "#ef4444", active: true },
-    { id: 5, name: "其他", color: "#8b5cf6", active: true },
+    { id: 5, name: "其他", color: "#60a5fa", active: true },
   ]);
 
   // 示例事件数据
