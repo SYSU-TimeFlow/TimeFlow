@@ -105,9 +105,7 @@ export const useEventStore = defineStore("event", () => {
           (eventEnd >= start && eventEnd <= end) || // 条件2
           (eventStart <= start && eventEnd >= end); // 条件3
         // 再检查事件分类是否被选中
-        const categoryMatches =
-          activeCategoryIds.length === 0 ||
-          activeCategoryIds.includes(event.categoryId);
+        const categoryMatches = activeCategoryIds.includes(event.categoryId);
         // 同时满足日期和分类两个条件
         return dateMatches && categoryMatches;
       })
