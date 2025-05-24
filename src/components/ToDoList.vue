@@ -10,52 +10,6 @@
       <h1 class="text-3xl font-bold text-indigo-600 text-center mb-10">
         To-Do
       </h1>
-      <!-- 空状态提示：当没有待办事项时显示 -->
-      <div
-        v-if="todoStore.filteredTodos.length === 0"
-        class="text-gray-400 text-center py-12"
-      >
-        <i class="fas fa-inbox text-3xl mb-2"></i>
-        {{ todoStore.emptyStateMessage }}
-      </div>
-
-      <!-- 新建 todo 事项的表单 -->
-      <div class="w-full flex gap-3 mb-12 items-end">
-        <!-- 任务标题输入框 -->
-        <div class="flex-1">
-          <label class="block text-sm font-medium text-gray-700 mb-1"
-            >任务标题
-          </label>
-          <!-- 回车键触发添加 todo -->
-          <input
-            v-model="newTodoTitle"
-            placeholder="输入待办事项标题"
-            class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
-            @keyup.enter="addNewTodo"
-          />
-        </div>
-
-        <!-- 截止日期选择器 -->
-        <div class="min-w-[180px]">
-          <label class="block text-sm font-medium text-gray-700 mb-1"
-            >截止日期
-          </label>
-          <input
-            v-model="newTodoDueDate"
-            type="date"
-            class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
-          />
-        </div>
-
-        <!-- 添加按钮 -->
-        <button
-          @click="addNewTodo"
-          class="bg-sky-400 hover:bg-sky-600 text-white font-semibold px-4 py-2 rounded-[12px] transition-colors duration-200 flex items-center gap-2 shadow-md hover:shadow-lg cursor-pointer"
-        >
-          <i class="fas fa-plus text-lg"></i>
-          <span>添加</span>
-        </button>
-      </div>
 
       <!-- 过滤选项 -->
       <div class="w-full mb-6 flex justify-center gap-4">
@@ -114,7 +68,7 @@
           <div class="flex gap-2">
             <!-- 编辑按钮 -->
             <button
-              @click.stop="openEditModal(todo)"
+              @click.stop="todoStore.openEditModal(todo)"
               class="p-2 text-blue-500 hover:bg-blue-50 rounded-lg transition"
             >
               <i class="fas fa-pen fa-sm"></i>
@@ -122,13 +76,22 @@
 
             <!-- 删除按钮 -->
             <button
-              @click.stop="removeTodo(todo.id)"
+              @click.stop="todoStore.removeTodo(todo.id)"
               class="p-2 text-red-500 hover:bg-red-50 rounded-lg transition"
             >
               <i class="fas fa-trash-alt fa-sm"></i>
             </button>
           </div>
         </div>
+      </div>
+
+      <!-- 空状态提示：当没有待办事项时显示 -->
+      <div
+        v-if="todoStore.filteredTodos.length === 0"
+        class="text-gray-400 text-center py-12"
+      >
+        <i class="fas fa-inbox text-3xl mb-2"></i>
+        {{ todoStore.emptyStateMessage }}
       </div>
     </div>
   </div>
@@ -140,68 +103,8 @@ import { useTodoStore } from "../stores/todoStore";
 import { storeToRefs } from "pinia";
 
 const todoStore = useTodoStore();
-const { allTodos } = storeToRefs(todoStore);
-const { addTodo, removeTodo, toggleTodo, updateTodo } = todoStore;
-
-const newTodoTitle = ref("");
-// 默认设置为当天23:59:59
-const newTodoDueDate = ref("");
-
-// 设置默认日期为当天24点
-const setDefaultDueDate = () => {
-  const today = new Date();
-  today.setHours(23, 59, 59, 0);
-  newTodoDueDate.value = todoStore.formatDateForInput(today);
-};
-
-// 编辑相关状态
-const showEditModal = ref(false);
-const editingTodo = ref({
-  id: 0,
-  title: "",
-  dueDate: "",
-  completed: false,
-});
 
 onMounted(() => {
-  setDefaultDueDate();
+  todoStore.setDefaultDueDate();
 });
-
-const addNewTodo = () => {
-  if (newTodoTitle.value.trim() && newTodoDueDate.value) {
-    // 将时间设置为23:59:59
-    const dueDate = new Date(newTodoDueDate.value);
-    dueDate.setHours(23, 59, 59, 0);
-
-    addTodo(newTodoTitle.value, dueDate);
-    newTodoTitle.value = "";
-    setDefaultDueDate(); // 重置为默认日期
-  }
-};
-
-const openEditModal = (todo: TodoItem) => {
-  editingTodo.value = {
-    id: todo.id,
-    title: todo.title,
-    dueDate: formatDateForInput(todo.dueDate),
-    completed: todo.completed,
-  };
-  showEditModal.value = true;
-};
-
-const closeEditModal = () => {
-  showEditModal.value = false;
-};
-
-const saveEdit = () => {
-  // 将时间设置为23:59:59
-  const dueDate = new Date(editingTodo.value.dueDate);
-  dueDate.setHours(23, 59, 59, 0);
-
-  updateTodo(editingTodo.value.id, {
-    title: editingTodo.value.title,
-    dueDate: dueDate,
-  });
-  closeEditModal();
-};
 </script>
