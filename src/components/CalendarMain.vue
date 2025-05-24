@@ -83,7 +83,7 @@
           :key="index"
           :class="[
             'calendar-day border border-gray-200 h-[180px] p-1 relative overflow-hidden',
-            day.isCurrentMonth ? 'bg-white' : 'bg-gray-50', // 根据是否当前月份设置背景色
+            day.isCurrentMonth ? 'bg-white' : 'bg-gray-200', // 修改这里
             day.isToday ? 'today' : '', // 如果是今天，添加 'today' 类
             day.isWeekend ? 'weekend' : '', // 如果是周末，添加 'weekend' 类
           ]"
