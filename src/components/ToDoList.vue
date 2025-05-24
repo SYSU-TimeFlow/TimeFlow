@@ -6,21 +6,27 @@
 <template>
   <div class="min-h-screen bg-gray-50 p-6 w-full">
     <div class="max-w-2xl mx-auto flex flex-col items-center">
-      <!-- 标题 -->
+      <!-- 标题区 -->
       <h1 class="text-3xl font-bold text-indigo-600 text-center mb-10">
         To-Do
       </h1>
-      <div v-if="allTodos.length === 0" class="text-gray-400 text-center py-12">
+      <!-- 空状态提示：当没有待办事项时显示 -->
+      <div
+        v-if="todoStore.filteredTodos.length === 0"
+        class="text-gray-400 text-center py-12"
+      >
         <i class="fas fa-inbox text-3xl mb-2"></i>
-        <div>暂无待办事项</div>
+        {{ todoStore.emptyStateMessage }}
       </div>
 
-      <!-- 新建 Todo 事项的表单 - 宽度与列表一致 -->
+      <!-- 新建 todo 事项的表单 -->
       <div class="w-full flex gap-3 mb-12 items-end">
+        <!-- 任务标题输入框 -->
         <div class="flex-1">
           <label class="block text-sm font-medium text-gray-700 mb-1"
             >任务标题
           </label>
+          <!-- 回车键触发添加 todo -->
           <input
             v-model="newTodoTitle"
             placeholder="输入待办事项标题"
@@ -28,6 +34,8 @@
             @keyup.enter="addNewTodo"
           />
         </div>
+
+        <!-- 截止日期选择器 -->
         <div class="min-w-[180px]">
           <label class="block text-sm font-medium text-gray-700 mb-1"
             >截止日期
@@ -38,6 +46,8 @@
             class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
           />
         </div>
+
+        <!-- 添加按钮 -->
         <button
           @click="addNewTodo"
           class="bg-sky-400 hover:bg-sky-600 text-white font-semibold px-4 py-2 rounded-[12px] transition-colors duration-200 flex items-center gap-2 shadow-md hover:shadow-lg cursor-pointer"
@@ -47,12 +57,29 @@
         </button>
       </div>
 
+      <!-- 过滤选项 -->
+      <div class="w-full mb-6 flex justify-center gap-4">
+        <button
+          v-for="filter in todoStore.filters"
+          :key="filter.value"
+          @click="todoStore.setFilter(filter.value)"
+          class="px-4 py-2 rounded-xl transition"
+          :class="{
+            'bg-indigo-600 text-white': todoStore.activeFilter === filter.value,
+            'bg-gray-100 text-gray-700 hover:bg-gray-200':
+              todoStore.activeFilter !== filter.value,
+          }"
+        >
+          {{ filter.label }}
+        </button>
+      </div>
+
       <!-- 待办事项列表 -->
       <div class="w-full space-y-4">
         <div
-          v-for="todo in allTodos"
+          v-for="todo in todoStore.filteredTodos"
           :key="todo.id"
-          @click="toggleTodo(todo.id)"
+          @click="todoStore.toggleTodo(todo.id)"
           class="flex justify-between items-center p-5 bg-white rounded-2xl shadow-sm hover:shadow-md transition cursor-pointer border-l-4"
           :class="{
             'border-red-400': todo.id % 3 === 0,
@@ -62,26 +89,30 @@
           }"
         >
           <div class="flex items-center gap-4">
+            <!-- 完成状态复选框 -->
             <input
               type="checkbox"
               :checked="todo.completed"
-              @click.stop="toggleTodo(todo.id)"
+              @click.stop="todoStore.toggleTodo(todo.id)"
               class="w-5 h-5 text-indigo-600 rounded focus:ring-indigo-500"
             />
             <div>
+              <!-- 任务标题 - 完成时显示删除线 -->
               <div
                 class="font-medium"
                 :class="{ 'line-through text-gray-500': todo.completed }"
               >
                 {{ todo.title }}
               </div>
+              <!-- 格式化显示的截止日期 -->
               <div class="text-sm text-gray-500">
-                {{ formatDate(todo.dueDate) }}
+                {{ todoStore.formatDateForDisplay(todo.dueDate) }}
               </div>
             </div>
           </div>
 
           <div class="flex gap-2">
+            <!-- 编辑按钮 -->
             <button
               @click.stop="openEditModal(todo)"
               class="p-2 text-blue-500 hover:bg-blue-50 rounded-lg transition"
@@ -89,67 +120,12 @@
               <i class="fas fa-pen fa-sm"></i>
             </button>
 
+            <!-- 删除按钮 -->
             <button
               @click.stop="removeTodo(todo.id)"
               class="p-2 text-red-500 hover:bg-red-50 rounded-lg transition"
             >
-              <!-- 实心垃圾桶图标 -->
               <i class="fas fa-trash-alt fa-sm"></i>
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- 编辑模态框 -->
-    <div
-      v-if="showEditModal"
-      class="fixed inset-0 z-50 flex items-center justify-center p-4"
-    >
-      <!-- 高斯模糊背景 -->
-      <div
-        class="absolute inset-0 bg-transparent bg-opacity-30 backdrop-blur-sm"
-        @click="closeEditModal"
-      ></div>
-
-      <!-- 模态框内容 -->
-      <div class="relative bg-white rounded-2xl shadow-xl w-full max-w-md p-6">
-        <h3 class="text-xl font-bold text-indigo-600 mb-4">编辑待办事项</h3>
-
-        <div class="space-y-4">
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1"
-              >任务标题
-            </label>
-            <input
-              v-model="editingTodo.title"
-              class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
-            />
-          </div>
-
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1"
-              >截止日期
-            </label>
-            <input
-              v-model="editingTodo.dueDate"
-              type="date"
-              class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
-            />
-          </div>
-
-          <div class="flex justify-end gap-3 pt-4">
-            <button
-              @click="closeEditModal"
-              class="px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-xl transition"
-            >
-              取消
-            </button>
-            <button
-              @click="saveEdit"
-              class="px-4 py-2 bg-indigo-600 text-white hover:bg-indigo-700 rounded-xl transition"
-            >
-              保存
             </button>
           </div>
         </div>
@@ -175,7 +151,7 @@ const newTodoDueDate = ref("");
 const setDefaultDueDate = () => {
   const today = new Date();
   today.setHours(23, 59, 59, 0);
-  newTodoDueDate.value = formatDateForInput(today);
+  newTodoDueDate.value = todoStore.formatDateForInput(today);
 };
 
 // 编辑相关状态
@@ -227,24 +203,5 @@ const saveEdit = () => {
     dueDate: dueDate,
   });
   closeEditModal();
-};
-
-// 将日期格式化为 YYYY/MM/DD hh:mm 格式
-const formatDate = (date: Date) => {
-  return (
-    date.toLocaleDateString("zh-CN", {
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-    }) + " 23:59"
-  );
-};
-
-// 将日期格式化为 YYYY-MM-DD 格式，以便用户选择或输入日期。
-const formatDateForInput = (date: Date) => {
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const day = String(date.getDate()).padStart(2, "0");
-  return `${year}-${month}-${day}`;
 };
 </script>
