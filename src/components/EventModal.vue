@@ -137,16 +137,6 @@
             </label>
           </div>
         </div>
-        <!-- EventModal.vue 表单区域合适位置 -->
-        <div class="flex items-center mt-2">
-          <input
-            type="checkbox"
-            v-model="currentEvent.addToTodo"
-            id="addToTodo"
-            class="mr-2"
-          />
-          <label for="addToTodo" class="text-sm">同步到ToDoList</label>
-        </div>
       </div>
       <!-- 模态框底部，包含操作按钮 -->
       <div
