@@ -8,7 +8,7 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "start": "set NODE_ENV=development && electron .",
+    "start": "nodemon --exec electron . --watch ./ --ext .js, .html, .css, .vue",
     "electron:build": "vite build & electron-builder build --config electron-builder.json"
   },
   "dependencies": {
