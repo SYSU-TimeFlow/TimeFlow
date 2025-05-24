@@ -19,8 +19,8 @@
       <div class="w-full flex gap-3 mb-12 items-end">
         <div class="flex-1">
           <label class="block text-sm font-medium text-gray-700 mb-1"
-            >任务标题</label
-          >
+            >任务标题
+          </label>
           <input
             v-model="newTodoTitle"
             placeholder="输入待办事项标题"
@@ -30,8 +30,8 @@
         </div>
         <div class="min-w-[180px]">
           <label class="block text-sm font-medium text-gray-700 mb-1"
-            >截止日期</label
-          >
+            >截止日期
+          </label>
           <input
             v-model="newTodoDueDate"
             type="date"
@@ -40,21 +40,10 @@
         </div>
         <button
           @click="addNewTodo"
-          class="px-6 py-3 bg-green-500 text-white rounded-xl hover:bg-green-600 transition flex items-center gap-2 h-[46px] cursor-pointer"
+          class="bg-sky-400 hover:bg-sky-600 text-white font-semibold px-4 py-2 rounded-[12px] transition-colors duration-200 flex items-center gap-2 shadow-md hover:shadow-lg cursor-pointer"
         >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            class="h-5 w-5"
-            viewBox="0 0 20 20"
-            fill="currentColor"
-          >
-            <path
-              fill-rule="evenodd"
-              d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
-              clip-rule="evenodd"
-            />
-          </svg>
-          添加
+          <i class="fas fa-plus text-lg"></i>
+          <span>添加</span>
         </button>
       </div>
 
@@ -91,38 +80,21 @@
               </div>
             </div>
           </div>
+
           <div class="flex gap-2">
             <button
               @click.stop="openEditModal(todo)"
               class="p-2 text-blue-500 hover:bg-blue-50 rounded-lg transition"
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                class="h-5 w-5"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-              >
-                <path
-                  d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"
-                />
-              </svg>
+              <i class="fas fa-pen fa-sm"></i>
             </button>
+
             <button
               @click.stop="removeTodo(todo.id)"
               class="p-2 text-red-500 hover:bg-red-50 rounded-lg transition"
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                class="h-5 w-5"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-              >
-                <path
-                  fill-rule="evenodd"
-                  d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
-                  clip-rule="evenodd"
-                />
-              </svg>
+              <!-- 实心垃圾桶图标 -->
+              <i class="fas fa-trash-alt fa-sm"></i>
             </button>
           </div>
         </div>
@@ -147,8 +119,8 @@
         <div class="space-y-4">
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1"
-              >任务标题</label
-            >
+              >任务标题
+            </label>
             <input
               v-model="editingTodo.title"
               class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
@@ -157,8 +129,8 @@
 
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1"
-              >截止日期</label
-            >
+              >截止日期
+            </label>
             <input
               v-model="editingTodo.dueDate"
               type="date"
@@ -257,6 +229,7 @@ const saveEdit = () => {
   closeEditModal();
 };
 
+// 将日期格式化为 YYYY/MM/DD hh:mm 格式
 const formatDate = (date: Date) => {
   return (
     date.toLocaleDateString("zh-CN", {

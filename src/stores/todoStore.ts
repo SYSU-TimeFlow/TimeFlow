@@ -47,6 +47,7 @@ export const useTodoStore = defineStore("todo", () => {
     }
   };
 
+  // 切换是否完成一个待办事项
   const toggleTodo = (id: number) => {
     const todo = todos.value.find((todo) => todo.id === id);
     if (todo) {
@@ -54,6 +55,7 @@ export const useTodoStore = defineStore("todo", () => {
     }
   };
 
+  // 更新一个待办事项的详细信息，包括标题和截止日期等。
   const updateTodo = (id: number, updates: Partial<TodoItem>) => {
     const todo = todos.value.find((todo) => todo.id === id);
     if (todo) {

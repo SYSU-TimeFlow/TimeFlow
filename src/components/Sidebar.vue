@@ -20,24 +20,42 @@
     >
       <i
         :class="
-          uiStore.sidebarCollapsed ? 'fas fa-chevron-right' : 'fas fa-chevron-left' // 根据折叠状态切换图标
+          uiStore.sidebarCollapsed
+            ? 'fas fa-chevron-right'
+            : 'fas fa-chevron-left' // 根据折叠状态切换图标
         "
       ></i>
     </button>
     <!-- 添加新事件按钮 -->
     <button
+      v-if="uiStore.currentView !== 'todo-list'"
       @click="eventStore.openNewEventModal()"
       class="add-event-btn mx-4 my-3 py-2 px-4 bg-blue-600 text-white rounded-lg flex items-center justify-center hover:bg-blue-700 transition cursor-pointer !rounded-button whitespace-nowrap"
     >
-      <i 
+      <i
         :class="[
           'fas fa-plus',
-          !uiStore.sidebarCollapsed ? 'mr-2' : '' // 根据折叠状态设置边距
+          !uiStore.sidebarCollapsed ? 'mr-2' : '', // 根据折叠状态设置边距
         ]"
       ></i>
-      <span v-if="!uiStore.sidebarCollapsed">Add Event</span>
       <!-- 仅在侧边栏展开时显示文字 -->
+      <span v-if="!uiStore.sidebarCollapsed">Add Event</span>
     </button>
+    <!-- 仅在待办视图显示 Add Todo 按钮-->
+    <button
+      v-if="uiStore.currentView === 'todo-list'"
+      @click="todoStore.openNewTodoModal()"
+      class="add-event-btn mx-4 my-3 py-2 px-4 bg-blue-600 text-white rounded-lg flex items-center justify-center hover:bg-blue-700 transition cursor-pointer !rounded-button whitespace-nowrap"
+    >
+      <i
+        :class="[
+          'fas fa-plus',
+          !uiStore.sidebarCollapsed ? 'mr-2' : '', // 根据折叠状态设置边距
+        ]"
+      ></i>
+      <span v-if="!uiStore.sidebarCollapsed">Add Todo</span>
+    </button>
+
     <!-- 迷你日历组件 -->
     <!-- <MiniCalendar /> -->
     <!-- 视图选择器组件 -->
@@ -55,7 +73,11 @@
       ></span>
       <!-- 同步状态文本，仅在侧边栏展开时显示 -->
       <span v-if="!uiStore.sidebarCollapsed" class="text-xs text-gray-500 ml-2">
-        {{ settingStore.synced ? "Synced with system calendar" : "Sync pending..." }}
+        {{
+          settingStore.synced
+            ? "Synced with system calendar"
+            : "Sync pending..."
+        }}
       </span>
     </div>
   </aside>
