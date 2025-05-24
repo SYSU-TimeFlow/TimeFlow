@@ -9,7 +9,7 @@
   <!-- 模态框容器，仅当 showEventModal 为 true 时显示 -->
   <div
     v-if="eventStore.showEventModal"
-    class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+    class="fixed inset-0 bg-transparent backdrop-blur-sm flex items-center justify-center z-50"
   >
     <!-- 事件模态框主体，阻止事件冒泡到父级 -->
     <div
@@ -19,7 +19,9 @@
       <!-- 模态框头部 -->
       <div
         class="modal-header p-4 border-b border-gray-200 flex justify-between items-center"
-        :style="{ backgroundColor: eventStore.currentEvent.categoryColor + '33' }"
+        :style="{
+          backgroundColor: eventStore.currentEvent.categoryColor + '33',
+        }"
       >
         <h3 class="text-lg font-semibold">
           <!-- 根据 isNewEvent 动态显示标题 -->
@@ -167,7 +169,7 @@
 </template>
 
 <script setup>
-import { useEventStore } from '../stores/event';
+import { useEventStore } from "../stores/event";
 
 // 使用Pinia仓库
 const eventStore = useEventStore();
@@ -185,6 +187,13 @@ const eventStore = useEventStore();
 }
 /* 事件模态框应用淡入动画 */
 .event-modal {
-  animation: fadeIn 0.2s ease-out; /* 动画名称、持续时间、缓动函数 */
+  animation: fadeIn 0.1s ease-out; /* 动画名称、持续时间、缓动函数 */
+}
+
+/* 确保背景模糊效果兼容性 */
+.backdrop-blur-sm {
+  backdrop-filter: blur(4px); /* 轻微高斯模糊，数值可调整 */
+  -webkit-backdrop-filter: blur(4px); /* 兼容 Safari */
+  background: rgba(0, 0, 0, 0.1); /* 轻微透明黑色，增强模糊可见性 */
 }
 </style>

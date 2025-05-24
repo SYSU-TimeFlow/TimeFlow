@@ -88,6 +88,7 @@
             day.isWeekend ? 'weekend' : '', // 如果是周末，添加 'weekend' 类
           ]"
           @click="uiStore.handleDayClick(day)"
+          @dblclick="uiStore.handleDayClick(day, true)"
           @dragover.prevent
           @drop="uiStore.handleDrop($event, day)"
         >
@@ -144,12 +145,16 @@
                 class="event-time font-medium"
                 :style="{ color: event.categoryColor }"
               >
-                {{ event.allDay ? "All day" : eventStore.formatEventTime(event) }}
+                {{
+                  event.allDay ? "All day" : eventStore.formatEventTime(event)
+                }}
               </div>
               <!-- 事件标题 -->
               <div
                 class="event-title font-medium truncate"
-                :style="{ color: uiStore.getContrastColor(event.categoryColor) }"
+                :style="{
+                  color: uiStore.getContrastColor(event.categoryColor),
+                }"
               >
                 {{ event.title }}
               </div>
@@ -206,7 +211,7 @@
                 v-for="(day, idx) in uiStore.weekViewDays"
                 :key="idx"
                 class="hour-cell h-16 border-b border-gray-200 relative hover:bg-gray-50"
-                @click="uiStore.handleHourClick(day, hour-1)"
+                @click="uiStore.handleHourClick(day, hour - 1)"
               ></div>
             </div>
             <!-- 事件渲染区域 -->
@@ -214,7 +219,10 @@
               v-for="(day, idx) in uiStore.weekViewDays"
               :key="idx"
               class="absolute left-0 top-0 h-full"
-              :style="{ width: `calc(100% / 7)`, left: `calc(${100 * idx / 7}% )` }"
+              :style="{
+                width: `calc(100% / 7)`,
+                left: `calc(${(100 * idx) / 7}% )`,
+              }"
             >
               <!-- 单个事件项 -->
               <div
@@ -240,7 +248,9 @@
                 </div>
                 <div
                   class="event-title text-sm font-medium truncate"
-                  :style="{ color: uiStore.getContrastColor(event.categoryColor) }"
+                  :style="{
+                    color: uiStore.getContrastColor(event.categoryColor),
+                  }"
                 >
                   {{ event.title }}
                 </div>
@@ -254,8 +264,6 @@
       </div>
     </div>
 
-
-
     <!-- 日视图容器 -->
     <div
       v-else-if="uiStore.currentView === 'day'"
@@ -267,7 +275,8 @@
         <div
           class="day-header text-center p-4 border-b border-gray-200 bg-white"
         >
-          <div class="text-2xl font-semibold">{{ uiStore.dayViewTitle }}</div>
+          <!-- 日视图不再显示今天的时间和日期 -->
+          <!-- <div class="text-2xl font-semibold">{{ uiStore.dayViewTitle }}</div> -->
         </div>
         <!-- 日视图主体内容，包含时间标签和事件列 -->
         <div class="flex h-full">
@@ -319,7 +328,9 @@
                 </div>
                 <div
                   class="event-title text-sm font-medium truncate"
-                  :style="{ color: uiStore.getContrastColor(event.categoryColor) }"
+                  :style="{
+                    color: uiStore.getContrastColor(event.categoryColor),
+                  }"
                 >
                   {{ event.title }}
                 </div>
@@ -340,8 +351,8 @@
  * @file CalendarMain.vue
  * @description 主日历组件，负责展示月、周、日视图以及相关的事件
  */
-import { useUiStore } from '../stores/ui';
-import { useEventStore } from '../stores/event';
+import { useUiStore } from "../stores/ui";
+import { useEventStore } from "../stores/event";
 
 // 使用 Pinia 仓库
 const uiStore = useUiStore();
@@ -366,7 +377,7 @@ const weekDays = [
  */
 function getEventsForDay(date) {
   if (!date) return [];
-  
+
   // 获取当前激活的分类ID数组
   const activeCategoryIds = getActiveCategoryIds();
 
@@ -385,14 +396,14 @@ function getEventsForDay(date) {
       const eventStart = new Date(event.start);
       const eventEnd = new Date(event.end);
       // 先检查事件日期是否符合条件
-      const dateMatches = (
+      const dateMatches =
         (eventStart >= start && eventStart <= end) || // 条件1
         (eventEnd >= start && eventEnd <= end) || // 条件2
-        (eventStart <= start && eventEnd >= end) // 条件3
-      ); 
+        (eventStart <= start && eventEnd >= end); // 条件3
       // 再检查事件分类是否被选中
-      const categoryMatches = activeCategoryIds.length === 0 || 
-                            activeCategoryIds.includes(event.categoryId);
+      const categoryMatches =
+        activeCategoryIds.length === 0 ||
+        activeCategoryIds.includes(event.categoryId);
       // 同时满足日期和分类两个条件
       return dateMatches && categoryMatches;
     })
@@ -416,8 +427,8 @@ function getEventsForDay(date) {
  */
 function getActiveCategoryIds() {
   return eventStore.categories
-    .filter(category => category.active)
-    .map(category => category.id);
+    .filter((category) => category.active)
+    .map((category) => category.id);
 }
 </script>
 
@@ -433,12 +444,12 @@ function getActiveCategoryIds() {
   left: 0;
   right: 0;
   height: 3px;
-  background-color: #3b82f6; 
+  background-color: #3b82f6;
 }
 
 /* 日期单元格鼠标悬停时的背景色 */
 .calendar-day:hover {
-  background-color: #f9fafb; 
+  background-color: #f9fafb;
 }
 
 /* 自定义滚动条样式 */
