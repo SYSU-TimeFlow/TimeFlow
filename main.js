@@ -2,6 +2,7 @@
  * @description: Electron 主进程, 负责创建窗口和加载页面,一般不需要修改
  */
 import { app, BrowserWindow } from "electron/main";
+import { ipcMain } from "electron";
 import path from "path";
 import { fileURLToPath } from "url";
 import isDev from "electron-is-dev";
@@ -23,6 +24,14 @@ const createWindow = () => {
     ...winState.winOptions,
     minWidth: 900,
     minHeight: 700,
+    frame: false,
+    autohideMenu: true,
+    webPreferences: {
+      preload: path.join(__dirname, "./preload.js"), // 确保路径正确
+      contextIsolation: true, // 启用上下文隔离
+      nodeIntegration: false, // 禁用 Node 集成以提高安全性
+    },
+
   });
 
   // 监听窗口状态变化
@@ -32,6 +41,7 @@ const createWindow = () => {
   if (isDev) {
     // 在开发模式下加载本地服务器
     win.loadURL("http://localhost:5173");
+    // win.webContents.openDevTools();
   } else {
     // 在生产模式下加载vite打包后的文件
     win.loadFile(path.join(__dirname, "dist/index.html"));
@@ -53,5 +63,34 @@ app.whenReady().then(() => {
 app.on("window-all-closed", () => {
   if (process.platform !== "darwin") {
     app.quit();
+  }
+});
+
+// ================= 监听窗口操作事件 ==================
+// 最小化窗口
+ipcMain.on("window-minimize", () => {
+  const win = BrowserWindow.getFocusedWindow();
+  if (win) {
+    win.minimize();
+  }
+});
+
+// 最大化/还原窗口
+ipcMain.on("window-maximize", () => {
+  const win = BrowserWindow.getFocusedWindow();
+  if (win) {
+    if (win.isMaximized()) {
+      win.unmaximize();
+    } else {
+      win.maximize();
+    }
+  }
+});
+
+// 关闭窗口
+ipcMain.on("window-close", () => {
+  const win = BrowserWindow.getFocusedWindow();
+  if (win) {
+    win.close();
   }
 });
