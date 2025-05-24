@@ -212,6 +212,8 @@
                 class="hour-cell h-16 border-b border-r border-gray-200 relative hover:!bg-gray-50 cursor-pointer select-none"
                 style="z-index: 1"
                 @click="uiStore.handleHourClick(day.date, hour - 1)"
+                @dragover.prevent
+                @drop="uiStore.handleDrop($event, { ...day, hour: hour - 1 })"
               ></div>
             </div>
             <!-- 事件渲染区域 -->
@@ -239,6 +241,8 @@
                   zIndex: 10,
                 }"
                 @click.stop="eventStore.openEventDetails(event)"
+                draggable="true"
+                @dragstart="uiStore.handleDragStart($event, event)"
               >
                 <div
                   class="event-time text-xs font-medium"
@@ -300,6 +304,13 @@
                 :key="hour"
                 class="hour-cell h-16 border-b border-gray-200 relative"
                 @click="uiStore.handleHourClick(uiStore.currentDate, hour - 1)"
+                @dragover.prevent
+                @drop="
+                  uiStore.handleDrop($event, {
+                    date: uiStore.currentDate,
+                    hour: hour - 1,
+                  })
+                "
               ></div>
             </div>
             <!-- 事件渲染区域 -->
@@ -319,6 +330,8 @@
                   zIndex: '10', // 确保事件在网格线上方
                 }"
                 @click.stop="eventStore.openEventDetails(event)"
+                draggable="true"
+                @dragstart="uiStore.handleDragStart($event, event)"
               >
                 <div
                   class="event-time text-xs font-medium"
