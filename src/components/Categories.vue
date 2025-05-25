@@ -42,18 +42,18 @@
           @click="eventStore.toggleCategory(category.id)"
         ></span>
         <!-- 分类名称，仅在侧边栏未折叠时显示 -->
-        <span 
-          v-if="!uiStore.sidebarCollapsed" 
+        <span
+          v-if="!uiStore.sidebarCollapsed"
           class="text-sm flex-1"
           @click="eventStore.toggleCategory(category.id)"
         >
           {{ category.name }}
         </span>
-        <!-- 编辑按钮，仅在侧边栏未折叠时显示 -->
+        <!-- 编辑按钮，仅在侧边栏未折叠且鼠标悬停时显示 -->
         <button
           v-if="!uiStore.sidebarCollapsed"
           @click="eventStore.openCategoryDetails(category)"
-          class="text-gray-400 hover:text-gray-600 ml-2"
+          class="edit-button text-gray-400 hover:text-gray-600 ml-2 opacity-0 group-hover:opacity-100 transition-opacity"
           title="编辑分类"
         >
           <i class="fas fa-edit text-xs"></i>
@@ -64,10 +64,25 @@
 </template>
 
 <script setup>
-import { useEventStore } from '../stores/event';
-import { useUiStore } from '../stores/ui';
+import { useEventStore } from "../stores/event";
+import { useUiStore } from "../stores/ui";
 
 // 使用Pinia仓库
 const eventStore = useEventStore();
 const uiStore = useUiStore();
 </script>
+
+<style scoped>
+.category-item {
+  position: relative;
+}
+
+.category-item:hover .edit-button {
+  opacity: 1 !important;
+}
+
+.edit-button {
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+</style>
