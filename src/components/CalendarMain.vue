@@ -1,16 +1,17 @@
-<!-- filepath: d:\Code\TimeFlow\src\components\CalendarMain.vue -->
 <!-- 
  @component CalendarMain.vue
  @description: 主日历组件，负责展示月、周、日视图以及相关的事件。 
 -->
 
 <template>
-  <!-- 主日历区域容器 -->
-  <main class="calendar-main flex-1 flex flex-col overflow-hidden">
-    <!-- 月视图容器 -->
+  <!-- 主日历区域容器 - 保留overflow-auto并增强滚动行为 -->
+  <main
+    class="calendar-main flex-1 flex flex-col overflow-auto custom-scrollbar"
+  >
+    <!-- 月视图容器 - 修改overflow-auto为overflow-visible，让父容器控制滚动 -->
     <div
       v-if="uiStore.currentView === 'month'"
-      class="calendar-grid flex-1 overflow-auto p-6"
+      class="calendar-grid flex-1 overflow-visible p-6"
     >
       <!-- 星期头部 -->
       <div class="grid grid-cols-7 mb-2">
@@ -29,10 +30,10 @@
           v-for="(day, index) in uiStore.calendarDays"
           :key="index"
           :class="[
-            'calendar-day border border-gray-200 h-[180px] p-1 relative overflow-hidden',
-            day.isCurrentMonth ? 'bg-white' : 'bg-gray-200', // 修改这里
-            day.isToday ? 'today' : '', // 如果是今天，添加 'today' 类
-            day.isWeekend ? 'weekend' : '', // 如果是周末，添加 'weekend' 类
+            'calendar-day border border-gray-200 h-[180px] p-1 relative overflow-auto',
+            day.isCurrentMonth ? 'bg-white' : 'bg-gray-200',
+            day.isToday ? 'today' : '',
+            day.isWeekend ? 'weekend' : '',
           ]"
           @click="uiStore.handleDayClick(day, true)"
           @dragover.prevent
@@ -41,8 +42,8 @@
           <!-- 日期头部，包含日期数字和添加事件按钮 -->
           <div
             :class="[
-              'day-header flex justify-between items-center p-1 rounded-t',
-              day.isToday ? 'bg-blue-50' : '', // 今天日期头部特殊背景
+              'day-header flex justify-between items-center p-1 rounded-t sticky top-0 z-10 bg-inherit',
+              day.isToday ? 'bg-blue-50' : '',
             ]"
           >
             <span
@@ -59,9 +60,7 @@
             </span>
           </div>
           <!-- 当天事件列表容器 -->
-          <div
-            class="day-events mt-1 space-y-1 h-[130px] overflow-y-auto custom-scrollbar"
-          >
+          <div class="day-events mt-1 space-y-1 pb-2 custom-scrollbar">
             <!-- 单个事件项 -->
             <div
               v-for="event in eventStore.getEventsForDay(day.date)"
@@ -102,10 +101,10 @@
       </div>
     </div>
 
-    <!-- 周视图容器 -->
+    <!-- 周视图容器 - 同样修改overflow设置 -->
     <div
       v-else-if="uiStore.currentView === 'week'"
-      class="week-view flex-1 overflow-hidden p-4"
+      class="week-view flex-1 overflow-visible p-4"
     >
       <!-- 周视图网格布局 -->
       <div class="grid grid-cols-1 h-full border border-gray-200">
@@ -207,10 +206,10 @@
       </div>
     </div>
 
-    <!-- 日视图容器 -->
+    <!-- 日视图容器 - 同样修改overflow设置 -->
     <div
       v-else-if="uiStore.currentView === 'day'"
-      class="day-view flex-1 overflow-hidden p-4"
+      class="day-view flex-1 overflow-visible p-4"
     >
       <!-- 日视图网格布局 -->
       <div class="grid grid-cols-1 h-full border border-gray-200">
@@ -344,15 +343,96 @@ const eventStore = useEventStore();
 
 /* 为月视图保留紧凑布局 */
 .calendar-grid {
-  height: calc(100vh - 140px) !important;
-  overflow: hidden;
+  min-height: 800px; /* 确保有足够的高度以便可以滚动 */
+  overflow-y: visible;
 }
 
 /* 周视图和日视图布局优化 */
 .week-view,
 .day-view {
-  height: calc(100vh - 140px) !important;
-  overflow: hidden;
+  min-height: 600px; /* 确保有足够的高度以便可以滚动 */
+  overflow-y: visible;
+}
+
+/* 添加日历格子悬停效果 */
+.calendar-day {
+  transition: all 0.2s ease-in-out;
+  border-width: 1px !important;
+}
+
+/* 日历格子悬停高亮效果 */
+.calendar-day:hover {
+  background-color: #f9fafb;
+  border-color: #3b82f6 !important;
+  box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.3);
+  z-index: 5;
+}
+
+/* 月视图中的事件悬停效果 */
+.event-item {
+  transition: all 0.15s ease-in-out;
+  position: relative;
+  border-left-width: 3px;
+}
+
+.event-item:hover {
+  transform: translateY(-1px) scale(1.01);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.12);
+  z-index: 15;
+}
+
+/* 事件选中效果 - 边框发光 */
+.event-item:active {
+  transform: translateY(0) scale(1);
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5);
+}
+
+/* 周视图和日视图中的事件悬停效果 */
+.day-event {
+  transition: all 0.15s ease-in-out;
+  border-left-width: 3px;
+}
+
+.day-event:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
+  z-index: 20 !important;
+  border-left-width: 4px !important;
+}
+
+/* 确保事件悬停时日历格子高亮效果消失 */
+.calendar-day:hover .event-item:hover {
+  border-color: currentColor;
+}
+
+.week-view > div:first-child,
+.day-view > div:first-child {
+  border: none;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+  overflow: visible; /* 保持内容溢出可见 */
+}
+
+/* 周/日视图小时格子悬停效果 */
+.hour-cell {
+  transition: background-color 0.15s ease;
+  position: relative;
+}
+
+.hour-cell:hover {
+  background-color: #f0f4ff !important;
+}
+
+.hour-cell:hover::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border: 1px solid #3b82f6;
+  pointer-events: none;
+  z-index: 2;
 }
 
 /* 优化日历标题显示 */
@@ -373,36 +453,61 @@ const eventStore = useEventStore();
 .calendar-day {
   height: auto !important;
   min-height: 120px;
-  max-height: 180px; /* 增加最大高度 */
+  max-height: 180px;
+  overflow: auto;
+  overflow-x: hidden; /* 只允许垂直滚动 */
+  padding-bottom: 8px; /* 增加底部内边距，确保内容可完全滚动 */
 }
 
-/* 月视图事件容器保持紧凑 */
+/* 让日期头部固定在顶部，不随着滚动而消失 */
+.calendar-day .day-header {
+  position: sticky;
+  top: 0;
+  background-color: inherit;
+  z-index: 10;
+  margin-bottom: 4px; /* 增加标题和内容的间距 */
+}
+
+/* 确保事件列表能够正确展示 */
 .day-events {
-  height: auto !important;
-  max-height: 130px; /* 增加事件容器高度 */
+  height: auto;
+  overflow: visible; /* 移除内层滚动，让外层容器控制滚动 */
 }
 
-/* 周视图和日视图小时格子调整为适中高度 */
-.week-view .hour-cell,
-.day-view .hour-cell {
-  height: 30px !important; /* 增加周/日视图小时格子高度 */
+/* 确保最后一个事件也有足够的底部空间 */
+.day-events .event-item:last-child {
+  margin-bottom: 4px;
 }
 
-/* 周视图和日视图时间标签同步调整 */
-.week-view .time-label,
-.day-view .time-label {
-  height: 30px !important; /* 匹配小时格子高度 */
+/* 优化小型滚动条样式，适合紧凑空间 */
+.calendar-day::-webkit-scrollbar {
+  width: 4px; /* 格子内滚动条更窄 */
 }
 
-/* 调整父容器内边距，为内容腾出更多空间 */
-.week-view,
-.day-view {
-  padding: 4px !important; /* 减小内边距 */
+.calendar-day::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 2px;
 }
 
-/* 优化周/日视图头部，减小高度 */
-.week-view .day-header,
-.day-view .day-header {
-  padding: 1px !important;
+.calendar-day:hover::-webkit-scrollbar-thumb {
+  background: #a0a0a0; /* 鼠标悬停时显示更明显的滚动条 */
+}
+
+/* 保持原有的自定义滚动条样式 */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 8px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #a0a0a0;
 }
 </style>
