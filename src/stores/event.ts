@@ -253,7 +253,9 @@ export const useEventStore = defineStore("event", () => {
       if (event.addToTodo) {
         const todoStore = useTodoStore();
         const todoIndex = todoStore.todos.findIndex(
-          (todo) => todo.title === event.title && todo.dueDate === event.end
+          (todo) =>
+            event.title === todo.title &&
+            event.end.getDate() === todo.dueDate.getDate()
         );
         if (todoIndex !== -1) {
           todoStore.todos.splice(todoIndex, 1);

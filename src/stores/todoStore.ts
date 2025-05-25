@@ -12,6 +12,7 @@ export class TodoItem {
   ) {}
 }
 
+// 将 todo 事项分三类
 type FilterType = "all" | "completed" | "active";
 
 interface TodoFilter {
@@ -43,9 +44,8 @@ export const useTodoStore = defineStore("todo", () => {
     ),
   ]);
 
-  const nextId = ref(4);
   const activeFilter = ref<FilterType>("all");
-  // 定义所有可用的过滤器
+  // 定义所有的过滤器
   const filters = computed<TodoFilter[]>(() => [
     {
       value: "all",
@@ -64,7 +64,7 @@ export const useTodoStore = defineStore("todo", () => {
     },
   ]);
 
-  // 编辑相关状态
+  // 待办事项模态框的状态管理
   const showTodoModal = ref(false);
   const isNewTodo = ref(true);
   const currentEditingTodo = ref({
@@ -109,7 +109,7 @@ export const useTodoStore = defineStore("todo", () => {
   // Actions
   function addTodo(title: string, dueDate: Date) {
     const newTodo = new TodoItem(
-      nextId.value++,
+      Date.now(),
       title,
       setTimeToEndOfDay(dueDate),
       false
@@ -124,12 +124,12 @@ export const useTodoStore = defineStore("todo", () => {
       const todo = todos.value[index];
       const eventStore = useEventStore();
       const eventIndex = eventStore.events.findIndex(
-        (event) => event.title === todo.title && event.end === todo.dueDate
+        (event) =>
+          event.title === todo.title &&
+          event.end.getDate() === todo.dueDate.getDate()
       );
       if (eventIndex !== -1) {
-        if (
-          confirm("是否同时删除日历中的同名日程？")
-        ) {
+        if (confirm("是否同时删除日历中的同名日程？")) {
           eventStore.events.splice(eventIndex, 1);
         }
       }
@@ -184,7 +184,7 @@ export const useTodoStore = defineStore("todo", () => {
       completed: todo.completed,
       addToCalendar: todo.addToCalendar,
     };
-    
+
     showTodoModal.value = true;
   };
 
@@ -192,14 +192,15 @@ export const useTodoStore = defineStore("todo", () => {
     const eventStore = useEventStore();
     const eventIndex = eventStore.events.findIndex(
       (event) =>
-        event.title === todo.title && event.end === todo.dueDate
+        event.title === todo.title &&
+        event.end.getDate() === todo.dueDate.getDate()
     );
     // 如果日历中没有该事项且已选中添加到日历，则添加
     if (eventIndex === -1 && todo.addToCalendar) {
       eventStore.events.push({
         id: eventStore.events.length + 1,
         title: todo.title,
-        start: new Date(), // 起始时间默认为当前时间
+        start: todo.dueDate,
         end: todo.dueDate,
         description: "",
         categoryId: 5, // 默认分类
@@ -208,8 +209,8 @@ export const useTodoStore = defineStore("todo", () => {
         addToTodo: true,
       });
     }
-  }
-  
+  };
+
   const closeEditModal = () => {
     showTodoModal.value = false;
   };
@@ -226,7 +227,7 @@ export const useTodoStore = defineStore("todo", () => {
         eventStore.addEvent({
           id: newTodo.id,
           title: newTodo.title,
-          start: new Date(), // 起始时间默认为当前时间
+          start: dueDate,
           end: dueDate,
           description: "",
           categoryId: 5, // 默认分类
@@ -239,6 +240,7 @@ export const useTodoStore = defineStore("todo", () => {
       updateTodo(currentEditingTodo.value.id, {
         title: currentEditingTodo.value.title,
         dueDate: dueDate, // 确保传递的是 Date 类型
+        addToCalendar: currentEditingTodo.value.addToCalendar,
       });
       syncTodoWithCalendar({
         ...currentEditingTodo.value,
@@ -248,7 +250,6 @@ export const useTodoStore = defineStore("todo", () => {
     closeEditModal();
   };
 
-  // Helper functions
   function setTimeToEndOfDay(date: Date): Date {
     const newDate = new Date(date);
     newDate.setHours(23, 59, 59, 0);
@@ -281,7 +282,6 @@ export const useTodoStore = defineStore("todo", () => {
   return {
     // State
     todos,
-    nextId,
     activeFilter,
     filters,
     showTodoModal,
