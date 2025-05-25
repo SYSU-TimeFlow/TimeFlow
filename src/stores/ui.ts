@@ -224,14 +224,14 @@ export const useUiStore = defineStore('ui', () => {
 
   function calculateEventTop(event: any): number {
     const start = new Date(event.start);
-    return ((start.getHours() * 60 + start.getMinutes()) / 60) * 64;
+    return ((start.getHours() * 60 + start.getMinutes()) / 60) * 30;
   }
 
   function calculateEventHeight(event: any): number {
     const start = new Date(event.start);
     const end = new Date(event.end);
     const durationHours = (end.getTime() - start.getTime()) / (1000 * 60 * 60);
-    return Math.max(durationHours * 64, 24);
+    return Math.max(durationHours * 30, 24);
   }
 
   function getContrastColor(hexColor: string): string {
@@ -331,7 +331,6 @@ export const useUiStore = defineStore('ui', () => {
   function handleDrop(event: DragEvent, day: any) {
     const eventStore = useEventStore();
     
-    event.preventDefault();
     if (draggedEvent.value && event.dataTransfer) {
       const eventId = parseInt(event.dataTransfer.getData("text/plain"));
       const eventIndex = eventStore.events.findIndex((e) => e.id === eventId);

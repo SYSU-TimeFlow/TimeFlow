@@ -166,7 +166,7 @@
     <!-- 周视图容器 -->
     <div
       v-else-if="uiStore.currentView === 'week'"
-      class="week-view flex-1 overflow-auto p-6"
+      class="week-view flex-1 overflow-hidden p-4"
     >
       <!-- 周视图网格布局 -->
       <div class="grid grid-cols-1 h-full border border-gray-200">
@@ -271,7 +271,7 @@
     <!-- 日视图容器 -->
     <div
       v-else-if="uiStore.currentView === 'day'"
-      class="day-view flex-1 overflow-auto p-6"
+      class="day-view flex-1 overflow-hidden p-4"
     >
       <!-- 日视图网格布局 -->
       <div class="grid grid-cols-1 h-full border border-gray-200">
@@ -392,23 +392,78 @@ const eventStore = useEventStore();
   background-color: #f9fafb;
 }
 
-/* 自定义滚动条样式 */
-.custom-scrollbar::-webkit-scrollbar {
-  width: 4px; /* 滚动条宽度 */
-}
-.custom-scrollbar::-webkit-scrollbar-track {
-  background: transparent; /* 滚动条轨道透明 */
-}
-.custom-scrollbar::-webkit-scrollbar-thumb {
-  background: #d1d5db; /* 滚动条滑块颜色 */
-  border-radius: 2px; /* 滚动条滑块圆角 */
-}
-.custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: #9ca3af; /* 滚动条滑块悬停颜色 */
-}
-
 /* 周/日视图中小时单元格鼠标悬停时的背景色 */
 .hour-cell:hover {
   background-color: #f9fafb; /* 淡灰色背景 */
+}
+
+/* 调整周视图和日视图中的时间标签垂直对齐 */
+.week-view .time-label,
+.day-view .time-label {
+  transform: translateY(8px); /* 替换原来的 -translate-y-3，向下移动时间标签 */
+}
+
+/* 为月视图保留紧凑布局 */
+.calendar-grid {
+  height: calc(100vh - 140px) !important;
+  overflow: hidden;
+}
+
+/* 周视图和日视图布局优化 */
+.week-view,
+.day-view {
+  height: calc(100vh - 140px) !important;
+  overflow: hidden;
+}
+
+/* 优化日历标题显示 */
+.calendar-header h2 {
+  max-width: 300px; /* 限制最大宽度 */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 1.25rem; /* 稍微减小字体大小 */
+}
+
+/* 确保周视图的标题格式正确 */
+.calendar-header {
+  padding: 1rem 1.5rem !important; /* 减小内边距，腾出更多空间 */
+}
+
+/* 月视图日期格子保持紧凑 */
+.calendar-day {
+  height: auto !important;
+  min-height: 120px;
+  max-height: 180px; /* 增加最大高度 */
+}
+
+/* 月视图事件容器保持紧凑 */
+.day-events {
+  height: auto !important;
+  max-height: 130px; /* 增加事件容器高度 */
+}
+
+/* 周视图和日视图小时格子调整为适中高度 */
+.week-view .hour-cell,
+.day-view .hour-cell {
+  height: 30px !important; /* 增加周/日视图小时格子高度 */
+}
+
+/* 周视图和日视图时间标签同步调整 */
+.week-view .time-label,
+.day-view .time-label {
+  height: 30px !important; /* 匹配小时格子高度 */
+}
+
+/* 调整父容器内边距，为内容腾出更多空间 */
+.week-view,
+.day-view {
+  padding: 4px !important; /* 减小内边距 */
+}
+
+/* 优化周/日视图头部，减小高度 */
+.week-view .day-header,
+.day-view .day-header {
+  padding: 1px !important;
 }
 </style>
