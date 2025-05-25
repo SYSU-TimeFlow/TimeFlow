@@ -12,9 +12,11 @@
       class="flex items-center justify-between mb-2"
     >
       <span class="text-sm font-medium text-gray-700">Categories</span>
-      <!-- 添加新分类按钮 (当前未实现功能) -->
+      <!-- 添加新分类按钮 -->
       <button
+        @click="eventStore.openNewCategoryModal"
         class="text-gray-500 hover:text-gray-700 cursor-pointer !rounded-button whitespace-nowrap"
+        title="添加新分类"
       >
         <i class="fas fa-plus text-xs"></i>
       </button>
@@ -29,20 +31,33 @@
           'category-item flex items-center py-2 px-3 rounded-lg cursor-pointer hover:bg-gray-200',
           category.active ? '' : 'opacity-50', // 如果分类未激活，则降低其不透明度
         ]"
-        @click="eventStore.toggleCategory(category.id)"
       >
-        <!-- 分类颜色指示器 -->
+        <!-- 点击圆点切换激活状态 -->
         <span
           :class="[
             'category-color w-3 h-3 rounded-full',
             uiStore.sidebarCollapsed ? '' : 'mr-3', // 侧边栏折叠时不显示右边距
           ]"
           :style="{ backgroundColor: category.color }"
+          @click="eventStore.toggleCategory(category.id)"
         ></span>
         <!-- 分类名称，仅在侧边栏未折叠时显示 -->
-        <span v-if="!uiStore.sidebarCollapsed" class="text-sm">{{
-          category.name
-        }}</span>
+        <span 
+          v-if="!uiStore.sidebarCollapsed" 
+          class="text-sm flex-1"
+          @click="eventStore.toggleCategory(category.id)"
+        >
+          {{ category.name }}
+        </span>
+        <!-- 编辑按钮，仅在侧边栏未折叠时显示 -->
+        <button
+          v-if="!uiStore.sidebarCollapsed"
+          @click="eventStore.openCategoryDetails(category)"
+          class="text-gray-400 hover:text-gray-600 ml-2"
+          title="编辑分类"
+        >
+          <i class="fas fa-edit text-xs"></i>
+        </button>
       </div>
     </div>
   </div>
