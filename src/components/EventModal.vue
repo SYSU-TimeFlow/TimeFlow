@@ -123,17 +123,17 @@
             placeholder="Event description"
           ></textarea>
         </div>
-        <!-- 同步到系统日历选择区域 -->
+        <!-- 同步到 Todo List -->
         <div class="form-group mb-4">
           <div class="flex items-center mb-2">
             <input
-              v-model="eventStore.currentEvent.syncWithSystem"
+              v-model="eventStore.currentEvent.addToTodo"
               type="checkbox"
-              id="syncWithSystem"
+              id="addToTodo"
               class="mr-2"
             />
-            <label for="syncWithSystem" class="text-sm text-gray-700">
-              Sync with system calendar
+            <label for="addToTodo" class="text-sm text-gray-700">
+              添加到 Todo List
             </label>
           </div>
         </div>

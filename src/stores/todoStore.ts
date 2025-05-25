@@ -1,12 +1,14 @@
 import { defineStore } from "pinia";
 import { ref, computed } from "vue";
+import { useEventStore } from "./event";
 
 export class TodoItem {
   constructor(
     public id: number,
     public title: string,
     public dueDate: Date,
-    public completed: boolean
+    public completed: boolean,
+    public addToCalendar: boolean = false
   ) {}
 }
 
@@ -35,7 +37,7 @@ export const useTodoStore = defineStore("todo", () => {
     ),
     new TodoItem(
       3,
-      "团队会议准备",
+      "准备团队会议",
       setTimeToEndOfDay(new Date("2025-05-22")),
       false
     ),
@@ -70,6 +72,7 @@ export const useTodoStore = defineStore("todo", () => {
     title: "",
     dueDate: "",
     completed: false,
+    addToCalendar: false,
   });
 
   // Getters
@@ -118,6 +121,18 @@ export const useTodoStore = defineStore("todo", () => {
   function removeTodo(id: number) {
     const index = todos.value.findIndex((todo) => todo.id === id);
     if (index !== -1) {
+      const todo = todos.value[index];
+      const eventStore = useEventStore();
+      const eventIndex = eventStore.events.findIndex(
+        (event) => event.title === todo.title && event.end === todo.dueDate
+      );
+      if (eventIndex !== -1) {
+        if (
+          confirm("是否同时删除日历中的同名日程？")
+        ) {
+          eventStore.events.splice(eventIndex, 1);
+        }
+      }
       todos.value.splice(index, 1);
     }
   }
@@ -167,25 +182,67 @@ export const useTodoStore = defineStore("todo", () => {
       title: todo.title,
       dueDate: formatDateForInput(todo.dueDate),
       completed: todo.completed,
+      addToCalendar: todo.addToCalendar,
     };
+    
     showTodoModal.value = true;
   };
 
+  const syncTodoWithCalendar = (todo: TodoItem) => {
+    const eventStore = useEventStore();
+    const eventIndex = eventStore.events.findIndex(
+      (event) =>
+        event.title === todo.title && event.end === todo.dueDate
+    );
+    // 如果日历中没有该事项且已选中添加到日历，则添加
+    if (eventIndex === -1 && todo.addToCalendar) {
+      eventStore.events.push({
+        id: eventStore.events.length + 1,
+        title: todo.title,
+        start: new Date(), // 起始时间默认为当前时间
+        end: todo.dueDate,
+        description: "",
+        categoryId: 5, // 默认分类
+        categoryColor: "#60a5fa",
+        allDay: true,
+        addToTodo: true,
+      });
+    }
+  }
+  
   const closeEditModal = () => {
     showTodoModal.value = false;
   };
 
   const saveEdit = () => {
     // 将时间设置为23:59:59
-    const dueDate = new Date(currentEditingTodo.value.dueDate);
+    const dueDate = new Date(currentEditingTodo.value.dueDate); // 确保将字符串转换为 Date 类型
     dueDate.setHours(23, 59, 59, 0);
 
     if (isNewTodo.value) {
-      addTodo(currentEditingTodo.value.title, dueDate);
+      const newTodo = addTodo(currentEditingTodo.value.title, dueDate);
+      if (currentEditingTodo.value.addToCalendar) {
+        const eventStore = useEventStore();
+        eventStore.addEvent({
+          id: newTodo.id,
+          title: newTodo.title,
+          start: new Date(), // 起始时间默认为当前时间
+          end: dueDate,
+          description: "",
+          categoryId: 5, // 默认分类
+          categoryColor: "#60a5fa",
+          allDay: true,
+          addToTodo: true,
+        });
+      }
     } else {
       updateTodo(currentEditingTodo.value.id, {
         title: currentEditingTodo.value.title,
-        dueDate: dueDate,
+        dueDate: dueDate, // 确保传递的是 Date 类型
+      });
+      syncTodoWithCalendar({
+        ...currentEditingTodo.value,
+        dueDate, // 确保传递的是 Date 类型
       });
     }
     closeEditModal();

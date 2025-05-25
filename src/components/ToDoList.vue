@@ -1,7 +1,7 @@
 <!--
   @description 待办事项列表。
   在新建 events 时，也可以同时添加到 Todo List 中。
-  新建 todo 事项时，用户也可以手动选择将 todo 事项添加到日历，实现日历与待办事项的同步。
+  TODO: 新建 todo 事项时，用户也可以手动选择将 todo 事项添加到日历，实现日历与待办事项的同步。这部分功能还不完善。
 -->
 <template>
   <div class="min-h-screen bg-gray-50 p-6 w-full">
@@ -17,7 +17,7 @@
           v-for="filter in todoStore.filters"
           :key="filter.value"
           @click="todoStore.setFilter(filter.value)"
-          class="px-4 py-2 rounded-xl transition"
+          class="px-4 py-2 rounded-xl transition cursor-pointer"
           :class="{
             'bg-indigo-600 text-white': todoStore.activeFilter === filter.value,
             'bg-gray-100 text-gray-700 hover:bg-gray-200':
@@ -98,9 +98,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from "vue";
+import { onMounted } from "vue";
 import { useTodoStore } from "../stores/todoStore";
-import { storeToRefs } from "pinia";
 
 const todoStore = useTodoStore();
 

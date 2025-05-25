@@ -14,7 +14,8 @@
     <div class="relative bg-white rounded-2xl shadow-xl w-full max-w-md p-6">
       <h3 class="text-xl font-bold text-indigo-600 mb-4">
         <!-- 根据 isNewTodo 动态显示标题 -->
-        {{ todoStore.isNewTodo ? "New Todo" : "Edit Todo" }}</h3>
+        {{ todoStore.isNewTodo ? "New Todo" : "Edit Todo" }}
+      </h3>
 
       <div class="space-y-4">
         <div>
@@ -36,6 +37,21 @@
             type="date"
             class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
           />
+        </div>
+
+        <!-- 同步到日历 -->
+        <div class="form-group mb-4">
+          <div class="flex items-center mb-2">
+            <input
+              v-model="todoStore.currentEditingTodo.addToCalendar"
+              type="checkbox"
+              id="addToCalendar"
+              class="mr-2"
+            />
+            <label for="addToCalendar" class="text-sm text-gray-700">
+              添加到日历
+            </label>
+          </div>
         </div>
 
         <div class="flex justify-end gap-3 pt-4">

@@ -60,8 +60,8 @@
     <!-- <MiniCalendar /> -->
     <!-- 视图选择器组件 -->
     <ViewSelector />
-    <!-- 分类列表组件 -->
-    <Categories />
+    <!-- 日程分类组件，它不会在 todo 视图显示 -->
+    <Categories v-if="uiStore.currentView !== 'todo-list'" />
     <!-- 同步状态指示器，固定在侧边栏底部 -->
     <div class="sync-status mt-auto mx-4 my-3 flex items-center">
       <!-- 同步状态小圆点 -->
