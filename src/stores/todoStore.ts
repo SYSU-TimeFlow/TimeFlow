@@ -92,14 +92,24 @@ export const useTodoStore = defineStore("todo", () => {
   );
 
   const filteredTodos = computed(() => {
+    let list: TodoItem[];
     switch (activeFilter.value) {
       case "completed":
-        return completedTodos.value;
+        list = completedTodos.value;
+        break;
       case "active":
-        return activeTodos.value;
+        list = activeTodos.value;
+        break;
       default:
-        return allTodos.value;
+        list = allTodos.value;
     }
+    // 优先显示未完成事项，并在各自组内按截止日期升序排序
+    return [...list].sort((a, b) => {
+      if (a.completed !== b.completed) {
+        return a.completed ? 1 : -1; // 未完成在前
+      }
+      return a.dueDate.getTime() - b.dueDate.getTime(); // 截止日期升序
+    });
   });
 
   const emptyStateMessage = computed(() => {
