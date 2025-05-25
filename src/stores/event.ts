@@ -218,6 +218,49 @@ export const useEventStore = defineStore("event", () => {
     }
   }
 
+  function addEvent(title: string, start: Date, end: Date) {
+    const newEvent = {
+      id: Date.now(),
+      title: title,
+      start: start,
+      end: end,
+      description: "",
+      categoryId: 5, // 默认分类
+      categoryColor: "#60a5fa",
+      allDay: true,
+      addToTodo: true,
+    };
+    events.value.push(newEvent);
+  }
+
+  // 同步事件到 ToDoList
+  function syncEventToTodo(event: any) {
+    const todoStore = useTodoStore();
+    const idx = todoStore.todos.findIndex(
+      (todo) =>
+        event.title === todo.title &&
+        event.end.getDate() === todo.dueDate.getDate()
+    );
+    if (event.addToTodo) {
+      // 添加或更新
+      const todoItem = {
+        id: Date.now(),
+        title: event.title,
+        dueDate: event.end,
+        completed: false,
+        addToCalendar: true,
+      };
+      if (idx === -1) {
+        todoStore.todos.push(todoItem);
+      } else {
+        todoStore.todos[idx] = todoItem;
+      }
+    } else if (idx !== -1) {
+      // 取消同步则移除
+      todoStore.todos.splice(idx, 1);
+    }
+  }
+
   // 保存事件 (新建或更新)
   function saveEvent() {
     // 确保颜色与分类一致

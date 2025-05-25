@@ -107,7 +107,9 @@
       <!-- 侧边栏组件 -->
       <Sidebar />
       <!-- 主日历区域组件 -->
-      <CalendarMain />
+      <CalendarMain v-if="uiStore.currentView !== 'todo-list'" />
+      <!-- Todo List 组件 -->
+      <TodoList v-else />
     </div>
     <!-- 事件模态框组件 (用于创建/编辑事件) -->
     <EventModal />
@@ -126,8 +128,10 @@
 import { onMounted, ref } from "vue";
 import Sidebar from "../components/Sidebar.vue";
 import CalendarMain from "../components/CalendarMain.vue";
+import TodoList from "../components/TodoList.vue";
 import EventModal from "../components/EventModal.vue";
 import CategoryModal from "../components/CategoryModal.vue"; // 导入分类模态框组件
+import TodoModal from "../components/TodoModal.vue"; // 导入待办事项模态框组件
 import Setting from "../components/Setting.vue"; // 导入设置组件
 import { useUiStore } from "../stores/ui";
 import { useSettingStore } from "../stores/setting";
