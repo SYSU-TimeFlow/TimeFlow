@@ -258,6 +258,7 @@ export const useEventStore = defineStore("event", () => {
             event.end.getDate() === todo.dueDate.getDate()
         );
         if (todoIndex !== -1) {
+          // 删除相关联的 todo 事项
           todoStore.todos.splice(todoIndex, 1);
         }
       }
