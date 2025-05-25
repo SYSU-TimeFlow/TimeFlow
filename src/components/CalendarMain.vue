@@ -7,59 +7,6 @@
 <template>
   <!-- 主日历区域容器 -->
   <main class="calendar-main flex-1 flex flex-col overflow-hidden">
-    <!-- 日历头部区域，包含标题、导航按钮、搜索和过滤 -->
-    <div class="calendar-header p-6 flex items-center justify-between">
-      <!-- 左侧部分：标题和导航按钮 -->
-      <div class="flex items-center">
-        <h2 class="text-2xl font-semibold mr-4">{{ uiStore.calendarTitle }}</h2>
-        <!-- 导航按钮组 -->
-        <div class="navigation-buttons flex space-x-2">
-          <!-- "今天"按钮 -->
-          <button
-            @click="uiStore.goToToday()"
-            class="py-1 px-3 border border-gray-300 rounded-md text-sm hover:bg-gray-100 cursor-pointer !rounded-button whitespace-nowrap"
-          >
-            Today
-          </button>
-          <!-- "上一个"导航按钮 -->
-          <button
-            @click="uiStore.navigateCalendar('prev')"
-            class="p-1 border border-gray-300 rounded-md hover:bg-gray-100 cursor-pointer !rounded-button whitespace-nowrap"
-          >
-            <i class="fas fa-chevron-left"></i>
-          </button>
-          <!-- "下一个"导航按钮 -->
-          <button
-            @click="uiStore.navigateCalendar('next')"
-            class="p-1 border border-gray-300 rounded-md hover:bg-gray-100 cursor-pointer !rounded-button whitespace-nowrap"
-          >
-            <i class="fas fa-chevron-right"></i>
-          </button>
-        </div>
-      </div>
-      <!-- 右侧部分：搜索框和过滤按钮 -->
-      <div class="flex items-center space-x-3">
-        <!-- 事件搜索框 -->
-        <div class="search-box relative">
-          <input
-            type="text"
-            placeholder="Search events..."
-            class="pl-8 pr-4 py-1 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          />
-          <i
-            class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm"
-          ></i>
-        </div>
-        <!-- 过滤按钮(未实现) -->
-        <button
-          @click=""
-          class="p-2 border border-gray-300 rounded-md hover:bg-gray-100 cursor-pointer !rounded-button whitespace-nowrap"
-        >
-          <i class="fas fa-filter text-gray-600"></i>
-        </button>
-      </div>
-    </div>
-
     <!-- 月视图容器 -->
     <div
       v-if="uiStore.currentView === 'month'"
@@ -110,14 +57,6 @@
             >
               {{ day.dayNumber }}
             </span>
-            <!-- 添加事件按钮，仅在当前月份日期显示 -->
-            <button
-              v-if="day.isCurrentMonth"
-              class="add-event-day text-xs text-gray-400 hover:text-gray-600 cursor-pointer !rounded-button whitespace-nowrap"
-              @click.stop="uiStore.handleDayClick(day, true)"
-            >
-              <i class="fas fa-plus"></i>
-            </button>
           </div>
           <!-- 当天事件列表容器 -->
           <div
