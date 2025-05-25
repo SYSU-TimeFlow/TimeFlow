@@ -82,6 +82,7 @@
 import ViewSelector from "./ViewSelector.vue";
 import Categories from "./Categories.vue";
 import { useEventStore } from '../stores/event';
+import { useTodoStore } from '../stores/todoStore';
 import { useUiStore } from '../stores/ui';
 import { useSettingStore } from '../stores/setting';
 import { ref } from 'vue';
@@ -90,6 +91,7 @@ import { ref } from 'vue';
 const eventStore = useEventStore();
 const uiStore = useUiStore();
 const settingStore = useSettingStore();
+const todoStore = useTodoStore();
 
 </script>
 
