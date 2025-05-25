@@ -1,6 +1,6 @@
-import { defineStore } from 'pinia';
-import { ref, computed } from 'vue';
-import { useEventStore } from './event';
+import { defineStore } from "pinia";
+import { ref, computed } from "vue";
+import { useEventStore } from "./event";
 
 // 添加类型定义
 interface CalendarDay {
@@ -27,7 +27,7 @@ interface WeekViewDay {
   events: any[];
 }
 
-export const useUiStore = defineStore('ui', () => {
+export const useUiStore = defineStore("ui", () => {
   // 定义日历视图选项
   const calendarViews = [
     { id: "month", label: "月", icon: "fa-calendar-alt" },
@@ -45,11 +45,23 @@ export const useUiStore = defineStore('ui', () => {
 
   // 计算属性
   const weekDays = computed(() => [
-    "星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六",
+    "星期日",
+    "星期一",
+    "星期二",
+    "星期三",
+    "星期四",
+    "星期五",
+    "星期六",
   ]);
-  
+
   const weekDaysShort = computed(() => [
-    "日", "一", "二", "三", "四", "五", "六",
+    "日",
+    "一",
+    "二",
+    "三",
+    "四",
+    "五",
+    "六",
   ]);
 
   // 主日历标题
@@ -62,10 +74,11 @@ export const useUiStore = defineStore('ui', () => {
       return ` ${new Intl.DateTimeFormat("zh-CN", {
         month: "short",
         day: "numeric",
+        year: "numeric",
       }).format(getStartOfWeek(currentDate.value))} - ${new Intl.DateTimeFormat(
         "zh-CN",
         { month: "short", day: "numeric", year: "numeric" }
-      ).format(getEndOfWeek(currentDate.value))} 周`;
+      ).format(getEndOfWeek(currentDate.value))}`;
     } else if (currentView.value === "day") {
       return new Intl.DateTimeFormat("zh-CN", {
         weekday: "long",
@@ -152,7 +165,7 @@ export const useUiStore = defineStore('ui', () => {
     today.setHours(0, 0, 0, 0);
     const selectedDay = new Date(selectedDate.value);
     selectedDay.setHours(0, 0, 0, 0);
-    
+
     let currentDay = new Date(startDate);
     while (currentDay <= endDate) {
       const isCurrentMonth =
@@ -178,7 +191,7 @@ export const useUiStore = defineStore('ui', () => {
     const startOfWeek = getStartOfWeek(currentDate.value);
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    
+
     for (let i = 0; i < 7; i++) {
       const day = new Date(startOfWeek);
       day.setDate(day.getDate() + i);
@@ -224,14 +237,14 @@ export const useUiStore = defineStore('ui', () => {
 
   function calculateEventTop(event: any): number {
     const start = new Date(event.start);
-    return ((start.getHours() * 60 + start.getMinutes()) / 60) * 64;
+    return ((start.getHours() * 60 + start.getMinutes()) / 60) * 30;
   }
 
   function calculateEventHeight(event: any): number {
     const start = new Date(event.start);
     const end = new Date(event.end);
     const durationHours = (end.getTime() - start.getTime()) / (1000 * 60 * 60);
-    return Math.max(durationHours * 64, 24);
+    return Math.max(durationHours * 30, 24);
   }
 
   function getContrastColor(hexColor: string): string {
@@ -297,7 +310,7 @@ export const useUiStore = defineStore('ui', () => {
 
   function handleDayClick(day: any, isAddEvent = false) {
     const eventStore = useEventStore();
-    
+
     if (day.isCurrentMonth) {
       currentDate.value = new Date(day.date);
       selectedDate.value = new Date(day.date);
@@ -313,7 +326,7 @@ export const useUiStore = defineStore('ui', () => {
 
   function handleHourClick(day: any, hour: number) {
     const eventStore = useEventStore();
-    
+
     const date = new Date(day.date);
     date.setHours(hour, 0, 0, 0);
     const endDate = new Date(date);
@@ -330,8 +343,7 @@ export const useUiStore = defineStore('ui', () => {
 
   function handleDrop(event: DragEvent, day: any) {
     const eventStore = useEventStore();
-    
-    event.preventDefault();
+
     if (draggedEvent.value && event.dataTransfer) {
       const eventId = parseInt(event.dataTransfer.getData("text/plain"));
       const eventIndex = eventStore.events.findIndex((e) => e.id === eventId);
@@ -388,6 +400,6 @@ export const useUiStore = defineStore('ui', () => {
     formatHour,
     calculateEventTop,
     calculateEventHeight,
-    getContrastColor
+    getContrastColor,
   };
 });
