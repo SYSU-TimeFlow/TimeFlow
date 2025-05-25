@@ -197,11 +197,4 @@ const eventStore = useEventStore();
   -webkit-backdrop-filter: blur(4px); /* 兼容 Safari */
   background: rgba(0, 0, 0, 0.1); /* 轻微透明黑色，增强模糊可见性 */
 }
-
-/* 确保背景模糊效果兼容性 */
-.backdrop-blur-sm {
-  backdrop-filter: blur(4px); /* 轻微高斯模糊，数值可调整 */
-  -webkit-backdrop-filter: blur(4px); /* 兼容 Safari */
-  background: rgba(0, 0, 0, 0.1); /* 轻微透明黑色，增强模糊可见性 */
-}
 </style>

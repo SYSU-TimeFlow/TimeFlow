@@ -36,9 +36,9 @@
           @click="todoStore.toggleTodo(todo.id)"
           class="flex justify-between items-center p-5 bg-white rounded-2xl shadow-sm hover:shadow-md transition cursor-pointer border-l-4"
           :class="{
-            'border-red-400': todo.id % 3 === 0,
-            'border-orange-400': todo.id % 3 === 1,
-            'border-green-400': todo.id % 3 === 2,
+            'border-red-500': todo.id % 3 === 0,
+            'border-orange-500': todo.id % 3 === 1,
+            'border-green-500': todo.id % 3 === 2,
             'opacity-70 bg-gray-50': todo.completed,
           }"
         >
