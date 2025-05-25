@@ -35,7 +35,7 @@
             v-for="todo in todoStore.filteredTodos"
             :key="todo.id"
             @click="todoStore.toggleTodo(todo.id)"
-            class="flex justify-between items-center p-5 bg-white rounded-2xl shadow-sm hover:shadow-md transition cursor-pointer border-l-4"
+            class="flex justify-between items-center p-5 bg-white rounded-2xl shadow-sm hover:shadow-md transition cursor-pointer border-l-4 group"
             :class="{
               'border-red-500': todo.id % 3 === 0,
               'border-orange-500': todo.id % 3 === 1,
@@ -66,7 +66,7 @@
               </div>
             </div>
 
-            <div class="flex gap-2">
+            <div class="flex gap-2 opacity-0 group-hover:opacity-100 transition">
               <!-- 编辑按钮 -->
               <button
                 @click.stop="todoStore.openEditModal(todo)"
