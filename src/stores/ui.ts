@@ -33,6 +33,7 @@ export const useUiStore = defineStore("ui", () => {
     { id: "month", label: "月", icon: "fa-calendar-alt" },
     { id: "week", label: "周", icon: "fa-calendar-week" },
     { id: "day", label: "日", icon: "fa-calendar-day" },
+    { id: "todo-list", label: "To-Do", icon: "fa-list-check" },
   ];
 
   // 日历状态管理

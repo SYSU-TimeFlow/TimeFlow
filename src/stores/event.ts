@@ -1,5 +1,6 @@
 import { defineStore } from "pinia";
 import { ref, computed } from "vue";
+import { useTodoStore } from "../stores/todoStore";
 
 export const useEventStore = defineStore("event", () => {
   // 预设颜色选项 - 按照红橙黄绿青蓝紫等顺序排列的10种适合文字阅读的颜色
@@ -36,7 +37,7 @@ export const useEventStore = defineStore("event", () => {
       categoryId: 1,
       categoryColor: "#e63946",
       allDay: false,
-      syncWithSystem: true,
+      addToTodo: true,
     },
     {
       id: 2,
@@ -47,7 +48,7 @@ export const useEventStore = defineStore("event", () => {
       categoryId: 4,
       categoryColor: "#2a9d8f",
       allDay: false,
-      syncWithSystem: true,
+      addToTodo: true,
     },
     {
       id: 3,
@@ -58,7 +59,7 @@ export const useEventStore = defineStore("event", () => {
       categoryId: 3,
       categoryColor: "#fcbf49",
       allDay: false,
-      syncWithSystem: true,
+      addToTodo: true,
     },
     {
       id: 4,
@@ -69,7 +70,7 @@ export const useEventStore = defineStore("event", () => {
       categoryId: 1,
       categoryColor: "#e63946",
       allDay: true,
-      syncWithSystem: true,
+      addToTodo: true,
     },
     {
       id: 5,
@@ -80,7 +81,7 @@ export const useEventStore = defineStore("event", () => {
       categoryId: 4,
       categoryColor: "#2a9d8f",
       allDay: false,
-      syncWithSystem: false,
+      addToTodo: false,
     },
   ]);
 
@@ -106,7 +107,7 @@ export const useEventStore = defineStore("event", () => {
     categoryId: 1,
     categoryColor: "#4f46e5",
     allDay: false,
-    syncWithSystem: true,
+    addToTodo: true,
   });
 
   // 获取指定日期的所有事件
@@ -187,7 +188,7 @@ export const useEventStore = defineStore("event", () => {
       categoryColor:
         categories.value.length > 0 ? categories.value[0].color : "#4f46e5",
       allDay: false,
-      syncWithSystem: true,
+      addToTodo: true,
     };
     showEventModal.value = true;
   }
@@ -217,6 +218,49 @@ export const useEventStore = defineStore("event", () => {
     }
   }
 
+  function addEvent(title: string, start: Date, end: Date) {
+    const newEvent = {
+      id: Date.now(),
+      title: title,
+      start: start,
+      end: end,
+      description: "",
+      categoryId: 5, // 默认分类
+      categoryColor: "#60a5fa",
+      allDay: true,
+      addToTodo: true,
+    };
+    events.value.push(newEvent);
+  }
+
+  // 同步事件到 ToDoList
+  function syncEventToTodo(event: any) {
+    const todoStore = useTodoStore();
+    const idx = todoStore.todos.findIndex(
+      (todo) =>
+        event.title === todo.title &&
+        event.end.getDate() === todo.dueDate.getDate()
+    );
+    if (event.addToTodo) {
+      // 添加或更新
+      const todoItem = {
+        id: Date.now(),
+        title: event.title,
+        dueDate: event.end,
+        completed: false,
+        addToCalendar: true,
+      };
+      if (idx === -1) {
+        todoStore.todos.push(todoItem);
+      } else {
+        todoStore.todos[idx] = todoItem;
+      }
+    } else if (idx !== -1) {
+      // 取消同步则移除
+      todoStore.todos.splice(idx, 1);
+    }
+  }
+
   // 保存事件 (新建或更新)
   function saveEvent() {
     // 确保颜色与分类一致
@@ -240,6 +284,7 @@ export const useEventStore = defineStore("event", () => {
         events.value[index] = eventToSave;
       }
     }
+    syncEventToTodo(eventToSave);
     closeEventModal();
   }
 
@@ -247,6 +292,19 @@ export const useEventStore = defineStore("event", () => {
   function deleteEvent() {
     const index = events.value.findIndex((e) => e.id === currentEvent.value.id);
     if (index !== -1) {
+      const event = events.value[index];
+      if (event.addToTodo) {
+        const todoStore = useTodoStore();
+        const todoIndex = todoStore.todos.findIndex(
+          (todo) =>
+            event.title === todo.title &&
+            event.end.getDate() === todo.dueDate.getDate()
+        );
+        if (todoIndex !== -1) {
+          // 删除相关联的 todo 事项
+          todoStore.todos.splice(todoIndex, 1);
+        }
+      }
       events.value.splice(index, 1);
     }
     closeEventModal();
@@ -388,6 +446,7 @@ export const useEventStore = defineStore("event", () => {
     openNewEventModal,
     openEventDetails,
     closeEventModal,
+    addEvent,
     saveEvent,
     deleteEvent,
     toggleCategory,
