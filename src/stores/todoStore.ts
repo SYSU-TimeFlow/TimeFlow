@@ -113,12 +113,13 @@ export const useTodoStore = defineStore("todo", () => {
     }
   });
 
-  function addTodo(title: string, dueDate: Date) {
+  function addTodo(title: string, dueDate: Date, addToCalendar: boolean = false) {
     const newTodo = new TodoItem(
       Date.now(),
       title,
       setTimeToEndOfDay(dueDate),
-      false
+      false,
+      addToCalendar,
     );
     todos.value.push(newTodo);
     return newTodo;
@@ -208,7 +209,8 @@ export const useTodoStore = defineStore("todo", () => {
     // 将时间设置为23:59:59
     const dueDate = new Date(currentEditingTodo.value.dueDate); // 确保将字符串转换为 Date 类型
     dueDate.setHours(23, 59, 59, 0);
-    const newTodo = addTodo(currentEditingTodo.value.title, dueDate);
+    const newTodo = addTodo(currentEditingTodo.value.title, dueDate, currentEditingTodo.value.addToCalendar);
+    // 如果用户选择了添加到日历，则创建事件
     if (currentEditingTodo.value.addToCalendar) {
       const eventStore = useEventStore();
       eventStore.addEvent(newTodo.title, dueDate, dueDate);
