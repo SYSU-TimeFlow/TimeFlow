@@ -103,8 +103,13 @@ export const useTodoStore = defineStore("todo", () => {
       default:
         list = allTodos.value;
     }
-    // 按截止日期升序排序
-    return [...list].sort((a, b) => a.dueDate.getTime() - b.dueDate.getTime());
+    // 优先显示未完成事项，并在各自组内按截止日期升序排序
+    return [...list].sort((a, b) => {
+      if (a.completed !== b.completed) {
+        return a.completed ? 1 : -1; // 未完成在前
+      }
+      return a.dueDate.getTime() - b.dueDate.getTime(); // 截止日期升序
+    });
   });
 
   const emptyStateMessage = computed(() => {
