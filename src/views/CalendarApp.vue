@@ -65,6 +65,9 @@
     <!-- 事件模态框组件 (用于创建/编辑事件) -->
     <EventModal />
 
+    <!-- 分类模态框组件 (用于创建/编辑分类) -->
+    <CategoryModal />
+
     <!-- 设置模态框，仅在showSettings为true时显示 -->
     <Setting />
   </div>
@@ -75,6 +78,7 @@ import { onMounted, ref } from "vue";
 import Sidebar from "../components/Sidebar.vue";
 import CalendarMain from "../components/CalendarMain.vue";
 import EventModal from "../components/EventModal.vue";
+import CategoryModal from "../components/CategoryModal.vue"; // 导入分类模态框组件
 import Setting from "../components/Setting.vue"; // 导入设置组件
 import { useUiStore } from "../stores/ui";
 import { useSettingStore } from "../stores/setting";
