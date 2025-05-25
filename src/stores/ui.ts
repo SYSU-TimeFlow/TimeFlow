@@ -39,7 +39,6 @@ export const useUiStore = defineStore("ui", () => {
   const currentView = ref("month");
   const currentDate = ref(new Date());
   const selectedDate = ref(new Date());
-  const miniCalendarDate = ref(new Date());
   const sidebarCollapsed = ref(false);
   const draggedEvent = ref(null);
 
@@ -90,14 +89,6 @@ export const useUiStore = defineStore("ui", () => {
     return new Intl.DateTimeFormat("zh-CN", options).format(currentDate.value);
   });
 
-  // 迷你日历标题
-  const miniCalendarTitle = computed(() => {
-    return new Intl.DateTimeFormat("zh-CN", {
-      month: "long",
-      year: "numeric",
-    }).format(miniCalendarDate.value);
-  });
-
   // 日视图标题
   const dayViewTitle = computed(() => {
     return new Intl.DateTimeFormat("zh-CN", {
@@ -146,44 +137,6 @@ export const useUiStore = defineStore("ui", () => {
     return days;
   });
 
-  // 迷你日历的日期格子数据
-  const miniCalendarDays = computed(() => {
-    const days: MiniCalendarDay[] = [];
-    const monthStart = new Date(
-      miniCalendarDate.value.getFullYear(),
-      miniCalendarDate.value.getMonth(),
-      1
-    );
-    const monthEnd = new Date(
-      miniCalendarDate.value.getFullYear(),
-      miniCalendarDate.value.getMonth() + 1,
-      0
-    );
-    const startDate = getStartOfWeek(monthStart);
-    const endDate = getEndOfWeek(monthEnd);
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const selectedDay = new Date(selectedDate.value);
-    selectedDay.setHours(0, 0, 0, 0);
-
-    let currentDay = new Date(startDate);
-    while (currentDay <= endDate) {
-      const isCurrentMonth =
-        currentDay.getMonth() === miniCalendarDate.value.getMonth();
-      const isToday = currentDay.getTime() === today.getTime();
-      const isSelected = currentDay.getTime() === selectedDay.getTime();
-      days.push({
-        date: new Date(currentDay),
-        dayNumber: currentDay.getDate(),
-        isCurrentMonth,
-        isToday,
-        isSelected,
-      });
-      currentDay.setDate(currentDay.getDate() + 1);
-    }
-    return days;
-  });
-
   // 获取周视图日期数据
   const weekViewDays = computed(() => {
     const eventStore = useEventStore();
@@ -206,6 +159,9 @@ export const useUiStore = defineStore("ui", () => {
     }
     return days;
   });
+
+  // 控制切换按钮显示状态
+  const showToggleButton = ref(false);
 
   // 获取日视图的事件数据
   const dayViewEvents = computed(() => {
@@ -287,21 +243,6 @@ export const useUiStore = defineStore("ui", () => {
     selectedDate.value = new Date();
   }
 
-  function prevMonth() {
-    miniCalendarDate.value = new Date(
-      miniCalendarDate.value.getFullYear(),
-      miniCalendarDate.value.getMonth() - 1,
-      1
-    );
-  }
-
-  function nextMonth() {
-    miniCalendarDate.value = new Date(
-      miniCalendarDate.value.getFullYear(),
-      miniCalendarDate.value.getMonth() + 1,
-      1
-    );
-  }
 
   function selectDate(date: Date) {
     selectedDate.value = new Date(date);
@@ -372,24 +313,20 @@ export const useUiStore = defineStore("ui", () => {
     currentView,
     currentDate,
     selectedDate,
-    miniCalendarDate,
     sidebarCollapsed,
     draggedEvent,
     weekDays,
     weekDaysShort,
     calendarTitle,
-    miniCalendarTitle,
     dayViewTitle,
     calendarDays,
-    miniCalendarDays,
     weekViewDays,
     dayViewEvents,
+    showToggleButton,
     toggleSidebar,
     changeView,
     navigateCalendar,
     goToToday,
-    prevMonth,
-    nextMonth,
     selectDate,
     handleDayClick,
     handleHourClick,
