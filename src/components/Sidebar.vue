@@ -1,24 +1,22 @@
-<!--
-    @file Sidebar.vue
-    @description 日历应用的侧边栏组件。
-    该组件包含添加事件按钮、迷你日历、视图选择器、分类列表以及同步状态指示器。
-    侧边栏可以展开或折叠。
--->
 <template>
   <!-- 侧边栏容器 -->
   <aside
     :class="[
-      'sidebar bg-gray-50 border-r border-gray-200 flex flex-col transition-all duration-300',
+      'sidebar bg-gray-50 border-r border-gray-200 flex flex-col transition-all duration-300 relative',
       uiStore.sidebarCollapsed ? 'w-16' : 'w-64', // 根据 sidebarCollapsed 状态动态调整宽度
     ]"
+    @mouseenter="uiStore.showToggleButton = true"
+    @mouseleave="uiStore.showToggleButton = false"
   >
     <!-- 侧边栏折叠/展开切换按钮 -->
     <button
       @click="uiStore.toggleSidebar"
       :class="[
-        'sidebar-toggle text-gray-500 hover:text-gray-700 cursor-pointer !rounded-button whitespace-nowrap transition-all',
-        uiStore.sidebarCollapsed ? 'mx-auto my-3 w-8 h-8 flex items-center justify-center rounded-full' : 'self-end p-2 m-2', // 根据折叠状态设置不同的边距
+        'sidebar-toggle text-gray-500 hover:text-gray-700 cursor-pointer absolute right-0 transition-all duration-200',
+        uiStore.sidebarCollapsed ? 'w-8 h-8 flex items-center justify-center rounded-full' : 'p-2',
+        uiStore.showToggleButton ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-4' // 悬停时显示，离开时隐藏
       ]"
+      style="top: 50%; transform: translateY(-50%);" 
     >
       <i
         :class="
@@ -41,7 +39,7 @@
       <!-- 仅在侧边栏展开时显示文字 -->
     </button>
     <!-- 迷你日历组件 -->
-    <MiniCalendar />
+    <!-- <MiniCalendar /> -->
     <!-- 视图选择器组件 -->
     <ViewSelector />
     <!-- 分类列表组件 -->
@@ -64,15 +62,30 @@
 </template>
 
 <script setup>
-import MiniCalendar from "./MiniCalendar.vue";
+// import MiniCalendar from "./MiniCalendar.vue";
 import ViewSelector from "./ViewSelector.vue";
 import Categories from "./Categories.vue";
 import { useEventStore } from '../stores/event';
 import { useUiStore } from '../stores/ui';
 import { useSettingStore } from '../stores/setting';
+import { ref } from 'vue';
 
 // 使用Pinia仓库
 const eventStore = useEventStore();
 const uiStore = useUiStore();
 const settingStore = useSettingStore();
+
 </script>
+
+<style scoped>
+/* 确保按钮在侧边栏右边界处 */
+.sidebar-toggle {
+  transform: translateY(-50%); /* 垂直居中 */
+}
+
+/* 侧边栏悬停时显示按钮 */
+.sidebar:hover .sidebar-toggle {
+  opacity: 1;
+  transform: translateY(-50%) translateX(0);
+}
+</style>
