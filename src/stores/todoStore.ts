@@ -67,6 +67,13 @@ export const useTodoStore = defineStore("todo", () => {
   // 待办事项模态框的状态管理
   const showTodoModal = ref(false);
   const isNewTodo = ref(true);
+  const previousTodo = ref({
+    id: 0,
+    title: "",
+    dueDate: new Date(),
+    completed: false,
+    addToCalendar: false,
+  });
   const currentEditingTodo = ref({
     id: 0,
     title: "",
@@ -106,7 +113,6 @@ export const useTodoStore = defineStore("todo", () => {
     }
   });
 
-  // Actions
   function addTodo(title: string, dueDate: Date) {
     const newTodo = new TodoItem(
       Date.now(),
@@ -131,6 +137,9 @@ export const useTodoStore = defineStore("todo", () => {
       if (eventIndex !== -1) {
         if (confirm("是否同时删除日历中的同名日程？")) {
           eventStore.events.splice(eventIndex, 1);
+        } else {
+          // 如果用户选择不删除日历中的事件，则需要将该事件的 addToTodo 属性设置为 false
+          eventStore.events[eventIndex].addToTodo = false;
         }
       }
       todos.value.splice(index, 1);
@@ -169,6 +178,7 @@ export const useTodoStore = defineStore("todo", () => {
   // 打开模态框，新建 todo 事项
   const openNewTodoModal = () => {
     isNewTodo.value = true;
+    previousTodo.value.title = "";
     currentEditingTodo.value.title = "";
     setDefaultDueDate(); // 重置为默认日期
     showTodoModal.value = true;
@@ -184,68 +194,69 @@ export const useTodoStore = defineStore("todo", () => {
       completed: todo.completed,
       addToCalendar: todo.addToCalendar,
     };
+    // 备份 todo 事项的原始值，以便查找到关联的事件，否则修改后就搜索不到
+    previousTodo.value = todo;
 
     showTodoModal.value = true;
-  };
-
-  const syncTodoWithCalendar = (todo: TodoItem) => {
-    const eventStore = useEventStore();
-    const eventIndex = eventStore.events.findIndex(
-      (event) =>
-        event.title === todo.title &&
-        event.end.getDate() === todo.dueDate.getDate()
-    );
-    // 如果日历中没有该事项且已选中添加到日历，则添加
-    if (eventIndex === -1 && todo.addToCalendar) {
-      eventStore.events.push({
-        id: eventStore.events.length + 1,
-        title: todo.title,
-        start: todo.dueDate,
-        end: todo.dueDate,
-        description: "",
-        categoryId: 5, // 默认分类
-        categoryColor: "#60a5fa",
-        allDay: true,
-        addToTodo: true,
-      });
-    }
   };
 
   const closeEditModal = () => {
     showTodoModal.value = false;
   };
 
-  const saveEdit = () => {
+  const saveNewTodo = () => {
     // 将时间设置为23:59:59
     const dueDate = new Date(currentEditingTodo.value.dueDate); // 确保将字符串转换为 Date 类型
     dueDate.setHours(23, 59, 59, 0);
+    const newTodo = addTodo(currentEditingTodo.value.title, dueDate);
+    if (currentEditingTodo.value.addToCalendar) {
+      const eventStore = useEventStore();
+      eventStore.addEvent(newTodo.title, dueDate, dueDate);
+    }
+  };
+
+  const saveEdit = () => {
+    // 将时间设置为23:59:59
+    const dueDate = new Date(currentEditingTodo.value.dueDate); // 确保将字符串转换为 Date 类型
+    const todo = new TodoItem(
+      previousTodo.value.id,
+      currentEditingTodo.value.title,
+      dueDate,
+      currentEditingTodo.value.completed,
+      currentEditingTodo.value.addToCalendar
+    );
 
     if (isNewTodo.value) {
-      const newTodo = addTodo(currentEditingTodo.value.title, dueDate);
-      if (currentEditingTodo.value.addToCalendar) {
-        const eventStore = useEventStore();
-        eventStore.addEvent({
-          id: newTodo.id,
-          title: newTodo.title,
-          start: dueDate,
-          end: dueDate,
-          description: "",
-          categoryId: 5, // 默认分类
-          categoryColor: "#60a5fa",
-          allDay: true,
-          addToTodo: true,
-        });
-      }
+      saveNewTodo();
     } else {
-      updateTodo(currentEditingTodo.value.id, {
-        title: currentEditingTodo.value.title,
-        dueDate: dueDate, // 确保传递的是 Date 类型
-        addToCalendar: currentEditingTodo.value.addToCalendar,
+      // 先根据previousTodo, 检查日历中有没有关联的事件
+      const eventStore = useEventStore();
+      const eventIndex = eventStore.events.findIndex(
+        (event) =>
+          previousTodo.value.title === event.title &&
+          previousTodo.value.dueDate.getDate() === event.end.getDate()
+      );
+
+      // 更新todo
+      updateTodo(todo.id, {
+        title: todo.title,
+        dueDate: dueDate,
+        completed: todo.completed,
+        addToCalendar: todo.addToCalendar,
       });
-      syncTodoWithCalendar({
-        ...currentEditingTodo.value,
-        dueDate, // 确保传递的是 Date 类型
-      });
+      if (currentEditingTodo.value.addToCalendar) {
+        if (eventIndex !== -1) {
+          // 如果找到关联事件，则更新事件
+          eventStore.events[eventIndex].title = todo.title;
+          eventStore.events[eventIndex].start = dueDate;
+          eventStore.events[eventIndex].end = dueDate;
+          eventStore.events[eventIndex].addToTodo =
+            currentEditingTodo.value.addToCalendar;
+        } else {
+          // 如果上一步没有找到关联事件，且用户选择了添加到日历，则添加新的事件
+          eventStore.addEvent(todo.title, dueDate, dueDate);
+        }
+      }
     }
     closeEditModal();
   };
@@ -286,6 +297,7 @@ export const useTodoStore = defineStore("todo", () => {
     filters,
     showTodoModal,
     isNewTodo,
+    previousTodo,
     currentEditingTodo,
 
     // Getters
