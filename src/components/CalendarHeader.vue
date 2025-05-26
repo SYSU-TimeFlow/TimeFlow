@@ -46,31 +46,41 @@
       <!-- 改造的搜索框/模式显示区域 -->
       <div class="search-box relative no-drag ml-1">
         <!-- 模式指示器，非搜索状态显示 -->
-        <div 
-          v-if="!uiStore.isSearchActive" 
+        <div
+          v-if="!uiStore.isSearchActive"
           class="mode-indicator pl-8 pr-4 py-1 border border-gray-300 rounded-md text-sm w-64 h-[32px] flex items-center"
-          :class="{'command-mode': uiStore.appMode === 'command'}"
+          :class="{ 'command-mode': uiStore.appMode === 'command' }"
         >
-          <span v-if="uiStore.appMode === 'normal'" class="flex items-center w-full">
+          <span
+            v-if="uiStore.appMode === 'normal'"
+            class="flex items-center w-full"
+          >
             <i class="fas fa-keyboard mr-2 text-gray-500"></i>
             <span class="text-sm text-gray-400 ml-2">Press / to search</span>
           </span>
-          <span v-else-if="uiStore.appMode === 'command'" class="flex items-center w-full">
+          <span
+            v-else-if="uiStore.appMode === 'command'"
+            class="flex items-center w-full"
+          >
             <i class="fas fa-terminal mr-2 text-blue-500"></i>
             <span class="text-sm text-gray-400 ml-2">Enter command...</span>
           </span>
         </div>
-        
+
         <!-- 搜索框，搜索状态显示 -->
         <input
           v-if="uiStore.isSearchActive"
           ref="searchInputRef"
           type="text"
-          :placeholder="uiStore.appMode === 'normal' ? 'Search events...' : 'Enter command...'"
+          :placeholder="
+            uiStore.appMode === 'normal'
+              ? 'Search events...'
+              : 'Enter command...'
+          "
           class="pl-8 pr-4 py-1 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent w-64"
           :class="{
             'command-mode-input': uiStore.appMode === 'command',
-            'search-mode-input': uiStore.appMode === 'normal'
+            'search-mode-input': uiStore.appMode === 'normal',
           }"
           :value="eventStore.searchInputValue"
           @input="handleInputChange"
@@ -78,16 +88,22 @@
           @blur="handleSearchBlur"
           @keydown="handleSearchKeydown"
         />
-        
+
         <i
           class="fas absolute left-3 top-1/2 transform -translate-y-1/2 text-sm"
           :class="[
-            uiStore.isSearchActive && uiStore.appMode === 'normal' ? 'fa-search text-gray-400' : '',
-            uiStore.isSearchActive && uiStore.appMode === 'command' ? 'fa-terminal text-blue-600 command-icon' : '',
-            !uiStore.isSearchActive && uiStore.appMode === 'command' ? 'fa-terminal text-blue-500' : ''
+            uiStore.isSearchActive && uiStore.appMode === 'normal'
+              ? 'fa-search text-gray-400'
+              : '',
+            uiStore.isSearchActive && uiStore.appMode === 'command'
+              ? 'fa-terminal text-blue-600 command-icon'
+              : '',
+            !uiStore.isSearchActive && uiStore.appMode === 'command'
+              ? 'fa-terminal text-blue-500'
+              : '',
           ]"
         ></i>
-        
+
         <!-- 搜索结果列表 -->
         <div
           v-if="eventStore.showSearchDropdown && uiStore.appMode === 'normal'"
@@ -98,16 +114,29 @@
               v-for="(event, index) in eventStore.searchResults"
               :key="event.id"
               class="px-4 py-2 hover:bg-gray-100 cursor-pointer text-sm"
-              :class="{ 'search-result-focused': index === eventStore.focusedResultIndex }"
+              :class="{
+                'search-result-focused':
+                  index === eventStore.focusedResultIndex,
+              }"
               @mousedown="eventStore.selectSearchResultAction(event)"
             >
-              <span v-html="eventStore.getHighlightedHTMLContent(event.title, eventStore.searchQuery)"></span>
+              <span
+                v-html="
+                  eventStore.getHighlightedHTMLContent(
+                    event.title,
+                    eventStore.searchQuery
+                  )
+                "
+              ></span>
               <span class="text-xs text-gray-500 ml-2">{{
                 formatEventDate(event.start)
               }}</span>
             </li>
             <li
-              v-if="eventStore.searchQuery.trim() && eventStore.searchResults.length === 0"
+              v-if="
+                eventStore.searchQuery.trim() &&
+                eventStore.searchResults.length === 0
+              "
               class="px-4 py-2 text-sm text-gray-500"
             >
               No results found.
@@ -166,17 +195,17 @@
 import { ref, nextTick, onMounted, onUnmounted } from "vue";
 import { useUiStore } from "../stores/ui";
 import { useSettingStore } from "../stores/setting";
-import { useEventStore } from "../stores/event"; 
+import { useEventStore } from "../stores/event";
 
 // 引入各个仓库
 const uiStore = useUiStore();
 const settingStore = useSettingStore();
-const eventStore = useEventStore(); 
+const eventStore = useEventStore();
 
 // 引入preload中定义的electronAPI
 const electronAPI = (window as any).electronAPI;
 
-const resultListRef = ref<HTMLUListElement | null>(null); 
+const resultListRef = ref<HTMLUListElement | null>(null);
 const searchInputRef = ref<HTMLInputElement | null>(null);
 
 // 滚动到当前聚焦的搜索结果项
@@ -201,17 +230,17 @@ const scrollToFocusedResult = () => {
 // 组件挂载时注册滚动回调
 onMounted(() => {
   eventStore.setScrollUiUpdateCallback(scrollToFocusedResult);
-  
+
   // 注册全局键盘事件
-  window.addEventListener('keydown', handleGlobalKeydown);
+  window.addEventListener("keydown", handleGlobalKeydown);
 });
 
 // 组件卸载时清除滚动回调
 onUnmounted(() => {
   eventStore.clearScrollUiUpdateCallback();
-  
+
   // 清除全局键盘事件
-  window.removeEventListener('keydown', handleGlobalKeydown);
+  window.removeEventListener("keydown", handleGlobalKeydown);
 });
 
 // 格式化事件日期，用于在搜索结果中显示
@@ -246,7 +275,7 @@ const handleSearchKeydown = (event: KeyboardEvent) => {
     const input = event.target as HTMLInputElement;
     // 直接传入输入值，executeCommand内部会处理冒号前缀
     const commandSuccess = uiStore.executeCommand(input.value);
-    
+
     if (commandSuccess) {
       // 命令执行成功后清空输入框并关闭搜索
       eventStore.updateSearchInputValue("");
@@ -256,7 +285,7 @@ const handleSearchKeydown = (event: KeyboardEvent) => {
       // 命令无法识别时显示反馈
       showCommandError(`未知命令: ${input.value}`);
     }
-    
+
     event.preventDefault();
   } else {
     // 处理普通搜索逻辑
@@ -277,7 +306,7 @@ const handleGlobalKeydown = (event: KeyboardEvent) => {
   if (
     document.activeElement instanceof HTMLInputElement ||
     document.activeElement instanceof HTMLTextAreaElement ||
-    document.activeElement?.hasAttribute('contenteditable')
+    document.activeElement?.hasAttribute("contenteditable")
   ) {
     return;
   }
@@ -286,23 +315,31 @@ const handleGlobalKeydown = (event: KeyboardEvent) => {
   if (uiStore.appMode === "normal") {
     switch (event.key) {
       case "j":
+      case "ArrowDown": // 添加向下箭头键
         uiStore.scrollApp("down");
         event.preventDefault();
         break;
       case "k":
+      case "ArrowUp": // 添加向上箭头键
         uiStore.scrollApp("up");
         event.preventDefault();
         break;
       case "h":
+      case "ArrowLeft": // 添加向左箭头键
         uiStore.navigateCalendar("prev");
         event.preventDefault();
         break;
       case "l":
+      case "ArrowRight": // 添加向右箭头键
         uiStore.navigateCalendar("next");
         event.preventDefault();
         break;
       case "a":
-        uiStore.createNewEvent();
+        eventStore.toggleEventModal();
+        event.preventDefault();
+        break;
+      case "s":
+        settingStore.toggleSettings();
         event.preventDefault();
         break;
       case "/":
@@ -321,6 +358,30 @@ const handleGlobalKeydown = (event: KeyboardEvent) => {
         });
         event.preventDefault();
         break;
+      case " ":
+        uiStore.toggleSidebar();
+        event.preventDefault();
+        break;
+      case "1":
+        uiStore.changeView("month");
+        event.preventDefault();
+        break;
+      case "2":
+        uiStore.changeView("week");
+        event.preventDefault();
+        break;
+      case "3":
+        uiStore.changeView("day");
+        event.preventDefault();
+        break;
+      case "4":
+        uiStore.changeView("todo-list");
+        event.preventDefault();
+        break;
+      case "?":
+        uiStore.toggleHelpModal();
+        event.preventDefault();
+        break;
     }
   }
 };
@@ -329,8 +390,6 @@ const handleGlobalKeydown = (event: KeyboardEvent) => {
 const handleInputChange = (event: Event) => {
   const input = event.target as HTMLInputElement;
   let value = input.value;
-  
-  // 不再自动添加冒号前缀
   eventStore.updateSearchInputValue(value);
 };
 </script>
@@ -414,7 +473,7 @@ const handleInputChange = (event: Event) => {
   background-color: rgba(74, 134, 232, 0.05);
   border-width: 2px;
   border-style: solid;
-  font-family: 'Consolas', 'Monaco', monospace;
+  font-family: "Consolas", "Monaco", monospace;
   color: #1a56db;
   font-weight: 500;
 }
@@ -447,7 +506,8 @@ const handleInputChange = (event: Event) => {
 
 /* 统一所有模式下placeholder的样式 */
 .search-box input::placeholder {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica,
+    Arial, sans-serif !important;
   font-size: 14px !important;
   font-weight: normal !important;
   color: #909090 !important;
@@ -458,7 +518,8 @@ const handleInputChange = (event: Event) => {
 /* 覆盖任何可能的浏览器默认样式 */
 .search-mode-input::placeholder,
 .command-mode-input::placeholder {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica,
+    Arial, sans-serif !important;
   font-size: 14px !important;
   font-weight: normal !important;
   color: #909090 !important;
@@ -493,7 +554,7 @@ const handleInputChange = (event: Event) => {
   background-color: yellow;
   font-weight: bold;
   padding: 0; /* 避免mark标签自带的padding影响布局 */
-  margin: 0;  /* 避免mark标签自带的margin影响布局 */
+  margin: 0; /* 避免mark标签自带的margin影响布局 */
   color: black; /* 确保高亮文本颜色清晰 */
 }
 
