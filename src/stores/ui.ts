@@ -162,6 +162,92 @@ export const useUiStore = defineStore("ui", () => {
     return eventStore.getEventsForDay(currentDate.value);
   });
 
+  // 添加应用模式相关状态
+  const appMode = ref<"normal" | "command">("normal");
+  const isSearchActive = ref(false);
+
+  // 模式控制函数
+  function setAppMode(mode: "normal" | "command") {
+    appMode.value = mode;
+  }
+
+  function toggleSearchActive(active: boolean) {
+    isSearchActive.value = active;
+  }
+
+  // 应用滚动控制函数
+  function scrollApp(direction: "up" | "down") {
+    // 查找主内容元素
+    const mainContent =
+      document.querySelector(".main-content-area") ||
+      document.querySelector("main");
+
+    if (mainContent) {
+      // 如果找到主内容区域，则滚动该元素
+      mainContent.scrollBy({
+        top: direction === "up" ? -500 : 500,
+        behavior: "smooth",
+      });
+    } else {
+      // 如果未找到主内容区域，退回到滚动整个窗口
+      window.scrollBy({
+        top: direction === "up" ? -500 : 500,
+        behavior: "smooth",
+      });
+    }
+  }
+
+  // 创建新事件（用于'a'快捷键）
+  function createNewEvent() {
+    const eventStore = useEventStore();
+    const startDate = new Date(selectedDate.value);
+    startDate.setHours(9, 0, 0, 0);
+    const endDate = new Date(startDate);
+    endDate.setHours(10, 0, 0, 0);
+    eventStore.openNewEventModal(startDate);
+  }
+
+  // 命令模式处理函数
+  function executeCommand(commandText: string): boolean {
+    // 去除前导冒号和多余空格
+    const command = commandText.replace(/^:/, '').trim().toLowerCase();
+    
+    // 处理各种命令
+    switch (command) {
+      case 'today':
+        goToToday();
+        return true;
+      case 'month':
+        changeView('month');
+        return true;
+      case 'week':
+        changeView('week');
+        return true;
+      case 'day':
+        changeView('day');
+        return true;
+      case 'todo':
+      case 'todos':
+      case 'task':
+      case 'tasks':
+        changeView('todo-list');
+        return true;
+      case 'q':
+      case 'quit':
+      case 'exit':
+        // 退出命令模式
+        setAppMode('normal');
+        toggleSearchActive(false);
+        return true;
+      case 'sidebar':
+      case 'toggle-sidebar':
+        toggleSidebar();
+        return true;
+      default:
+        return false;
+    }
+  }
+
   // 辅助函数
   function getStartOfWeek(date: Date): Date {
     const result = new Date(date);
@@ -252,7 +338,7 @@ export const useUiStore = defineStore("ui", () => {
         startDate.setHours(9, 0, 0, 0);
         const endDate = new Date(startDate);
         endDate.setHours(10, 0, 0, 0);
-        eventStore.openNewEventModal(startDate, endDate);
+        eventStore.openNewEventModal(startDate);
       }
     }
   }
@@ -264,7 +350,7 @@ export const useUiStore = defineStore("ui", () => {
     date.setHours(hour, 0, 0, 0);
     const endDate = new Date(date);
     endDate.setHours(hour + 1, 0, 0, 0);
-    eventStore.openNewEventModal(date, endDate);
+    eventStore.openNewEventModal(date);
   }
 
   function handleDragStart(event: DragEvent, calendarEvent: any) {
@@ -315,6 +401,8 @@ export const useUiStore = defineStore("ui", () => {
     weekViewDays,
     dayViewEvents,
     showToggleButton,
+    appMode,
+    isSearchActive,
     toggleSidebar,
     changeView,
     navigateCalendar,
@@ -324,6 +412,11 @@ export const useUiStore = defineStore("ui", () => {
     handleHourClick,
     handleDragStart,
     handleDrop,
+    setAppMode,
+    toggleSearchActive,
+    scrollApp,
+    createNewEvent,
+    executeCommand,
     getStartOfWeek,
     getEndOfWeek,
     formatHour,
