@@ -7,6 +7,8 @@ import path from "path";
 import { fileURLToPath } from "url";
 import isDev from "electron-is-dev";
 import WindowState from "electron-win-state";
+import Store from "electron-store"; // 新增：导入 electron-store
+import fs from "fs"; // 新增：导入 fs
 
 // 获取当前文件的路径
 const __filename = fileURLToPath(import.meta.url);
@@ -47,6 +49,9 @@ const createWindow = () => {
     win.loadFile(path.join(__dirname, "dist/index.html"));
   }
 };
+
+// 新增：初始化 electron-store 用于事件
+const eventsStore = new Store({ name: "events_data" }); // 使用不同的名称以避免与可能的旧设置冲突
 
 // 当 Electron 完成初始化时创建窗口（防止白屏等待加载初始化）
 app.whenReady().then(() => {
@@ -93,4 +98,73 @@ ipcMain.on("window-close", () => {
   if (win) {
     win.close();
   }
+});
+
+// 新增：================= 事件数据存储 IPC ==================
+
+// 事件类型映射 (从 event.json 的 type 数字到 EventType 枚举字符串)
+const mapJsonEventTypeToEnumString = (typeNumber) => {
+  switch (typeNumber) {
+    case 0: return "todo";
+    case 1: return "calendar";
+    case 2: return "both";
+    default: return "calendar"; // 默认为日历事件
+  }
+};
+
+// 加载事件
+ipcMain.handle('load-events', async () => {
+  let storedEvents = eventsStore.get('appEvents');
+  if (!storedEvents || (Array.isArray(storedEvents) && storedEvents.length === 0)) {
+    // 如果 electron-store 为空或事件数组为空，则从 event.json 加载
+    try {
+      const eventJsonPath = path.join(__dirname, 'src', 'stores', 'first_load_for_dev', 'event.json');
+      if (fs.existsSync(eventJsonPath)) {
+        const rawData = fs.readFileSync(eventJsonPath);
+        const jsonData = JSON.parse(rawData.toString());
+        
+        storedEvents = jsonData.map(item => ({
+          id: item.id,
+          title: item.title,
+          // 确保 start 和 end 是 ISO 字符串格式
+          start: new Date(item.start).toISOString(),
+          end: new Date(item.end).toISOString(),
+          description: item.description || "",
+          // 从 event.json 的 priority 映射到 categoryId，color 映射到 categoryColor
+          categoryId: item.priority !== undefined ? item.priority : 5, // 假设 priority 可以映射到 categoryId
+          categoryColor: item.color || "#43aa8b", // 使用 JSON 中的颜色
+          allDay: item.allDay || false,
+          eventType: mapJsonEventTypeToEnumString(item.type), // 映射 type 数字到字符串
+          completed: item.completed || false,
+        }));
+        eventsStore.set('appEvents', storedEvents); // 将从 JSON 加载的数据存入 store
+      } else {
+        console.warn("event.json not found, starting with empty events list.");
+        storedEvents = [];
+        eventsStore.set('appEvents', []); // 确保 store 中也设置为空数组
+      }
+    } catch (error) {
+      console.error("Error loading events from event.json:", error);
+      storedEvents = [];
+      eventsStore.set('appEvents', []); // 出错时也确保 store 中为空数组
+    }
+  }
+  // 确保返回的数据中日期是 ISO 字符串
+  return storedEvents.map(event => ({
+    ...event,
+    start: typeof event.start === 'string' ? event.start : new Date(event.start).toISOString(),
+    end: typeof event.end === 'string' ? event.end : new Date(event.end).toISOString(),
+  }));
+});
+
+// 保存事件
+ipcMain.handle('save-events', async (event, eventsData) => {
+  // 在保存前，确保 Date 对象转换为 ISO 字符串 (如果渲染器发送的是 Date 对象)
+  // Pinia store 通常会发送序列化好的数据，但以防万一
+  const serializableEvents = eventsData.map(e => ({
+    ...e,
+    start: new Date(e.start).toISOString(),
+    end: new Date(e.end).toISOString(),
+  }));
+  eventsStore.set('appEvents', serializableEvents);
 });

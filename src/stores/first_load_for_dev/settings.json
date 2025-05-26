@@ -1,0 +1,13 @@
+{
+  "themeMode": "light",
+  "fontSize": "medium",
+  "iconStyle": "default",
+  "notifications": true,
+  "notificationSound": false,
+  "soundEffect": false,
+  "hour24": false,
+  "showLunar": false,
+  "weekStart": "0",
+  "language": "zh-CN",
+  "synced": true
+}

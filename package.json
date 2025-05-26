@@ -1,5 +1,5 @@
 {
-  "name": "calendar-full",
+  "name": "TimeFlow",
   "private": true,
   "version": "0.0.1",
   "type": "module",
@@ -8,12 +8,13 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "start": "nodemon --exec electron . --watch ./ --ext .js, .html, .css, .vue",
+    "start": "nodemon --exec electron . --watch ./ --ext .js, .html, .css, .vue .json",
     "electron:build": "vite build & electron-builder build --config electron-builder.json"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.1.7",
     "electron-is-dev": "^3.0.1",
+    "electron-store": "^10.0.1",
     "electron-win-state": "^1.1.22",
     "pinia": "^3.0.2",
     "pinyin-pro": "^3.26.0",

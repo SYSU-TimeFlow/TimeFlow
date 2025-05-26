@@ -58,102 +58,8 @@ export const useEventStore = defineStore("event", () => {
     { id: 5, name: "其他", color: "#43aa8b", active: true },
   ]);
 
-  // 统一的事件数组，替代原来分开的events和todos
-  const events = ref<Event[]>([
-    // 转换原有的示例事件数据为统一格式
-    new Event(
-      1,
-      "团队会议",
-      new Date(2025, 4, 18, 10, 0),
-      new Date(2025, 4, 18, 11, 30),
-      "每周团队同步",
-      1,
-      "#e63946",
-      false,
-      EventType.BOTH
-    ),
-    new Event(
-      2,
-      "牙医预约",
-      new Date(2025, 4, 20, 14, 0),
-      new Date(2025, 4, 20, 15, 0),
-      "常规检查",
-      4,
-      "#2a9d8f",
-      false,
-      EventType.BOTH
-    ),
-    new Event(
-      3,
-      "生日派对",
-      new Date(2025, 4, 22, 18, 0),
-      new Date(2025, 4, 22, 22, 0),
-      "John的生日庆祝",
-      3,
-      "#fcbf49",
-      false,
-      EventType.BOTH
-    ),
-    new Event(
-      4,
-      "项目截止日期",
-      new Date(2025, 4, 25, 0, 0),
-      new Date(2025, 4, 25, 23, 59),
-      "Q2项目最终提交",
-      1,
-      "#e63946",
-      true,
-      EventType.BOTH
-    ),
-    new Event(
-      5,
-      "健身房锻炼",
-      new Date(2025, 4, 19, 7, 0),
-      new Date(2025, 4, 19, 8, 30),
-      "晨间锻炼",
-      4,
-      "#2a9d8f",
-      false,
-      EventType.CALENDAR
-    ),
-    // 转换原来的待办事项为统一格式
-    new Event(
-      6,
-      "完成项目报告",
-      setTimeToEndOfDay(new Date("2025-05-24")),
-      setTimeToEndOfDay(new Date("2025-05-24")),
-      "",
-      5,
-      "#43aa8b",
-      true,
-      EventType.TODO,
-      false
-    ),
-    new Event(
-      7,
-      "购买办公用品",
-      setTimeToEndOfDay(new Date("2025-05-23")),
-      setTimeToEndOfDay(new Date("2025-05-23")),
-      "",
-      5,
-      "#43aa8b",
-      true,
-      EventType.TODO,
-      true
-    ),
-    new Event(
-      8,
-      "准备团队会议",
-      setTimeToEndOfDay(new Date("2025-05-22")),
-      setTimeToEndOfDay(new Date("2025-05-22")),
-      "",
-      5,
-      "#43aa8b",
-      true,
-      EventType.TODO,
-      false
-    ),
-  ]);
+  // 修改：初始化为空数组，将通过API加载
+  const events = ref<Event[]>([]);
 
   // 其余状态管理保持基本不变
   const showCategoryModal = ref(false);
@@ -416,6 +322,7 @@ export const useEventStore = defineStore("event", () => {
   // Action: 选择一个搜索结果
   function selectSearchResultAction(eventData: any) {
     openEventDetails(eventData); // openEventDetails 是 store 中已有的 action
+    // @ts-ignore
     clearSearchAction();
   }
 
@@ -459,7 +366,7 @@ export const useEventStore = defineStore("event", () => {
   }
 
   // 添加新事件统一函数
-  function addEvent(title: string, start: Date, end: Date, eventType = EventType.CALENDAR) {
+  async function addEvent(title: string, start: Date, end: Date, eventType = EventType.CALENDAR) {
     const newEvent = new Event(
       Date.now(),
       title,
@@ -468,16 +375,18 @@ export const useEventStore = defineStore("event", () => {
       "",
       5, // 默认分类
       categories.value.find(c => c.id === 5)?.color || "#43aa8b",
-      start.getHours() === 0 && end.getHours() === 23, // 判断是否为全天事件
+      // 判断是否为全天事件的逻辑可以更精确
+      (start.getHours() === 0 && start.getMinutes() === 0 && end.getHours() === 23 && end.getMinutes() === 59 && end.getSeconds() === 59),
       eventType
     );
     
     events.value.push(newEvent);
+    await saveEventsToStore(); // 保存更改
     return newEvent;
   }
 
   // 保存事件 (新建或更新)
-  function saveEvent() {
+  async function saveEvent() {
     // 确保颜色与分类一致
     const category = categories.value.find(
       (c) => c.id === currentEvent.value.categoryId
@@ -501,24 +410,27 @@ export const useEventStore = defineStore("event", () => {
       }
     }
     closeEventModal();
+    await saveEventsToStore(); // 保存更改
   }
 
   // 统一的日历/待办事项删除函数
-  function deleteEvent(id?: number) {
+  async function deleteEvent(id?: number) {
     const eventId = id || currentEvent.value.id;
     const index = events.value.findIndex((e) => e.id === eventId);
     if (index !== -1) {
       events.value.splice(index, 1);
     }
     closeEventModal();
+    await saveEventsToStore(); // 保存更改
   }
 
   // 切换待办事项完成状态
-  function toggleTodo(id: number) {
+  async function toggleTodo(id: number) {
     const event = events.value.find(e => e.id === id && 
       (e.eventType === EventType.TODO || e.eventType === EventType.BOTH));
     if (event) {
       event.completed = !event.completed;
+      await saveEventsToStore(); // 保存更改
     }
   }
 
@@ -590,7 +502,7 @@ export const useEventStore = defineStore("event", () => {
   };
   
   // 保存待办事项
-  const saveTodo = () => {
+  const saveTodo = async () => {
     const todoToSave = {
       ...currentEvent.value,
       start: new Date(currentEvent.value.start),
@@ -617,6 +529,7 @@ export const useEventStore = defineStore("event", () => {
     }
     
     closeTodoModal();
+    await saveEventsToStore(); // 保存更改
   };
   
   // 关闭待办事项模态框
@@ -758,12 +671,17 @@ const emptyStateMessage = computed(() => {
     return currentCategory.value.name.trim().length > 0;
   }
 
-  function updateEventCategoryColor(categoryId: number, newColor: string) {
+  async function updateEventCategoryColor(categoryId: number, newColor: string) {
+    let changed = false;
     events.value.forEach(event => {
-      if (event.categoryId === categoryId) {
+      if (event.categoryId === categoryId && event.categoryColor !== newColor) {
         event.categoryColor = newColor;
+        changed = true;
       }
     });
+    if (changed) {
+      await saveEventsToStore(); // 保存更改
+    }
   }
 
   function openNewCategoryModal() {
@@ -787,7 +705,7 @@ const emptyStateMessage = computed(() => {
     showCategoryModal.value = false;
   }
 
-  function saveCategory() {
+  async function saveCategory() {
     if (!isCategoryFormValid()) return;
     
     const categoryToSave = { ...currentCategory.value };
@@ -802,15 +720,18 @@ const emptyStateMessage = computed(() => {
         
         // 如果颜色有变化，更新关联的事件颜色
         if (oldColor !== categoryToSave.color) {
-          updateEventCategoryColor(categoryToSave.id, categoryToSave.color);
+          await updateEventCategoryColor(categoryToSave.id, categoryToSave.color); // updateEventCategoryColor 内部会调用 saveEventsToStore
         }
+        // 注意：如果分类的其他属性（如名称）的更改也需要触发事件保存（例如，如果事件显示中使用了分类名称），
+        // 则可能需要在此处也调用 saveEventsToStore()。目前仅颜色更改触发。
       }
     }
-    
+    // 分类本身的持久化（如果需要）将是单独的逻辑。
+    // 例如，可以添加 saveCategoriesToStore() 并在这里调用。
     closeCategoryModal();
   }
 
-  function deleteCategory() {
+  async function deleteCategory() {
     if (!isNewCategory.value) {
       // 不允许删除最后一个分类
       if (categories.value.length <= 1) {
@@ -833,11 +754,75 @@ const emptyStateMessage = computed(() => {
         });
         
         categories.value.splice(index, 1);
+        await saveEventsToStore(); // 保存因事件分类更改而导致的事件列表变化
       }
     }
     
     closeCategoryModal();
   }
+
+  // 从 electron-store 加载事件 (通过 main process)
+  async function loadEventsFromStore() {
+    try {
+      // @ts-ignore
+      const loadedEventsData = await window.electronAPI.loadEvents();
+      if (loadedEventsData && Array.isArray(loadedEventsData)) {
+        events.value = loadedEventsData.map((eventData: any) => {
+          const start = new Date(eventData.start); // ISO string to Date
+          const end = new Date(eventData.end);     // ISO string to Date
+          
+          let eventType: EventType;
+          // 将从 main.js 来的字符串映射回枚举
+          switch(eventData.eventType) {
+            case "calendar":
+              eventType = EventType.CALENDAR;
+              break;
+            case "todo":
+              eventType = EventType.TODO;
+              break;
+            case "both":
+              eventType = EventType.BOTH;
+              break;
+            default:
+              // 如果 eventType 无效或未定义，则默认为 CALENDAR
+              console.warn(`Invalid eventType "${eventData.eventType}" for event ID ${eventData.id}. Defaulting to CALENDAR.`);
+              eventType = EventType.CALENDAR;
+          }
+
+          return new Event(
+            eventData.id,
+            eventData.title,
+            start,
+            end,
+            eventData.description,
+            eventData.categoryId,
+            eventData.categoryColor,
+            eventData.allDay,
+            eventType, // 使用映射后的枚举值
+            eventData.completed
+          );
+        });
+      }
+    } catch (error) {
+      console.error("Error loading events via Electron API:", error);
+      events.value = []; // 出错时加载空数组
+    }
+  }
+
+  // 保存事件到 electron-store (通过 main process)
+  async function saveEventsToStore() {
+    try {
+      // Pinia ref 的 .value 会被自动解包。
+      // JSON.stringify 会自动将 Date 对象转换为 ISO 字符串。
+      // @ts-ignore
+      await window.electronAPI.saveEvents(JSON.parse(JSON.stringify(events.value)));
+    } catch (error) {
+      console.error("Error saving events via Electron API:", error);
+    }
+  }
+
+  // 初始化时加载事件
+  loadEventsFromStore();
 
   return {
     // 导出枚举类型供组件使用
