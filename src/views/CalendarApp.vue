@@ -20,12 +20,12 @@
       <!-- 主日历区域组件 -->
       <CalendarMain v-if="uiStore.currentView !== 'todo-list'" />
       <!-- Todo List 组件 -->
-      <TodoList v-else />
+      <ToDoList v-else />
     </div>
     <!-- 事件模态框组件 (用于创建/编辑事件) -->
     <EventModal />
     <!-- todo 模态框组件 -->
-    <TodoModal />
+    <ToDoModal />
 
     <!-- 分类模态框组件 (用于创建/编辑分类) -->
     <CategoryModal />
@@ -35,13 +35,13 @@
 </template>
 
 <script lang="ts" setup>
-import { onMounted, ref } from "vue";
+import { onMounted } from "vue";
 import Sidebar from "../components/Sidebar.vue";
 import CalendarMain from "../components/CalendarMain.vue";
-import TodoList from "../components/ToDoList.vue";
+import ToDoList from "../components/ToDoList.vue";
 import EventModal from "../components/EventModal.vue";
 import CategoryModal from "../components/CategoryModal.vue"; // 导入分类模态框组件
-import TodoModal from "../components/TodoModal.vue"; // 导入待办事项模态框组件
+import ToDoModal from "../components/ToDoModal.vue"; // 导入待办事项模态框组件
 import Setting from "../components/Setting.vue"; // 导入设置组件
 import CalendarHeader from "../components/CalendarHeader.vue";
 import { useUiStore } from "../stores/ui";

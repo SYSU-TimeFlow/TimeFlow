@@ -1,10 +1,41 @@
 import { defineStore } from "pinia";
-import { ref, computed, nextTick } from "vue"; // 引入 nextTick
-import { useTodoStore } from "../stores/todoStore";
-import { pinyin } from "pinyin-pro"; // 确保 pinyin-pro 已安装并在需要的地方导入
+import { ref, computed, nextTick } from "vue";
+import { pinyin } from "pinyin-pro";
+
+// 事件类型枚举
+export enum EventType {
+  CALENDAR = "calendar",
+  TODO = "todo",
+  BOTH = "both" // 同时作为日历事件和待办事项
+}
+
+// 统一的事件类
+export class Event {
+  constructor(
+    public id: number,
+    public title: string,
+    public start: Date,
+    public end: Date,
+    public description: string = "",
+    public categoryId: number = 5,
+    public categoryColor: string = "#43aa8b",
+    public allDay: boolean = false,
+    public eventType: EventType = EventType.CALENDAR,
+    public completed: boolean = false
+  ) {}
+}
+
+// 过滤器类型保持不变
+export type FilterType = "all" | "completed" | "active";
+
+interface TodoFilter {
+  value: FilterType;
+  label: string;
+  count: number;
+}
 
 export const useEventStore = defineStore("event", () => {
-  // 预设颜色选项 - 按照红橙黄绿青蓝紫等顺序排列的10种适合文字阅读的颜色
+  // 预设颜色选项保持不变
   const colorOptions = [
     "#e63946", // 红色
     "#f8961e", // 橙色
@@ -18,7 +49,7 @@ export const useEventStore = defineStore("event", () => {
     "#495057", // 深灰色
   ];
 
-  // 定义事件分类
+  // 分类定义保持不变
   const categories = ref([
     { id: 1, name: "工作", color: "#e63946", active: true },
     { id: 2, name: "个人", color: "#f8961e", active: true },
@@ -27,66 +58,104 @@ export const useEventStore = defineStore("event", () => {
     { id: 5, name: "其他", color: "#43aa8b", active: true },
   ]);
 
-  // 示例事件数据
-  const events = ref([
-    {
-      id: 1,
-      title: "团队会议",
-      start: new Date(2025, 4, 18, 10, 0),
-      end: new Date(2025, 4, 18, 11, 30),
-      description: "每周团队同步",
-      categoryId: 1,
-      categoryColor: "#e63946",
-      allDay: false,
-      addToTodo: true,
-    },
-    {
-      id: 2,
-      title: "牙医预约",
-      start: new Date(2025, 4, 20, 14, 0),
-      end: new Date(2025, 4, 20, 15, 0),
-      description: "常规检查",
-      categoryId: 4,
-      categoryColor: "#2a9d8f",
-      allDay: false,
-      addToTodo: true,
-    },
-    {
-      id: 3,
-      title: "生日派对",
-      start: new Date(2025, 4, 22, 18, 0),
-      end: new Date(2025, 4, 22, 22, 0),
-      description: "John的生日庆祝",
-      categoryId: 3,
-      categoryColor: "#fcbf49",
-      allDay: false,
-      addToTodo: true,
-    },
-    {
-      id: 4,
-      title: "项目截止日期",
-      start: new Date(2025, 4, 25, 0, 0),
-      end: new Date(2025, 4, 25, 23, 59),
-      description: "Q2项目最终提交",
-      categoryId: 1,
-      categoryColor: "#e63946",
-      allDay: true,
-      addToTodo: true,
-    },
-    {
-      id: 5,
-      title: "健身房锻炼",
-      start: new Date(2025, 4, 19, 7, 0),
-      end: new Date(2025, 4, 19, 8, 30),
-      description: "晨间锻炼",
-      categoryId: 4,
-      categoryColor: "#2a9d8f",
-      allDay: false,
-      addToTodo: false,
-    },
+  // 统一的事件数组，替代原来分开的events和todos
+  const events = ref<Event[]>([
+    // 转换原有的示例事件数据为统一格式
+    new Event(
+      1,
+      "团队会议",
+      new Date(2025, 4, 18, 10, 0),
+      new Date(2025, 4, 18, 11, 30),
+      "每周团队同步",
+      1,
+      "#e63946",
+      false,
+      EventType.BOTH
+    ),
+    new Event(
+      2,
+      "牙医预约",
+      new Date(2025, 4, 20, 14, 0),
+      new Date(2025, 4, 20, 15, 0),
+      "常规检查",
+      4,
+      "#2a9d8f",
+      false,
+      EventType.BOTH
+    ),
+    new Event(
+      3,
+      "生日派对",
+      new Date(2025, 4, 22, 18, 0),
+      new Date(2025, 4, 22, 22, 0),
+      "John的生日庆祝",
+      3,
+      "#fcbf49",
+      false,
+      EventType.BOTH
+    ),
+    new Event(
+      4,
+      "项目截止日期",
+      new Date(2025, 4, 25, 0, 0),
+      new Date(2025, 4, 25, 23, 59),
+      "Q2项目最终提交",
+      1,
+      "#e63946",
+      true,
+      EventType.BOTH
+    ),
+    new Event(
+      5,
+      "健身房锻炼",
+      new Date(2025, 4, 19, 7, 0),
+      new Date(2025, 4, 19, 8, 30),
+      "晨间锻炼",
+      4,
+      "#2a9d8f",
+      false,
+      EventType.CALENDAR
+    ),
+    // 转换原来的待办事项为统一格式
+    new Event(
+      6,
+      "完成项目报告",
+      setTimeToEndOfDay(new Date("2025-05-24")),
+      setTimeToEndOfDay(new Date("2025-05-24")),
+      "",
+      5,
+      "#43aa8b",
+      true,
+      EventType.TODO,
+      false
+    ),
+    new Event(
+      7,
+      "购买办公用品",
+      setTimeToEndOfDay(new Date("2025-05-23")),
+      setTimeToEndOfDay(new Date("2025-05-23")),
+      "",
+      5,
+      "#43aa8b",
+      true,
+      EventType.TODO,
+      true
+    ),
+    new Event(
+      8,
+      "准备团队会议",
+      setTimeToEndOfDay(new Date("2025-05-22")),
+      setTimeToEndOfDay(new Date("2025-05-22")),
+      "",
+      5,
+      "#43aa8b",
+      true,
+      EventType.TODO,
+      false
+    ),
   ]);
 
-  // 分类模态框状态管理
+  // 其余状态管理保持基本不变
   const showCategoryModal = ref(false);
   const isNewCategory = ref(true);
   const currentCategory = ref({
@@ -108,12 +177,18 @@ export const useEventStore = defineStore("event", () => {
     categoryId: 1,
     categoryColor: "#4f46e5",
     allDay: false,
-    addToTodo: true,
+    eventType: EventType.CALENDAR,
+    completed: false
   });
 
+  // Todo模态框状态，统一到事件模态框
+  const showTodoModal = ref(false);
+  const isNewTodo = ref(true);
+  const activeFilter = ref<FilterType>("all");
+  
   // --- 搜索功能相关状态和逻辑 ---
   const searchInputValue = ref(""); // 搜索输入框的实时值
-  const searchQuery = ref("");      // 防抖后的实际搜索查询词
+  const searchQuery = ref(""); // 防抖后的实际搜索查询词
   const isSearchFocused = ref(false); // 搜索框是否获得焦点
   const focusedResultIndex = ref(-1); // 当前高亮的搜索结果索引
   const debounceTimer = ref<number | undefined>(undefined); // 防抖计时器ID
@@ -155,36 +230,75 @@ export const useEventStore = defineStore("event", () => {
 
       // 1. Formatted Date Matching
       if (queryTrimmed.includes("-")) {
-        const parts = queryTrimmed.split("-").map(part => parseInt(part, 10));
+        const parts = queryTrimmed.split("-").map((part) => parseInt(part, 10));
         if (parts.length === 2 && !parts.some(isNaN)) {
           const [queryMonth, queryDay] = parts;
           const currentYear = new Date().getFullYear();
-          if (eventMonth === queryMonth && eventDay === queryDay && eventYear === currentYear) return true;
+          if (
+            eventMonth === queryMonth &&
+            eventDay === queryDay &&
+            eventYear === currentYear
+          )
+            return true;
         } else if (parts.length === 3 && !parts.some(isNaN)) {
           const [queryYear, queryMonth, queryDay] = parts;
-          if (eventYear === queryYear && eventMonth === queryMonth && eventDay === queryDay) return true;
+          if (
+            eventYear === queryYear &&
+            eventMonth === queryMonth &&
+            eventDay === queryDay
+          )
+            return true;
         }
       }
       // 2. Pure Numeric Matching
       else if (/^\d+$/.test(queryTrimmed)) {
         const numericQuery = parseInt(queryTrimmed, 10);
-        if (eventDay === numericQuery || eventMonth === numericQuery || eventYear === numericQuery) return true;
+        if (
+          eventDay === numericQuery ||
+          eventMonth === numericQuery ||
+          eventYear === numericQuery
+        )
+          return true;
       }
 
       // 3. Original Text Matching
       const title = event.title.toLowerCase();
-      const description = event.description ? event.description.toLowerCase() : "";
-      if (title.includes(queryLowercase) || description.includes(queryLowercase)) return true;
+      const description = event.description
+        ? event.description.toLowerCase()
+        : "";
+      if (
+        title.includes(queryLowercase) ||
+        description.includes(queryLowercase)
+      )
+        return true;
 
       // 4. Pinyin Matching
-      const titlePinyin = pinyin(event.title, { toneType: "none" }).toLowerCase();
-      const titlePinyinInitials = pinyin(event.title, { pattern: "initial", toneType: "none" }).toLowerCase();
-      if (titlePinyin.includes(queryLowercase) || titlePinyinInitials.includes(queryLowercase)) return true;
+      const titlePinyin = pinyin(event.title, {
+        toneType: "none",
+      }).toLowerCase();
+      const titlePinyinInitials = pinyin(event.title, {
+        pattern: "initial",
+        toneType: "none",
+      }).toLowerCase();
+      if (
+        titlePinyin.includes(queryLowercase) ||
+        titlePinyinInitials.includes(queryLowercase)
+      )
+        return true;
 
       if (event.description) {
-        const descPinyin = pinyin(event.description, { toneType: "none" }).toLowerCase();
-        const descPinyinInitials = pinyin(event.description, { pattern: "initial", toneType: "none" }).toLowerCase();
-        if (descPinyin.includes(queryLowercase) || descPinyinInitials.includes(queryLowercase)) return true;
+        const descPinyin = pinyin(event.description, {
+          toneType: "none",
+        }).toLowerCase();
+        const descPinyinInitials = pinyin(event.description, {
+          pattern: "initial",
+          toneType: "none",
+        }).toLowerCase();
+        if (
+          descPinyin.includes(queryLowercase) ||
+          descPinyinInitials.includes(queryLowercase)
+        )
+          return true;
       }
       return false;
     });
@@ -196,7 +310,10 @@ export const useEventStore = defineStore("event", () => {
   });
 
   // Function: 获取高亮显示的HTML (用于搜索结果)
-  function getHighlightedHTMLContent(text: string, queryToHighlight: string): string {
+  function getHighlightedHTMLContent(
+    text: string,
+    queryToHighlight: string
+  ): string {
     if (!queryToHighlight.trim() || !text) {
       return text;
     }
@@ -205,13 +322,16 @@ export const useEventStore = defineStore("event", () => {
     let startIndex = lowerText.indexOf(lowerQuery);
     if (startIndex !== -1) {
       const before = text.substring(0, startIndex);
-      const matched = text.substring(startIndex, startIndex + queryToHighlight.length);
+      const matched = text.substring(
+        startIndex,
+        startIndex + queryToHighlight.length
+      );
       const after = text.substring(startIndex + queryToHighlight.length);
       return `${before}<mark class="search-highlight">${matched}</mark>${after}`;
     }
     return text;
   }
-  
+
   // Action: 清空搜索状态
   function clearSearchAction() {
     clearTimeout(debounceTimer.value);
@@ -229,7 +349,8 @@ export const useEventStore = defineStore("event", () => {
   // Action: 处理搜索框失去焦点
   function handleSearchBlurAction() {
     setTimeout(() => {
-      if (isSearchFocused.value) { // 确保不是因为点击结果项导致的失焦
+      if (isSearchFocused.value) {
+        // 确保不是因为点击结果项导致的失焦
         clearSearchAction();
       }
     }, 200); // 延迟以允许结果项的 mousedown 事件优先触发
@@ -251,10 +372,12 @@ export const useEventStore = defineStore("event", () => {
       case "ArrowDown":
       case "Tab": // Tab 也视为向下
         event.preventDefault();
-        if (event.key === "Tab" && event.shiftKey) { // Shift + Tab 向上
-             newIndex = (focusedResultIndex.value - 1 + totalResults) % totalResults;
+        if (event.key === "Tab" && event.shiftKey) {
+          // Shift + Tab 向上
+          newIndex =
+            (focusedResultIndex.value - 1 + totalResults) % totalResults;
         } else {
-            newIndex = (focusedResultIndex.value + 1) % totalResults;
+          newIndex = (focusedResultIndex.value + 1) % totalResults;
         }
         break;
       case "ArrowUp":
@@ -262,9 +385,14 @@ export const useEventStore = defineStore("event", () => {
         newIndex = (focusedResultIndex.value - 1 + totalResults) % totalResults;
         break;
       case "Enter":
-        if (focusedResultIndex.value > -1 && focusedResultIndex.value < totalResults) {
+        if (
+          focusedResultIndex.value > -1 &&
+          focusedResultIndex.value < totalResults
+        ) {
           event.preventDefault();
-          selectSearchResultAction(searchResults.value[focusedResultIndex.value]);
+          selectSearchResultAction(
+            searchResults.value[focusedResultIndex.value]
+          );
         }
         return; // Enter后不应再触发滚动回调
       case "Escape":
@@ -293,9 +421,8 @@ export const useEventStore = defineStore("event", () => {
 
   // --- 结束搜索功能相关 ---
 
-
-  // 获取指定日期的所有事件
-  function getEventsForDay(date: Date): any[] {
+  // 获取指定日期的所有日历事件
+  function getEventsForDay(date: Date): Event[] {
     const activeCategoryIds = categories.value
       .filter((category) => category.active)
       .map((category) => category.id);
@@ -306,6 +433,9 @@ export const useEventStore = defineStore("event", () => {
     end.setHours(23, 59, 59, 999);
     return events.value
       .filter((event) => {
+        // 只考虑日历事件和双重事件
+        if (event.eventType === EventType.TODO) return false;
+        
         const eventStart = new Date(event.start);
         const eventEnd = new Date(event.end);
         // 先检查事件日期是否符合条件
@@ -328,122 +458,22 @@ export const useEventStore = defineStore("event", () => {
       });
   }
 
-  // 格式化事件的开始和结束时间
-  function formatEventTime(event: any): string {
-    const start = new Date(event.start);
-    const end = new Date(event.end);
-    return `${formatTime(start)} - ${formatTime(end)}`;
-  }
-
-  // 格式化日期对象为时间字符串 (HH:mm AM/PM)
-  function formatTime(date: Date): string {
-    return new Intl.DateTimeFormat("zh-CN", {
-      hour: "numeric",
-      minute: "2-digit",
-      hour12: true,
-    }).format(date);
-  }
-
-  // 将 Date 对象格式化为 datetime-local input 所需的字符串格式 (YYYY-MM-DDTHH:mm)
-  function formatDateTimeForInput(date: Date): string {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    const day = String(date.getDate()).padStart(2, "0");
-    const hours = String(date.getHours()).padStart(2, "0");
-    const minutes = String(date.getMinutes()).padStart(2, "0");
-    return `${year}-${month}-${day}T${hours}:${minutes}`;
-  }
-
-  // 打开新建事件模态框
-  function openNewEventModal(start?: Date, end?: Date) {
-    isNewEvent.value = true;
-    const startDate = start || new Date();
-    if (!start) startDate.setHours(9, 0, 0, 0);
-    const endDate = end || new Date(startDate);
-    if (!end) endDate.setHours(startDate.getHours() + 1, 0, 0, 0);
-
-    currentEvent.value = {
-      id: Date.now(),
-      title: "",
-      start: formatDateTimeForInput(startDate),
-      end: formatDateTimeForInput(endDate),
-      description: "",
-      categoryId: categories.value.length > 0 ? categories.value[0].id : 1,
-      categoryColor:
-        categories.value.length > 0 ? categories.value[0].color : "#4f46e5",
-      allDay: false,
-      addToTodo: true,
-    };
-    showEventModal.value = true;
-  }
-
-  // 打开事件详情/编辑模态框
-  function openEventDetails(event: any) {
-    isNewEvent.value = false;
-    currentEvent.value = {
-      ...event,
-      start: formatDateTimeForInput(new Date(event.start)),
-      end: formatDateTimeForInput(new Date(event.end)),
-    };
-    showEventModal.value = true;
-  }
-
-  // 关闭事件模态框
-  function closeEventModal() {
-    showEventModal.value = false;
-  }
-
-  // 当选择分类时，自动更新当前事件的颜色和分类ID
-  function updateEventCategoryColor(categoryId: number) {
-    const category = categories.value.find((c) => c.id === categoryId);
-    if (category) {
-      currentEvent.value.categoryId = categoryId;
-      currentEvent.value.categoryColor = category.color;
-    }
-  }
-
-  // 添加一个新事件 (此函数似乎未在UI中直接使用，saveEvent是主要的保存逻辑)
-  function addEvent(title: string, start: Date, end: Date) {
-    const newEvent = {
-      id: Date.now(),
-      title: title,
-      start: start,
-      end: end,
-      description: "",
-      categoryId: 5, // 默认分类
-      categoryColor: "#60a5fa",
-      allDay: true,
-      addToTodo: true,
-    };
-    events.value.push(newEvent);
-  }
-
-  // 同步事件到 ToDoList
-  function syncEventToTodo(event: any) {
-    const todoStore = useTodoStore();
-    const idx = todoStore.todos.findIndex(
-      (todo) =>
-        event.title === todo.title &&
-        event.end.getDate() === todo.dueDate.getDate()
+  // 添加新事件统一函数
+  function addEvent(title: string, start: Date, end: Date, eventType = EventType.CALENDAR) {
+    const newEvent = new Event(
+      Date.now(),
+      title,
+      start,
+      end,
+      "",
+      5, // 默认分类
+      categories.value.find(c => c.id === 5)?.color || "#43aa8b",
+      start.getHours() === 0 && end.getHours() === 23, // 判断是否为全天事件
+      eventType
     );
-    if (event.addToTodo) {
-      // 添加或更新
-      const todoItem = {
-        id: Date.now(),
-        title: event.title,
-        dueDate: event.end,
-        completed: false,
-        addToCalendar: true,
-      };
-      if (idx === -1) {
-        todoStore.todos.push(todoItem);
-      } else {
-        todoStore.todos[idx] = todoItem;
-      }
-    } else if (idx !== -1) {
-      // 取消同步则移除
-      todoStore.todos.splice(idx, 1);
-    }
+    
+    events.value.push(newEvent);
+    return newEvent;
   }
 
   // 保存事件 (新建或更新)
@@ -461,156 +491,359 @@ export const useEventStore = defineStore("event", () => {
       start: new Date(currentEvent.value.start),
       end: new Date(currentEvent.value.end),
     };
+    
     if (isNewEvent.value) {
-      events.value.push(eventToSave);
+      events.value.push(eventToSave as Event);
     } else {
       const index = events.value.findIndex((e) => e.id === eventToSave.id);
       if (index !== -1) {
-        events.value[index] = eventToSave;
+        events.value[index] = eventToSave as Event;
       }
     }
-    syncEventToTodo(eventToSave);
     closeEventModal();
   }
 
-  // 删除当前模态框中的事件
-  function deleteEvent() {
-    const index = events.value.findIndex((e) => e.id === currentEvent.value.id);
+  // 统一的日历/待办事项删除函数
+  function deleteEvent(id?: number) {
+    const eventId = id || currentEvent.value.id;
+    const index = events.value.findIndex((e) => e.id === eventId);
     if (index !== -1) {
-      const event = events.value[index];
-      if (event.addToTodo) {
-        const todoStore = useTodoStore();
-        const todoIndex = todoStore.todos.findIndex(
-          (todo) =>
-            event.title === todo.title &&
-            event.end.getDate() === todo.dueDate.getDate()
-        );
-        if (todoIndex !== -1) {
-          // 删除相关联的 todo 事项
-          todoStore.todos.splice(todoIndex, 1);
-        }
-      }
       events.value.splice(index, 1);
     }
     closeEventModal();
   }
 
-  // 切换分类的激活状态 (用于筛选事件)
-  function toggleCategory(categoryId: number) {
-    const category = categories.value.find((c) => c.id === categoryId);
+  // 切换待办事项完成状态
+  function toggleTodo(id: number) {
+    const event = events.value.find(e => e.id === id && 
+      (e.eventType === EventType.TODO || e.eventType === EventType.BOTH));
+    if (event) {
+      event.completed = !event.completed;
+    }
+  }
+
+  // 获取待办事项列表
+  const allTodos = computed(() => 
+    events.value.filter(e => e.eventType === EventType.TODO || e.eventType === EventType.BOTH)
+  );
+  
+  const completedTodos = computed(() =>
+    allTodos.value.filter(todo => todo.completed)
+  );
+  
+  const activeTodos = computed(() =>
+    allTodos.value.filter(todo => !todo.completed)
+  );
+
+  const filteredTodos = computed(() => {
+    let list: Event[];
+    switch (activeFilter.value) {
+      case "completed":
+        list = completedTodos.value;
+        break;
+      case "active":
+        list = activeTodos.value;
+        break;
+      default:
+        list = allTodos.value;
+    }
+    // 优先显示未完成事项，并在各自组内按截止日期升序排序
+    return [...list].sort((a, b) => {
+      if (a.completed !== b.completed) {
+        return a.completed ? 1 : -1; // 未完成在前
+      }
+      return a.end.getTime() - b.end.getTime(); // 截止日期升序
+    });
+  });
+
+  // 打开新建待办事项模态框
+  const openNewTodoModal = () => {
+    isNewTodo.value = true;
+    const today = new Date();
+    today.setHours(23, 59, 59, 0);
+    
+    currentEvent.value = {
+      id: Date.now(),
+      title: "",
+      start: formatDateTimeForInput(today),
+      end: formatDateTimeForInput(today),
+      description: "",
+      categoryId: 5,
+      categoryColor: categories.value.find(c => c.id === 5)?.color || "#43aa8b",
+      allDay: true,
+      eventType: EventType.TODO,
+      completed: false
+    };
+    
+    showTodoModal.value = true;
+  };
+
+  // 打开编辑待办事项模态框
+  const openEditTodoModal = (todo: Event) => {
+    isNewTodo.value = false;
+    currentEvent.value = {
+      ...todo,
+      start: formatDateTimeForInput(todo.start),
+      end: formatDateTimeForInput(todo.end),
+    };
+    showTodoModal.value = true;
+  };
+  
+  // 保存待办事项
+  const saveTodo = () => {
+    const todoToSave = {
+      ...currentEvent.value,
+      start: new Date(currentEvent.value.start),
+      end: new Date(currentEvent.value.end),
+    };
+    
+    // 确保是待办事项类型
+    if (todoToSave.eventType !== EventType.BOTH) {
+      todoToSave.eventType = EventType.TODO;
+    }
+    
+    // 设置为全天事件
+    todoToSave.allDay = true;
+    
+    // 同步到日历逻辑保留在界面上处理
+    
+    if (isNewTodo.value) {
+      events.value.push(todoToSave as Event);
+    } else {
+      const index = events.value.findIndex(e => e.id === todoToSave.id);
+      if (index !== -1) {
+        events.value[index] = todoToSave as Event;
+      }
+    }
+    
+    closeTodoModal();
+  };
+  
+  // 关闭待办事项模态框
+  const closeTodoModal = () => {
+    showTodoModal.value = false;
+  };
+
+  // 设置时间为一天的末尾 (23:59:59)
+  function setTimeToEndOfDay(date: Date): Date {
+    const newDate = new Date(date);
+    newDate.setHours(23, 59, 59, 0);
+    return newDate;
+  }
+
+  // 将日期格式化为 YYYY/MM/DD hh:mm 格式
+  function formatDateForDisplay(date: Date): string {
+    return (
+      date.toLocaleDateString("zh-CN", {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+      }) + " 23:59"
+    );
+  }
+
+  // 将日期格式化为 YYYY-MM-DD 格式，以便用户选择或输入日期。
+  function formatDateForInput(date: Date): string {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  }
+
+  function getDefaultDueDate(): string {
+    return formatDateForInput(setTimeToEndOfDay(new Date()));
+  }
+
+  // 空状态消息（根据当前过滤器显示不同消息）
+const emptyStateMessage = computed(() => {
+  switch (activeFilter.value) {
+    case "completed":
+      return "没有已完成的待办事项";
+    case "active":
+      return "没有进行中的待办事项";
+    default:
+      return "没有待办事项";
+  }
+});
+
+  // 设置待办事项过滤器
+  function setFilter(filter: FilterType) {
+    activeFilter.value = filter;
+  }
+
+  // 日期时间格式化相关函数
+  function formatEventTime(event: Event): string {
+    if (event.allDay) {
+      return "全天";
+    }
+    return `${formatTime(event.start)} - ${formatTime(event.end)}`;
+  }
+
+  function formatTime(date: Date): string {
+    return date.toLocaleTimeString("zh-CN", {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false
+    });
+  }
+
+  function formatDateTimeForInput(date: Date): string {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    const hours = String(date.getHours()).padStart(2, "0");
+    const minutes = String(date.getMinutes()).padStart(2, "0");
+    return `${year}-${month}-${day}T${hours}:${minutes}`;
+  }
+
+  // 事件模态框相关函数
+  function openNewEventModal(date?: Date) {
+    isNewEvent.value = true;
+    const startDate = date || new Date();
+    // 设置默认结束时间为开始时间后1小时
+    const endDate = new Date(startDate.getTime() + 60 * 60 * 1000);
+    
+    currentEvent.value = {
+      id: Date.now(),
+      title: "",
+      start: formatDateTimeForInput(startDate),
+      end: formatDateTimeForInput(endDate),
+      description: "",
+      categoryId: 5,
+      categoryColor: categories.value.find(c => c.id === 5)?.color || "#43aa8b",
+      allDay: false,
+      eventType: EventType.CALENDAR,
+      completed: false
+    };
+    
+    showEventModal.value = true;
+  }
+
+  function openEventDetails(event: Event) {
+    isNewEvent.value = false;
+    currentEvent.value = {
+      ...event,
+      start: formatDateTimeForInput(event.start),
+      end: formatDateTimeForInput(event.end),
+    };
+    
+    if (event.eventType === EventType.TODO) {
+      showTodoModal.value = true;
+    } else {
+      showEventModal.value = true;
+    }
+  }
+
+  function closeEventModal() {
+    showEventModal.value = false;
+  }
+
+  // 分类相关函数
+  function toggleCategory(id: number) {
+    const category = categories.value.find(c => c.id === id);
     if (category) {
       category.active = !category.active;
     }
   }
 
-  // 打开新建分类模态框
+  function isColorUsed(color: string): boolean {
+    return categories.value.some(c => c.color === color);
+  }
+
+  function selectColor(color: string) {
+    currentCategory.value.color = color;
+  }
+
+  function isCategoryFormValid(): boolean {
+    return currentCategory.value.name.trim().length > 0;
+  }
+
+  function updateEventCategoryColor(categoryId: number, newColor: string) {
+    events.value.forEach(event => {
+      if (event.categoryId === categoryId) {
+        event.categoryColor = newColor;
+      }
+    });
+  }
+
   function openNewCategoryModal() {
     isNewCategory.value = true;
     currentCategory.value = {
       id: Date.now(),
       name: "",
-      color: "#4f46e5",
+      color: colorOptions[0],
       active: true,
     };
     showCategoryModal.value = true;
   }
 
-  // 打开分类编辑模态框
   function openCategoryDetails(category: any) {
     isNewCategory.value = false;
     currentCategory.value = { ...category };
     showCategoryModal.value = true;
   }
 
-  // 关闭分类模态框
   function closeCategoryModal() {
     showCategoryModal.value = false;
   }
 
-  // 保存分类 (新建或更新)
   function saveCategory() {
+    if (!isCategoryFormValid()) return;
+    
+    const categoryToSave = { ...currentCategory.value };
+    
     if (isNewCategory.value) {
-      categories.value.push({ ...currentCategory.value });
+      categories.value.push(categoryToSave);
     } else {
-      // 找到要更新的分类
-      const index = categories.value.findIndex(
-        (c) => c.id === currentCategory.value.id
-      );
-
+      const index = categories.value.findIndex(c => c.id === categoryToSave.id);
       if (index !== -1) {
-        // 保存旧的颜色值，用于比较是否有颜色变化
         const oldColor = categories.value[index].color;
-        const newColor = currentCategory.value.color;
-
-        // 更新分类
-        categories.value[index] = { ...currentCategory.value };
-
-        // 如果颜色发生了变化，更新所有使用该分类的事件颜色
-        if (oldColor !== newColor) {
-          events.value.forEach((event) => {
-            if (event.categoryId === currentCategory.value.id) {
-              event.categoryColor = newColor;
-            }
-          });
+        categories.value[index] = categoryToSave;
+        
+        // 如果颜色有变化，更新关联的事件颜色
+        if (oldColor !== categoryToSave.color) {
+          updateEventCategoryColor(categoryToSave.id, categoryToSave.color);
         }
       }
     }
+    
     closeCategoryModal();
   }
 
-  // 删除当前模态框中的分类
   function deleteCategory() {
-    // 检查是否有使用此分类的事件
-    const hasEvents = events.value.some(
-      (e) => e.categoryId === currentCategory.value.id
-    );
-
-    if (hasEvents) {
-      alert("此分类下有事件，无法删除。请先移除或重新分类相关事件。");
-      return;
+    if (!isNewCategory.value) {
+      // 不允许删除最后一个分类
+      if (categories.value.length <= 1) {
+        // 这里可以添加错误提示
+        return;
+      }
+      
+      const index = categories.value.findIndex(c => c.id === currentCategory.value.id);
+      if (index !== -1) {
+        // 删除分类前，将该分类下的事件转移到"其他"分类
+        const defaultCategoryId = 5; // "其他"分类ID
+        events.value.forEach(event => {
+          if (event.categoryId === currentCategory.value.id) {
+            event.categoryId = defaultCategoryId;
+            const defaultCategory = categories.value.find(c => c.id === defaultCategoryId);
+            if (defaultCategory) {
+              event.categoryColor = defaultCategory.color;
+            }
+          }
+        });
+        
+        categories.value.splice(index, 1);
+      }
     }
-
-    const index = categories.value.findIndex(
-      (c) => c.id === currentCategory.value.id
-    );
-    if (index !== -1) {
-      categories.value.splice(index, 1);
-    }
+    
     closeCategoryModal();
   }
-
-  // 检查颜色是否已被其他分类使用 (不包括当前编辑的分类自身)
-  function isColorUsed(color: string): boolean {
-    // 如果是编辑模式，当前正在编辑的分类的颜色可以继续使用
-    if (
-      !isNewCategory.value &&
-      color ===
-        categories.value.find((c) => c.id === currentCategory.value.id)?.color
-    ) {
-      return false;
-    }
-
-    // 检查其他分类是否已使用此颜色
-    return categories.value.some(
-      (category) =>
-        category.color.toLowerCase() === color.toLowerCase() &&
-        category.id !== currentCategory.value.id
-    );
-  }
-
-  // 选择颜色并应用到当前分类 (如果颜色未被使用)
-  function selectColor(color: string): void {
-    if (!isColorUsed(color)) {
-      currentCategory.value.color = color;
-    }
-  }
-
-  // 检查分类表单是否有效 (名称不能为空)
-  const isCategoryFormValid = computed(() => {
-    return currentCategory.value.name.trim() !== "";
-  });
 
   return {
+    // 导出枚举类型供组件使用
+    EventType,
+    
+    // 状态
     events,
     categories,
     showEventModal,
@@ -619,11 +852,29 @@ export const useEventStore = defineStore("event", () => {
     showCategoryModal,
     isNewCategory,
     currentCategory,
-    openNewCategoryModal,
-    openCategoryDetails,
-    closeCategoryModal,
-    saveCategory,
-    deleteCategory,
+    showTodoModal,
+    isNewTodo,
+    activeFilter,
+    
+    // 计算属性
+    allTodos,
+    completedTodos,
+    activeTodos,
+    filteredTodos,
+    emptyStateMessage, // 需要重新实现
+    
+    // 方法
+    addEvent,
+    saveEvent,
+    deleteEvent,
+    toggleTodo,
+    setFilter,
+    openNewTodoModal,
+    openEditTodoModal,
+    saveTodo,
+    closeTodoModal,
+    
+    // 工具函数
     getEventsForDay,
     formatEventTime,
     formatTime,
@@ -631,21 +882,30 @@ export const useEventStore = defineStore("event", () => {
     openNewEventModal,
     openEventDetails,
     closeEventModal,
-    addEvent,
-    saveEvent,
-    deleteEvent,
+    setTimeToEndOfDay,
+    
+    // 分类相关
     toggleCategory,
     colorOptions,
     isColorUsed,
     selectColor,
     isCategoryFormValid,
     updateEventCategoryColor,
-
-    // 搜索相关导出
+    openNewCategoryModal,
+    openCategoryDetails,
+    closeCategoryModal,
+    saveCategory,
+    deleteCategory,
+    
+    // 格式化相关
+    formatDateForDisplay,
+    formatDateForInput,
+    
+    // 搜索相关导出保持不变
     searchInputValue,
-    searchQuery, // 主要用于 getHighlightedHTMLContent
-    isSearchFocused, // 主要用于 showSearchDropdown
-    focusedResultIndex, // 仍然导出，因为组件的 :class 绑定需要它
+    searchQuery,
+    isSearchFocused,
+    focusedResultIndex,
     searchResults,
     showSearchDropdown,
     updateSearchInputValue,
@@ -655,7 +915,7 @@ export const useEventStore = defineStore("event", () => {
     selectSearchResultAction,
     getHighlightedHTMLContent,
     clearSearchAction,
-    setScrollUiUpdateCallback, 
-    clearScrollUiUpdateCallback, 
+    setScrollUiUpdateCallback,
+    clearScrollUiUpdateCallback,
   };
 });
