@@ -650,10 +650,6 @@ export const useEventStore = defineStore("event", () => {
     return `${year}-${month}-${day}`;
   }
 
-  function getDefaultDueDate(): string {
-    return formatDateForInput(setTimeToEndOfDay(new Date()));
-  }
-
   // 空状态消息（根据当前过滤器显示不同消息）
 const emptyStateMessage = computed(() => {
   switch (activeFilter.value) {
@@ -736,6 +732,10 @@ const emptyStateMessage = computed(() => {
 
   function closeEventModal() {
     showEventModal.value = false;
+  }
+
+  function toggleEventModal() {
+    showEventModal.value = !showEventModal.value;
   }
 
   // 分类相关函数
@@ -873,6 +873,7 @@ const emptyStateMessage = computed(() => {
     openEditTodoModal,
     saveTodo,
     closeTodoModal,
+    toggleEventModal,
     
     // 工具函数
     getEventsForDay,
