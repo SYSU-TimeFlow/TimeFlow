@@ -8,10 +8,10 @@ contextBridge.exposeInMainWorld('electronAPI', {
   minimize: () => ipcRenderer.send('window-minimize'),
   maximize: () => ipcRenderer.send('window-maximize'),
   close: () => ipcRenderer.send('window-close'),
-  // 新增：暴露事件加载和保存的 API
-  loadEvents: () => ipcRenderer.invoke('load-events'),
-  saveEvents: (events) => ipcRenderer.invoke('save-events', events),
-  // 新增：暴露设置加载和保存的 API
+  // 修改：暴露应用数据加载和保存的 API
+  loadAppData: () => ipcRenderer.invoke('load-app-data'),
+  saveAppData: (data) => ipcRenderer.invoke('save-app-data', data),
+  // 保留旧的设置API（如果将来需要）
   loadSettings: () => ipcRenderer.invoke('load-settings'),
   saveSettings: (settings) => ipcRenderer.invoke('save-settings', settings),
 });

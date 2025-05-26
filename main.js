@@ -43,15 +43,15 @@ const createWindow = () => {
   if (isDev) {
     // 在开发模式下加载本地服务器
     win.loadURL("http://localhost:5173");
-    // win.webContents.openDevTools();
+    win.webContents.openDevTools();
   } else {
     // 在生产模式下加载vite打包后的文件
     win.loadFile(path.join(__dirname, "dist/index.html"));
   }
 };
 
-// 新增：初始化 electron-store 用于事件
-const eventsStore = new Store({ name: "events_data" }); // 使用不同的名称以避免与可能的旧设置冲突
+// 修改：初始化 electron-store 用于应用数据（分类和事件）
+const appDataStore = new Store({ name: "events_data" });
 
 // 当 Electron 完成初始化时创建窗口（防止白屏等待加载初始化）
 app.whenReady().then(() => {
@@ -100,7 +100,7 @@ ipcMain.on("window-close", () => {
   }
 });
 
-// 新增：================= 事件数据存储 IPC ==================
+// 修改：================= 应用数据（分类和事件）存储 IPC ==================
 
 // 事件类型映射 (从 event.json 的 type 数字到 EventType 枚举字符串)
 const mapJsonEventTypeToEnumString = (typeNumber) => {
@@ -112,59 +112,91 @@ const mapJsonEventTypeToEnumString = (typeNumber) => {
   }
 };
 
-// 加载事件
-ipcMain.handle('load-events', async () => {
-  let storedEvents = eventsStore.get('appEvents');
-  if (!storedEvents || (Array.isArray(storedEvents) && storedEvents.length === 0)) {
-    // 如果 electron-store 为空或事件数组为空，则从 event.json 加载
+// 修改：加载应用数据 (分类和事件)
+ipcMain.handle('load-app-data', async () => {
+  let categories = appDataStore.get('appCategories');
+  let appEvents = appDataStore.get('appEvents');
+
+  // 检查是否需要从默认文件加载数据
+  const needsDefaultCategories = !categories || (Array.isArray(categories) && categories.length === 0);
+  const needsDefaultEvents = !appEvents || (Array.isArray(appEvents) && appEvents.length === 0);
+
+  if (needsDefaultCategories || needsDefaultEvents) {
     try {
-      const eventJsonPath = path.join(__dirname, 'src', 'stores', 'first_load_for_dev', 'event.json');
-      if (fs.existsSync(eventJsonPath)) {
-        const rawData = fs.readFileSync(eventJsonPath);
-        const jsonData = JSON.parse(rawData.toString());
-        
-        storedEvents = jsonData.map(item => ({
-          id: item.id,
-          title: item.title,
-          // 确保 start 和 end 是 ISO 字符串格式
-          start: new Date(item.start).toISOString(),
-          end: new Date(item.end).toISOString(),
-          description: item.description || "",
-          // 从 event.json 的 priority 映射到 categoryId，color 映射到 categoryColor
-          categoryId: item.priority !== undefined ? item.priority : 5, // 假设 priority 可以映射到 categoryId
-          categoryColor: item.color || "#43aa8b", // 使用 JSON 中的颜色
-          allDay: item.allDay || false,
-          eventType: mapJsonEventTypeToEnumString(item.type), // 映射 type 数字到字符串
-          completed: item.completed || false,
-        }));
-        eventsStore.set('appEvents', storedEvents); // 将从 JSON 加载的数据存入 store
+      const defaultDataPath = path.join(__dirname, 'src', 'stores', 'first_load_for_dev', 'event_data.json');
+      if (fs.existsSync(defaultDataPath)) {
+        const rawData = fs.readFileSync(defaultDataPath);
+        const defaultData = JSON.parse(rawData.toString());
+
+        if (needsDefaultCategories) {
+          categories = defaultData.appCategories || [];
+          appDataStore.set('appCategories', categories);
+          console.log("Loaded default categories from default_app_data.json");
+        }
+
+        if (needsDefaultEvents) {
+          const rawEvents = defaultData.appEvents || [];
+          appEvents = rawEvents.map(item => ({
+            id: item.id,
+            title: item.title,
+            start: new Date(item.start).toISOString(),
+            end: new Date(item.end).toISOString(),
+            description: item.description || "",
+            categoryId: item.priority !== undefined ? item.priority : 5, // 'priority' in JSON maps to 'categoryId'
+            categoryColor: item.color || "#43aa8b", // Ensure color is derived correctly
+            allDay: item.allDay || false,
+            eventType: mapJsonEventTypeToEnumString(item.type),
+            completed: item.completed || false,
+          }));
+          appDataStore.set('appEvents', appEvents);
+          console.log("Loaded default events from default_app_data.json");
+        }
       } else {
-        console.warn("event.json not found, starting with empty events list.");
-        storedEvents = [];
-        eventsStore.set('appEvents', []); // 确保 store 中也设置为空数组
+        console.warn("default_app_data.json not found. Initializing with empty data.");
+        if (needsDefaultCategories) {
+          categories = [];
+          appDataStore.set('appCategories', []);
+        }
+        if (needsDefaultEvents) {
+          appEvents = [];
+          appDataStore.set('appEvents', []);
+        }
       }
     } catch (error) {
-      console.error("Error loading events from event.json:", error);
-      storedEvents = [];
-      eventsStore.set('appEvents', []); // 出错时也确保 store 中为空数组
+      console.error("Error loading default data from default_app_data.json:", error);
+      if (needsDefaultCategories) {
+        categories = [];
+        appDataStore.set('appCategories', []);
+      }
+      if (needsDefaultEvents) {
+        appEvents = [];
+        appDataStore.set('appEvents', []);
+      }
     }
   }
+  
   // 确保返回的数据中日期是 ISO 字符串
-  return storedEvents.map(event => ({
+  const processedEvents = appEvents.map(event => ({
     ...event,
     start: typeof event.start === 'string' ? event.start : new Date(event.start).toISOString(),
     end: typeof event.end === 'string' ? event.end : new Date(event.end).toISOString(),
   }));
+
+  return { categories, events: processedEvents };
 });
 
-// 保存事件
-ipcMain.handle('save-events', async (event, eventsData) => {
-  // 在保存前，确保 Date 对象转换为 ISO 字符串 (如果渲染器发送的是 Date 对象)
-  // Pinia store 通常会发送序列化好的数据，但以防万一
-  const serializableEvents = eventsData.map(e => ({
-    ...e,
-    start: new Date(e.start).toISOString(),
-    end: new Date(e.end).toISOString(),
-  }));
-  eventsStore.set('appEvents', serializableEvents);
+// 修改：保存应用数据 (分类和事件)
+ipcMain.handle('save-app-data', async (event, data) => {
+  const { categories, events } = data;
+  if (categories) {
+    appDataStore.set('appCategories', categories);
+  }
+  if (events) {
+    const serializableEvents = events.map(e => ({
+      ...e,
+      start: new Date(e.start).toISOString(),
+      end: new Date(e.end).toISOString(),
+    }));
+    appDataStore.set('appEvents', serializableEvents);
+  }
 });
