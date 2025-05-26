@@ -96,9 +96,15 @@
 
     <!-- 右侧区域：其他控制按钮 -->
     <div class="header-right no-drag flex items-center flex-shrink-0">
-      <!-- 保留原有按钮 -->
-      <button class="header-icon-button p-2 rounded-md transition-colors">
+      <!-- 铃铛按钮，带动画和斜线 -->
+      <button
+        class="header-icon-button p-2 rounded-md transition-colors bell-btn"
+        :class="{ 'bell-shake': bellShaking, 'bell-off': !notificationEnabled }"
+        @click="handleBellClick"
+        title="通知开关"
+      >
         <i class="fas fa-bell"></i>
+        <span v-if="!notificationEnabled" class="bell-slash"></span>
       </button>
       <!-- 设置按钮 -->
       <button
@@ -133,20 +139,34 @@
 </template>
 
 <script setup lang="ts">
-import { ref, nextTick, watch, onMounted, onUnmounted } from "vue"; // 引入 onMounted, onUnmounted
+import { ref, nextTick, watch, onMounted, onUnmounted } from "vue";
 import { useUiStore } from "../stores/ui";
 import { useSettingStore } from "../stores/setting";
-import { useEventStore } from "../stores/event"; 
+import { useEventStore } from "../stores/event";
 
-// 引入各个仓库
 const uiStore = useUiStore();
 const settingStore = useSettingStore();
-const eventStore = useEventStore(); 
+const eventStore = useEventStore();
 
-// 引入preload中定义的electronAPI
 const electronAPI = (window as any).electronAPI;
 
-const resultListRef = ref<HTMLUListElement | null>(null); 
+const resultListRef = ref<HTMLUListElement | null>(null);
+
+// 通知开关和铃铛动画
+const notificationEnabled = ref(true);
+const bellShaking = ref(false);
+
+// 已通知事件ID集合，防止重复通知
+const notifiedEventIds = ref<Set<string>>(new Set());
+
+// 铃铛按钮点击处理
+const handleBellClick = () => {
+  bellShaking.value = true;
+  setTimeout(() => {
+    bellShaking.value = false;
+    notificationEnabled.value = !notificationEnabled.value;
+  }, 400); // 动画持续时间
+};
 
 // 滚动到当前聚焦的搜索结果项
 const scrollToFocusedResult = () => {
@@ -170,11 +190,13 @@ const scrollToFocusedResult = () => {
 // 组件挂载时注册滚动回调
 onMounted(() => {
   eventStore.setScrollUiUpdateCallback(scrollToFocusedResult);
+  notificationTimer = window.setInterval(checkAndNotifyEvents, 60 * 1000); // 每分钟检查一次
 });
 
 // 组件卸载时清除滚动回调
 onUnmounted(() => {
   eventStore.clearScrollUiUpdateCallback();
+  if (notificationTimer) clearInterval(notificationTimer);
 });
 
 // 格式化事件日期，用于在搜索结果中显示
@@ -185,6 +207,74 @@ const formatEventDate = (dateString: string | Date) => {
     day: "numeric",
   });
 };
+
+// 定时检查日历事件并发送系统通知
+let notificationTimer: number | undefined;
+
+// 通知逻辑
+function checkAndNotifyEvents() {
+  if (!notificationEnabled.value) return;
+  const now = new Date();
+  const events = eventStore.events;
+  events.forEach((event: any) => {
+    // 跳过已完成的待办
+    if (event.completed) return;
+    // 唯一标识符（可用id+start+end组合，防止同一事件多次提醒）
+    const notifyKey =
+      String(event.id) +
+      "_" +
+      (event.start ? new Date(event.start).getTime() : "") +
+      "_" +
+      (event.end ? new Date(event.end).getTime() : "");
+    if (notifiedEventIds.value.has(notifyKey)) return;
+
+    // 有开始和截止时间（即日历事件）
+    if (event.start && event.end && event.start !== event.end) {
+      const start = new Date(event.start);
+      const diff = (start.getTime() - now.getTime()) / 60000;
+      if (diff > 0 && diff <= 15) {
+        sendSystemNotification(
+          `日程即将开始: ${event.title}`,
+          `将在${Math.round(diff)}分钟后开始`
+        );
+        notifiedEventIds.value.add(notifyKey);
+      }
+    }
+    // 只有截止时间（如待办事项）
+    else if (event.end && (!event.start || event.start === event.end)) {
+      const end = new Date(event.end);
+      const diff = (end.getTime() - now.getTime()) / 60000;
+      if (diff > 0 && diff <= 1440) {
+        sendSystemNotification(
+          `日程即将截止: ${event.title}`,
+          `将在${Math.round(diff)}分钟后截止`
+        );
+        notifiedEventIds.value.add(notifyKey);
+      }
+    }
+  });
+}
+
+// 发送系统通知
+function sendSystemNotification(title: string, body: string) {
+  if ("Notification" in window) {
+    if (Notification.permission === "granted") {
+      const n = new Notification(title, { body });
+      setTimeout(() => {
+        n.close();
+      }, 3000); // 3秒后关闭
+    } else if (Notification.permission !== "denied") {
+      Notification.requestPermission().then((permission) => {
+        if (permission === "granted") {
+          const n = new Notification(title, { body });
+          setTimeout(() => {
+            n.close();
+          }, 3000);
+        }
+      });
+    }
+  }
+}
 </script>
 
 <style scoped>
@@ -330,5 +420,33 @@ button:has(.fa-times):hover {
 .fa-chevron-left,
 .fa-chevron-right {
   font-size: 16px;
+}
+
+.bell-btn {
+  position: relative;
+}
+.bell-shake {
+  animation: bell-shake 0.4s 2;
+}
+@keyframes bell-shake {
+  0% { transform: rotate(0deg);}
+  20% { transform: rotate(-15deg);}
+  40% { transform: rotate(15deg);}
+  60% { transform: rotate(-10deg);}
+  80% { transform: rotate(10deg);}
+  100% { transform: rotate(0deg);}
+}
+/* 斜线样式 */
+.bell-slash {
+  position: absolute;
+  left: 6px;      /* 横线水平位置 */
+  top: 20px;       /* 向下移动横线 */
+  width: 18px;     /* 横线长度 */
+  height: 2px;
+  background: #e53e3e;
+  transform: rotate(-45deg);
+  border-radius: 2px;
+  pointer-events: none;
+  z-index: 2;
 }
 </style>
