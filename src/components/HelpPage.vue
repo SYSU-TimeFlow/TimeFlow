@@ -108,7 +108,7 @@
               <span class="description text-gray-700">切换事件页</span>
             </div>
             <div class="shortcut-item flex justify-between">
-              <span class="key-combo"><kbd>a</kbd></span>
+              <span class="key-combo"><kbd>s</kbd></span>
               <span class="description text-gray-700">切换设置页</span>
             </div>
             <div class="shortcut-item flex justify-between">
