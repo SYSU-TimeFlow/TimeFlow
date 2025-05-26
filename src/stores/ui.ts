@@ -252,7 +252,7 @@ export const useUiStore = defineStore("ui", () => {
         startDate.setHours(9, 0, 0, 0);
         const endDate = new Date(startDate);
         endDate.setHours(10, 0, 0, 0);
-        eventStore.openNewEventModal(startDate, endDate);
+        eventStore.openNewEventModal(startDate);
       }
     }
   }
@@ -264,7 +264,7 @@ export const useUiStore = defineStore("ui", () => {
     date.setHours(hour, 0, 0, 0);
     const endDate = new Date(date);
     endDate.setHours(hour + 1, 0, 0, 0);
-    eventStore.openNewEventModal(date, endDate);
+    eventStore.openNewEventModal(date);
   }
 
   function handleDragStart(event: DragEvent, calendarEvent: any) {
