@@ -8,7 +8,7 @@ import { fileURLToPath } from "url";
 import isDev from "electron-is-dev";
 import WindowState from "electron-win-state";
 import Store from "electron-store"; // 新增：导入 electron-store
-import fs from "fs"; // 新增：导入 fs
+import { initializeIpcHandlers } from "./ipcHandlers.js"; // 导入 IPC 处理模块（最大化最小化关闭、读取本地存储）
 
 // 获取当前文件的路径
 const __filename = fileURLToPath(import.meta.url);
@@ -53,7 +53,10 @@ const createWindow = () => {
 // 修改：初始化 electron-store 用于应用数据（分类和事件）
 const appDataStore = new Store({ name: "events_data" });
 // 新增：初始化 electron-store 用于设置数据
-const settingsConfigStore = new Store({ name: "settings_config_data" });
+const settingsConfigStore = new Store({ name: "settings_data" });
+
+// 新增：初始化 IPC 数据处理器
+initializeIpcHandlers(ipcMain, appDataStore, settingsConfigStore, __dirname, BrowserWindow);
 
 // 当 Electron 完成初始化时创建窗口（防止白屏等待加载初始化）
 app.whenReady().then(() => {
@@ -73,174 +76,3 @@ app.on("window-all-closed", () => {
   }
 });
 
-// ================= 监听窗口操作事件 ==================
-// 最小化窗口
-ipcMain.on("window-minimize", () => {
-  const win = BrowserWindow.getFocusedWindow();
-  if (win) {
-    win.minimize();
-  }
-});
-
-// 最大化/还原窗口
-ipcMain.on("window-maximize", () => {
-  const win = BrowserWindow.getFocusedWindow();
-  if (win) {
-    if (win.isMaximized()) {
-      win.unmaximize();
-    } else {
-      win.maximize();
-    }
-  }
-});
-
-// 关闭窗口
-ipcMain.on("window-close", () => {
-  const win = BrowserWindow.getFocusedWindow();
-  if (win) {
-    win.close();
-  }
-});
-
-// 修改：================= 应用数据（分类和事件）存储 IPC ==================
-
-// 事件类型映射 (从 event.json 的 type 数字到 EventType 枚举字符串)
-const mapJsonEventTypeToEnumString = (typeNumber) => {
-  switch (typeNumber) {
-    case 0: return "todo";
-    case 1: return "calendar";
-    case 2: return "both";
-    default: return "calendar"; // 默认为日历事件
-  }
-};
-
-// 修改：加载应用数据 (分类和事件)
-ipcMain.handle('load-app-data', async () => {
-  let categories = appDataStore.get('appCategories');
-  let appEvents = appDataStore.get('appEvents');
-
-  // console.log("Loading app data:", { categories, appEvents });
-
-  // 检查是否需要从默认文件加载数据
-  const needsDefaultCategories = !categories || (Array.isArray(categories) && categories.length === 0);
-  const needsDefaultEvents = !appEvents || (Array.isArray(appEvents) && appEvents.length === 0);
-
-  if (needsDefaultCategories || needsDefaultEvents) {
-    try {
-      const defaultDataPath = path.join(__dirname, 'src', 'stores', 'first_load_for_dev', 'event_data.json');
-      if (fs.existsSync(defaultDataPath)) {
-        const rawData = fs.readFileSync(defaultDataPath);
-        const defaultData = JSON.parse(rawData.toString());
-
-        if (needsDefaultCategories) {
-          categories = defaultData.appCategories || [];
-          appDataStore.set('appCategories', categories);
-          console.log("Loaded default categories from default_app_data.json");
-        }
-
-        if (needsDefaultEvents) {
-          const rawEvents = defaultData.appEvents || [];
-          appEvents = rawEvents.map(item => ({
-            id: item.id,
-            title: item.title,
-            start: new Date(item.start).toISOString(),
-            end: new Date(item.end).toISOString(),
-            description: item.description || "",
-            categoryId: item.priority !== undefined ? item.priority : 5, // 'priority' in JSON maps to 'categoryId'
-            categoryColor: item.color || "#43aa8b", // Ensure color is derived correctly
-            allDay: item.allDay || false,
-            eventType: mapJsonEventTypeToEnumString(item.type),
-            completed: item.completed || false,
-          }));
-          appDataStore.set('appEvents', appEvents);
-          console.log("Loaded default events from default_app_data.json");
-        }
-      } else {
-        console.warn("default_app_data.json not found. Initializing with empty data.");
-        if (needsDefaultCategories) {
-          categories = [];
-          appDataStore.set('appCategories', []);
-        }
-        if (needsDefaultEvents) {
-          appEvents = [];
-          appDataStore.set('appEvents', []);
-        }
-      }
-    } catch (error) {
-      console.error("Error loading default data from default_app_data.json:", error);
-      if (needsDefaultCategories) {
-        categories = [];
-        appDataStore.set('appCategories', []);
-      }
-      if (needsDefaultEvents) {
-        appEvents = [];
-        appDataStore.set('appEvents', []);
-      }
-    }
-  }
-  
-  // 确保返回的数据中日期是 ISO 字符串
-  const processedEvents = appEvents.map(event => ({
-    ...event,
-    start: typeof event.start === 'string' ? event.start : new Date(event.start).toISOString(),
-    end: typeof event.end === 'string' ? event.end : new Date(event.end).toISOString(),
-  }));
-
-  return { categories, events: processedEvents };
-});
-
-// 修改：保存应用数据 (分类和事件)
-ipcMain.handle('save-app-data', async (event, data) => {
-  const { categories, events } = data;
-  if (categories) {
-    appDataStore.set('appCategories', categories);
-  }
-  if (events) {
-    const serializableEvents = events.map(e => ({
-      ...e,
-      start: new Date(e.start).toISOString(),
-      end: new Date(e.end).toISOString(),
-    }));
-    appDataStore.set('appEvents', serializableEvents);
-  }
-});
-
-// 新增：================= 设置数据存储 IPC ==================
-
-// 加载设置
-ipcMain.handle('load-settings', async () => {
-  let userSettings = settingsConfigStore.get('userSettings');
-
-  // console.log("Loading user settings:", userSettings);
-
-  if (!userSettings || Object.keys(userSettings).length === 0) {
-    try {
-      const defaultSettingsPath = path.join(__dirname, 'src', 'stores', 'first_load_for_dev', 'settings_data.json');
-      if (fs.existsSync(defaultSettingsPath)) {
-        const rawData = fs.readFileSync(defaultSettingsPath);
-        userSettings = JSON.parse(rawData.toString());
-        settingsConfigStore.set('userSettings', userSettings); // 保存到用户配置，以便下次直接加载
-        console.log("Loaded default settings from settings_data.json and saved to user config.");
-      } else {
-        console.warn("Default settings_data.json not found. User settings will be empty or default.");
-        // 如果默认文件也不存在，可以考虑返回一个最小化的默认对象或让渲染进程处理
-        userSettings = {}; // 或者一个预定义的最小默认设置对象
-      }
-    } catch (error) {
-      console.error("Error loading default settings from settings_data.json:", error);
-      userSettings = {}; // 出错时返回空对象或最小默认
-    }
-  }
-  return userSettings;
-});
-
-// 保存设置
-ipcMain.handle('save-settings', async (event, settings) => {
-  try {
-    settingsConfigStore.set('userSettings', settings);
-    return { success: true };
-  } catch (error) {
-    console.error("Error saving settings to user config:", error);
-    return { success: false, error: error.message };
-  }
-});
