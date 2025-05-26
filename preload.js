@@ -11,7 +11,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   // 修改：暴露应用数据加载和保存的 API
   loadAppData: () => ipcRenderer.invoke('load-app-data'),
   saveAppData: (data) => ipcRenderer.invoke('save-app-data', data),
-  // 保留旧的设置API（如果将来需要）
+  // 保留旧的设置API（如果将来需要） -> 这些将用于新的设置加载/保存逻辑
   loadSettings: () => ipcRenderer.invoke('load-settings'),
   saveSettings: (settings) => ipcRenderer.invoke('save-settings', settings),
 });

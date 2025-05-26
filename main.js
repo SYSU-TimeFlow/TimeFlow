@@ -52,6 +52,8 @@ const createWindow = () => {
 
 // 修改：初始化 electron-store 用于应用数据（分类和事件）
 const appDataStore = new Store({ name: "events_data" });
+// 新增：初始化 electron-store 用于设置数据
+const settingsConfigStore = new Store({ name: "settings_config_data" });
 
 // 当 Electron 完成初始化时创建窗口（防止白屏等待加载初始化）
 app.whenReady().then(() => {
@@ -116,6 +118,8 @@ const mapJsonEventTypeToEnumString = (typeNumber) => {
 ipcMain.handle('load-app-data', async () => {
   let categories = appDataStore.get('appCategories');
   let appEvents = appDataStore.get('appEvents');
+
+  // console.log("Loading app data:", { categories, appEvents });
 
   // 检查是否需要从默认文件加载数据
   const needsDefaultCategories = !categories || (Array.isArray(categories) && categories.length === 0);
@@ -198,5 +202,45 @@ ipcMain.handle('save-app-data', async (event, data) => {
       end: new Date(e.end).toISOString(),
     }));
     appDataStore.set('appEvents', serializableEvents);
+  }
+});
+
+// 新增：================= 设置数据存储 IPC ==================
+
+// 加载设置
+ipcMain.handle('load-settings', async () => {
+  let userSettings = settingsConfigStore.get('userSettings');
+
+  // console.log("Loading user settings:", userSettings);
+
+  if (!userSettings || Object.keys(userSettings).length === 0) {
+    try {
+      const defaultSettingsPath = path.join(__dirname, 'src', 'stores', 'first_load_for_dev', 'settings_data.json');
+      if (fs.existsSync(defaultSettingsPath)) {
+        const rawData = fs.readFileSync(defaultSettingsPath);
+        userSettings = JSON.parse(rawData.toString());
+        settingsConfigStore.set('userSettings', userSettings); // 保存到用户配置，以便下次直接加载
+        console.log("Loaded default settings from settings_data.json and saved to user config.");
+      } else {
+        console.warn("Default settings_data.json not found. User settings will be empty or default.");
+        // 如果默认文件也不存在，可以考虑返回一个最小化的默认对象或让渲染进程处理
+        userSettings = {}; // 或者一个预定义的最小默认设置对象
+      }
+    } catch (error) {
+      console.error("Error loading default settings from settings_data.json:", error);
+      userSettings = {}; // 出错时返回空对象或最小默认
+    }
+  }
+  return userSettings;
+});
+
+// 保存设置
+ipcMain.handle('save-settings', async (event, settings) => {
+  try {
+    settingsConfigStore.set('userSettings', settings);
+    return { success: true };
+  } catch (error) {
+    console.error("Error saving settings to user config:", error);
+    return { success: false, error: error.message };
   }
 });

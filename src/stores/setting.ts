@@ -13,13 +13,14 @@ interface Settings {
   showLunar: boolean;
   weekStart: string;
   language: string;
+  synced: boolean; // 新增 synced 属性
 }
 
 export const useSettingStore = defineStore("setting", () => {
-  // 系统同步状态
+  // 系统同步状态 - 将由加载的设置初始化
   const synced = ref(true);
 
-  // 设置项
+  // 设置项 - 将由加载的设置初始化
   const themeMode = ref("light");
   const fontSize = ref("medium");
   const iconStyle = ref("default");
@@ -28,11 +29,11 @@ export const useSettingStore = defineStore("setting", () => {
   const soundEffect = ref(false);
   const hour24 = ref(false);
   const showLunar = ref(false);
-  const weekStart = ref("0");
+  const weekStart = ref("0"); // 0 for Sunday, 1 for Monday
   const language = ref("zh-CN");
 
   // 所有设置的聚合对象
-  const allSettings = computed(() => ({
+  const allSettings = computed((): Settings => ({
     themeMode: themeMode.value,
     fontSize: fontSize.value,
     iconStyle: iconStyle.value,
@@ -43,84 +44,69 @@ export const useSettingStore = defineStore("setting", () => {
     showLunar: showLunar.value,
     weekStart: weekStart.value,
     language: language.value,
+    synced: synced.value,
   }));
 
   // 同步设置状态
-  function toggleSync() {
+  async function toggleSync() {
     synced.value = !synced.value;
+    await saveSettings();
   }
 
   // 设置主题
-  function setThemeMode(newTheme: string) {
+  async function setThemeMode(newTheme: string) {
     themeMode.value = newTheme;
-    saveSettings();
+    await saveSettings();
   }
 
   // 设置语言
-  function setLanguage(newLanguage: string) {
+  async function setLanguage(newLanguage: string) {
     language.value = newLanguage;
-    saveSettings();
+    await saveSettings();
   }
 
-  // 保存所有设置
-  function saveSettings() {
+  // 保存所有设置 - 修改为通过 Electron API 保存
+  async function saveSettings() {
     try {
-      localStorage.setItem(
-        "timeflow-settings",
-        JSON.stringify({
-          themeMode: themeMode.value,
-          fontSize: fontSize.value,
-          iconStyle: iconStyle.value,
-          notifications: notifications.value,
-          notificationSound: notificationSound.value,
-          soundEffect: soundEffect.value,
-          hour24: hour24.value,
-          showLunar: showLunar.value,
-          weekStart: weekStart.value,
-          language: language.value,
-          synced: synced.value,
-        })
-      );
+      // @ts-ignore
+      await window.electronAPI.saveSettings(allSettings.value);
     } catch (error) {
-      console.error("Error saving settings to localStorage:", error);
+      console.error("Error saving settings via Electron API:", error);
     }
   }
 
-  // 加载设置
-  function loadSettings() {
+  // 加载设置 - 修改为通过 Electron API 加载
+  async function loadSettings() {
+    console.log("LoadSettings called");
     try {
-      const savedSettings = localStorage.getItem("timeflow-settings");
+      // @ts-ignore
+      const settings = await window.electronAPI.loadSettings();
 
-      if (savedSettings) {
-        const settings = JSON.parse(savedSettings);
-
-        // 更新状态，注意类型检查
-        if (settings.themeMode) themeMode.value = settings.themeMode;
-        if (settings.fontSize) fontSize.value = settings.fontSize;
-        if (settings.iconStyle) iconStyle.value = settings.iconStyle;
-        if (typeof settings.notifications === "boolean")
-          notifications.value = settings.notifications;
-        if (typeof settings.notificationSound === "boolean")
-          notificationSound.value = settings.notificationSound;
-        if (typeof settings.soundEffect === "boolean")
-          soundEffect.value = settings.soundEffect;
-        if (typeof settings.hour24 === "boolean")
-          hour24.value = settings.hour24;
-        if (typeof settings.showLunar === "boolean")
-          showLunar.value = settings.showLunar;
-        if (settings.weekStart !== undefined)
-          weekStart.value = settings.weekStart;
-        if (settings.language) language.value = settings.language;
-        if (typeof settings.synced === "boolean")
-          synced.value = settings.synced;
+      if (settings && Object.keys(settings).length > 0) {
+        themeMode.value = settings.themeMode || "light";
+        fontSize.value = settings.fontSize || "medium";
+        iconStyle.value = settings.iconStyle || "default";
+        notifications.value = typeof settings.notifications === "boolean" ? settings.notifications : true;
+        notificationSound.value = typeof settings.notificationSound === "boolean" ? settings.notificationSound : false;
+        soundEffect.value = typeof settings.soundEffect === "boolean" ? settings.soundEffect : false;
+        hour24.value = typeof settings.hour24 === "boolean" ? settings.hour24 : false;
+        showLunar.value = typeof settings.showLunar === "boolean" ? settings.showLunar : false;
+        weekStart.value = settings.weekStart || "0";
+        language.value = settings.language || "zh-CN";
+        synced.value = typeof settings.synced === "boolean" ? settings.synced : true;
+      } else {
+        // 如果从 main process 返回的是空对象或 undefined，则可能需要应用一套默认值
+        // 或者依赖 ref 的初始值。当前行为是依赖 ref 初始值。
+        console.log("No settings loaded from main process or settings were empty, using defaults.");
       }
     } catch (error) {
-      console.error("Error loading settings from localStorage:", error);
+      console.error("Error loading settings via Electron API:", error);
+      // 出错时，保持当前 ref 的默认值
     }
   }
 
   // 重置设置到默认值
-  function resetSettings() {
+  async function resetSettings() {
     themeMode.value = "light";
     fontSize.value = "medium";
     iconStyle.value = "default";
@@ -131,23 +117,25 @@ export const useSettingStore = defineStore("setting", () => {
     showLunar.value = false;
     weekStart.value = "0";
     language.value = "zh-CN";
+    synced.value = true; // 重置时 synced 也应为 true
 
-    saveSettings();
+    await saveSettings(); // 保存重置后的设置
   }
 
   // 初始加载
+  console.log("resetting store initialized, loading settings...");
   loadSettings();
 
   // 控制设置弹窗显示状态
   const showSettings = ref(false);
 
   // 切换设置弹窗显示/隐藏
-  function toggleSettings() {
+  async function toggleSettings() {
     showSettings.value = !showSettings.value;
 
     // 如果打开设置，确保已加载最新设置
     if (showSettings.value) {
-      loadSettings();
+      await loadSettings();
     }
   }
 
@@ -173,10 +161,19 @@ export const useSettingStore = defineStore("setting", () => {
     toggleSync,
     setThemeMode,
     setLanguage,
-    saveSettings,
-    loadSettings,
+    saveSettings, // 暴露新的 saveSettings
+    loadSettings,   // 暴露新的 loadSettings
     resetSettings,
     toggleSettings,
-    closeSettings
+    closeSettings,
+    // 以下为新增或修改的 setter，确保它们调用 saveSettings
+    setFontSize: async (value: string) => { fontSize.value = value; await saveSettings(); },
+    setIconStyle: async (value: string) => { iconStyle.value = value; await saveSettings(); },
+    setNotifications: async (value: boolean) => { notifications.value = value; await saveSettings(); },
+    setNotificationSound: async (value: boolean) => { notificationSound.value = value; await saveSettings(); },
+    setSoundEffect: async (value: boolean) => { soundEffect.value = value; await saveSettings(); },
+    setHour24: async (value: boolean) => { hour24.value = value; await saveSettings(); },
+    setShowLunar: async (value: boolean) => { showLunar.value = value; await saveSettings(); },
+    setWeekStart: async (value: string) => { weekStart.value = value; await saveSettings(); },
   };
 });
