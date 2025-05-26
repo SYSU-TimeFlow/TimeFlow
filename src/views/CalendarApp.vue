@@ -26,7 +26,8 @@
     <EventModal />
     <!-- todo 模态框组件 -->
     <ToDoModal />
-
+    <!-- 添加帮助模态框 -->
+    <HelpModal />
     <!-- 分类模态框组件 (用于创建/编辑分类) -->
     <CategoryModal />
     <!-- 设置模态框，仅在showSettings为true时显示 -->
@@ -40,6 +41,7 @@ import Sidebar from "../components/Sidebar.vue";
 import CalendarMain from "../components/CalendarMain.vue";
 import ToDoList from "../components/ToDoList.vue";
 import EventModal from "../components/EventModal.vue";
+import HelpModal from '../components/HelpModal.vue';
 import CategoryModal from "../components/CategoryModal.vue"; // 导入分类模态框组件
 import ToDoModal from "../components/ToDoModal.vue"; // 导入待办事项模态框组件
 import Setting from "../components/Setting.vue"; // 导入设置组件
