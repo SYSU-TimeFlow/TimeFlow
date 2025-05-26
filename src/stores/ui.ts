@@ -162,6 +162,75 @@ export const useUiStore = defineStore("ui", () => {
     return eventStore.getEventsForDay(currentDate.value);
   });
 
+  // 添加应用模式相关状态
+  const appMode = ref<"normal" | "command">("normal");
+  const isSearchActive = ref(false);
+
+  // 模式控制函数
+  function setAppMode(mode: "normal" | "command") {
+    appMode.value = mode;
+  }
+
+  function toggleSearchActive(active: boolean) {
+    isSearchActive.value = active;
+  }
+
+  // 应用滚动控制函数
+  function scrollApp(direction: "up" | "down") {
+    // 首先检查是否有模态框打开
+    const helpModalContent = showHelpModal.value
+      ? document.querySelector(".help-modal .modal-body")
+      : null;
+
+    const eventStore = useEventStore();
+    const eventModalContent = eventStore.showEventModal
+      ? document.querySelector(".event-modal .modal-body")
+      : null;
+
+    // 如果任一模态框打开，优先滚动模态框内容
+    if (helpModalContent || eventModalContent) {
+      const modalToScroll = helpModalContent || eventModalContent;
+      modalToScroll?.scrollBy({
+        top: direction === "up" ? -200 : 200,
+        behavior: "smooth",
+      });
+    } else {
+      // 没有模态框打开，查找主内容元素
+      const mainContent =
+        document.querySelector(".main-content-area") ||
+        document.querySelector("main");
+
+      if (mainContent) {
+        // 如果找到主内容区域，则滚动该元素
+        mainContent.scrollBy({
+          top: direction === "up" ? -500 : 500,
+          behavior: "smooth",
+        });
+      } else {
+        // 如果未找到主内容区域，退回到滚动整个窗口
+        window.scrollBy({
+          top: direction === "up" ? -500 : 500,
+          behavior: "smooth",
+        });
+      }
+    }
+  }
+
+  // 命令模式处理函数
+  function executeCommand(commandText: string): boolean {
+    // 去除前导冒号和多余空格
+    const command = commandText.replace(/^:/, "").trim().toLowerCase();
+
+    // 处理各种命令
+    switch (command) {
+      case "today":
+        goToToday();
+        return true;
+      default:
+        return false;
+    }
+  }
+
   // 辅助函数
   function getStartOfWeek(date: Date): Date {
     const result = new Date(date);
@@ -252,7 +321,7 @@ export const useUiStore = defineStore("ui", () => {
         startDate.setHours(9, 0, 0, 0);
         const endDate = new Date(startDate);
         endDate.setHours(10, 0, 0, 0);
-        eventStore.openNewEventModal(startDate, endDate);
+        eventStore.openNewEventModal(startDate);
       }
     }
   }
@@ -264,7 +333,7 @@ export const useUiStore = defineStore("ui", () => {
     date.setHours(hour, 0, 0, 0);
     const endDate = new Date(date);
     endDate.setHours(hour + 1, 0, 0, 0);
-    eventStore.openNewEventModal(date, endDate);
+    eventStore.openNewEventModal(date);
   }
 
   function handleDragStart(event: DragEvent, calendarEvent: any) {
@@ -300,6 +369,81 @@ export const useUiStore = defineStore("ui", () => {
     draggedEvent.value = null;
   }
 
+  // 添加帮助模态框状态
+  const showHelpModal = ref(false);
+
+  // 切换帮助模态框显示状态
+  function toggleHelpModal() {
+    showHelpModal.value = !showHelpModal.value;
+  }
+
+  // 显示帮助模态框
+  function openHelpModal() {
+    showHelpModal.value = true;
+  }
+
+  // 关闭帮助模态框
+  function closeHelpModal() {
+    showHelpModal.value = false;
+  }
+
+  // 处理全局键盘事件
+  function handleGlobalKeydown(event: KeyboardEvent) {
+    // 检查是否有模态框打开
+    if (showHelpModal.value) {
+      // 帮助模态框打开时的快捷键
+      if (event.key === "Escape") {
+        closeHelpModal();
+        event.preventDefault();
+        return;
+      }
+      return; // 当帮助模态框打开时，不处理其他全局快捷键
+    }
+
+    const eventStore = useEventStore();
+    if (eventStore.showEventModal) {
+      // 事件模态框打开时的快捷键
+      if (event.key === "Escape") {
+        eventStore.closeEventModal();
+        event.preventDefault();
+        return;
+      } else if (
+        event.key === "Enter" &&
+        !event.ctrlKey &&
+        !event.altKey &&
+        !event.shiftKey
+      ) {
+        // 检查当前焦点是否在多行文本框中
+        if (
+          document.activeElement instanceof HTMLTextAreaElement ||
+          document.activeElement?.hasAttribute("contenteditable")
+        ) {
+          return; // 多行文本框中不触发保存，允许正常换行
+        }
+
+        // 触发保存事件按钮的点击
+        const saveButton = document.querySelector(
+          ".event-modal .save-button"
+        ) as HTMLButtonElement;
+        if (saveButton) {
+          saveButton.click();
+          event.preventDefault();
+        }
+        return;
+      }
+      return; // 当事件模态框打开时，不处理其他全局快捷键
+    }
+
+    // 如果是在输入框、textarea等元素中则不拦截
+    if (
+      document.activeElement instanceof HTMLInputElement ||
+      document.activeElement instanceof HTMLTextAreaElement ||
+      document.activeElement?.hasAttribute("contenteditable")
+    ) {
+      return;
+    }
+  }
+
   return {
     calendarViews,
     currentView,
@@ -315,6 +459,9 @@ export const useUiStore = defineStore("ui", () => {
     weekViewDays,
     dayViewEvents,
     showToggleButton,
+    appMode,
+    isSearchActive,
+    handleGlobalKeydown,
     toggleSidebar,
     changeView,
     navigateCalendar,
@@ -324,11 +471,19 @@ export const useUiStore = defineStore("ui", () => {
     handleHourClick,
     handleDragStart,
     handleDrop,
+    setAppMode,
+    toggleSearchActive,
+    scrollApp,
+    executeCommand,
     getStartOfWeek,
     getEndOfWeek,
     formatHour,
     calculateEventTop,
     calculateEventHeight,
     getContrastColor,
+    showHelpModal,
+    toggleHelpModal,
+    openHelpModal,
+    closeHelpModal,
   };
 });

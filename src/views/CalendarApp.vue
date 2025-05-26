@@ -23,14 +23,15 @@
       <ToDoList v-else />
     </div>
     <!-- 事件模态框组件 (用于创建/编辑事件) -->
-    <EventModal />
+    <EventPage />
     <!-- todo 模态框组件 -->
-    <ToDoModal />
-
+    <ToDoPage />
+    <!-- 添加帮助模态框 -->
+    <HelpPage />
     <!-- 分类模态框组件 (用于创建/编辑分类) -->
-    <CategoryModal />
+    <CategoryPage />
     <!-- 设置模态框，仅在showSettings为true时显示 -->
-    <Setting />
+    <SettingPage />
   </div>
 </template>
 
@@ -39,11 +40,12 @@ import { onMounted } from "vue";
 import Sidebar from "../components/Sidebar.vue";
 import CalendarMain from "../components/CalendarMain.vue";
 import ToDoList from "../components/ToDoList.vue";
-import EventModal from "../components/EventModal.vue";
-import CategoryModal from "../components/CategoryModal.vue"; // 导入分类模态框组件
-import ToDoModal from "../components/ToDoModal.vue"; // 导入待办事项模态框组件
-import Setting from "../components/Setting.vue"; // 导入设置组件
 import CalendarHeader from "../components/CalendarHeader.vue";
+import EventPage from "../components/EventPage.vue"
+import ToDoPage from "../components/ToDoPage.vue"
+import CategoryPage from "../components/CategoryPage.vue"
+import SettingPage from "../components/SettingPage.vue"
+import HelpPage from "../components/HelpPage.vue"
 import { useUiStore } from "../stores/ui";
 import { useSettingStore } from "../stores/setting";
 
