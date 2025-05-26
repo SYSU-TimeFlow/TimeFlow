@@ -190,7 +190,7 @@ const scrollToFocusedResult = () => {
 // 组件挂载时注册滚动回调
 onMounted(() => {
   eventStore.setScrollUiUpdateCallback(scrollToFocusedResult);
-  notificationTimer = window.setInterval(checkAndNotifyEvents, 60 * 1000); // 每分钟检查一次
+  notificationTimer = window.setInterval(checkAndNotifyEvents, 5 * 1000); // 每5秒检查一次
 });
 
 // 组件卸载时清除滚动回调
@@ -240,7 +240,7 @@ function checkAndNotifyEvents() {
         notifiedEventIds.value.add(notifyKey);
       }
     }
-    // 只有截止时间（如待办事项）
+    // 只有截止时间（如待办事项），这部分的测试等待办事项逻辑修正后可以体现
     else if (event.end && (!event.start || event.start === event.end)) {
       const end = new Date(event.end);
       const diff = (end.getTime() - now.getTime()) / 60000;
