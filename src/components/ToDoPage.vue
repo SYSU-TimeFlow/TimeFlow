@@ -18,42 +18,51 @@
       </h3>
 
       <div class="space-y-4">
+        <!-- 标题 -->
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1"
-            >任务标题
-          </label>
+          <label class="block text-sm font-medium text-gray-700 mb-1">任务标题</label>
           <input
             v-model="eventStore.currentEvent.title"
             class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
+            placeholder="请输入任务标题"
           />
         </div>
-
+        <!-- 截止日期（精确到分钟） -->
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1"
-            >截止日期
-          </label>
+          <label class="block text-sm font-medium text-gray-700 mb-1">截止时间</label>
           <input
             v-model="eventStore.currentEvent.end"
-            type="date"
+            type="datetime-local"
             class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
           />
         </div>
-
-        <!-- 同步到日历 -->
-        <div class="form-group mb-4">
-          <div class="flex items-center mb-2">
-            <input
-              v-model="syncToCalendar"
-              type="checkbox"
-              id="addToCalendar"
-              class="mr-2"
-            />
-            <label for="addToCalendar" class="text-sm text-gray-700">
-              添加到日历
-            </label>
+        <!-- 分类选择 -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">分类</label>
+          <div class="flex gap-2 flex-wrap">
+            <button
+              v-for="category in eventStore.categories"
+              :key="category.id"
+              :class="[
+                'w-7 h-7 rounded-full border-2',
+                eventStore.currentEvent.categoryId === category.id ? 'border-gray-800' : 'border-transparent',
+              ]"
+              :style="{ backgroundColor: category.color }"
+              @click="eventStore.currentEvent.categoryId = category.id; eventStore.currentEvent.categoryColor = category.color;"
+              type="button"
+            ></button>
           </div>
         </div>
-
+        <!-- 备注 -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">备注</label>
+          <textarea
+            v-model="eventStore.currentEvent.description"
+            class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition h-20"
+            placeholder="可填写详细说明"
+          ></textarea>
+        </div>
+        <!-- 操作按钮 -->
         <div class="flex justify-end gap-3 pt-4">
           <button
             @click="eventStore.closeTodoModal"
@@ -82,7 +91,7 @@ const eventStore = useEventStore();
 // 使用本地变量跟踪是否将待办事项同步到日历
 const syncToCalendar = ref(false);
 
-// 当打开编辑模式时，检查当前事件类型并设置同步状态
+// 打开新建待办时，截止时间应默认为空
 watch(() => eventStore.showTodoModal, (isOpen) => {
   if (isOpen) {
     // 如果事件类型是BOTH，说明已经同步到了日历
