@@ -34,6 +34,14 @@ interface TodoFilter {
   count: number;
 }
 
+// 新增：分类接口定义
+interface Category {
+  id: number;
+  name: string;
+  color: string;
+  active: boolean;
+}
+
 export const useEventStore = defineStore("event", () => {
   // 预设颜色选项保持不变
   const colorOptions = [
@@ -49,119 +57,19 @@ export const useEventStore = defineStore("event", () => {
     "#495057", // 深灰色
   ];
 
-  // 分类定义保持不变
-  const categories = ref([
-    { id: 1, name: "工作", color: "#e63946", active: true },
-    { id: 2, name: "个人", color: "#f8961e", active: true },
-    { id: 3, name: "家庭", color: "#fcbf49", active: true },
-    { id: 4, name: "健康", color: "#2a9d8f", active: true },
-    { id: 5, name: "其他", color: "#43aa8b", active: true },
-  ]);
-
-  // 统一的事件数组，替代原来分开的events和todos
-  const events = ref<Event[]>([
-    // 转换原有的示例事件数据为统一格式
-    new Event(
-      1,
-      "团队会议",
-      new Date(2025, 4, 18, 10, 0),
-      new Date(2025, 4, 18, 11, 30),
-      "每周团队同步",
-      1,
-      "#e63946",
-      false,
-      EventType.BOTH
-    ),
-    new Event(
-      2,
-      "牙医预约",
-      new Date(2025, 4, 20, 14, 0),
-      new Date(2025, 4, 20, 15, 0),
-      "常规检查",
-      4,
-      "#2a9d8f",
-      false,
-      EventType.BOTH
-    ),
-    new Event(
-      3,
-      "生日派对",
-      new Date(2025, 4, 22, 18, 0),
-      new Date(2025, 4, 22, 22, 0),
-      "John的生日庆祝",
-      3,
-      "#fcbf49",
-      false,
-      EventType.BOTH
-    ),
-    new Event(
-      4,
-      "项目截止日期",
-      new Date(2025, 4, 25, 0, 0),
-      new Date(2025, 4, 25, 23, 59),
-      "Q2项目最终提交",
-      1,
-      "#e63946",
-      true,
-      EventType.BOTH
-    ),
-    new Event(
-      5,
-      "健身房锻炼",
-      new Date(2025, 4, 19, 7, 0),
-      new Date(2025, 4, 19, 8, 30),
-      "晨间锻炼",
-      4,
-      "#2a9d8f",
-      false,
-      EventType.CALENDAR
-    ),
-    // 转换原来的待办事项为统一格式
-    new Event(
-      6,
-      "完成项目报告",
-      setTimeToEndOfDay(new Date("2025-05-24")),
-      setTimeToEndOfDay(new Date("2025-05-24")),
-      "",
-      5,
-      "#43aa8b",
-      true,
-      EventType.TODO,
-      false
-    ),
-    new Event(
-      7,
-      "购买办公用品",
-      setTimeToEndOfDay(new Date("2025-05-23")),
-      setTimeToEndOfDay(new Date("2025-05-23")),
-      "",
-      5,
-      "#43aa8b",
-      true,
-      EventType.TODO,
-      true
-    ),
-    new Event(
-      8,
-      "准备团队会议",
-      setTimeToEndOfDay(new Date("2025-05-22")),
-      setTimeToEndOfDay(new Date("2025-05-22")),
-      "",
-      5,
-      "#43aa8b",
-      true,
-      EventType.TODO,
-      false
-    ),
-  ]);
+  // 修改：categories 初始化为空数组，将通过API加载
+  const categories = ref<Category[]>([]);
+  // 修改：events 初始化为空数组，将通过API加载
+  const events = ref<Event[]>([]);
 
   // 其余状态管理保持基本不变
   const showCategoryModal = ref(false);
   const isNewCategory = ref(true);
-  const currentCategory = ref({
+  // 修改：为 currentCategory 添加类型注解
+  const currentCategory = ref<Category>({
     id: 0,
     name: "",
-    color: "#4f46e5",
+    color: colorOptions[0], // 默认颜色
     active: true,
   });
 
@@ -416,6 +324,7 @@ export const useEventStore = defineStore("event", () => {
   // Action: 选择一个搜索结果
   function selectSearchResultAction(eventData: any) {
     openEventDetails(eventData); // openEventDetails 是 store 中已有的 action
+    // @ts-ignore
     clearSearchAction();
   }
 
@@ -459,25 +368,27 @@ export const useEventStore = defineStore("event", () => {
   }
 
   // 添加新事件统一函数
-  function addEvent(title: string, start: Date, end: Date, eventType = EventType.CALENDAR) {
+  async function addEvent(title: string, start: Date, end: Date, eventType = EventType.CALENDAR) {
+    const defaultCat = categories.value.find(c => c.id === 5) || categories.value[0] || { id: 5, color: "#43aa8b", name: "其他", active: true };
     const newEvent = new Event(
       Date.now(),
       title,
       start,
       end,
       "",
-      5, // 默认分类
-      categories.value.find(c => c.id === 5)?.color || "#43aa8b",
-      start.getHours() === 0 && end.getHours() === 23, // 判断是否为全天事件
+      defaultCat.id,
+      defaultCat.color,
+      (start.getHours() === 0 && start.getMinutes() === 0 && end.getHours() === 23 && end.getMinutes() === 59 && end.getSeconds() === 59),
       eventType
     );
     
     events.value.push(newEvent);
+    await saveAppDataToStore(); // 修改：保存应用数据
     return newEvent;
   }
 
   // 保存事件 (新建或更新)
-  function saveEvent() {
+  async function saveEvent() {
     // 确保颜色与分类一致
     const category = categories.value.find(
       (c) => c.id === currentEvent.value.categoryId
@@ -501,31 +412,34 @@ export const useEventStore = defineStore("event", () => {
       }
     }
     closeEventModal();
+    await saveAppDataToStore(); // 修改：保存应用数据
   }
 
   // 统一的日历/待办事项删除函数
-  function deleteEvent(id?: number) {
+  async function deleteEvent(id?: number) {
     const eventId = id || currentEvent.value.id;
     const index = events.value.findIndex((e) => e.id === eventId);
     if (index !== -1) {
       events.value.splice(index, 1);
     }
     closeEventModal();
+    await saveAppDataToStore(); // 修改：保存应用数据
   }
 
   // 切换待办事项完成状态
-  function toggleTodo(id: number) {
+  async function toggleTodo(id: number) {
     const event = events.value.find(e => e.id === id && 
       (e.eventType === EventType.TODO || e.eventType === EventType.BOTH));
     if (event) {
       event.completed = !event.completed;
+      await saveAppDataToStore(); // 修改：保存应用数据
     }
   }
 
   // 获取待办事项列表
-  const allTodos = computed(() => 
-    events.value.filter(e => e.eventType === EventType.TODO || e.eventType === EventType.BOTH)
-  );
+  const allTodos = computed(() => {
+    return events.value.filter(e => e.eventType === EventType.TODO || e.eventType === EventType.BOTH);
+  });
   
   const completedTodos = computed(() =>
     allTodos.value.filter(todo => todo.completed)
@@ -561,6 +475,7 @@ export const useEventStore = defineStore("event", () => {
     isNewTodo.value = true;
     const today = new Date();
     today.setHours(23, 59, 59, 0);
+    const defaultCat = categories.value.find(c => c.id === 5) || categories.value[0] || { id: 5, color: "#43aa8b", name: "其他", active: true };
     
     currentEvent.value = {
       id: Date.now(),
@@ -568,8 +483,8 @@ export const useEventStore = defineStore("event", () => {
       start: formatDateTimeForInput(today),
       end: formatDateTimeForInput(today),
       description: "",
-      categoryId: 5,
-      categoryColor: categories.value.find(c => c.id === 5)?.color || "#43aa8b",
+      categoryId: defaultCat.id,
+      categoryColor: defaultCat.color,
       allDay: true,
       eventType: EventType.TODO,
       completed: false
@@ -590,7 +505,7 @@ export const useEventStore = defineStore("event", () => {
   };
   
   // 保存待办事项
-  const saveTodo = () => {
+  const saveTodo = async () => {
     const todoToSave = {
       ...currentEvent.value,
       start: new Date(currentEvent.value.start),
@@ -617,6 +532,7 @@ export const useEventStore = defineStore("event", () => {
     }
     
     closeTodoModal();
+    await saveAppDataToStore(); // 修改：保存应用数据
   };
   
   // 关闭待办事项模态框
@@ -700,8 +616,8 @@ const emptyStateMessage = computed(() => {
   function openNewEventModal(date?: Date) {
     isNewEvent.value = true;
     const startDate = date || new Date();
-    // 设置默认结束时间为开始时间后1小时
     const endDate = new Date(startDate.getTime() + 60 * 60 * 1000);
+    const defaultCat = categories.value.find(c => c.id === 5) || categories.value[0] || { id: 5, color: "#43aa8b", name: "其他", active: true };
     
     currentEvent.value = {
       id: Date.now(),
@@ -709,8 +625,8 @@ const emptyStateMessage = computed(() => {
       start: formatDateTimeForInput(startDate),
       end: formatDateTimeForInput(endDate),
       description: "",
-      categoryId: 5,
-      categoryColor: categories.value.find(c => c.id === 5)?.color || "#43aa8b",
+      categoryId: defaultCat.id,
+      categoryColor: defaultCat.color,
       allDay: false,
       eventType: EventType.CALENDAR,
       completed: false
@@ -739,10 +655,11 @@ const emptyStateMessage = computed(() => {
   }
 
   // 分类相关函数
-  function toggleCategory(id: number) {
+  async function toggleCategory(id: number) {
     const category = categories.value.find(c => c.id === id);
     if (category) {
       category.active = !category.active;
+      await saveAppDataToStore(); // 修改：保存应用数据
     }
   }
 
@@ -758,12 +675,17 @@ const emptyStateMessage = computed(() => {
     return currentCategory.value.name.trim().length > 0;
   }
 
-  function updateEventCategoryColor(categoryId: number, newColor: string) {
+  async function updateEventCategoryColor(categoryId: number, newColor: string) {
+    let changed = false;
     events.value.forEach(event => {
-      if (event.categoryId === categoryId) {
+      if (event.categoryId === categoryId && event.categoryColor !== newColor) {
         event.categoryColor = newColor;
+        changed = true;
       }
     });
+    if (changed) {
+      await saveAppDataToStore(); // 修改：保存应用数据
+    }
   }
 
   function openNewCategoryModal() {
@@ -771,13 +693,13 @@ const emptyStateMessage = computed(() => {
     currentCategory.value = {
       id: Date.now(),
       name: "",
-      color: colorOptions[0],
+      color: colorOptions.find(c => !isColorUsed(c)) || colorOptions[0], // 尝试选择一个未使用的颜色
       active: true,
     };
     showCategoryModal.value = true;
   }
 
-  function openCategoryDetails(category: any) {
+  function openCategoryDetails(category: Category) { // 修改：参数类型为 Category
     isNewCategory.value = false;
     currentCategory.value = { ...category };
     showCategoryModal.value = true;
@@ -787,7 +709,7 @@ const emptyStateMessage = computed(() => {
     showCategoryModal.value = false;
   }
 
-  function saveCategory() {
+  async function saveCategory() {
     if (!isCategoryFormValid()) return;
     
     const categoryToSave = { ...currentCategory.value };
@@ -800,44 +722,116 @@ const emptyStateMessage = computed(() => {
         const oldColor = categories.value[index].color;
         categories.value[index] = categoryToSave;
         
-        // 如果颜色有变化，更新关联的事件颜色
         if (oldColor !== categoryToSave.color) {
-          updateEventCategoryColor(categoryToSave.id, categoryToSave.color);
+          // updateEventCategoryColor 内部会调用 saveAppDataToStore
+          await updateEventCategoryColor(categoryToSave.id, categoryToSave.color);
         }
       }
     }
-    
     closeCategoryModal();
+    await saveAppDataToStore(); // 修改：保存应用数据
   }
 
-  function deleteCategory() {
+  async function deleteCategory() {
     if (!isNewCategory.value) {
-      // 不允许删除最后一个分类
       if (categories.value.length <= 1) {
-        // 这里可以添加错误提示
+        console.warn("Cannot delete the last category."); // 可以添加用户提示
         return;
       }
       
       const index = categories.value.findIndex(c => c.id === currentCategory.value.id);
       if (index !== -1) {
-        // 删除分类前，将该分类下的事件转移到"其他"分类
-        const defaultCategoryId = 5; // "其他"分类ID
+        const categoryToDeleteId = currentCategory.value.id;
+        // 查找一个默认分类来重新分配事件，优先选择“其他”，否则选择第一个不是正在删除的分类
+        const defaultCategory = categories.value.find(c => c.id === 5 && c.id !== categoryToDeleteId) || 
+                                categories.value.find(c => c.id !== categoryToDeleteId);
+
+        if (!defaultCategory) {
+            console.error("No suitable default category found to reassign events to. This should not happen if there's more than one category.");
+            closeCategoryModal();
+            return;
+        }
+        
         events.value.forEach(event => {
-          if (event.categoryId === currentCategory.value.id) {
-            event.categoryId = defaultCategoryId;
-            const defaultCategory = categories.value.find(c => c.id === defaultCategoryId);
-            if (defaultCategory) {
-              event.categoryColor = defaultCategory.color;
-            }
+          if (event.categoryId === categoryToDeleteId) {
+            event.categoryId = defaultCategory.id;
+            event.categoryColor = defaultCategory.color;
           }
         });
         
         categories.value.splice(index, 1);
+        await saveAppDataToStore(); // 修改：保存应用数据
       }
     }
-    
     closeCategoryModal();
   }
+
+  // 修改：从 electron-store 加载应用数据 (通过 main process)
+  async function loadAppDataFromStore() {
+    try {
+      // @ts-ignore
+      const appData = await window.electronAPI.loadAppData();
+      if (appData) {
+        if (appData.categories && Array.isArray(appData.categories)) {
+          categories.value = appData.categories;
+        } else {
+          console.warn("Loaded categories data is not an array or is missing. Initializing as empty.");
+          categories.value = [];
+        }
+
+        if (appData.events && Array.isArray(appData.events)) {
+          events.value = appData.events.map((eventData: any) => {
+            const start = new Date(eventData.start);
+            const end = new Date(eventData.end);
+            
+            let eventType: EventType;
+            switch(eventData.eventType) {
+              case "calendar": eventType = EventType.CALENDAR; break;
+              case "todo": eventType = EventType.TODO; break;
+              case "both": eventType = EventType.BOTH; break;
+              default: 
+                console.warn(`Invalid eventType "${eventData.eventType}" for event ID ${eventData.id}. Defaulting to CALENDAR.`);
+                eventType = EventType.CALENDAR;
+            }
+
+            return new Event(
+              eventData.id, eventData.title, start, end,
+              eventData.description, eventData.categoryId, eventData.categoryColor,
+              eventData.allDay, eventType, eventData.completed
+            );
+          });
+        } else {
+          console.warn("Loaded events data is not an array or is missing. Initializing as empty.");
+          events.value = [];
+        }
+      } else {
+        console.warn("No appData returned from loadAppData. Initializing categories and events as empty.");
+        categories.value = [];
+        events.value = [];
+      }
+    } catch (error) {
+      console.error("Error loading app data via Electron API:", error);
+      categories.value = [];
+      events.value = [];
+    }
+  }
+
+  // 修改：保存应用数据到 electron-store (通过 main process)
+  async function saveAppDataToStore() {
+    try {
+      const dataToSave = {
+        categories: JSON.parse(JSON.stringify(categories.value)),
+        events: JSON.parse(JSON.stringify(events.value))
+      };
+      // @ts-ignore
+      await window.electronAPI.saveAppData(dataToSave);
+    } catch (error) { // 修正了 catch 块的语法
+      console.error("Error saving app data via Electron API:", error);
+    }
+  }
+
+  // 初始化时加载应用数据
+  loadAppDataFromStore();
 
   return {
     // 导出枚举类型供组件使用
@@ -885,7 +879,7 @@ const emptyStateMessage = computed(() => {
     setTimeToEndOfDay,
     
     // 分类相关
-    toggleCategory,
+    toggleCategory, // 已是 async
     colorOptions,
     isColorUsed,
     selectColor,

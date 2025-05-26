@@ -7,6 +7,8 @@ import path from "path";
 import { fileURLToPath } from "url";
 import isDev from "electron-is-dev";
 import WindowState from "electron-win-state";
+import Store from "electron-store"; // 新增：导入 electron-store
+import { initializeIpcHandlers } from "./ipcHandlers.js"; // 导入 IPC 处理模块（最大化最小化关闭、读取本地存储）
 
 // 获取当前文件的路径
 const __filename = fileURLToPath(import.meta.url);
@@ -41,12 +43,20 @@ const createWindow = () => {
   if (isDev) {
     // 在开发模式下加载本地服务器
     win.loadURL("http://localhost:5173");
-    // win.webContents.openDevTools();
+    win.webContents.openDevTools();
   } else {
     // 在生产模式下加载vite打包后的文件
     win.loadFile(path.join(__dirname, "dist/index.html"));
   }
 };
+
+// 修改：初始化 electron-store 用于应用数据（分类和事件）
+const appDataStore = new Store({ name: "events_data" });
+// 新增：初始化 electron-store 用于设置数据
+const settingsConfigStore = new Store({ name: "settings_data" });
+
+// 新增：初始化 IPC 数据处理器
+initializeIpcHandlers(ipcMain, appDataStore, settingsConfigStore, __dirname, BrowserWindow);
 
 // 当 Electron 完成初始化时创建窗口（防止白屏等待加载初始化）
 app.whenReady().then(() => {
@@ -66,31 +76,3 @@ app.on("window-all-closed", () => {
   }
 });
 
-// ================= 监听窗口操作事件 ==================
-// 最小化窗口
-ipcMain.on("window-minimize", () => {
-  const win = BrowserWindow.getFocusedWindow();
-  if (win) {
-    win.minimize();
-  }
-});
-
-// 最大化/还原窗口
-ipcMain.on("window-maximize", () => {
-  const win = BrowserWindow.getFocusedWindow();
-  if (win) {
-    if (win.isMaximized()) {
-      win.unmaximize();
-    } else {
-      win.maximize();
-    }
-  }
-});
-
-// 关闭窗口
-ipcMain.on("window-close", () => {
-  const win = BrowserWindow.getFocusedWindow();
-  if (win) {
-    win.close();
-  }
-});
