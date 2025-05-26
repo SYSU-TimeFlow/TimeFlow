@@ -49,15 +49,46 @@
           type="text"
           placeholder="Search events..."
           class="pl-8 pr-4 py-1 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent w-64"
+          :value="eventStore.searchInputValue"
+          @input="eventStore.updateSearchInputValue(($event.target as HTMLInputElement).value)"
+          @focus="eventStore.handleSearchFocusAction"
+          @blur="eventStore.handleSearchBlurAction"
+          @keydown="eventStore.handleKeydownAction"
         />
         <i
           class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm"
         ></i>
+        <!-- 搜索结果列表 -->
+        <div
+          v-if="eventStore.showSearchDropdown"
+          class="search-results absolute left-0 right-0 mt-1 bg-white border border-gray-300 rounded-md shadow-lg z-10 max-h-60 overflow-y-auto"
+        >
+          <ul ref="resultListRef">
+            <li
+              v-for="(event, index) in eventStore.searchResults"
+              :key="event.id"
+              class="px-4 py-2 hover:bg-gray-100 cursor-pointer text-sm"
+              :class="{ 'search-result-focused': index === eventStore.focusedResultIndex }"
+              @mousedown="eventStore.selectSearchResultAction(event)"
+            >
+              <span v-html="eventStore.getHighlightedHTMLContent(event.title, eventStore.searchQuery)"></span>
+              <span class="text-xs text-gray-500 ml-2">{{
+                formatEventDate(event.start)
+              }}</span>
+            </li>
+            <li
+              v-if="eventStore.searchQuery.trim() && eventStore.searchResults.length === 0"
+              class="px-4 py-2 text-sm text-gray-500"
+            >
+              No results found.
+            </li>
+          </ul>
+        </div>
       </div>
       <!-- "今天"按钮 -->
       <button
         @click="uiStore.goToToday()"
-        class="nav-button py-1 px-4 rounded-md hover:bg-gray-100 cursor-pointer transition-colors ml-1"
+        class="nav-button py-1 px-4 rounded-md hover:bg-gray-100 cursor-pointer transition-colors ml-1 no-drag"
       >
         Today
       </button>
@@ -102,16 +133,58 @@
 </template>
 
 <script setup lang="ts">
+import { ref, nextTick, watch, onMounted, onUnmounted } from "vue"; // 引入 onMounted, onUnmounted
 import { useUiStore } from "../stores/ui";
 import { useSettingStore } from "../stores/setting";
+import { useEventStore } from "../stores/event"; 
 
 // 引入各个仓库
 const uiStore = useUiStore();
 const settingStore = useSettingStore();
+const eventStore = useEventStore(); 
 
 // 引入preload中定义的electronAPI
-// 该API用于与Electron主进程进行通信
 const electronAPI = (window as any).electronAPI;
+
+const resultListRef = ref<HTMLUListElement | null>(null); 
+
+// 滚动到当前聚焦的搜索结果项
+const scrollToFocusedResult = () => {
+  nextTick(() => {
+    if (
+      resultListRef.value &&
+      eventStore.focusedResultIndex > -1 &&
+      eventStore.searchResults.length > 0 &&
+      eventStore.focusedResultIndex < resultListRef.value.children.length // 确保索引有效
+    ) {
+      const focusedItem = resultListRef.value.children[
+        eventStore.focusedResultIndex
+      ] as HTMLLIElement;
+      if (focusedItem) {
+        focusedItem.scrollIntoView({ block: "nearest", inline: "nearest" });
+      }
+    }
+  });
+};
+
+// 组件挂载时注册滚动回调
+onMounted(() => {
+  eventStore.setScrollUiUpdateCallback(scrollToFocusedResult);
+});
+
+// 组件卸载时清除滚动回调
+onUnmounted(() => {
+  eventStore.clearScrollUiUpdateCallback();
+});
+
+// 格式化事件日期，用于在搜索结果中显示
+const formatEventDate = (dateString: string | Date) => {
+  const date = new Date(dateString);
+  return date.toLocaleDateString("zh-CN", {
+    month: "short",
+    day: "numeric",
+  });
+};
 </script>
 
 <style scoped>
@@ -149,6 +222,37 @@ const electronAPI = (window as any).electronAPI;
 /* 搜索框样式调整 */
 .search-box input {
   height: 32px;
+}
+
+.search-results {
+  /* 确保结果列表在其他元素之上 */
+  z-index: 1000;
+}
+
+.search-results ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.search-results li {
+  border-bottom: 1px solid #eee;
+}
+
+.search-results li:last-child {
+  border-bottom: none;
+}
+
+.search-results li.search-result-focused {
+  background-color: #e9ecef; /* 类似 Tailwind bg-gray-200 的颜色 */
+}
+
+:deep(.search-highlight) {
+  background-color: yellow;
+  font-weight: bold;
+  padding: 0; /* 避免mark标签自带的padding影响布局 */
+  margin: 0;  /* 避免mark标签自带的margin影响布局 */
+  color: black; /* 确保高亮文本颜色清晰 */
 }
 
 /* 日历标题优化 */

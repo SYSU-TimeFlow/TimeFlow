@@ -1,6 +1,7 @@
 import { defineStore } from "pinia";
-import { ref, computed } from "vue";
+import { ref, computed, nextTick } from "vue"; // 引入 nextTick
 import { useTodoStore } from "../stores/todoStore";
+import { pinyin } from "pinyin-pro"; // 确保 pinyin-pro 已安装并在需要的地方导入
 
 export const useEventStore = defineStore("event", () => {
   // 预设颜色选项 - 按照红橙黄绿青蓝紫等顺序排列的10种适合文字阅读的颜色
@@ -110,6 +111,189 @@ export const useEventStore = defineStore("event", () => {
     addToTodo: true,
   });
 
+  // --- 搜索功能相关状态和逻辑 ---
+  const searchInputValue = ref(""); // 搜索输入框的实时值
+  const searchQuery = ref("");      // 防抖后的实际搜索查询词
+  const isSearchFocused = ref(false); // 搜索框是否获得焦点
+  const focusedResultIndex = ref(-1); // 当前高亮的搜索结果索引
+  const debounceTimer = ref<number | undefined>(undefined); // 防抖计时器ID
+  const scrollUiUpdateCallback = ref<(() => void) | null>(null); // 滚动更新UI的回调
+
+  // Action: 注册滚动UI更新的回调函数
+  function setScrollUiUpdateCallback(callback: () => void) {
+    scrollUiUpdateCallback.value = callback;
+  }
+
+  // Action: 清除滚动UI更新的回调函数
+  function clearScrollUiUpdateCallback() {
+    scrollUiUpdateCallback.value = null;
+  }
+
+  // Action: 更新搜索输入值并启动防抖
+  function updateSearchInputValue(value: string) {
+    searchInputValue.value = value;
+    clearTimeout(debounceTimer.value);
+    debounceTimer.value = window.setTimeout(() => {
+      searchQuery.value = value;
+      focusedResultIndex.value = -1; // 新搜索开始，重置高亮
+    }, 200); // 防抖延迟
+  }
+
+  // Computed: 根据 searchQuery 过滤事件
+  const searchResults = computed(() => {
+    if (!searchQuery.value.trim()) {
+      return [];
+    }
+    const queryLowercase = searchQuery.value.toLowerCase();
+    const queryTrimmed = searchQuery.value.trim();
+
+    return events.value.filter((event) => {
+      const eventStartDate = new Date(event.start);
+      const eventDay = eventStartDate.getDate();
+      const eventMonth = eventStartDate.getMonth() + 1;
+      const eventYear = eventStartDate.getFullYear();
+
+      // 1. Formatted Date Matching
+      if (queryTrimmed.includes("-")) {
+        const parts = queryTrimmed.split("-").map(part => parseInt(part, 10));
+        if (parts.length === 2 && !parts.some(isNaN)) {
+          const [queryMonth, queryDay] = parts;
+          const currentYear = new Date().getFullYear();
+          if (eventMonth === queryMonth && eventDay === queryDay && eventYear === currentYear) return true;
+        } else if (parts.length === 3 && !parts.some(isNaN)) {
+          const [queryYear, queryMonth, queryDay] = parts;
+          if (eventYear === queryYear && eventMonth === queryMonth && eventDay === queryDay) return true;
+        }
+      }
+      // 2. Pure Numeric Matching
+      else if (/^\d+$/.test(queryTrimmed)) {
+        const numericQuery = parseInt(queryTrimmed, 10);
+        if (eventDay === numericQuery || eventMonth === numericQuery || eventYear === numericQuery) return true;
+      }
+
+      // 3. Original Text Matching
+      const title = event.title.toLowerCase();
+      const description = event.description ? event.description.toLowerCase() : "";
+      if (title.includes(queryLowercase) || description.includes(queryLowercase)) return true;
+
+      // 4. Pinyin Matching
+      const titlePinyin = pinyin(event.title, { toneType: "none" }).toLowerCase();
+      const titlePinyinInitials = pinyin(event.title, { pattern: "initial", toneType: "none" }).toLowerCase();
+      if (titlePinyin.includes(queryLowercase) || titlePinyinInitials.includes(queryLowercase)) return true;
+
+      if (event.description) {
+        const descPinyin = pinyin(event.description, { toneType: "none" }).toLowerCase();
+        const descPinyinInitials = pinyin(event.description, { pattern: "initial", toneType: "none" }).toLowerCase();
+        if (descPinyin.includes(queryLowercase) || descPinyinInitials.includes(queryLowercase)) return true;
+      }
+      return false;
+    });
+  });
+
+  // Computed: 控制搜索结果下拉框的显示
+  const showSearchDropdown = computed(() => {
+    return isSearchFocused.value && searchInputValue.value.trim() !== "";
+  });
+
+  // Function: 获取高亮显示的HTML (用于搜索结果)
+  function getHighlightedHTMLContent(text: string, queryToHighlight: string): string {
+    if (!queryToHighlight.trim() || !text) {
+      return text;
+    }
+    const lowerText = text.toLowerCase();
+    const lowerQuery = queryToHighlight.toLowerCase();
+    let startIndex = lowerText.indexOf(lowerQuery);
+    if (startIndex !== -1) {
+      const before = text.substring(0, startIndex);
+      const matched = text.substring(startIndex, startIndex + queryToHighlight.length);
+      const after = text.substring(startIndex + queryToHighlight.length);
+      return `${before}<mark class="search-highlight">${matched}</mark>${after}`;
+    }
+    return text;
+  }
+  
+  // Action: 清空搜索状态
+  function clearSearchAction() {
+    clearTimeout(debounceTimer.value);
+    searchInputValue.value = "";
+    searchQuery.value = "";
+    isSearchFocused.value = false;
+    focusedResultIndex.value = -1;
+  }
+
+  // Action: 处理搜索框获得焦点
+  function handleSearchFocusAction() {
+    isSearchFocused.value = true;
+  }
+
+  // Action: 处理搜索框失去焦点
+  function handleSearchBlurAction() {
+    setTimeout(() => {
+      if (isSearchFocused.value) { // 确保不是因为点击结果项导致的失焦
+        clearSearchAction();
+      }
+    }, 200); // 延迟以允许结果项的 mousedown 事件优先触发
+  }
+
+  // Action: 处理键盘事件
+  function handleKeydownAction(event: KeyboardEvent) {
+    if (!showSearchDropdown.value || searchResults.value.length === 0) {
+      if (event.key === "Escape") {
+        clearSearchAction();
+      }
+      return;
+    }
+
+    const totalResults = searchResults.value.length;
+    let newIndex = focusedResultIndex.value;
+
+    switch (event.key) {
+      case "ArrowDown":
+      case "Tab": // Tab 也视为向下
+        event.preventDefault();
+        if (event.key === "Tab" && event.shiftKey) { // Shift + Tab 向上
+             newIndex = (focusedResultIndex.value - 1 + totalResults) % totalResults;
+        } else {
+            newIndex = (focusedResultIndex.value + 1) % totalResults;
+        }
+        break;
+      case "ArrowUp":
+        event.preventDefault();
+        newIndex = (focusedResultIndex.value - 1 + totalResults) % totalResults;
+        break;
+      case "Enter":
+        if (focusedResultIndex.value > -1 && focusedResultIndex.value < totalResults) {
+          event.preventDefault();
+          selectSearchResultAction(searchResults.value[focusedResultIndex.value]);
+        }
+        return; // Enter后不应再触发滚动回调
+      case "Escape":
+        event.preventDefault();
+        clearSearchAction();
+        return; // Escape后不应再触发滚动回调
+      default:
+        return; // 其他按键不处理
+    }
+
+    if (newIndex !== focusedResultIndex.value) {
+      focusedResultIndex.value = newIndex;
+      if (scrollUiUpdateCallback.value) {
+        nextTick(() => {
+          scrollUiUpdateCallback.value!();
+        });
+      }
+    }
+  }
+
+  // Action: 选择一个搜索结果
+  function selectSearchResultAction(eventData: any) {
+    openEventDetails(eventData); // openEventDetails 是 store 中已有的 action
+    clearSearchAction();
+  }
+
+  // --- 结束搜索功能相关 ---
+
+
   // 获取指定日期的所有事件
   function getEventsForDay(date: Date): any[] {
     const activeCategoryIds = categories.value
@@ -151,7 +335,7 @@ export const useEventStore = defineStore("event", () => {
     return `${formatTime(start)} - ${formatTime(end)}`;
   }
 
-  // 格式化日期对象为时间字符串
+  // 格式化日期对象为时间字符串 (HH:mm AM/PM)
   function formatTime(date: Date): string {
     return new Intl.DateTimeFormat("zh-CN", {
       hour: "numeric",
@@ -160,7 +344,7 @@ export const useEventStore = defineStore("event", () => {
     }).format(date);
   }
 
-  // 将 Date 对象格式化为 datetime-local input 所需的字符串格式
+  // 将 Date 对象格式化为 datetime-local input 所需的字符串格式 (YYYY-MM-DDTHH:mm)
   function formatDateTimeForInput(date: Date): string {
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, "0");
@@ -209,7 +393,7 @@ export const useEventStore = defineStore("event", () => {
     showEventModal.value = false;
   }
 
-  // 当选择分类时，自动更新当前事件的颜色
+  // 当选择分类时，自动更新当前事件的颜色和分类ID
   function updateEventCategoryColor(categoryId: number) {
     const category = categories.value.find((c) => c.id === categoryId);
     if (category) {
@@ -218,6 +402,7 @@ export const useEventStore = defineStore("event", () => {
     }
   }
 
+  // 添加一个新事件 (此函数似乎未在UI中直接使用，saveEvent是主要的保存逻辑)
   function addEvent(title: string, start: Date, end: Date) {
     const newEvent = {
       id: Date.now(),
@@ -394,7 +579,7 @@ export const useEventStore = defineStore("event", () => {
     closeCategoryModal();
   }
 
-  // 检查颜色是否已被其他分类使用
+  // 检查颜色是否已被其他分类使用 (不包括当前编辑的分类自身)
   function isColorUsed(color: string): boolean {
     // 如果是编辑模式，当前正在编辑的分类的颜色可以继续使用
     if (
@@ -413,14 +598,14 @@ export const useEventStore = defineStore("event", () => {
     );
   }
 
-  // 选择颜色
+  // 选择颜色并应用到当前分类 (如果颜色未被使用)
   function selectColor(color: string): void {
     if (!isColorUsed(color)) {
       currentCategory.value.color = color;
     }
   }
 
-  // 检查分类表单是否有效
+  // 检查分类表单是否有效 (名称不能为空)
   const isCategoryFormValid = computed(() => {
     return currentCategory.value.name.trim() !== "";
   });
@@ -455,5 +640,22 @@ export const useEventStore = defineStore("event", () => {
     selectColor,
     isCategoryFormValid,
     updateEventCategoryColor,
+
+    // 搜索相关导出
+    searchInputValue,
+    searchQuery, // 主要用于 getHighlightedHTMLContent
+    isSearchFocused, // 主要用于 showSearchDropdown
+    focusedResultIndex, // 仍然导出，因为组件的 :class 绑定需要它
+    searchResults,
+    showSearchDropdown,
+    updateSearchInputValue,
+    handleSearchFocusAction,
+    handleSearchBlurAction,
+    handleKeydownAction,
+    selectSearchResultAction,
+    getHighlightedHTMLContent,
+    clearSearchAction,
+    setScrollUiUpdateCallback, 
+    clearScrollUiUpdateCallback, 
   };
 });
