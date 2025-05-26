@@ -42,7 +42,7 @@
     <!-- 仅在待办视图显示 Add Todo 按钮-->
     <button
       v-if="uiStore.currentView === 'todo-list'"
-      @click="todoStore.openNewTodoModal()"
+      @click="eventStore.openNewTodoModal()"
       class="add-event-btn mx-4 my-3 py-2 px-4 bg-blue-600 text-white rounded-lg flex items-center justify-center hover:bg-blue-700 transition cursor-pointer !rounded-button whitespace-nowrap"
     >
       <i
@@ -51,7 +51,7 @@
           !uiStore.sidebarCollapsed ? 'mr-2' : '', // 根据折叠状态设置边距
         ]"
       ></i>
-      <span v-if="!uiStore.sidebarCollapsed">Add Todo</span>
+      <span v-if="!uiStore.sidebarCollapsed">Add Event</span>
     </button>
 
     <!-- 迷你日历组件 -->
@@ -82,16 +82,13 @@
 import ViewSelector from "./ViewSelector.vue";
 import Categories from "./Categories.vue";
 import { useEventStore } from '../stores/event';
-import { useTodoStore } from '../stores/todoStore';
 import { useUiStore } from '../stores/ui';
 import { useSettingStore } from '../stores/setting';
-import { ref } from 'vue';
 
 // 使用Pinia仓库
 const eventStore = useEventStore();
 const uiStore = useUiStore();
 const settingStore = useSettingStore();
-const todoStore = useTodoStore();
 
 </script>
 

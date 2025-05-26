@@ -30,14 +30,14 @@
         <!-- "上一个"导航按钮 -->
         <button
           @click="uiStore.navigateCalendar('prev')"
-          class="nav-button px-4 py-2 rounded-l-md hover:bg-gray-100 cursor-pointer transition-colors"
+          class="nav-button px-2 py-2 rounded-l-md hover:bg-gray-100 cursor-pointer transition-colors"
         >
           <i class="fas fa-chevron-left text-base"></i>
         </button>
         <!-- "下一个"导航按钮，移除边框 -->
         <button
           @click="uiStore.navigateCalendar('next')"
-          class="nav-button px-4 py-2 rounded-r-md hover:bg-gray-100 cursor-pointer transition-colors"
+          class="nav-button px-2 py-2 rounded-r-md hover:bg-gray-100 cursor-pointer transition-colors"
         >
           <i class="fas fa-chevron-right text-base"></i>
         </button>

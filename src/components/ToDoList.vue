@@ -1,7 +1,7 @@
 <!--
   @description 待办事项列表。
   在新建 events 时，也可以同时添加到 Todo List 中。
-  TODO: 新建 todo 事项时，用户也可以手动选择将 todo 事项添加到日历，实现日历与待办事项的同步。这部分功能还不完善。
+  实现日历与待办事项的同步。
 -->
 <template>
   <main class="todo-main flex-1 flex flex-col overflow-hidden">
@@ -15,31 +15,34 @@
         <!-- 过滤选项 -->
         <div class="w-full mb-6 flex justify-center gap-4">
           <button
-            v-for="filter in todoStore.filters"
+            v-for="filter in filters"
             :key="filter.value"
-            @click="todoStore.setFilter(filter.value)"
+            @click="eventStore.setFilter(filter.value)"
             class="px-4 py-2 rounded-xl transition cursor-pointer"
             :class="{
-              'bg-indigo-600 text-white': todoStore.activeFilter === filter.value,
+              'bg-indigo-600 text-white': eventStore.activeFilter === filter.value,
               'bg-gray-100 text-gray-700 hover:bg-gray-200':
-                todoStore.activeFilter !== filter.value,
+                eventStore.activeFilter !== filter.value,
             }"
           >
-            {{ filter.label }}
+            {{ filter.label }} ({{ getFilterCount(filter.value) }})
           </button>
         </div>
 
         <!-- 待办事项列表 -->
         <div class="w-full space-y-4">
           <div
-            v-for="todo in todoStore.filteredTodos"
+            v-for="todo in eventStore.filteredTodos"
             :key="todo.id"
-            @click="todoStore.toggleTodo(todo.id)"
+            @click="eventStore.toggleTodo(todo.id)"
             class="flex justify-between items-center p-5 bg-white rounded-2xl shadow-sm hover:shadow-md transition cursor-pointer border-l-4 group"
             :class="{
-              'border-red-500': todo.id % 3 === 0,
-              'border-orange-500': todo.id % 3 === 1,
-              'border-green-500': todo.id % 3 === 2,
+              'border-l-4': true,
+              'border-red-500': todo.categoryId === 1,
+              'border-orange-500': todo.categoryId === 2,
+              'border-yellow-500': todo.categoryId === 3,
+              'border-green-500': todo.categoryId === 4,
+              'border-indigo-500': todo.categoryId === 5,
               'opacity-70 bg-gray-50': todo.completed,
             }"
           >
@@ -48,7 +51,7 @@
               <input
                 type="checkbox"
                 :checked="todo.completed"
-                @click.stop="todoStore.toggleTodo(todo.id)"
+                @click.stop="eventStore.toggleTodo(todo.id)"
                 class="w-5 h-5 text-indigo-600 rounded focus:ring-indigo-500"
               />
               <div>
@@ -61,7 +64,7 @@
                 </div>
                 <!-- 格式化显示的截止日期 -->
                 <div class="text-sm text-gray-500">
-                  {{ todoStore.formatDateForDisplay(todo.dueDate) }}
+                  {{ eventStore.formatDateForDisplay(todo.end) }}
                 </div>
               </div>
             </div>
@@ -69,7 +72,7 @@
             <div class="flex gap-2 opacity-0 group-hover:opacity-100 transition">
               <!-- 编辑按钮 -->
               <button
-                @click.stop="todoStore.openEditModal(todo)"
+                @click.stop="eventStore.openEditTodoModal(todo)"
                 class="p-2 text-blue-500 hover:bg-blue-50 rounded-lg transition"
               >
                 <i class="fas fa-pen fa-sm"></i>
@@ -77,7 +80,7 @@
 
               <!-- 删除按钮 -->
               <button
-                @click.stop="todoStore.removeTodo(todo.id)"
+                @click.stop="eventStore.deleteEvent(todo.id)"
                 class="p-2 text-red-500 hover:bg-red-50 rounded-lg transition"
               >
                 <i class="fas fa-trash-alt fa-sm"></i>
@@ -88,24 +91,46 @@
 
         <!-- 空状态提示：当没有待办事项时显示 -->
         <div
-          v-if="todoStore.filteredTodos.length === 0"
+          v-if="eventStore.filteredTodos.length === 0"
           class="text-gray-400 text-center py-12"
         >
           <i class="fas fa-inbox text-3xl mb-2"></i>
-          {{ todoStore.emptyStateMessage }}
+          <div>{{ eventStore.emptyStateMessage }}</div>
         </div>
       </div>
     </div>
+
+    <!-- 添加新待办事项按钮 -->
+    <button
+      @click="eventStore.openNewTodoModal"
+      class="fixed right-6 bottom-6 w-14 h-14 bg-indigo-600 text-white rounded-full flex items-center justify-center shadow-lg hover:bg-indigo-700 transition"
+    >
+      <i class="fas fa-plus text-xl"></i>
+    </button>
   </main>
 </template>
 
 <script setup lang="ts">
-import { onMounted } from "vue";
-import { useTodoStore } from "../stores/todoStore";
+import { useEventStore, FilterType } from "../stores/event";
 
-const todoStore = useTodoStore();
+const eventStore = useEventStore();
 
-onMounted(() => {
-  todoStore.setDefaultDueDate();
-});
+// 定义过滤器选项，并明确指定类型
+const filters: { value: FilterType; label: string }[] = [
+  { value: "all", label: "全部" },
+  { value: "active", label: "进行中" },
+  { value: "completed", label: "已完成" },
+];
+
+// 获取不同过滤器的待办事项数量
+function getFilterCount(filterType: FilterType) {
+  switch (filterType) {
+    case "active":
+      return eventStore.activeTodos.length;
+    case "completed":
+      return eventStore.completedTodos.length;
+    default:
+      return eventStore.allTodos.length;
+  }
+}
 </script>
