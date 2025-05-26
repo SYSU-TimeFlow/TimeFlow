@@ -1,0 +1,150 @@
+/**
+ * @file: theme.css
+ * @description: 主题样式文件，使用CSS变量和类名管理整个应用的主题样式
+ * @author: lijzh89
+ * @date: 2025-05-26
+ * 
+ * 该文件定义了应用的浅色和深色主题样式，通过CSS变量实现主题的统一管理。
+ * 支持浅色和深色两种主题模式，每种模式都有对应的颜色变量。
+ * 所有组件通过继承父元素的主题类来实现主题的统一调整。
+ */
+
+/* 主题基础样式 - 定义根级别的主题变量 */
+:root {
+  /* 浅色主题变量 - 定义浅色模式下的基础颜色 */
+  --light-bg-primary: #ffffff; /* 主背景色 */
+  --light-bg-secondary: #f3f4f6; /* 次要背景色 */
+  --light-text-primary: #24292f; /* 主要文本色 */
+  --light-text-secondary: #606060; /* 次要文本色 */
+  --light-border: #e5e7eb; /* 边框颜色 */
+  --light-hover: rgba(0, 0, 0, 0.05); /* 悬停效果 */
+  --light-accent: #2563eb; /* 强调色 */
+  --light-accent-hover: #1d4ed8; /* 强调色悬停状态 */
+}
+
+/* 深色主题变量 - 定义深色模式下的基础颜色 */
+.dark-theme {
+  --bg-primary: #0d1117; /* 主背景色 */
+  --bg-secondary: #161b22; /* 次要背景色 */
+  --bg-tertiary: #21262d; /* 第三级背景色 */
+  --text-primary: #c9d1d9; /* 主要文本色 */
+  --text-secondary: #8b949e; /* 次要文本色 */
+  --border-color: #30363d; /* 边框颜色 */
+  --hover-bg: #21262d; /* 悬停背景色 */
+  --accent-color: #58a6ff; /* 强调色 */
+  --accent-hover: #79b8ff; /* 强调色悬停状态 */
+  --error-color: #f85149; /* 错误状态颜色 */
+  --error-hover: #da3633; /* 错误状态悬停颜色 */
+}
+
+/* 通用主题样式 - 应用于深色主题的基础样式 */
+.dark-theme {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+/* 文本颜色样式 - 处理不同灰度文本在深色模式下的显示 */
+.dark-theme .text-gray-700,
+.dark-theme .text-gray-500,
+.dark-theme .text-gray-400,
+.dark-theme .text-gray-800 {
+  color: var(--text-secondary) !important;
+}
+
+/* 背景颜色样式 - 处理不同背景色在深色模式下的显示 */
+.dark-theme .bg-white,
+.dark-theme .bg-gray-50 {
+  background-color: var(--bg-secondary) !important;
+}
+
+/* 边框颜色样式 - 统一深色模式下的边框颜色 */
+.dark-theme .border-gray-200,
+.dark-theme .border-gray-300 {
+  border-color: var(--border-color) !important;
+}
+
+/* 悬停效果样式 - 定义深色模式下的悬停状态 */
+.dark-theme .hover\:bg-gray-100:hover,
+.dark-theme .hover\:bg-gray-200:hover {
+  background-color: var(--hover-bg) !important;
+}
+
+/* 按钮和交互元素样式 - 处理按钮和可交互元素在深色模式下的显示 */
+.dark-theme .bg-blue-600,
+.dark-theme .bg-indigo-600 {
+  background-color: var(--accent-color) !important;
+}
+
+.dark-theme .hover\:bg-blue-700:hover,
+.dark-theme .hover\:bg-indigo-700:hover {
+  background-color: var(--accent-hover) !important;
+}
+
+/* 错误状态样式 - 处理错误提示和警告在深色模式下的显示 */
+.dark-theme .text-red-500 {
+  color: var(--error-color) !important;
+}
+
+.dark-theme .hover\:text-red-700:hover {
+  color: var(--error-hover) !important;
+}
+
+/* 输入框样式 - 统一深色模式下的表单元素样式 */
+.dark-theme input,
+.dark-theme select {
+  background-color: var(--bg-primary) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--border-color) !important;
+}
+
+/* 输入框焦点状态 - 定义输入框获得焦点时的样式 */
+.dark-theme input:focus,
+.dark-theme select:focus {
+  border-color: var(--accent-color) !important;
+  box-shadow: 0 0 0 2px rgba(88, 166, 255, 0.2) !important;
+}
+
+/* 滚动条样式 - 自定义深色模式下的滚动条外观 */
+.dark-theme ::-webkit-scrollbar {
+  width: 8px;
+}
+
+.dark-theme ::-webkit-scrollbar-track {
+  background: var(--bg-primary);
+}
+
+.dark-theme ::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 4px;
+}
+
+.dark-theme ::-webkit-scrollbar-thumb:hover {
+  background: var(--hover-bg);
+}
+
+/* 模态框样式 - 处理弹窗在深色模式下的显示 */
+.dark-theme .modal-content {
+  background-color: var(--bg-secondary) !important;
+  border: 1px solid var(--border-color) !important;
+}
+
+/* 复选框样式 - 自定义深色模式下的复选框外观 */
+.dark-theme input[type="checkbox"] {
+  background-color: var(--bg-primary) !important;
+  border-color: var(--border-color) !important;
+}
+
+.dark-theme input[type="checkbox"]:checked {
+  background-color: var(--accent-color) !important;
+  border-color: var(--accent-color) !important;
+}
+
+/* 标题样式 - 处理标题在深色模式下的显示 */
+.dark-theme .text-indigo-600 {
+  color: var(--accent-color) !important;
+}
+
+/* 模糊背景样式 - 定义深色模式下的半透明背景效果 */
+.dark-theme .backdrop-blur-sm {
+  background-color: rgba(13, 17, 23, 0.8);
+}

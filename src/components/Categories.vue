@@ -5,7 +5,11 @@
 
 <template>
   <!-- 分类组件根元素 -->
-  <div class="categories mx-4 my-3">
+  <div
+    class="categories mx-4 my-3"
+    :class="settingStore.themeMode === 'dark' ? 'dark-theme' : 'light-theme'"
+    :style="{ fontSize: fontSize }"
+  >
     <!-- 分类头部区域，仅在侧边栏未折叠时显示 -->
     <div
       v-if="!uiStore.sidebarCollapsed"
@@ -66,10 +70,27 @@
 <script setup>
 import { useEventStore } from "../stores/event";
 import { useUiStore } from "../stores/ui";
+import { useSettingStore } from "../stores/setting";
+import { computed } from "vue";
 
 // 使用Pinia仓库
 const eventStore = useEventStore();
 const uiStore = useUiStore();
+const settingStore = useSettingStore();
+
+// 计算字体大小
+const fontSize = computed(() => {
+  switch (settingStore.fontSize) {
+    case "large":
+      return "20px";
+    case "medium":
+      return "18px";
+    case "small":
+      return "16px";
+    default:
+      return "18px";
+  }
+});
 </script>
 
 <style scoped>
@@ -84,5 +105,42 @@ const uiStore = useUiStore();
 .edit-button {
   opacity: 0;
   transition: opacity 0.2s ease;
+}
+
+.dark-theme {
+  background-color: #131723;
+  color: #ffffff;
+}
+
+.dark-theme .category-item:hover {
+  background-color: #898989;
+}
+
+.dark-theme .text-gray-700,
+.dark-theme .text-gray-500,
+.dark-theme .text-gray-400,
+.dark-theme .text-gray-600 {
+  color: #ffffff;
+}
+
+.categories {
+  font-size: v-bind("fontSize");
+}
+
+/* 调整各个元素的字体大小比例 */
+.category-title {
+  font-size: 1.2em;
+}
+
+.category-item {
+  font-size: 1em;
+}
+
+.category-name {
+  font-size: 1em;
+}
+
+.category-count {
+  font-size: 0.9em;
 }
 </style>

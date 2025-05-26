@@ -11,11 +11,13 @@
     v-if="eventStore.showEventModal"
     class="fixed inset-0 bg-transparent backdrop-blur-sm flex items-center justify-center z-50"
     @click="eventStore.closeEventModal"
+    :class="settingStore.themeMode === 'dark' ? 'dark-theme' : 'light-theme'"
   >
     <!-- 事件模态框主体，阻止事件冒泡到父级 -->
     <div
       class="event-modal bg-white rounded-lg shadow-lg w-full max-w-md overflow-hidden"
       @click.stop
+      :style="{ fontSize: fontSize }"
     >
       <!-- 模态框头部 -->
       <div
@@ -24,7 +26,7 @@
           backgroundColor: eventStore.currentEvent.categoryColor + '33',
         }"
       >
-        <h3 class="text-lg font-semibold">
+        <h3 class="text-lg font-semibold modal-title">
           <!-- 根据 isNewEvent 动态显示标题 -->
           {{ eventStore.isNewEvent ? "New Event" : "Edit Event" }}
         </h3>
@@ -40,36 +42,38 @@
       <div class="modal-body p-4">
         <!-- 标题输入区域 -->
         <div class="form-group mb-4">
-          <label class="block text-sm font-medium text-gray-700 mb-1"
+          <label class="block text-sm font-medium text-gray-700 mb-1 form-label"
             >Title</label
           >
           <input
             v-model="eventStore.currentEvent.title"
             type="text"
-            class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent form-input"
             placeholder="Event title"
           />
         </div>
         <!-- 开始和结束时间输入区域 -->
         <div class="form-row flex space-x-4 mb-4">
           <div class="form-group flex-1">
-            <label class="block text-sm font-medium text-gray-700 mb-1"
+            <label
+              class="block text-sm font-medium text-gray-700 mb-1 form-label"
               >Start</label
             >
             <input
               v-model="eventStore.currentEvent.start"
               type="datetime-local"
-              class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent form-input"
             />
           </div>
           <div class="form-group flex-1">
-            <label class="block text-sm font-medium text-gray-700 mb-1"
+            <label
+              class="block text-sm font-medium text-gray-700 mb-1 form-label"
               >End</label
             >
             <input
               v-model="eventStore.currentEvent.end"
               type="datetime-local"
-              class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent form-input"
             />
           </div>
         </div>
@@ -82,14 +86,14 @@
               id="allDay"
               class="mr-2"
             />
-            <label for="allDay" class="text-sm text-gray-700"
+            <label for="allDay" class="text-sm text-gray-700 form-label"
               >All day event</label
             >
           </div>
         </div>
         <!-- 事件分类选择区域 -->
         <div class="form-group mb-4">
-          <label class="block text-sm font-medium text-gray-700 mb-1"
+          <label class="block text-sm font-medium text-gray-700 mb-1 form-label"
             >Category</label
           >
           <div class="category-selector flex flex-wrap gap-2">
@@ -114,12 +118,12 @@
         </div>
         <!-- 事件描述输入区域 -->
         <div class="form-group mb-4">
-          <label class="block text-sm font-medium text-gray-700 mb-1"
+          <label class="block text-sm font-medium text-gray-700 mb-1 form-label"
             >Description</label
           >
           <textarea
             v-model="eventStore.currentEvent.description"
-            class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent h-24"
+            class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent h-24 form-textarea"
             placeholder="Event description"
           ></textarea>
         </div>
@@ -132,7 +136,7 @@
               id="addToTodo"
               class="mr-2"
             />
-            <label for="addToTodo" class="text-sm text-gray-700">
+            <label for="addToTodo" class="text-sm text-gray-700 form-label">
               添加到 Todo List
             </label>
           </div>
@@ -146,21 +150,21 @@
         <button
           v-if="!eventStore.isNewEvent"
           @click="eventStore.deleteEvent"
-          class="py-2 px-4 bg-red-600 text-white rounded-lg hover:bg-red-700 cursor-pointer !rounded-button whitespace-nowrap"
+          class="py-2 px-4 bg-red-600 text-white rounded-lg hover:bg-red-700 cursor-pointer !rounded-button whitespace-nowrap modal-button"
         >
           Delete
         </button>
         <!-- 取消按钮 -->
         <button
           @click="eventStore.closeEventModal"
-          class="py-2 px-4 border border-gray-300 rounded-lg hover:bg-gray-100 cursor-pointer !rounded-button whitespace-nowrap"
+          class="py-2 px-4 border border-gray-300 rounded-lg hover:bg-gray-100 cursor-pointer !rounded-button whitespace-nowrap modal-button"
         >
           Cancel
         </button>
         <!-- 保存按钮 -->
         <button
           @click="eventStore.saveEvent"
-          class="py-2 px-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 cursor-pointer !rounded-button whitespace-nowrap"
+          class="py-2 px-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 cursor-pointer !rounded-button whitespace-nowrap modal-button"
         >
           Save
         </button>
@@ -171,9 +175,26 @@
 
 <script setup>
 import { useEventStore } from "../stores/event";
+import { useSettingStore } from "../stores/setting";
+import { computed } from "vue";
 
 // 使用Pinia仓库
 const eventStore = useEventStore();
+const settingStore = useSettingStore();
+
+// 计算字体大小
+const fontSize = computed(() => {
+  switch (settingStore.fontSize) {
+    case "large":
+      return "20px";
+    case "medium":
+      return "18px";
+    case "small":
+      return "16px";
+    default:
+      return "18px";
+  }
+});
 </script>
 
 <style scoped>
@@ -189,6 +210,7 @@ const eventStore = useEventStore();
 /* 事件模态框应用淡入动画 */
 .event-modal {
   animation: fadeIn 0.1s ease-out; /* 动画名称、持续时间、缓动函数 */
+  font-size: v-bind("fontSize");
 }
 
 /* 确保背景模糊效果兼容性 */
@@ -196,5 +218,60 @@ const eventStore = useEventStore();
   backdrop-filter: blur(4px); /* 轻微高斯模糊，数值可调整 */
   -webkit-backdrop-filter: blur(4px); /* 兼容 Safari */
   background: rgba(0, 0, 0, 0.1); /* 轻微透明黑色，增强模糊可见性 */
+}
+
+.dark-theme .event-modal {
+  background-color: #0d1117;
+  color: #c9d1d9;
+}
+
+.dark-theme .modal-header,
+.dark-theme .modal-footer {
+  border-color: #30363d;
+}
+
+.dark-theme .text-gray-700,
+.dark-theme .text-gray-500,
+.dark-theme .text-gray-400 {
+  color: #8b949e;
+}
+
+.dark-theme input,
+.dark-theme textarea,
+.dark-theme .category-option {
+  background-color: #161b22;
+  color: #c9d1d9;
+  border-color: #30363d;
+}
+
+.dark-theme input::placeholder,
+.dark-theme textarea::placeholder {
+  color: #8b949e;
+}
+
+.dark-theme .category-option[disabled] {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* 调整各个元素的字体大小比例 */
+.modal-title {
+  font-size: 1.2em;
+}
+
+.form-label {
+  font-size: 1em;
+}
+
+.form-input {
+  font-size: 1em;
+}
+
+.form-textarea {
+  font-size: 1em;
+}
+
+.modal-button {
+  font-size: 0.9em;
 }
 </style>

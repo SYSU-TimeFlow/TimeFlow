@@ -4,14 +4,16 @@
  该组件允许用户在不同的日历视图（如月视图、周视图、日视图）之间切换。
  当侧边栏折叠时，仅显示视图图标；展开时，显示图标和视图名称。
 -->
- 
+
 <template>
   <!-- 视图选择器根元素 -->
   <div
     :class="[
       'view-selector my-3',
       uiStore.sidebarCollapsed ? 'mx-auto' : 'mx-4', // 根据折叠状态设置不同的边距
+      settingStore.themeMode === 'dark' ? 'dark-theme' : 'light-theme',
     ]"
+    :style="{ fontSize: fontSize }"
   >
     <!-- "View" 标题，仅在侧边栏未折叠时显示 -->
     <div
@@ -48,7 +50,20 @@
 
 <script setup>
 import { useUiStore } from "../stores/ui";
+import { useSettingStore } from "../stores/setting";
 
 // 使用Pinia仓库
 const uiStore = useUiStore();
+const settingStore = useSettingStore();
 </script>
+
+<style scoped>
+.view-selector {
+  font-size: inherit;
+}
+
+/* 调整各个元素的字体大小比例 */
+.view-button {
+  font-size: 0.9em;
+}
+</style>

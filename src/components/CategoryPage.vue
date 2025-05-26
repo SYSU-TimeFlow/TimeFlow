@@ -11,11 +11,13 @@
     v-if="eventStore.showCategoryModal"
     class="fixed inset-0 bg-transparent backdrop-blur-sm flex items-center justify-center z-50"
     @click="eventStore.closeCategoryModal"
+    :class="settingStore.themeMode === 'dark' ? 'dark-theme' : 'light-theme'"
   >
     <!-- 分类模态框主体，阻止事件冒泡到父级 -->
     <div
       class="category-modal bg-white rounded-lg shadow-lg w-full max-w-md overflow-hidden"
       @click.stop
+      :style="{ fontSize: fontSize }"
     >
       <!-- 模态框头部 -->
       <div
@@ -24,7 +26,7 @@
           backgroundColor: eventStore.currentCategory.color + '33',
         }"
       >
-        <h3 class="text-lg font-semibold">
+        <h3 class="text-lg font-semibold modal-title">
           <!-- 根据 isNewCategory 动态显示标题 -->
           {{ eventStore.isNewCategory ? "添加分类" : "编辑分类" }}
         </h3>
@@ -40,20 +42,20 @@
       <div class="modal-body p-4">
         <!-- 分类名称输入区域 -->
         <div class="form-group mb-4">
-          <label class="block text-sm font-medium text-gray-700 mb-1"
+          <label class="block text-sm font-medium text-gray-700 mb-1 form-label"
             >分类名称</label
           >
           <input
             v-model="eventStore.currentCategory.name"
             type="text"
-            class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent form-input"
             placeholder="输入分类名称"
           />
         </div>
 
         <!-- 分类颜色选择区域 -->
         <div class="form-group mb-4">
-          <label class="block text-sm font-medium text-gray-700 mb-1"
+          <label class="block text-sm font-medium text-gray-700 mb-1 form-label"
             >颜色</label
           >
           <!-- 预设颜色选项 -->
@@ -118,9 +120,26 @@
 
 <script setup>
 import { useEventStore } from "../stores/event";
+import { useSettingStore } from "../stores/setting";
+import { computed } from "vue";
 
 // 使用Pinia仓库
 const eventStore = useEventStore();
+const settingStore = useSettingStore();
+
+// 计算字体大小
+const fontSize = computed(() => {
+  switch (settingStore.fontSize) {
+    case "large":
+      return "20px";
+    case "medium":
+      return "18px";
+    case "small":
+      return "16px";
+    default:
+      return "18px";
+  }
+});
 </script>
 
 <style scoped>
@@ -137,6 +156,7 @@ const eventStore = useEventStore();
 /* 分类模态框应用淡入动画 */
 .category-modal {
   animation: fadeIn 0.1s ease-out; /* 动画名称、持续时间、缓动函数 */
+  font-size: v-bind("fontSize");
 }
 
 /* 确保背景模糊效果兼容性 */
@@ -152,5 +172,58 @@ const eventStore = useEventStore();
   grid-template-columns: repeat(5, 1fr);
   gap: 12px;
   justify-items: center;
+}
+
+.dark-theme .category-modal {
+  background-color: #0d1117;
+  color: #c9d1d9;
+}
+
+.dark-theme .modal-header,
+.dark-theme .modal-footer {
+  border-color: #30363d;
+}
+
+.dark-theme .text-gray-700,
+.dark-theme .text-gray-500,
+.dark-theme .text-gray-400 {
+  color: #8b949e;
+}
+
+.dark-theme input,
+.dark-theme .color-option {
+  background-color: #161b22;
+  color: #c9d1d9;
+  border-color: #30363d;
+}
+
+.dark-theme input::placeholder {
+  color: #8b949e;
+}
+
+.dark-theme .color-option[disabled] {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* 调整各个元素的字体大小比例 */
+.modal-title {
+  font-size: 1.2em;
+}
+
+.form-label {
+  font-size: 1em;
+}
+
+.form-input {
+  font-size: 1em;
+}
+
+.color-option {
+  font-size: 0.9em;
+}
+
+.modal-button {
+  font-size: 0.9em;
 }
 </style>

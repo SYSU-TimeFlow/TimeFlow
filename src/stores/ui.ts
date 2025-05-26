@@ -1,6 +1,7 @@
 import { defineStore } from "pinia";
 import { ref, computed } from "vue";
 import { useEventStore } from "./event";
+import { useSettingStore } from "./setting";
 
 // 添加类型定义
 interface CalendarDay {
@@ -34,27 +35,22 @@ export const useUiStore = defineStore("ui", () => {
   const selectedDate = ref(new Date());
   const sidebarCollapsed = ref(false);
   const draggedEvent = ref(null);
+  const settingStore = useSettingStore();
 
   // 计算属性
-  const weekDays = computed(() => [
-    "星期日",
-    "星期一",
-    "星期二",
-    "星期三",
-    "星期四",
-    "星期五",
-    "星期六",
-  ]);
-
-  const weekDaysShort = computed(() => [
-    "日",
-    "一",
-    "二",
-    "三",
-    "四",
-    "五",
-    "六",
-  ]);
+  const weekDays = computed(() => {
+    const days = [
+      "星期日",
+      "星期一",
+      "星期二",
+      "星期三",
+      "星期四",
+      "星期五",
+      "星期六",
+    ];
+    const weekStart = parseInt(settingStore.weekStart);
+    return [...days.slice(weekStart), ...days.slice(0, weekStart)];
+  });
 
   // 主日历标题
   const calendarTitle = computed(() => {
@@ -134,17 +130,21 @@ export const useUiStore = defineStore("ui", () => {
   const weekViewDays = computed(() => {
     const eventStore = useEventStore();
     const days: WeekViewDay[] = [];
-    const startOfWeek = getStartOfWeek(currentDate.value);
+    const weekStart = parseInt(settingStore.weekStart);
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
+    // 获取当前日期所在周的起始日
+    const startOfWeek = getStartOfWeek(currentDate.value);
+
+    // 生成一周的日期
     for (let i = 0; i < 7; i++) {
       const day = new Date(startOfWeek);
       day.setDate(day.getDate() + i);
       const isToday = day.getTime() === today.getTime();
       days.push({
         date: new Date(day),
-        dayName: weekDays.value[day.getDay()].substring(0, 3),
+        dayName: weekDays.value[i],
         dayNumber: day.getDate(),
         isToday,
         events: eventStore.getEventsForDay(day),
@@ -234,15 +234,21 @@ export const useUiStore = defineStore("ui", () => {
   // 辅助函数
   function getStartOfWeek(date: Date): Date {
     const result = new Date(date);
-    const day = result.getDay();
-    result.setDate(result.getDate() - day);
+    const weekStart = parseInt(settingStore.weekStart);
+    const currentDay = result.getDay();
+    const diff = (currentDay - weekStart + 7) % 7;
+    result.setDate(result.getDate() - diff);
+    result.setHours(0, 0, 0, 0);
     return result;
   }
 
   function getEndOfWeek(date: Date): Date {
     const result = new Date(date);
-    const day = result.getDay();
-    result.setDate(result.getDate() + (6 - day));
+    const weekStart = parseInt(settingStore.weekStart);
+    const currentDay = result.getDay();
+    const diff = (7 - ((currentDay - weekStart + 7) % 7)) % 7;
+    result.setDate(result.getDate() + diff);
+    result.setHours(23, 59, 59, 999);
     return result;
   }
 
@@ -369,79 +375,11 @@ export const useUiStore = defineStore("ui", () => {
     draggedEvent.value = null;
   }
 
-  // 添加帮助模态框状态
-  const showHelpModal = ref(false);
-
-  // 切换帮助模态框显示状态
-  function toggleHelpModal() {
-    showHelpModal.value = !showHelpModal.value;
-  }
-
-  // 显示帮助模态框
-  function openHelpModal() {
-    showHelpModal.value = true;
-  }
-
-  // 关闭帮助模态框
-  function closeHelpModal() {
-    showHelpModal.value = false;
-  }
-
-  // 处理全局键盘事件
-  function handleGlobalKeydown(event: KeyboardEvent) {
-    // 检查是否有模态框打开
-    if (showHelpModal.value) {
-      // 帮助模态框打开时的快捷键
-      if (event.key === "Escape") {
-        closeHelpModal();
-        event.preventDefault();
-        return;
-      }
-      return; // 当帮助模态框打开时，不处理其他全局快捷键
-    }
-
-    const eventStore = useEventStore();
-    if (eventStore.showEventModal) {
-      // 事件模态框打开时的快捷键
-      if (event.key === "Escape") {
-        eventStore.closeEventModal();
-        event.preventDefault();
-        return;
-      } else if (
-        event.key === "Enter" &&
-        !event.ctrlKey &&
-        !event.altKey &&
-        !event.shiftKey
-      ) {
-        // 检查当前焦点是否在多行文本框中
-        if (
-          document.activeElement instanceof HTMLTextAreaElement ||
-          document.activeElement?.hasAttribute("contenteditable")
-        ) {
-          return; // 多行文本框中不触发保存，允许正常换行
-        }
-
-        // 触发保存事件按钮的点击
-        const saveButton = document.querySelector(
-          ".event-modal .save-button"
-        ) as HTMLButtonElement;
-        if (saveButton) {
-          saveButton.click();
-          event.preventDefault();
-        }
-        return;
-      }
-      return; // 当事件模态框打开时，不处理其他全局快捷键
-    }
-
-    // 如果是在输入框、textarea等元素中则不拦截
-    if (
-      document.activeElement instanceof HTMLInputElement ||
-      document.activeElement instanceof HTMLTextAreaElement ||
-      document.activeElement?.hasAttribute("contenteditable")
-    ) {
-      return;
-    }
+  // 添加更新起始星期的方法
+  function updateWeekStart(weekStart: string) {
+    // 重新计算当前视图的日期
+    const currentDateCopy = new Date(currentDate.value);
+    currentDate.value = currentDateCopy;
   }
 
   return {
@@ -452,7 +390,6 @@ export const useUiStore = defineStore("ui", () => {
     sidebarCollapsed,
     draggedEvent,
     weekDays,
-    weekDaysShort,
     calendarTitle,
     dayViewTitle,
     calendarDays,
@@ -481,9 +418,6 @@ export const useUiStore = defineStore("ui", () => {
     calculateEventTop,
     calculateEventHeight,
     getContrastColor,
-    showHelpModal,
-    toggleHelpModal,
-    openHelpModal,
-    closeHelpModal,
+    updateWeekStart,
   };
 });

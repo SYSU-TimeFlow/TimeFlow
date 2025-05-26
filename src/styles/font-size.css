@@ -1,0 +1,110 @@
+/**
+ * @file: font-size.css
+ * @description: 字体大小样式文件，使用CSS变量和类名管理整个应用的字体大小
+ * @author: lijzh89
+ * @date: 2025-05-26
+ * 
+ * 该文件定义了应用的基础字体大小和缩放比例，通过CSS变量实现字体大小的统一管理。
+ * 支持小、中、大三种字号模式，每种模式都有对应的缩放比例。
+ * 所有组件通过继承父元素的字体大小类来实现字体大小的统一调整。
+ */
+
+/* 字体大小基础样式 */
+:root {
+  /* 基础字号变量 */
+  --font-size-base: 16px; /* 基础字号大小 */
+  --font-size-scale: 1; /* 基础缩放比例 */
+}
+
+/* 小号字体 - 缩放比例为0.875 */
+.font-size-small {
+  --font-size-scale: 0.875; /* 14px (16px * 0.875) */
+}
+
+/* 中号字体 - 缩放比例为1 */
+.font-size-medium {
+  --font-size-scale: 1; /* 16px (16px * 1) */
+}
+
+/* 大号字体 - 缩放比例为1.25 */
+.font-size-large {
+  --font-size-scale: 1.25; /* 20px (16px * 1.25) */
+}
+
+/* 通用字体大小样式 - 应用于所有元素的基础字号 */
+.font-size-small,
+.font-size-medium,
+.font-size-large {
+  font-size: calc(var(--font-size-base) * var(--font-size-scale));
+}
+
+/* 标题字体大小 - 使用rem单位确保相对缩放 */
+.font-size-small h1,
+.font-size-medium h1,
+.font-size-large h1 {
+  font-size: calc(1.5rem * var(--font-size-scale)); /* 24px, 27px, 30px */
+}
+
+.font-size-small h2,
+.font-size-medium h2,
+.font-size-large h2 {
+  font-size: calc(1.25rem * var(--font-size-scale)); /* 20px, 22.5px, 25px */
+}
+
+.font-size-small h3,
+.font-size-medium h3,
+.font-size-large h3 {
+  font-size: calc(
+    1.125rem * var(--font-size-scale)
+  ); /* 18px, 20.25px, 22.5px */
+}
+
+/* 文本字体大小 - 正文内容 */
+.font-size-small p,
+.font-size-medium p,
+.font-size-large p {
+  font-size: calc(1rem * var(--font-size-scale)); /* 16px, 18px, 20px */
+}
+
+/* 小文本字体大小 - 次要信息 */
+.font-size-small .text-sm,
+.font-size-medium .text-sm,
+.font-size-large .text-sm {
+  font-size: calc(
+    0.875rem * var(--font-size-scale)
+  ); /* 14px, 15.75px, 17.5px */
+}
+
+/* 超小文本字体大小 - 辅助信息 */
+.font-size-small .text-xs,
+.font-size-medium .text-xs,
+.font-size-large .text-xs {
+  font-size: calc(0.75rem * var(--font-size-scale)); /* 12px, 13.5px, 15px */
+}
+
+/* 按钮字体大小 - 交互元素 */
+.font-size-small button,
+.font-size-medium button,
+.font-size-large button {
+  font-size: calc(
+    0.875rem * var(--font-size-scale)
+  ); /* 14px, 15.75px, 17.5px */
+}
+
+/* 输入框字体大小 - 表单元素 */
+.font-size-small input,
+.font-size-medium input,
+.font-size-large input {
+  font-size: calc(
+    0.875rem * var(--font-size-scale)
+  ); /* 14px, 15.75px, 17.5px */
+}
+
+/* 选择框字体大小 - 表单元素 */
+.font-size-small select,
+.font-size-medium select,
+.font-size-large select {
+  font-size: calc(
+    0.875rem * var(--font-size-scale)
+  ); /* 14px, 15.75px, 17.5px */
+}

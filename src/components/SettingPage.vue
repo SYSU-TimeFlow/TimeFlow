@@ -13,6 +13,7 @@
     v-if="settingStore.showSettings"
     class="fixed inset-0 bg-transparent backdrop-blur-sm flex items-center justify-center z-50"
     @click="settingStore.closeSettings"
+    :class="settingStore.themeMode === 'dark' ? 'dark-theme' : 'light-theme'"
   >
     <!-- 设置弹窗主容器，阻止点击事件冒泡 -->
     <div
@@ -56,7 +57,7 @@
           主题
         </span>
         <select
-          v-model="settingStore.themeMode"
+          v-model="settingStore.tempSettings.themeMode"
           class="border border-gray-300 rounded-md px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
         >
           <option value="light">亮</option>
@@ -94,7 +95,7 @@
           字号
         </span>
         <select
-          v-model="settingStore.fontSize"
+          v-model="settingStore.tempSettings.fontSize"
           class="border border-gray-300 rounded-md px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
         >
           <option value="small">小</option>
@@ -122,7 +123,7 @@
           图标
         </span>
         <select
-          v-model="settingStore.iconStyle"
+          v-model="settingStore.tempSettings.iconStyle"
           class="border border-gray-300 rounded-md px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
         >
           <option value="default">默认</option>
@@ -150,7 +151,7 @@
         </span>
         <input
           type="checkbox"
-          v-model="settingStore.notifications"
+          v-model="settingStore.tempSettings.notifications"
           class="toggle-checkbox accent-blue-600"
         />
       </div>
@@ -158,7 +159,11 @@
       <div class="mb-4 flex items-center justify-between">
         <span class="flex items-center text-gray-700">
           <!-- 音符图标 -->
-          <svg class="w-5 h-5 mr-2 text-blue-400" fill="none" viewBox="0 0 24 24">
+          <svg
+            class="w-5 h-5 mr-2 text-blue-400"
+            fill="none"
+            viewBox="0 0 24 24"
+          >
             <path
               d="M9 18V5l12-2v13"
               stroke="currentColor"
@@ -173,7 +178,7 @@
         </span>
         <input
           type="checkbox"
-          v-model="settingStore.notificationSound"
+          v-model="settingStore.tempSettings.notificationSound"
           class="toggle-checkbox accent-blue-600"
         />
       </div>
@@ -197,14 +202,16 @@
         </span>
         <input
           type="checkbox"
-          v-model="settingStore.soundEffect"
+          v-model="settingStore.tempSettings.soundEffect"
           class="toggle-checkbox accent-blue-600"
         />
       </div>
       <!-- 空一行 -->
       <div class="text-gray-700"></div>
       <!-- 日期和时间小标题 -->
-      <div class="text-gray-500 text-sm font-semibold mb-2 mt-2">日期和时间</div>
+      <div class="text-gray-500 text-sm font-semibold mb-2 mt-2">
+        日期和时间
+      </div>
       <!-- 每周起始日 -->
       <div class="mb-4 flex items-center justify-between">
         <span class="flex items-center text-gray-700">
@@ -240,7 +247,7 @@
           每周起始日
         </span>
         <select
-          v-model="settingStore.weekStart"
+          v-model="settingStore.tempSettings.weekStart"
           class="border border-gray-300 rounded-md px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
         >
           <option value="0">星期日</option>
@@ -273,7 +280,7 @@
         </span>
         <input
           type="checkbox"
-          v-model="settingStore.hour24"
+          v-model="settingStore.tempSettings.hour24"
           class="toggle-checkbox accent-blue-600"
         />
       </div>
@@ -328,47 +335,9 @@
         </span>
         <input
           type="checkbox"
-          v-model="settingStore.showLunar"
+          v-model="settingStore.tempSettings.showLunar"
           class="toggle-checkbox accent-blue-600"
         />
-      </div>
-      <!-- 空一行 -->
-      <div class="text-gray-700"></div>
-      <!-- 其他小标题 -->
-      <div class="text-gray-500 text-sm font-semibold mb-2 mt-2">其他</div>
-      <!-- 语言选择 -->
-      <div class="mb-4 flex items-center justify-between">
-        <span class="flex items-center text-gray-700">
-          <!-- Lan字样的图标 -->
-          <svg class="w-5 h-5 mr-2 text-blue-400" fill="none" viewBox="0 0 24 24">
-            <rect
-              x="3"
-              y="4"
-              width="18"
-              height="16"
-              rx="3"
-              fill="currentColor"
-              opacity="0.15"
-            />
-            <text
-              x="6"
-              y="17"
-              font-size="10"
-              fill="currentColor"
-              font-family="Arial"
-            >
-              Lan
-            </text>
-          </svg>
-          语言
-        </span>
-        <select
-          v-model="settingStore.language"
-          class="border border-gray-300 rounded-md px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-        >
-          <option value="zh-CN">简体中文</option>
-          <option value="en-US">English</option>
-        </select>
       </div>
       <!-- 空一行 -->
       <div class="text-gray-700"></div>
@@ -420,7 +389,7 @@
 
 <script setup>
 import { ref } from "vue";
-import { useSettingStore } from '../stores/setting';
+import { useSettingStore } from "../stores/setting";
 
 // 使用Pinia仓库
 const settingStore = useSettingStore();
@@ -431,9 +400,9 @@ const showToast = ref(false);
  * 显示一个提示，然后在短暂延迟后关闭设置界面
  */
 function saveAndClose() {
-  // 使用store的方法保存设置
-  settingStore.saveSettings();
-  
+  // 使用store的方法保存临时设置
+  settingStore.saveTempSettings();
+
   // 显示提示并延迟关闭
   showToast.value = true;
   setTimeout(() => {
@@ -452,21 +421,25 @@ function saveAndClose() {
   font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
     Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
   transition: all 0.3s;
-  animation: fadeIn 0.1s ease-out; /* 动画名称、持续时间、缓动函数 */
+  animation: fadeIn 0.1s ease-out;
 }
+
 .toggle-checkbox {
   width: 40px;
   height: 20px;
   accent-color: #2563eb; /* Tailwind blue-600 */
 }
+
 .fade-enter-active,
 .fade-leave-active {
   transition: opacity 0.3s;
 }
+
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;
 }
+
 /* 定义淡入动画效果 */
 @keyframes fadeIn {
   from {

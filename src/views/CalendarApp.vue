@@ -10,6 +10,8 @@
   <!-- 主日历应用程序容器 - 改为固定屏幕大小 -->
   <div
     class="calendar-app h-screen w-screen bg-white text-gray-800 flex flex-col overflow-hidden"
+    :style="{ fontSize: fontSize }"
+    :class="themeClass"
   >
     <!-- 应用程序头部 -->
     <CalendarHeader class="flex-shrink-0" />
@@ -36,7 +38,7 @@
 </template>
 
 <script lang="ts" setup>
-import { onMounted } from "vue";
+import { onMounted, ref, computed } from "vue";
 import Sidebar from "../components/Sidebar.vue";
 import CalendarMain from "../components/CalendarMain.vue";
 import ToDoList from "../components/ToDoList.vue";
@@ -52,6 +54,25 @@ import { useSettingStore } from "../stores/setting";
 // 使用UI仓库仅用于初始化
 const uiStore = useUiStore();
 const settingStore = useSettingStore();
+
+// 计算字体大小
+const fontSize = computed(() => {
+  switch (settingStore.fontSize) {
+    case "large":
+      return "20px";
+    case "medium":
+      return "18px";
+    case "small":
+      return "16px";
+    default:
+      return "18px";
+  }
+});
+
+// 计算主题类名
+const themeClass = computed(() => {
+  return settingStore.themeMode === "dark" ? "dark-theme" : "light-theme";
+});
 
 // 生命周期钩子
 onMounted(() => {
@@ -81,5 +102,93 @@ onMounted(() => {
   margin: 0;
   padding: 0;
   overflow: hidden;
+}
+
+/* 调整各个元素的字体大小比例 */
+:deep(.calendar-title) {
+  font-size: 1.2em;
+}
+
+:deep(.nav-button) {
+  font-size: 1em;
+}
+
+:deep(.view-button) {
+  font-size: 0.9em;
+}
+
+:deep(.event-title) {
+  font-size: 1em;
+}
+
+:deep(.event-time) {
+  font-size: 0.9em;
+}
+
+:deep(.event-description) {
+  font-size: 0.85em;
+}
+
+:deep(.time-label) {
+  font-size: 0.85em;
+}
+
+:deep(.day-number) {
+  font-size: 1.1em;
+}
+
+:deep(.week-day) {
+  font-size: 1em;
+}
+
+/* 主题样式 */
+.light-theme {
+  color: #24292f;
+}
+
+.dark-theme {
+  color: #c9d1d9;
+}
+
+/* 深色主题下的文本颜色 */
+.dark-theme :deep(.text-gray-500),
+.dark-theme :deep(.text-gray-700),
+.dark-theme :deep(.text-gray-800),
+.dark-theme :deep(.text-gray-400) {
+  color: #8b949e;
+}
+
+/* 深色主题下的背景颜色 */
+.dark-theme :deep(.bg-white) {
+  background-color: #0d1117;
+}
+
+/* 深色主题下的边框颜色 */
+.dark-theme :deep(.border-gray-200),
+.dark-theme :deep(.border-gray-300) {
+  border-color: #30363d;
+}
+
+/* 深色主题下的悬停效果 */
+.dark-theme :deep(.hover\:bg-gray-100:hover) {
+  background-color: #21262d !important;
+}
+
+/* 深色主题下的按钮颜色 */
+.dark-theme :deep(.bg-blue-600) {
+  background-color: #58a6ff;
+}
+
+.dark-theme :deep(.hover\:bg-blue-700:hover) {
+  background-color: #79b8ff;
+}
+
+/* 深色主题下的文本颜色 */
+.dark-theme :deep(.text-red-500) {
+  color: #f85149;
+}
+
+.dark-theme :deep(.hover\:text-red-700:hover) {
+  color: #da3633;
 }
 </style>

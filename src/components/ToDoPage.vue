@@ -3,6 +3,7 @@
   <div
     v-if="eventStore.showTodoModal"
     class="fixed inset-0 z-50 flex items-center justify-center p-4"
+    :class="settingStore.themeMode === 'dark' ? 'dark-theme' : 'light-theme'"
   >
     <!-- 高斯模糊背景 -->
     <div
@@ -12,30 +13,30 @@
 
     <!-- 模态框内容 -->
     <div class="relative bg-white rounded-2xl shadow-xl w-full max-w-md p-6">
-      <h3 class="text-xl font-bold text-indigo-600 mb-4">
+      <h3 class="text-xl font-bold text-indigo-600 mb-4 modal-title">
         <!-- 根据 isNewTodo 动态显示标题 -->
         {{ eventStore.isNewTodo ? "新建待办事项" : "编辑待办事项" }}
       </h3>
 
       <div class="space-y-4">
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1"
+          <label class="block text-sm font-medium text-gray-700 mb-1 form-label"
             >任务标题
           </label>
           <input
-            v-model="eventStore.currentEvent.title"
-            class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
+            v-model="todoStore.currentEditingTodo.title"
+            class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition form-input"
           />
         </div>
 
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1"
+          <label class="block text-sm font-medium text-gray-700 mb-1 form-label"
             >截止日期
           </label>
           <input
             v-model="eventStore.currentEvent.end"
             type="date"
-            class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
+            class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition form-input"
           />
         </div>
 
@@ -48,7 +49,7 @@
               id="addToCalendar"
               class="mr-2"
             />
-            <label for="addToCalendar" class="text-sm text-gray-700">
+            <label for="addToCalendar" class="text-sm text-gray-700 form-label">
               添加到日历
             </label>
           </div>
@@ -56,14 +57,14 @@
 
         <div class="flex justify-end gap-3 pt-4">
           <button
-            @click="eventStore.closeTodoModal"
-            class="px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-xl transition"
+            @click="todoStore.closeEditModal"
+            class="px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-xl transition modal-button"
           >
             取消
           </button>
           <button
-            @click="saveTodoWithSync"
-            class="px-4 py-2 bg-indigo-600 text-white hover:bg-indigo-700 rounded-xl transition"
+            @click="todoStore.saveEdit"
+            class="px-4 py-2 bg-indigo-600 text-white hover:bg-indigo-700 rounded-xl transition modal-button"
           >
             保存
           </button>
@@ -74,31 +75,33 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, watch } from "vue";
-import { useEventStore, EventType } from "../stores/event";
+import { useTodoStore } from "../stores/todoStore";
+import { useSettingStore } from "../stores/setting";
 
-const eventStore = useEventStore();
-
-// 使用本地变量跟踪是否将待办事项同步到日历
-const syncToCalendar = ref(false);
-
-// 当打开编辑模式时，检查当前事件类型并设置同步状态
-watch(() => eventStore.showTodoModal, (isOpen) => {
-  if (isOpen) {
-    // 如果事件类型是BOTH，说明已经同步到了日历
-    syncToCalendar.value = eventStore.currentEvent.eventType === EventType.BOTH;
-  }
-});
-
-// 保存待办事项并处理日历同步
-function saveTodoWithSync() {
-  // 根据同步复选框设置事件类型
-  if (syncToCalendar.value) {
-    eventStore.currentEvent.eventType = EventType.BOTH;
-  } else {
-    eventStore.currentEvent.eventType = EventType.TODO;
-  }
-  
-  eventStore.saveTodo();
-}
+// 使用 Pinia 仓库
+const todoStore = useTodoStore();
+const settingStore = useSettingStore();
 </script>
+
+<style scoped>
+.todo-modal {
+  font-size: inherit;
+}
+
+/* 调整各个元素的字体大小比例 */
+.modal-title {
+  font-size: 1.2em;
+}
+
+.form-label {
+  font-size: 1em;
+}
+
+.form-input {
+  font-size: 1em;
+}
+
+.modal-button {
+  font-size: 0.9em;
+}
+</style>

@@ -7,6 +7,10 @@
   <!-- 主日历区域容器 - 保留overflow-auto并增强滚动行为 -->
   <main
     class="calendar-main flex-1 flex flex-col overflow-auto custom-scrollbar"
+    :style="{
+      backgroundColor:
+        settingStore.themeMode === 'dark' ? '#0d1117' : '#ffffff',
+    }"
   >
     <!-- 月视图容器 - 修改overflow-auto为overflow-visible，让父容器控制滚动 -->
     <div
@@ -18,7 +22,7 @@
         <div
           v-for="day in uiStore.weekDays"
           :key="day"
-          class="text-sm font-medium text-gray-500 pb-2 text-center"
+          class="text-sm font-medium text-gray-500 pb-2 text-center week-day"
         >
           {{ day }}
         </div>
@@ -57,6 +61,21 @@
               ]"
             >
               {{ day.dayNumber }}
+              <span
+                v-if="settingStore.showLunar"
+                class="lunar-date text-xs ml-1"
+                :style="{
+                  color: day.isCurrentMonth
+                    ? settingStore.themeMode === 'dark'
+                      ? '#ffffff'
+                      : '#666666'
+                    : settingStore.themeMode === 'dark'
+                    ? '#666666'
+                    : '#999999',
+                }"
+              >
+                {{ getLunarDate(new Date(day.date)) }}
+              </span>
             </span>
           </div>
           <!-- 当天事件列表容器 -->
@@ -83,7 +102,7 @@
                 :style="{ color: event.categoryColor }"
               >
                 {{
-                  event.allDay ? "All day" : eventStore.formatEventTime(event)
+                  event.allDay ? "All day" : settingStore.formatEventTime(event)
                 }}
               </div>
               <!-- 事件标题 -->
@@ -118,7 +137,7 @@
             :key="idx"
             class="day-header flex flex-col items-center justify-center p-2 border-b border-gray-200 bg-white"
           >
-            <div class="text-sm font-medium">{{ day.dayName }}</div>
+            <div class="text-sm font-medium">{{ uiStore.weekDays[idx] }}</div>
             <div
               class="text-lg rounded-full w-8 h-8 flex items-center justify-center"
               :class="{ 'bg-blue-600 text-white': day.isToday }"
@@ -137,7 +156,7 @@
               :key="hour"
               class="time-label h-16 text-xs text-gray-500 text-right -translate-y-3 flex items-start justify-end"
             >
-              {{ uiStore.formatHour(hour - 1) }}
+              {{ settingStore.formatHour(hour - 1) }}
             </div>
           </div>
           <!-- 事件网格区：每一列代表一天 -->
@@ -186,7 +205,7 @@
                   class="event-time text-xs font-medium"
                   :style="{ color: event.categoryColor }"
                 >
-                  {{ eventStore.formatEventTime(event) }}
+                  {{ settingStore.formatEventTime(event) }}
                 </div>
                 <div
                   class="event-title text-sm font-medium truncate"
@@ -230,7 +249,7 @@
               :key="hour"
               class="time-label h-16 text-xs text-gray-500 text-right -translate-y-3 flex items-start justify-end"
             >
-              {{ uiStore.formatHour(hour - 1) }}
+              {{ settingStore.formatHour(hour - 1) }}
             </div>
           </div>
           <!-- 事件显示列 -->
@@ -275,7 +294,7 @@
                   class="event-time text-xs font-medium"
                   :style="{ color: event.categoryColor }"
                 >
-                  {{ eventStore.formatEventTime(event) }}
+                  {{ settingStore.formatEventTime(event) }}
                 </div>
                 <div
                   class="event-title text-sm font-medium truncate"
@@ -304,13 +323,276 @@
  */
 import { useUiStore } from "../stores/ui";
 import { useEventStore } from "../stores/event";
+import { useSettingStore } from "../stores/setting";
+import { computed, watch } from "vue";
 
 // 使用 Pinia 仓库
 const uiStore = useUiStore();
 const eventStore = useEventStore();
+const settingStore = useSettingStore();
+
+// 农历数据
+const lunarInfo = [
+  0x04bd8, 0x04ae0, 0x0a570, 0x054d5, 0x0d260, 0x0d950, 0x16554, 0x056a0,
+  0x09ad0, 0x055d2, 0x04ae0, 0x0a5b6, 0x0a4d0, 0x0d250, 0x1d255, 0x0b540,
+  0x0d6a0, 0x0ada2, 0x095b0, 0x14977, 0x04970, 0x0a4b0, 0x0b4b5, 0x06a50,
+  0x06d40, 0x1ab54, 0x02b60, 0x09570, 0x052f2, 0x04970, 0x06566, 0x0d4a0,
+  0x0ea50, 0x06e95, 0x05ad0, 0x02b60, 0x186e3, 0x092e0, 0x1c8d7, 0x0c950,
+  0x0d4a0, 0x1d8a6, 0x0b550, 0x056a0, 0x1a5b4, 0x025d0, 0x092d0, 0x0d2b2,
+  0x0a950, 0x0b557, 0x06ca0, 0x0b550, 0x15355, 0x04da0, 0x0a5d0, 0x14573,
+  0x052d0, 0x0a9a8, 0x0e950, 0x06aa0, 0x0aea6, 0x0ab50, 0x04b60, 0x0aae4,
+  0x0a570, 0x05260, 0x0f263, 0x0d950, 0x05b57, 0x056a0, 0x096d0, 0x04dd5,
+  0x04ad0, 0x0a4d0, 0x0d4d4, 0x0d250, 0x0d558, 0x0b540, 0x0b5a0, 0x195a6,
+  0x095b0, 0x049b0, 0x0a974, 0x0a4b0, 0x0b27a, 0x06a50, 0x06d40, 0x0af46,
+  0x0ab60, 0x09570, 0x04af5, 0x04970, 0x064b0, 0x074a3, 0x0ea50, 0x06b58,
+  0x055c0, 0x0ab60, 0x096d5, 0x092e0, 0x0c960, 0x0d954, 0x0d4a0, 0x0da50,
+  0x07552, 0x056a0, 0x0abb7, 0x025d0, 0x092d0, 0x0cab5, 0x0a950, 0x0b4a0,
+  0x0baa4, 0x0ad50, 0x055d9, 0x04ba0, 0x0a5b0, 0x15176, 0x052b0, 0x0a930,
+  0x07954, 0x06aa0, 0x0ad50, 0x05b52, 0x04b60, 0x0a6e6, 0x0a4e0, 0x0d260,
+  0x0ea65, 0x0d530, 0x05aa0, 0x076a3, 0x096d0, 0x04bd7, 0x04ad0, 0x0a4d0,
+  0x1d0b6, 0x0d250, 0x0d520, 0x0dd45, 0x0b5a0, 0x056d0, 0x055b2, 0x049b0,
+  0x0a577, 0x0a4b0, 0x0aa50, 0x1b255, 0x06d20, 0x0ada0,
+];
+
+// 农历日期转换函数
+function getLunarDate(date: Date): string {
+  const lunarDays = [
+    "初一",
+    "初二",
+    "初三",
+    "初四",
+    "初五",
+    "初六",
+    "初七",
+    "初八",
+    "初九",
+    "初十",
+    "十一",
+    "十二",
+    "十三",
+    "十四",
+    "十五",
+    "十六",
+    "十七",
+    "十八",
+    "十九",
+    "二十",
+    "廿一",
+    "廿二",
+    "廿三",
+    "廿四",
+    "廿五",
+    "廿六",
+    "廿七",
+    "廿八",
+    "廿九",
+    "三十",
+  ];
+
+  const year = date.getFullYear();
+  const month = date.getMonth() + 1;
+  const day = date.getDate();
+
+  // 计算与1900年1月31日相差的天数
+  let offset =
+    (Date.UTC(year, month - 1, day) - Date.UTC(1900, 0, 31)) / 86400000;
+
+  // 用offset减去每农历年的天数，计算当前农历年份
+  let lunarYear = 1900;
+  let temp = 0;
+  for (lunarYear = 1900; lunarYear < 2100 && offset > 0; lunarYear++) {
+    temp = getLunarYearDays(lunarYear);
+    offset -= temp;
+  }
+  if (offset < 0) {
+    offset += temp;
+    lunarYear--;
+  }
+
+  // 计算农历月份
+  let lunarMonth = 1;
+  let isLeap = false;
+  let yearDays = getLunarYearDays(lunarYear);
+  let leapMonth = getLeapMonth(lunarYear);
+  let monthDays = 0;
+
+  for (lunarMonth = 1; lunarMonth < 13 && offset > 0; lunarMonth++) {
+    // 闰月
+    if (leapMonth > 0 && lunarMonth === leapMonth + 1 && !isLeap) {
+      --lunarMonth;
+      isLeap = true;
+      monthDays = getLeapMonthDays(lunarYear);
+    } else {
+      monthDays = getMonthDays(lunarYear, lunarMonth);
+    }
+    // 解除闰月
+    if (isLeap && lunarMonth === leapMonth + 1) {
+      isLeap = false;
+    }
+    offset -= monthDays;
+  }
+
+  if (offset === 0 && leapMonth > 0 && lunarMonth === leapMonth + 1) {
+    if (isLeap) {
+      isLeap = false;
+    } else {
+      isLeap = true;
+      --lunarMonth;
+    }
+  }
+  if (offset < 0) {
+    offset += monthDays;
+    --lunarMonth;
+  }
+
+  // 计算农历日期
+  let lunarDay = offset + 1;
+
+  return lunarDays[lunarDay - 1];
+}
+
+// 获取农历年份总天数
+function getLunarYearDays(year: number): number {
+  let total = 0;
+  for (let i = 0x8000; i > 0x8; i >>= 1) {
+    total += lunarInfo[year - 1900] & i ? 30 : 29;
+  }
+  return total + getLeapMonthDays(year);
+}
+
+// 获取闰月天数
+function getLeapMonthDays(year: number): number {
+  if (getLeapMonth(year)) {
+    return lunarInfo[year - 1900] & 0x10000 ? 30 : 29;
+  }
+  return 0;
+}
+
+// 获取闰月月份
+function getLeapMonth(year: number): number {
+  return lunarInfo[year - 1900] & 0xf;
+}
+
+// 获取农历某月总天数
+function getMonthDays(year: number, month: number): number {
+  return lunarInfo[year - 1900] & (0x10000 >> month) ? 30 : 29;
+}
+
+// 计算字体大小
+const fontSize = computed(() => {
+  switch (settingStore.fontSize) {
+    case "large":
+      return "20px";
+    case "medium":
+      return "18px";
+    case "small":
+      return "16px";
+    default:
+      return "18px";
+  }
+});
+
+// 监听起始星期变化
+watch(
+  () => settingStore.weekStart,
+  (newValue) => {
+    uiStore.updateWeekStart(newValue);
+  },
+  { immediate: true }
+);
 </script>
 
 <style scoped>
+.calendar-main {
+  font-size: inherit;
+}
+
+/* 调整各个元素的字体大小比例 */
+.calendar-title {
+  font-size: 1.2em;
+}
+
+.nav-button {
+  font-size: 1em;
+}
+
+.view-button {
+  font-size: 0.9em;
+}
+
+.event-title {
+  font-size: 1em;
+}
+
+.event-time {
+  font-size: 0.9em;
+}
+
+.event-description {
+  font-size: 0.85em;
+}
+
+.time-label {
+  font-size: 0.85em;
+}
+
+.day-number {
+  font-size: 1.1em;
+}
+
+.week-day {
+  font-size: 1em;
+}
+
+/* 主容器背景色 */
+.calendar-main {
+  background-color: #ffffff;
+}
+
+/* 深色模式背景色 */
+.dark .calendar-main {
+  background-color: #0d1117;
+}
+
+/* 深色模式下的文本颜色 */
+.dark .text-gray-500,
+.dark .text-gray-700,
+.dark .text-gray-800,
+.dark .text-gray-400 {
+  color: #8b949e;
+}
+
+/* 深色模式下的边框颜色 */
+.dark .border-gray-200,
+.dark .border-gray-300 {
+  border-color: #30363d;
+}
+
+/* 深色模式下的悬停效果 */
+.dark .calendar-day:hover {
+  background-color: #21262d;
+  border-color: #58a6ff !important;
+  box-shadow: 0 0 0 1px rgba(88, 166, 255, 0.3);
+}
+
+/* 深色模式下的滚动条样式 */
+.dark .custom-scrollbar::-webkit-scrollbar-track {
+  background: #0d1117;
+}
+
+.dark .custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #30363d;
+}
+
+.dark .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #3f444c;
+}
+
+/* 深色模式下的农历日期颜色 */
+.dark .lunar-date {
+  color: #8b949e;
+}
+
 /* "今天"日期单元格的特殊样式，顶部有一条蓝色高亮线 */
 .today {
   position: relative;
@@ -509,5 +791,14 @@ const eventStore = useEventStore();
 
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
   background: #a0a0a0;
+}
+
+/* 农历日期样式 */
+.lunar-date {
+  font-size: 0.75em;
+}
+
+.dark .lunar-date {
+  color: #ffffff;
 }
 </style>

@@ -4,6 +4,8 @@
 import { createApp } from "vue";
 import { createPinia } from "pinia";
 import "./styles/style.css";
+import "./styles/theme.css";
+import "./styles/font-size.css";
 import App from "./App.vue";
 import router from "./router/index.js";
 

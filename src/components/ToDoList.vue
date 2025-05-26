@@ -4,13 +4,15 @@
   实现日历与待办事项的同步。
 -->
 <template>
-  <main class="todo-main flex-1 flex flex-col overflow-hidden">
-    <div class="flex-1 overflow-auto p-6">
-      <div class="max-w-6xl mx-auto flex flex-col items-center">
-        <!-- 标题区 -->
-        <h1 class="text-3xl font-bold text-indigo-600 text-center mb-10">
-          To-Do
-        </h1>
+  <div
+    class="min-h-screen bg-gray-50 p-6 w-full"
+    :class="settingStore.themeMode === 'dark' ? 'dark-theme' : 'light-theme'"
+  >
+    <div class="max-w-2xl mx-auto flex flex-col items-center">
+      <!-- 标题区 -->
+      <h1 class="text-3xl font-bold text-indigo-600 text-center mb-10">
+        To-Do
+      </h1>
 
         <!-- 过滤选项 -->
         <div class="w-full mb-6 flex justify-center gap-4">
@@ -29,43 +31,39 @@
           </button>
         </div>
 
-        <!-- 待办事项列表 -->
-        <div class="w-full space-y-4">
-          <div
-            v-for="todo in eventStore.filteredTodos"
-            :key="todo.id"
-            @click="eventStore.toggleTodo(todo.id)"
-            class="flex justify-between items-center p-5 bg-white rounded-2xl shadow-sm hover:shadow-md transition cursor-pointer border-l-4 group"
-            :class="{
-              'border-l-4': true,
-              'border-red-500': todo.categoryId === 1,
-              'border-orange-500': todo.categoryId === 2,
-              'border-yellow-500': todo.categoryId === 3,
-              'border-green-500': todo.categoryId === 4,
-              'border-indigo-500': todo.categoryId === 5,
-              'opacity-70 bg-gray-50': todo.completed,
-            }"
-          >
-            <div class="flex items-center gap-4">
-              <!-- 完成状态复选框 -->
-              <input
-                type="checkbox"
-                :checked="todo.completed"
-                @click.stop="eventStore.toggleTodo(todo.id)"
-                class="w-5 h-5 text-indigo-600 rounded focus:ring-indigo-500"
-              />
-              <div>
-                <!-- 任务标题 - 完成时显示删除线 -->
-                <div
-                  class="font-medium"
-                  :class="{ 'line-through text-gray-500': todo.completed }"
-                >
-                  {{ todo.title }}
-                </div>
-                <!-- 格式化显示的截止日期 -->
-                <div class="text-sm text-gray-500">
-                  {{ eventStore.formatDateForDisplay(todo.end) }}
-                </div>
+      <!-- 待办事项列表 -->
+      <div class="w-full space-y-4">
+        <div
+          v-for="todo in todoStore.filteredTodos"
+          :key="todo.id"
+          @click="todoStore.toggleTodo(todo.id)"
+          class="flex justify-between items-center p-5 bg-white rounded-2xl shadow-sm hover:shadow-md transition cursor-pointer border"
+          :class="{
+            'border-red-500': todo.id % 3 === 0,
+            'border-orange-500': todo.id % 3 === 1,
+            'border-green-500': todo.id % 3 === 2,
+            'opacity-70 bg-gray-50': todo.completed,
+          }"
+        >
+          <div class="flex items-center gap-4">
+            <!-- 完成状态复选框 -->
+            <input
+              type="checkbox"
+              :checked="todo.completed"
+              @click.stop="todoStore.toggleTodo(todo.id)"
+              class="w-5 h-5 text-indigo-600 rounded focus:ring-indigo-500"
+            />
+            <div>
+              <!-- 任务标题 - 完成时显示删除线 -->
+              <div
+                class="font-medium"
+                :class="{ 'line-through text-gray-500': todo.completed }"
+              >
+                {{ todo.title }}
+              </div>
+              <!-- 格式化显示的截止日期 -->
+              <div class="text-sm text-gray-500">
+                {{ todoStore.formatDateForDisplay(todo.dueDate) }}
               </div>
             </div>
 
@@ -111,9 +109,12 @@
 </template>
 
 <script setup lang="ts">
-import { useEventStore, FilterType } from "../stores/event";
+import { onMounted } from "vue";
+import { useTodoStore } from "../stores/todoStore";
+import { useSettingStore } from "../stores/setting";
 
-const eventStore = useEventStore();
+const todoStore = useTodoStore();
+const settingStore = useSettingStore();
 
 // 定义过滤器选项，并明确指定类型
 const filters: { value: FilterType; label: string }[] = [
@@ -134,3 +135,26 @@ function getFilterCount(filterType: FilterType) {
   }
 }
 </script>
+
+<style scoped>
+.todo-list {
+  font-size: inherit;
+}
+
+/* 调整各个元素的字体大小比例 */
+.todo-title {
+  font-size: 1.2em;
+}
+
+.todo-item {
+  font-size: 1em;
+}
+
+.todo-date {
+  font-size: 0.9em;
+}
+
+.filter-button {
+  font-size: 0.9em;
+}
+</style>

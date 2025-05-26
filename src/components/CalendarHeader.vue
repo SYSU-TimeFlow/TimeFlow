@@ -2,6 +2,7 @@
   @component: CalendarHeader
   @description: 应用程序头部组件，包含标题、导航按钮、搜索框和窗口控制按钮
   @author: huzch
+  @modified: lijzh89
   @date: 2025-05-25
 -->
 
@@ -30,14 +31,20 @@
         <!-- "上一个"导航按钮 -->
         <button
           @click="uiStore.navigateCalendar('prev')"
-          class="nav-button px-2 py-2 rounded-l-md hover:bg-gray-100 cursor-pointer transition-colors"
+          class="nav-button px-4 py-2 rounded-l-md hover:bg-gray-100 cursor-pointer transition-colors"
+          :style="{
+            color: settingStore.themeMode === 'dark' ? '#ffffff' : '#606060',
+          }"
         >
           <i class="fas fa-chevron-left text-base"></i>
         </button>
         <!-- "下一个"导航按钮，移除边框 -->
         <button
           @click="uiStore.navigateCalendar('next')"
-          class="nav-button px-2 py-2 rounded-r-md hover:bg-gray-100 cursor-pointer transition-colors"
+          class="nav-button px-4 py-2 rounded-r-md hover:bg-gray-100 cursor-pointer transition-colors"
+          :style="{
+            color: settingStore.themeMode === 'dark' ? '#ffffff' : '#606060',
+          }"
         >
           <i class="fas fa-chevron-right text-base"></i>
         </button>
@@ -78,30 +85,20 @@
               : 'Enter command...'
           "
           class="pl-8 pr-4 py-1 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent w-64"
-          :class="{
-            'command-mode-input': uiStore.appMode === 'command',
-            'search-mode-input': uiStore.appMode === 'normal',
+          :style="{
+            color: settingStore.themeMode === 'dark' ? '#ffffff' : '#606060',
+            backgroundColor:
+              settingStore.themeMode === 'dark' ? '#1e2235' : '#ffffff',
+            borderColor:
+              settingStore.themeMode === 'dark' ? '#2a2f3d' : '#d1d5db',
           }"
-          :value="eventStore.searchInputValue"
-          @input="handleInputChange"
-          @focus="eventStore.handleSearchFocusAction"
-          @blur="handleSearchBlur"
-          @keydown="handleSearchKeydown"
         />
 
         <i
-          class="fas absolute left-3 top-1/2 transform -translate-y-1/2 text-sm"
-          :class="[
-            uiStore.isSearchActive && uiStore.appMode === 'normal'
-              ? 'fa-search text-gray-400'
-              : '',
-            uiStore.isSearchActive && uiStore.appMode === 'command'
-              ? 'fa-terminal text-blue-600 command-icon'
-              : '',
-            !uiStore.isSearchActive && uiStore.appMode === 'command'
-              ? 'fa-terminal text-blue-500'
-              : '',
-          ]"
+          class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-sm"
+          :style="{
+            color: settingStore.themeMode === 'dark' ? '#ffffff' : '#606060',
+          }"
         ></i>
 
         <!-- 搜索结果列表 -->
@@ -147,7 +144,10 @@
       <!-- "今天"按钮 -->
       <button
         @click="uiStore.goToToday()"
-        class="nav-button py-1 px-4 rounded-md hover:bg-gray-100 cursor-pointer transition-colors ml-1 no-drag"
+        class="nav-button today-button py-1 px-4 rounded-md hover:bg-gray-100 cursor-pointer transition-colors ml-1"
+        :style="{
+          color: settingStore.themeMode === 'dark' ? '#ffffff' : '#606060',
+        }"
       >
         Today
       </button>
@@ -156,7 +156,12 @@
     <!-- 右侧区域：其他控制按钮 -->
     <div class="header-right no-drag flex items-center flex-shrink-0">
       <!-- 保留原有按钮 -->
-      <button class="header-icon-button p-2 rounded-md transition-colors">
+      <button
+        class="header-icon-button p-2 rounded-md transition-colors"
+        :style="{
+          color: settingStore.themeMode === 'dark' ? '#ffffff' : '#606060',
+        }"
+      >
         <i class="fas fa-bell"></i>
       </button>
       <!-- 设置按钮 -->
@@ -164,6 +169,9 @@
         @click="settingStore.toggleSettings"
         class="header-icon-button p-2 rounded-md transition-colors"
         title="打开设置"
+        :style="{
+          color: settingStore.themeMode === 'dark' ? '#ffffff' : '#606060',
+        }"
       >
         <i class="fas fa-cog"></i>
       </button>
@@ -171,17 +179,23 @@
         <button
           class="header-icon-button p-1.5 rounded-l-md transition-colors"
           @click="electronAPI.minimize()"
+          :style="{
+            color: settingStore.themeMode === 'dark' ? '#ffffff' : '#606060',
+          }"
         >
           <i class="fas fa-window-minimize"></i>
         </button>
         <button
           class="header-icon-button p-1.5 transition-colors"
           @click="electronAPI.maximize()"
+          :style="{
+            color: settingStore.themeMode === 'dark' ? '#ffffff' : '#606060',
+          }"
         >
           <i class="fas fa-window-maximize"></i>
         </button>
         <button
-          class="header-icon-button p-1.5 rounded-r-md text-red-500 hover:text-red-700 transition-colors"
+          class="header-icon-button p-1.5 rounded-r-md transition-colors"
           @click="electronAPI.close()"
         >
           <i class="fas fa-times"></i>
@@ -395,6 +409,97 @@ const handleInputChange = (event: Event) => {
 </script>
 
 <style scoped>
+.calendar-header {
+  padding: 1rem;
+  border-bottom: 1px solid;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.view-selector {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.view-button {
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+  transition: all 0.2s;
+}
+
+.view-button.active {
+  background-color: #2563eb;
+  color: white;
+}
+
+.navigation {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.nav-button {
+  padding: 0.5rem;
+  border-radius: 0.375rem;
+  transition: all 0.2s;
+}
+
+.nav-button:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.nav-button i {
+  font-size: 1rem;
+}
+
+.current-date {
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.action-button {
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.action-button i {
+  font-size: 1rem;
+}
+
+.action-button.primary {
+  background-color: #2563eb;
+  color: white;
+}
+
+.action-button.primary:hover {
+  background-color: #1d4ed8;
+}
+
+.action-button.secondary {
+  background-color: #f3f4f6;
+}
+
+.action-button.secondary:hover {
+  background-color: #e5e7eb;
+}
+
 /* 标题栏高度调整 */
 .app-header {
   height: 48px;
@@ -577,7 +682,6 @@ const handleInputChange = (event: Event) => {
 /* 导航按钮和图标按钮统一样式 */
 .nav-button {
   color: #606060;
-  font-size: 14px;
   transition: all 0.2s ease;
 }
 
@@ -629,9 +733,46 @@ button:has(.fa-times):hover {
   margin-left: 0; /* 第一个按钮不需要负margin */
 }
 
-/* 增大导航图标尺寸 */
-.fa-chevron-left,
-.fa-chevron-right {
-  font-size: 16px;
+/* 深色模式下的所有文字和图标 */
+.dark .app-header {
+  background-color: #0d1117;
+  border-color: #30363d;
+}
+
+.dark .app-header h1,
+.dark .app-header h2,
+.dark .nav-button,
+.dark .header-icon-button,
+.dark .fa-search,
+.dark .fas,
+.dark .search-box input,
+.dark .search-box input::placeholder {
+  color: #c9d1d9 !important;
+}
+
+.dark .nav-button:hover,
+.dark .header-icon-button:hover {
+  color: #58a6ff !important;
+  background-color: rgba(88, 166, 255, 0.2) !important;
+}
+
+.dark .search-box input {
+  background-color: #161b22;
+  border-color: #30363d;
+}
+
+.dark .search-box input:focus {
+  border-color: #58a6ff;
+  background-color: #161b22;
+}
+
+/* 深色模式下的Today按钮 */
+.dark .today-button {
+  color: #c9d1d9 !important;
+}
+
+.dark .today-button:hover {
+  color: #58a6ff !important;
+  background-color: rgba(88, 166, 255, 0.2) !important;
 }
 </style>
