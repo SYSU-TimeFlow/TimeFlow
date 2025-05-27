@@ -26,15 +26,26 @@
             class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
             placeholder="请输入任务标题"
           />
-        </div>
-        <!-- 截止日期（精确到分钟） -->
+        </div>        <!-- 截止日期（精确到分钟） -->
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">截止时间</label>
+          <div class="flex justify-between items-center mb-1">
+            <label class="block text-sm font-medium text-gray-700">截止时间</label>
+            <label class="inline-flex items-center">
+              <input
+                type="checkbox"
+                v-model="hasDeadline"
+                class="form-checkbox h-4 w-4 text-indigo-600"
+              />
+              <span class="ml-2 text-sm text-gray-600">设置截止时间</span>
+            </label>
+          </div>
           <input
+            v-if="hasDeadline"
             v-model="eventStore.currentEvent.end"
             type="datetime-local"
             class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
           />
+          <div v-else class="text-sm text-gray-500">无截止时间</div>
         </div>
         <!-- 分类选择 -->
         <div>
@@ -69,9 +80,8 @@
             class="px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-xl transition"
           >
             取消
-          </button>
-          <button
-            @click="saveTodoWithSync"
+          </button>          <button
+            @click="saveTodo"
             class="px-4 py-2 bg-indigo-600 text-white hover:bg-indigo-700 rounded-xl transition"
           >
             保存
@@ -109,24 +119,34 @@ onUnmounted(() => {
 
 // 使用本地变量跟踪是否将待办事项同步到日历
 const syncToCalendar = ref(false);
+// 使用本地变量跟踪是否设置截止时间
+const hasDeadline = ref(true);
 
-// 打开新建待办时，截止时间应默认为空
+// 打开待办事项模态框时的处理
 watch(() => eventStore.showTodoModal, (isOpen) => {
   if (isOpen) {
-    // 如果事件类型是BOTH，说明已经同步到了日历
-    syncToCalendar.value = eventStore.currentEvent.eventType === EventType.BOTH;
+    // 检查是否有截止时间
+    hasDeadline.value = !!eventStore.currentEvent.end;
   }
 });
 
-// 保存待办事项并处理日历同步
-function saveTodoWithSync() {
-  // 根据同步复选框设置事件类型
-  if (syncToCalendar.value) {
-    eventStore.currentEvent.eventType = EventType.BOTH;
-  } else {
-    eventStore.currentEvent.eventType = EventType.TODO;
+// 监听截止时间设置变化
+watch(hasDeadline, (newValue) => {
+  if (!newValue) {
+    // 如果取消设置截止时间，清空end字段
+    eventStore.currentEvent.end = "";
+  } else if (!eventStore.currentEvent.end) {
+    // 如果设置了截止时间但end为空，设置默认值为今天结束
+    const today = new Date();
+    today.setHours(23, 59, 59, 0);
+    eventStore.currentEvent.end = eventStore.formatDateTimeForInput(today);
   }
-  
-  eventStore.saveTodo();
+});
+
+// 保存待办事项
+function saveTodo() {
+  // 调用 eventStore 中的 saveTodo 函数，传递 hasDeadline 参数
+  // 所有处理逻辑均移至 store 内部处理
+  eventStore.saveTodo(hasDeadline.value);
 }
 </script>
