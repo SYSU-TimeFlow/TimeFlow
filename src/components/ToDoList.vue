@@ -36,17 +36,19 @@
             :key="todo.id"
             @click="eventStore.toggleTodo(todo.id)"
             class="flex justify-between items-center p-5 bg-white rounded-2xl shadow-sm hover:shadow-md transition cursor-pointer border-l-4 group"
-            :class="{
-              'border-l-4': true,
-              'border-red-500': todo.categoryId === 1,
-              'border-orange-500': todo.categoryId === 2,
-              'border-yellow-500': todo.categoryId === 3,
-              'border-green-500': todo.categoryId === 4,
-              'border-indigo-500': todo.categoryId === 5,
-              'opacity-70 bg-gray-50': todo.completed,
+            :style="{
+              borderLeftColor: eventStore.categories.find(c => c.id === todo.categoryId)?.color || '#e5e7eb',
+              opacity: todo.completed ? 0.7 : 1,
+              backgroundColor: todo.completed ? '#f9fafb' : 'white',
             }"
           >
             <div class="flex items-center gap-4">
+              <!-- 分类色块 -->
+              <div
+                v-if="eventStore.categories.find(c => c.id === todo.categoryId)?.color"
+                class="w-3 h-3 rounded-full mr-2"
+                :style="{ backgroundColor: eventStore.categories.find(c => c.id === todo.categoryId)?.color }"
+              ></div>
               <!-- 完成状态复选框 -->
               <input
                 type="checkbox"
@@ -62,9 +64,13 @@
                 >
                   {{ todo.title }}
                 </div>
-                <!-- 格式化显示的截止日期 -->
-                <div class="text-sm text-gray-500">
-                  {{ eventStore.formatDateForDisplay(todo.end) }}
+                <!-- 备注 -->
+                <div v-if="todo.description" class="text-xs text-gray-400 mt-1">
+                  {{ todo.description }}
+                </div>
+                <!-- 格式化显示的截止日期（精确到分钟） -->
+                <div v-if="todo.end" class="text-sm text-gray-500 mt-1">
+                  截止：{{ eventStore.formatDateForDisplay(todo.end) }}
                 </div>
               </div>
             </div>
