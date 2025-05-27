@@ -67,6 +67,8 @@ export const useSettingStore = defineStore("setting", () => {
       await window.electronAPI.saveSettings(allSettings.value);
       // 应用主题设置
       applyTheme(themeMode.value);
+      // 应用字号设置
+      applyFontSize(fontSize.value);
     } catch (error) {
       console.error("Error saving settings via Electron API:", error);
     }
@@ -103,7 +105,7 @@ export const useSettingStore = defineStore("setting", () => {
         language.value = settings.language || "zh-CN";
         synced.value =
           typeof settings.synced === "boolean" ? settings.synced : true;
-        
+
         // 加载完设置后应用主题
         applyTheme(themeMode.value);
       } else {
@@ -125,21 +127,21 @@ export const useSettingStore = defineStore("setting", () => {
   // =========================== END 本地存储所需代码 END =============================
 
   // =========================== BEGIN 主题管理代码 BEGIN ============================
-  
+
   /**
    * 应用主题到DOM
    * @param theme 主题类型 ('light'|'dark')
    */
   function applyTheme(theme: string) {
     const html = document.documentElement;
-    
-    if (theme === 'dark') {
-      html.classList.add('dark-mode');
+
+    if (theme === "dark") {
+      html.classList.add("dark-mode");
       // 设置系统状态栏颜色（Electron特性）
-      setNativeTheme('dark');
+      setNativeTheme("dark");
     } else {
-      html.classList.remove('dark-mode');
-      setNativeTheme('light');
+      html.classList.remove("dark-mode");
+      setNativeTheme("light");
     }
   }
 
@@ -147,14 +149,14 @@ export const useSettingStore = defineStore("setting", () => {
    * 切换系统原生主题（Electron窗口和状态栏）
    */
   const electronAPI = (window as any).electronAPI;
-  function setNativeTheme(theme: 'light' | 'dark') {
+  function setNativeTheme(theme: "light" | "dark") {
     // 如果是Electron环境
     if (electronAPI && electronAPI.setNativeTheme) {
       // @ts-ignore
       electronAPI.setNativeTheme(theme);
     }
   }
-  
+
   // =========================== END 主题管理代码 END ==============================
 
   // 同步设置状态
@@ -187,7 +189,7 @@ export const useSettingStore = defineStore("setting", () => {
     weekStart.value = "0";
     language.value = "zh-CN";
     synced.value = true; // 重置时 synced 也应为 true
-    
+
     // 应用默认主题
     applyTheme("light");
   }
@@ -214,30 +216,65 @@ export const useSettingStore = defineStore("setting", () => {
     showSettings.value = false;
   }
 
-  // setter
-  async function setFontSize(value: string) {
-    fontSize.value = value;
+  // 设置字号
+  async function setFontSize(newFontSize: string) {
+    fontSize.value = newFontSize;
+    // 立即应用字号变更
+    applyFontSize(newFontSize);
   }
+
+  // 设置图标样式
   async function setIconStyle(value: string) {
     iconStyle.value = value;
   }
+
+  // 设置通知
   async function setNotifications(value: boolean) {
     notifications.value = value;
   }
+
+  // 设置通知声音
   async function setNotificationSound(value: boolean) {
     notificationSound.value = value;
   }
+
+  // 设置音效
   async function setSoundEffect(value: boolean) {
     soundEffect.value = value;
   }
+
+  // 设置24小时制
   async function setHour24(value: boolean) {
     hour24.value = value;
   }
+
+  // 设置显示农历
   async function setShowLunar(value: boolean) {
     showLunar.value = value;
   }
+
+  // 设置周起始日
   async function setWeekStart(value: string) {
     weekStart.value = value;
+  }
+
+  /**
+   * 应用字号到DOM
+   * @param fontSize 字号大小 ('small'|'medium'|'large')
+   */
+  function applyFontSize(fontSize: string) {
+    const html = document.documentElement;
+
+    // 移除所有字号相关的类
+    html.classList.remove("font-size-small", "font-size-large");
+
+    // 根据设置添加对应的类
+    if (fontSize === "small") {
+      html.classList.add("font-size-small");
+    } else if (fontSize === "large") {
+      html.classList.add("font-size-large");
+    }
+    // medium 是默认值，不需要添加类
   }
 
   return {
@@ -257,7 +294,7 @@ export const useSettingStore = defineStore("setting", () => {
     toggleSync,
     setThemeMode,
     setLanguage,
-    saveSettings, 
+    saveSettings,
     loadSettings,
     resetSettings,
     toggleSettings,
@@ -270,6 +307,7 @@ export const useSettingStore = defineStore("setting", () => {
     setHour24,
     setShowLunar,
     setWeekStart,
-    applyTheme, // 导出主题应用方法
+    applyTheme,
+    applyFontSize,
   };
 });

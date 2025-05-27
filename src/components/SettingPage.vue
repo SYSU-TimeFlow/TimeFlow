@@ -97,6 +97,7 @@
         <select
           v-model="settingStore.fontSize"
           class="border border-gray-300 rounded-md px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          @change="applyFontSizeChange"
         >
           <option value="small">小</option>
           <option value="medium">中</option>
@@ -464,20 +465,30 @@ onUnmounted(() => {
  * 保存设置并关闭窗口
  * 显示一个提示，然后在短暂延迟后关闭设置界面
  */
-function saveAndClose() {
-  // 使用store的方法保存设置
-  settingStore.saveSettings();
+async function saveAndClose() {
+  try {
+    // 使用store的方法保存设置
+    await settingStore.saveSettings();
 
-  // 显示提示并延迟关闭
-  toastMessage.value = "设置已保存！";
-  toastType.value = "success";
-  showToast.value = true;
-  setTimeout(() => {
-    settingStore.closeSettings();
+    // 显示提示并延迟关闭
+    toastMessage.value = "设置已保存！";
+    toastType.value = "success";
+    showToast.value = true;
+    setTimeout(() => {
+      settingStore.closeSettings();
+      setTimeout(() => {
+        showToast.value = false;
+      }, 2500);
+    }, 1000);
+  } catch (error) {
+    console.error("保存设置失败:", error);
+    toastMessage.value = "保存设置失败，请重试";
+    toastType.value = "error";
+    showToast.value = true;
     setTimeout(() => {
       showToast.value = false;
     }, 2500);
-  }, 1000);
+  }
 }
 
 /**
@@ -502,6 +513,13 @@ function resetSettings() {
  */
 function applyThemeChange() {
   settingStore.applyTheme(settingStore.themeMode);
+}
+
+/**
+ * 立即应用字号变化，而不等待保存
+ */
+function applyFontSizeChange() {
+  settingStore.applyFontSize(settingStore.fontSize);
 }
 </script>
 
