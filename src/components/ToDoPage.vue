@@ -201,9 +201,9 @@ function saveTodo() {
 /* 输入框样式适配暗黑模式 */
 .dark-mode input,
 .dark-mode textarea {
-  background-color: var(--bg-tertiary);
-  color: var(--text-primary);
-  border-color: var(--border-color);
+  background-color: var(--modal-input-bg);
+  color: var(--modal-input-text);
+  border-color: var(--modal-input-border);
 }
 
 .dark-mode input::placeholder,
@@ -221,26 +221,13 @@ function saveTodo() {
   color: var(--heading-color) !important;
 }
 
-.dark-mode input,
-.dark-mode textarea,
-.dark-mode select {
-  background-color: var(--bg-tertiary) !important;
-  color: var(--text-primary) !important;
-  border-color: var(--border-color) !important;
-}
-
-.dark-mode input[type="date"],
-.dark-mode input[type="time"] {
-  color-scheme: dark;
-}
-
 /* 按钮调整 */
 .dark-mode .bg-indigo-600 {
-  background-color: #3a5277 !important; /* 更柔和的蓝色 */
+  background-color: var(--modal-button-bg) !important;
 }
 
 .dark-mode .bg-indigo-600:hover {
-  background-color: #445c85 !important; /* 悬停时略深一点 */
+  background-color: var(--modal-button-hover) !important;
 }
 
 .dark-mode .bg-gray-200 {
@@ -264,5 +251,18 @@ textarea {
 
 button {
   font-size: var(--font-size-base);
+}
+
+/* 深色模式下的标签和文本 */
+.dark-mode label {
+  color: var(--modal-label-color);
+}
+
+.dark-mode .text-gray-700 {
+  color: var(--text-primary) !important;
+}
+
+.dark-mode .text-gray-500 {
+  color: var(--text-secondary) !important;
 }
 </style>

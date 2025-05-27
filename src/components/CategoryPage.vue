@@ -198,4 +198,40 @@ button {
 .modal-footer button {
   font-size: var(--font-size-base);
 }
+
+/* 深色模式样式 */
+.dark-mode .category-modal {
+  background-color: var(--modal-bg);
+  color: var(--text-primary);
+}
+
+.dark-mode .modal-header {
+  border-color: var(--border-color);
+}
+
+.dark-mode .modal-body label {
+  color: var(--modal-label-color);
+}
+
+.dark-mode .modal-body input {
+  background-color: var(--modal-input-bg);
+  color: var(--modal-input-text);
+  border-color: var(--modal-input-border);
+}
+
+.dark-mode .modal-footer {
+  border-color: var(--border-color);
+}
+
+.dark-mode .modal-footer button {
+  color: var(--modal-button-text);
+}
+
+.dark-mode .modal-footer button.bg-blue-600 {
+  background-color: var(--modal-button-bg);
+}
+
+.dark-mode .modal-footer button.bg-blue-600:hover {
+  background-color: var(--modal-button-hover);
+}
 </style>
