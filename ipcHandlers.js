@@ -49,62 +49,43 @@ export function initializeIpcHandlers(ipcMain, appDataStore, settingsConfigStore
     // 如果需要加载默认分类或默认事件
     if (needsDefaultCategories || needsDefaultEvents) {
       try {
-        // 构建默认数据文件的路径
         const defaultDataPath = path.join(mainDirname, 'src', 'stores', 'dev', 'event_data.json');
-        // 检查默认数据文件是否存在
         if (fs.existsSync(defaultDataPath)) {
-          const rawData = fs.readFileSync(defaultDataPath); // 读取原始数据
-          const defaultData = JSON.parse(rawData.toString()); // 解析 JSON 数据
+          const rawData = fs.readFileSync(defaultDataPath);
+          const defaultData = JSON.parse(rawData.toString());
 
-          // 如果需要加载默认分类
           if (needsDefaultCategories) {
-            categories = defaultData.appCategories || []; // 从默认数据获取分类，如果不存在则为空数组
-            appDataStore.set('appCategories', categories); // 将默认分类存入 electron-store
+            categories = Array.isArray(defaultData.appCategories) ? defaultData.appCategories : [];
+            appDataStore.set('appCategories', categories);
             console.log("Loaded default categories from default_app_data.json");
           }
 
-          // 如果需要加载默认事件
           if (needsDefaultEvents) {
-            const rawEvents = defaultData.appEvents || []; // 从默认数据获取原始事件
-            // 映射原始事件数据到应用所需的格式
+            const rawEvents = Array.isArray(defaultData.appEvents) ? defaultData.appEvents : [];
             appEvents = rawEvents.map(item => ({
               id: item.id,
               title: item.title,
-              start: new Date(item.start).toISOString(), // 确保日期为 ISO 字符串
-              end: new Date(item.end).toISOString(),   // 确保日期为 ISO 字符串
+              start: new Date(item.start).toISOString(),
+              end: new Date(item.end).toISOString(),
               description: item.description || "",
-              categoryId: item.priority !== undefined ? item.priority : 5, // 优先使用 priority，否则默认为 5
-              categoryColor: item.color || "#43aa8b", // 默认颜色
+              categoryId: item.categoryId, // 修复：确保使用正确的分类 ID
+              categoryColor: item.categoryColor || "#43aa8b",
               allDay: item.allDay || false,
-              eventType: mapJsonEventTypeToEnumString(item.type), // 转换事件类型
+              eventType: mapJsonEventTypeToEnumString(item.type),
               completed: item.completed || false,
             }));
-            appDataStore.set('appEvents', appEvents); // 将处理后的默认事件存入 electron-store
+            appDataStore.set('appEvents', appEvents);
             console.log("Loaded default events from default_app_data.json");
           }
         } else {
-          // 如果默认数据文件不存在
           console.warn("default_app_data.json not found. Initializing with empty data.");
-          if (needsDefaultCategories) {
-            categories = []; // 初始化为空数组
-            appDataStore.set('appCategories', []); // 存入空数组
-          }
-          if (needsDefaultEvents) {
-            appEvents = []; // 初始化为空数组
-            appDataStore.set('appEvents', []); // 存入空数组
-          }
+          if (needsDefaultCategories) categories = [];
+          if (needsDefaultEvents) appEvents = [];
         }
       } catch (error) {
-        // 处理加载默认数据时发生的错误
         console.error("Error loading default data from default_app_data.json:", error);
-        if (needsDefaultCategories) {
-          categories = []; // 发生错误时，初始化为空数组
-          appDataStore.set('appCategories', []);
-        }
-        if (needsDefaultEvents) {
-          appEvents = []; // 发生错误时，初始化为空数组
-          appDataStore.set('appEvents', []);
-        }
+        if (needsDefaultCategories) categories = [];
+        if (needsDefaultEvents) appEvents = [];
       }
     }
 

@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import { ref, computed } from "vue";
+import { ref, computed, watch } from "vue";
 
 // 添加接口定义
 interface Settings {
@@ -33,37 +33,32 @@ export const useSettingStore = defineStore("setting", () => {
   const language = ref("zh-CN");
 
   // 所有设置的聚合对象
-  const allSettings = computed((): Settings => ({
-    themeMode: themeMode.value,
-    fontSize: fontSize.value,
-    iconStyle: iconStyle.value,
-    notifications: notifications.value,
-    notificationSound: notificationSound.value,
-    soundEffect: soundEffect.value,
-    hour24: hour24.value,
-    showLunar: showLunar.value,
-    weekStart: weekStart.value,
-    language: language.value,
-    synced: synced.value,
-  }));
+  const allSettings = computed(
+    (): Settings => ({
+      themeMode: themeMode.value,
+      fontSize: fontSize.value,
+      iconStyle: iconStyle.value,
+      notifications: notifications.value,
+      notificationSound: notificationSound.value,
+      soundEffect: soundEffect.value,
+      hour24: hour24.value,
+      showLunar: showLunar.value,
+      weekStart: weekStart.value,
+      language: language.value,
+      synced: synced.value,
+    })
+  );
 
-  // 同步设置状态
-  async function toggleSync() {
-    synced.value = !synced.value;
-    await saveSettings();
-  }
+  // ===========================BEGIN 本地存储所需代码 BEGIN=============================
 
-  // 设置主题
-  async function setThemeMode(newTheme: string) {
-    themeMode.value = newTheme;
-    await saveSettings();
-  }
-
-  // 设置语言
-  async function setLanguage(newLanguage: string) {
-    language.value = newLanguage;
-    await saveSettings();
-  }
+  // 监听所有设置的变化，并在变化时保存
+  watch(
+    allSettings,
+    async () => {
+      await saveSettings();
+    },
+    { deep: true }
+  );
 
   // 保存所有设置 - 修改为通过 Electron API 保存
   async function saveSettings() {
@@ -86,23 +81,54 @@ export const useSettingStore = defineStore("setting", () => {
         themeMode.value = settings.themeMode || "light";
         fontSize.value = settings.fontSize || "medium";
         iconStyle.value = settings.iconStyle || "default";
-        notifications.value = typeof settings.notifications === "boolean" ? settings.notifications : true;
-        notificationSound.value = typeof settings.notificationSound === "boolean" ? settings.notificationSound : false;
-        soundEffect.value = typeof settings.soundEffect === "boolean" ? settings.soundEffect : false;
-        hour24.value = typeof settings.hour24 === "boolean" ? settings.hour24 : false;
-        showLunar.value = typeof settings.showLunar === "boolean" ? settings.showLunar : false;
+        notifications.value =
+          typeof settings.notifications === "boolean"
+            ? settings.notifications
+            : true;
+        notificationSound.value =
+          typeof settings.notificationSound === "boolean"
+            ? settings.notificationSound
+            : false;
+        soundEffect.value =
+          typeof settings.soundEffect === "boolean"
+            ? settings.soundEffect
+            : false;
+        hour24.value =
+          typeof settings.hour24 === "boolean" ? settings.hour24 : false;
+        showLunar.value =
+          typeof settings.showLunar === "boolean" ? settings.showLunar : false;
         weekStart.value = settings.weekStart || "0";
         language.value = settings.language || "zh-CN";
-        synced.value = typeof settings.synced === "boolean" ? settings.synced : true;
+        synced.value =
+          typeof settings.synced === "boolean" ? settings.synced : true;
       } else {
         // 如果从 main process 返回的是空对象或 undefined，则可能需要应用一套默认值
         // 或者依赖 ref 的初始值。当前行为是依赖 ref 初始值。
-        console.log("No settings loaded from main process or settings were empty, using defaults.");
+        console.log(
+          "No settings loaded from main process or settings were empty, using defaults."
+        );
       }
     } catch (error) {
       console.error("Error loading settings via Electron API:", error);
       // 出错时，保持当前 ref 的默认值
     }
+  }
+
+  // =========================== END 本地存储所需代码 END =============================
+
+  // 同步设置状态
+  async function toggleSync() {
+    synced.value = !synced.value;
+  }
+
+  // 设置主题
+  async function setThemeMode(newTheme: string) {
+    themeMode.value = newTheme;
+  }
+
+  // 设置语言
+  async function setLanguage(newLanguage: string) {
+    language.value = newLanguage;
   }
 
   // 重置设置到默认值
@@ -118,8 +144,6 @@ export const useSettingStore = defineStore("setting", () => {
     weekStart.value = "0";
     language.value = "zh-CN";
     synced.value = true; // 重置时 synced 也应为 true
-
-    await saveSettings(); // 保存重置后的设置
   }
 
   // 初始加载
@@ -144,6 +168,32 @@ export const useSettingStore = defineStore("setting", () => {
     showSettings.value = false;
   }
 
+  // setter
+  async function setFontSize(value: string) {
+    fontSize.value = value;
+  }
+  async function setIconStyle(value: string) {
+    iconStyle.value = value;
+  }
+  async function setNotifications(value: boolean) {
+    notifications.value = value;
+  }
+  async function setNotificationSound(value: boolean) {
+    notificationSound.value = value;
+  }
+  async function setSoundEffect(value: boolean) {
+    soundEffect.value = value;
+  }
+  async function setHour24(value: boolean) {
+    hour24.value = value;
+  }
+  async function setShowLunar(value: boolean) {
+    showLunar.value = value;
+  }
+  async function setWeekStart(value: string) {
+    weekStart.value = value;
+  }
+
   return {
     synced,
     themeMode,
@@ -162,18 +212,17 @@ export const useSettingStore = defineStore("setting", () => {
     setThemeMode,
     setLanguage,
     saveSettings, // 暴露新的 saveSettings
-    loadSettings,   // 暴露新的 loadSettings
+    loadSettings, // 暴露新的 loadSettings
     resetSettings,
     toggleSettings,
     closeSettings,
-    // 以下为新增或修改的 setter，确保它们调用 saveSettings
-    setFontSize: async (value: string) => { fontSize.value = value; await saveSettings(); },
-    setIconStyle: async (value: string) => { iconStyle.value = value; await saveSettings(); },
-    setNotifications: async (value: boolean) => { notifications.value = value; await saveSettings(); },
-    setNotificationSound: async (value: boolean) => { notificationSound.value = value; await saveSettings(); },
-    setSoundEffect: async (value: boolean) => { soundEffect.value = value; await saveSettings(); },
-    setHour24: async (value: boolean) => { hour24.value = value; await saveSettings(); },
-    setShowLunar: async (value: boolean) => { showLunar.value = value; await saveSettings(); },
-    setWeekStart: async (value: string) => { weekStart.value = value; await saveSettings(); },
+    setFontSize,
+    setIconStyle,
+    setNotifications,
+    setNotificationSound,
+    setSoundEffect,
+    setHour24,
+    setShowLunar,
+    setWeekStart,
   };
 });

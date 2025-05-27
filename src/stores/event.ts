@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import { ref, computed, nextTick } from "vue";
+import { ref, computed, nextTick, watch } from "vue";
 import { pinyin } from "pinyin-pro";
 
 // 事件类型枚举
@@ -57,10 +57,101 @@ export const useEventStore = defineStore("event", () => {
     "#495057", // 深灰色
   ];
 
+  // =======================BEGIN 事件管理本地存储相关代码 BEGIN========================
+
   // 修改：categories 初始化为空数组，将通过API加载
   const categories = ref<Category[]>([]);
   // 修改：events 初始化为空数组，将通过API加载
   const events = ref<Event[]>([]);
+
+  // 通用的 watch 函数，监听 events 和 categories 的变化
+  watch(
+    [events, categories], // 监听多个源
+    async () => {
+      await saveAppDataToStore();
+    },
+    { deep: true } // 深度监听，确保嵌套属性的变化也会触发
+  );
+
+  // 保存应用数据到 electron-store
+  async function saveAppDataToStore() {
+    try {
+      // 准备需要保存的数据对象
+      const dataToSave = {
+        // 使用 JSON.parse(JSON.stringify(...)) 对 categories.value 进行深拷贝，
+        // 移除 Vue 的响应式代理，确保保存的是纯净的 JavaScript 对象数组。
+        categories: JSON.parse(JSON.stringify(categories.value)),
+        // 同样对 events.value 进行深拷贝。
+        events: JSON.parse(JSON.stringify(events.value)),
+      };
+      // 调用通过 preload 脚本暴露的 electronAPI 来保存数据。
+      // @ts-ignore 因为 TypeScript 编译器可能不知道 window.electronAPI 的存在，所以使用 ts-ignore。
+      await window.electronAPI.saveAppData(dataToSave);
+    } catch (error) {
+      // 如果保存过程中发生错误，则在控制台打印错误信息。
+      // 修正了 catch 块的语法
+      console.error("通过 Electron API 保存应用数据时出错:", error);
+    }
+  }
+
+  // 从 electron-store 加载应用数据 (通过 main process)
+  async function loadAppDataFromStore() {
+    try {
+      // @ts-ignore
+      const appData = await window.electronAPI.loadAppData();
+      if (appData) {
+        if (Array.isArray(appData.categories)) {
+          categories.value = appData.categories.map((category) => ({
+            id: category.id,
+            name: category.name,
+            color: category.color,
+            active: category.active,
+          }));
+        } else {
+          console.warn(
+            "Invalid or missing categories data. Initializing as empty."
+          );
+          categories.value = [];
+        }
+
+        if (Array.isArray(appData.events)) {
+          events.value = appData.events.map(
+            (eventData) =>
+              new Event(
+                eventData.id,
+                eventData.title,
+                new Date(eventData.start),
+                new Date(eventData.end),
+                eventData.description,
+                eventData.categoryId,
+                eventData.categoryColor,
+                eventData.allDay,
+                eventData.eventType,
+                eventData.completed
+              )
+          );
+        } else {
+          console.warn(
+            "Invalid or missing events data. Initializing as empty."
+          );
+          events.value = [];
+        }
+      } else {
+        console.warn(
+          "No appData returned from loadAppData. Initializing as empty."
+        );
+        categories.value = [];
+        events.value = [];
+      }
+    } catch (error) {
+      console.error("Error loading app data via Electron API:", error);
+      categories.value = [];
+      events.value = [];
+    }
+  }
+
+  // =======================END 事件管理本地存储相关代码 END========================
+
 
   // 其余状态管理保持基本不变
   const showCategoryModal = ref(false);
@@ -94,7 +185,7 @@ export const useEventStore = defineStore("event", () => {
   const isNewTodo = ref(true);
   const activeFilter = ref<FilterType>("all");
 
-  // --- 搜索功能相关状态和逻辑 ---
+  // ======================BEGIN 搜索功能相关状态和逻辑 BEGIN========================
   const searchInputValue = ref(""); // 搜索输入框的实时值
   const searchQuery = ref(""); // 防抖后的实际搜索查询词
   const isSearchFocused = ref(false); // 搜索框是否获得焦点
@@ -328,7 +419,7 @@ export const useEventStore = defineStore("event", () => {
     clearSearchAction();
   }
 
-  // --- 结束搜索功能相关 ---
+  // ======================END 搜索功能相关状态和逻辑 END========================
 
   // 获取指定日期的所有日历事件
   function getEventsForDay(date: Date): Event[] {
@@ -398,7 +489,6 @@ export const useEventStore = defineStore("event", () => {
     );
 
     events.value.push(newEvent);
-    await saveAppDataToStore(); // 修改：保存应用数据
     return newEvent;
   }
 
@@ -427,7 +517,6 @@ export const useEventStore = defineStore("event", () => {
       }
     }
     closeEventModal();
-    await saveAppDataToStore(); // 修改：保存应用数据
   }
 
   async function deleteEvent(id?: number) {
@@ -439,7 +528,6 @@ export const useEventStore = defineStore("event", () => {
     }
 
     closeEventModal();
-    await saveAppDataToStore();
   }
 
   // 切换待办事项完成状态
@@ -451,7 +539,6 @@ export const useEventStore = defineStore("event", () => {
     );
     if (event) {
       event.completed = !event.completed;
-      await saveAppDataToStore(); // 修改：保存应用数据
     }
   }
 
@@ -559,7 +646,6 @@ export const useEventStore = defineStore("event", () => {
     }
 
     closeTodoModal();
-    await saveAppDataToStore(); // 修改：保存应用数据
   };
 
   // 关闭待办事项模态框
@@ -692,7 +778,6 @@ export const useEventStore = defineStore("event", () => {
     const category = categories.value.find((c) => c.id === id);
     if (category) {
       category.active = !category.active;
-      await saveAppDataToStore(); // 修改：保存应用数据
     }
   }
 
@@ -712,16 +797,12 @@ export const useEventStore = defineStore("event", () => {
     categoryId: number,
     newColor: string
   ) {
-    let changed = false;
     events.value.forEach((event) => {
       if (event.categoryId === categoryId && event.categoryColor !== newColor) {
         event.categoryColor = newColor;
-        changed = true;
       }
     });
-    if (changed) {
-      await saveAppDataToStore(); // 修改：保存应用数据
-    }
+
   }
 
   function openNewCategoryModal() {
@@ -771,7 +852,6 @@ export const useEventStore = defineStore("event", () => {
       }
     }
     closeCategoryModal();
-    await saveAppDataToStore(); // 修改：保存应用数据
   }
 
   async function deleteCategory() {
@@ -808,112 +888,15 @@ export const useEventStore = defineStore("event", () => {
         });
 
         categories.value.splice(index, 1);
-        await saveAppDataToStore(); // 修改：保存应用数据
       }
     }
     closeCategoryModal();
   }
 
-  // 修改：从 electron-store 加载应用数据 (通过 main process)
-  async function loadAppDataFromStore() {
-    try {
-      // @ts-ignore
-      const appData = await window.electronAPI.loadAppData();
-      if (appData) {
-        if (appData.categories && Array.isArray(appData.categories)) {
-          categories.value = appData.categories;
-        } else {
-          console.warn(
-            "Loaded categories data is not an array or is missing. Initializing as empty."
-          );
-          categories.value = [];
-        }
-
-        if (appData.events && Array.isArray(appData.events)) {
-          events.value = appData.events.map((eventData: any) => {
-            const start = new Date(eventData.start);
-            const end = new Date(eventData.end);
-
-            let eventType: EventType;
-            switch (eventData.eventType) {
-              case "calendar":
-                eventType = EventType.CALENDAR;
-                break;
-              case "todo":
-                eventType = EventType.TODO;
-                break;
-              case "both":
-                eventType = EventType.BOTH;
-                break;
-              default:
-                console.warn(
-                  `Invalid eventType "${eventData.eventType}" for event ID ${eventData.id}. Defaulting to CALENDAR.`
-                );
-                eventType = EventType.CALENDAR;
-            }
-
-            return new Event(
-              eventData.id,
-              eventData.title,
-              start,
-              end,
-              eventData.description,
-              eventData.categoryId,
-              eventData.categoryColor,
-              eventData.allDay,
-              eventType,
-              eventData.completed
-            );
-          });
-        } else {
-          console.warn(
-            "Loaded events data is not an array or is missing. Initializing as empty."
-          );
-          events.value = [];
-        }
-      } else {
-        console.warn(
-          "No appData returned from loadAppData. Initializing categories and events as empty."
-        );
-        categories.value = [];
-        events.value = [];
-      }
-    } catch (error) {
-      console.error("Error loading app data via Electron API:", error);
-      categories.value = [];
-      events.value = [];
-    }
-  }
-
-  // 修改：保存应用数据到 electron-store (通过 main process)
-  /**
-   * @description 将当前的分类和事件数据保存到 electron-store。
-   * 此函数通过主进程的 `window.electronAPI.saveAppData` 方法实现持久化存储。
-   * 为了确保数据的纯净和可序列化，分类和事件数据在保存前会进行深拷贝。
-   * @async
-   */
-  async function saveAppDataToStore() {
-    try {
-      // 准备需要保存的数据对象
-      const dataToSave = {
-        // 使用 JSON.parse(JSON.stringify(...)) 对 categories.value 进行深拷贝，
-        // 移除 Vue 的响应式代理，确保保存的是纯净的 JavaScript 对象数组。
-        categories: JSON.parse(JSON.stringify(categories.value)),
-        // 同样对 events.value 进行深拷贝。
-        events: JSON.parse(JSON.stringify(events.value)),
-      };
-      // 调用通过 preload 脚本暴露的 electronAPI 来保存数据。
-      // @ts-ignore 因为 TypeScript 编译器可能不知道 window.electronAPI 的存在，所以使用 ts-ignore。
-      await window.electronAPI.saveAppData(dataToSave);
-    } catch (error) {
-      // 如果保存过程中发生错误，则在控制台打印错误信息。
-      // 修正了 catch 块的语法
-      console.error("通过 Electron API 保存应用数据时出错:", error);
-    }
-  }
-
   // 初始化时加载应用数据
   loadAppDataFromStore();
+
+  // 添加一个通用的 watch 函数来监听 events 和 categories 的变化
 
   return {
     // 导出枚举类型供组件使用
