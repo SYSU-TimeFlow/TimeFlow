@@ -2,6 +2,19 @@ import { defineStore } from "pinia";
 import { ref, computed, nextTick, watch } from "vue";
 import { pinyin } from "pinyin-pro";
 
+declare global {
+  interface Window {
+    electronAPI?: {
+      saveSettings: (settings: any) => Promise<void>;
+      loadSettings: () => Promise<any>;
+      notify: (title: string, body: string) => void;
+      minimize?: () => void;
+      maximize?: () => void;
+      close?: () => void;
+    };
+  }
+}
+
 // 事件类型枚举
 export enum EventType {
   CALENDAR = "calendar",
