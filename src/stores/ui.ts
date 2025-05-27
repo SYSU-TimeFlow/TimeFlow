@@ -123,6 +123,23 @@ export const useUiStore = defineStore("ui", () => {
       });
       currentDay.setDate(currentDay.getDate() + 1);
     }
+
+    // 确保总格子数是7的倍数
+    const remainingDays = 7 - (days.length % 7);
+    if (remainingDays < 7) {
+      for (let i = 0; i < remainingDays; i++) {
+        const nextDay = new Date(currentDay);
+        days.push({
+          date: nextDay,
+          dayNumber: nextDay.getDate(),
+          isCurrentMonth: false,
+          isToday: false,
+          isWeekend: nextDay.getDay() === 0 || nextDay.getDay() === 6,
+        });
+        currentDay.setDate(currentDay.getDate() + 1);
+      }
+    }
+
     return days;
   });
 
@@ -178,6 +195,14 @@ export const useUiStore = defineStore("ui", () => {
     const weekStart = parseInt(settingStore.weekStart);
     const currentDay = result.getDay();
     const diff = (7 - ((currentDay - weekStart + 7) % 7)) % 7;
+
+    // 如果加上diff后超过月底，就返回月底
+    const nextDate = new Date(result);
+    nextDate.setDate(result.getDate() + diff);
+    if (nextDate.getMonth() !== result.getMonth()) {
+      return result;
+    }
+
     result.setDate(result.getDate() + diff);
     result.setHours(23, 59, 59, 999);
     return result;

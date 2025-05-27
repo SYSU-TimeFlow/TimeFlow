@@ -50,7 +50,7 @@
     <!-- 仅在待办视图显示 Add Todo 按钮-->
     <button
       v-if="uiStore.currentView === 'todo-list'"
-      @click="todoStore.openNewTodoModal()"
+      @click="eventStore.openNewTodoModal()"
       class="add-event-btn mx-4 my-3 py-2 px-4 bg-blue-600 text-white rounded-lg flex items-center justify-center hover:bg-blue-700 transition cursor-pointer !rounded-button whitespace-nowrap"
     >
       <i
@@ -94,7 +94,6 @@
 import ViewSelector from "./ViewSelector.vue";
 import Categories from "./Categories.vue";
 import { useEventStore } from "../stores/event";
-import { useTodoStore } from "../stores/todoStore";
 import { useUiStore } from "../stores/ui";
 import { useSettingStore } from "../stores/setting";
 
@@ -102,7 +101,6 @@ import { useSettingStore } from "../stores/setting";
 const eventStore = useEventStore();
 const uiStore = useUiStore();
 const settingStore = useSettingStore();
-const todoStore = useTodoStore();
 </script>
 
 <style scoped>

@@ -128,9 +128,14 @@ export const useSettingStore = defineStore("setting", () => {
           weekStart.value = settings.weekStart;
         if (typeof settings.synced === "boolean")
           synced.value = settings.synced;
+      } else {
+        // 如果没有保存的设置，使用默认值并保存
+        resetSettings();
       }
     } catch (error) {
       console.error("Error loading settings from localStorage:", error);
+      // 发生错误时也使用默认值
+      resetSettings();
     }
   }
 
