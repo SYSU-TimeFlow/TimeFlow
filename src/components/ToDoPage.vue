@@ -151,10 +151,11 @@ watch(
 // 监听截止时间设置变化
 watch(hasDeadline, (newValue) => {
   if (!newValue) {
-    // 如果取消设置截止时间，清空end字段
-    eventStore.currentEvent.end = "";
-  } else if (!eventStore.currentEvent.end) {
-    // 如果设置了截止时间但end为空，设置默认值为今天结束
+    // 如果取消设置截止时间，使用1970年作为占位符
+    const placeholderDate = new Date(0); // 1970-01-01
+    eventStore.currentEvent.end = eventStore.formatDateTimeForInput(placeholderDate);
+  } else if (!eventStore.currentEvent.end || new Date(eventStore.currentEvent.end).getFullYear() <= 1970) {
+    // 如果设置了截止时间但end为空或是占位符，设置默认值为今天结束
     const today = new Date();
     today.setHours(23, 59, 59, 0);
     eventStore.currentEvent.end = eventStore.formatDateTimeForInput(today);
