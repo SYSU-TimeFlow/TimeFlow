@@ -804,6 +804,7 @@ button:has(.fa-times):hover {
   font-size: 16px;
 }
 
+<<<<<<< HEAD
 /* 暗黑模式下的搜索框优化 */
 .dark-mode .search-box input {
   background-color: var(--bg-tertiary);
@@ -892,6 +893,8 @@ button:has(.fa-times):hover {
   color: var(--text-tertiary);
 }
 
+=======
+>>>>>>> 2c7ab1dc43e2520a890b2b433981d3b486c9bdea
 /* 铃铛按钮震动动画 */
 .bell-shake {
   animation: bell-shake 0.6s cubic-bezier(.36,.07,.19,.97) both;
