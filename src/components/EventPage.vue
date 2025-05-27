@@ -3,7 +3,7 @@
  @description
   事件创建与编辑模态框。
   此组件提供一个界面，用于创建新事件或修改现有事件的各项详情，
-  例如：事件标题、起止时间、全天设置、分类、描述内容以及是否与系统日历同步。
+  例如：事件标题、起止时间、全天设置、分类、描述内容。
 -->
 <template>
   <!-- 模态框容器，仅当 showEventModal 为 true 时显示 -->
@@ -121,22 +121,7 @@
             v-model="eventStore.currentEvent.description"
             class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent h-24"
             placeholder="Event description"
-          ></textarea>
-        </div>
-        <!-- 同步到 Todo List -->
-        <div class="form-group mb-4">
-          <div class="flex items-center mb-2">
-            <input
-              v-model="eventStore.currentEvent.addToTodo"
-              type="checkbox"
-              id="addToTodo"
-              class="mr-2"
-            />
-            <label for="addToTodo" class="text-sm text-gray-700">
-              添加到 Todo List
-            </label>
-          </div>
-        </div>
+          ></textarea>      </div>
       </div>
       <!-- 模态框底部，包含操作按钮 -->
       <div
