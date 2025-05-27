@@ -240,20 +240,16 @@ const searchInputRef = ref<HTMLInputElement | null>(null);
 const isNotificationEnabled = ref(true); // 通知开关
 const isBellShaking = ref(false); // 控制震动动画
 
-// 已通知事件ID集合，防止重复通知
-const notifiedEventIds = ref<Set<number>>(new Set());
+// 已通知事件唯一标识集合，防止重复通知（考虑时间变化）
+const notifiedEventKeys = ref<Set<string>>(new Set());
 
-// 切换通知状态并触发动画
-const toggleNotification = () => {
-  isNotificationEnabled.value = !isNotificationEnabled.value;
-  isBellShaking.value = true;
-  setTimeout(() => {
-    isBellShaking.value = false;
-  }, 600);
-  if (!isNotificationEnabled.value) {
-    notifiedEventIds.value.clear(); // 关闭通知时清空已通知事件
-  }
-};
+// 生成唯一key
+function getEventNotifyKey(event: any) {
+  // 只要时间有变化，key就会变化
+  const start = event.start ? new Date(event.start).getTime() : 0;
+  const end = event.end ? new Date(event.end).getTime() : 0;
+  return `${event.id}|${start}|${end}`;
+}
 
 // 检查日程并发送通知
 const checkAndNotifyEvents = () => {
@@ -271,7 +267,8 @@ const checkAndNotifyEvents = () => {
   const uniqueEvents = Array.from(uniqueEventsMap.values());
 
   uniqueEvents.forEach((event) => {
-    if (!event.id || notifiedEventIds.value.has(event.id)) return;
+    const notifyKey = getEventNotifyKey(event);
+    if (!event.id || notifiedEventKeys.value.has(notifyKey)) return;
 
     // 解析开始和结束时间
     const start = event.start instanceof Date ? event.start : new Date(event.start);
@@ -285,7 +282,7 @@ const checkAndNotifyEvents = () => {
       const diff = (start.getTime() - now.getTime()) / 60000;
       if (diff > 0 && diff <= 15) {
         sendEventNotification(event, "即将开始");
-        notifiedEventIds.value.add(event.id);
+        notifiedEventKeys.value.add(notifyKey);
       }
     }
     // 2. 只有截止时间，且距离截止<=30分钟
@@ -293,7 +290,7 @@ const checkAndNotifyEvents = () => {
       const diff = (end.getTime() - now.getTime()) / 60000;
       if (diff > 0 && diff <= 30) {
         sendEventNotification(event, "即将结束");
-        notifiedEventIds.value.add(event.id);
+        notifiedEventKeys.value.add(notifyKey);
       }
     }
   });
@@ -529,6 +526,19 @@ const activateSearch = () => {
   nextTick(() => {
     searchInputRef.value?.focus();
   });
+};
+
+// 通知开关切换
+const toggleNotification = () => {
+  isNotificationEnabled.value = !isNotificationEnabled.value;
+  isBellShaking.value = true;
+  setTimeout(() => {
+    isBellShaking.value = false;
+  }, 600);
+  // 关闭通知时清空，开启时不清空
+  if (!isNotificationEnabled.value) {
+    notifiedEventKeys.value.clear();
+  }
 };
 
 declare global {
