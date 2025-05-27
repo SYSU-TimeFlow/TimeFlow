@@ -83,10 +83,29 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, watch } from "vue";
+import { ref, watch, onMounted, onUnmounted } from "vue";
 import { useEventStore, EventType } from "../stores/event";
 
 const eventStore = useEventStore();
+
+/**
+ * 处理ESC键关闭设置模态框
+ */
+function handleKeyDown(event) {
+  if (event.key === "Escape" && eventStore.showTodoModal) {
+    eventStore.closeTodoModal();
+  }
+}
+
+// 组件挂载时添加键盘事件监听
+onMounted(() => {
+  document.addEventListener("keydown", handleKeyDown);
+});
+
+// 组件卸载时移除键盘事件监听
+onUnmounted(() => {
+  document.removeEventListener("keydown", handleKeyDown);
+});
 
 // 使用本地变量跟踪是否将待办事项同步到日历
 const syncToCalendar = ref(false);
