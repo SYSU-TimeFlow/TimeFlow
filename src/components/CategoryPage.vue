@@ -173,4 +173,29 @@ onUnmounted(() => {
   gap: 12px;
   justify-items: center;
 }
+
+/* 添加字体大小变量 */
+.text-lg {
+  font-size: var(--font-size-lg);
+}
+
+.text-sm {
+  font-size: var(--font-size-sm);
+}
+
+input {
+  font-size: var(--font-size-base);
+}
+
+button {
+  font-size: var(--font-size-base);
+}
+
+.modal-header h3 {
+  font-size: var(--font-size-lg);
+}
+
+.modal-footer button {
+  font-size: var(--font-size-base);
+}
 </style>

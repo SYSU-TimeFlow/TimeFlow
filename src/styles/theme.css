@@ -22,49 +22,66 @@
 
 /* 暗黑模式变量 */
 .dark-mode {
-  --bg-primary: #121212;
-  --bg-secondary: #1e1e1e;
-  --bg-tertiary: #2a2a2a;
-  --bg-sidebar: #1a1a1a;
-  /* 修改白色为更柔和的颜色 */
-  --text-primary: #e2e4e8; 
-  --text-secondary: #b8bcc4;
-  --text-tertiary: #8c919c;
-  --border-color: #374151;
-  /* 修改悬停和活动状态的背景色，让它不那么刺眼 */
-  --hover-bg: #222222; /* 更接近黑色的悬停颜色 */
-  --active-bg: #272727; /* 更接近黑色的活动背景 */
-  --card-bg: #1e1e1e;
-  --modal-bg: #1e1e1e;
-  --header-bg: #111827;
-  --selected-bg: #1e3a8a;
+  /* 基础背景色 - 参考 GitHub 深色模式 */
+  --bg-primary: #0d1117;
+  --bg-secondary: #161b22;
+  --bg-tertiary: #21262d;
+  --bg-sidebar: #161b22;
+
+  /* 文本颜色 - 更柔和的灰度 */
+  --text-primary: #c9d1d9;
+  --text-secondary: #8b949e;
+  --text-tertiary: #6e7681;
+
+  /* 边框和分割线 */
+  --border-color: #30363d;
+
+  /* 交互状态 */
+  --hover-bg: #1c2128;
+  --active-bg: #21262d;
+
+  /* 卡片和模态框 */
+  --card-bg: #161b22;
+  --modal-bg: #161b22;
+  --header-bg: #0d1117;
+
+  /* 选中状态 - 蓝色主题 */
+  --selected-bg: #1f6feb;
+
+  /* 阴影效果 */
   --event-hover-shadow: rgba(0, 0, 0, 0.5);
   --shadow-color: rgba(0, 0, 0, 0.5);
-  --tooltip-bg: #e5e7eb;
-  --tooltip-text: #111827;
-  /* 新增/修改变量 */
-  --date-number-color: #b8bcc4; 
-  --heading-color: #4a88e5; /* 改为深蓝色 */
-  --calendar-day-bg: #1a1a1a;
-  --calendar-today-bg: #2c3650;
-  --calendar-weekend-bg: #1c1c1c;
-  --calendar-day-hover-bg: #282828; /* 日历格子悬停背景色 */
-  --calendar-hour-hover-bg: #282828; /* 小时格子悬停背景色 - 确保与day相同 */
-  --search-bg: #252525; /* 新增：搜索框背景色 */
-  --search-border: #3a3a3a; /* 新增：搜索框边框色 */
-  /* 新增按钮相关变量 */
-  --button-primary: #3a5277; /* 更柔和的蓝色按钮 */
-  --button-primary-hover: #445c85; /* 悬停时的颜色 */
-  --button-secondary: #2a3241; /* 次要按钮颜色 */
-  --active-item-bg: #1e293b; /* 更柔和的蓝灰色 */
-  --active-item-border: #3b5998; /* 更柔和的蓝色边框 */
-  
-  /* 新增事件文本相关颜色 */
-  --event-title-color: #c2c7d0; /* 事件标题柔和的淡灰色 */
-  --event-description-color: #a9aeb8; /* 事件描述更淡一些的灰色 */
-  --event-time-color: #b8bcc4; /* 事件时间颜色 */
-  --sidebar-title-color: #c2c7d0; /* 侧边栏标题更亮的灰色 */
-  --hour-cell-hover: #1c1c1c; /* 周/日视图小时格子悬停颜色 */
+
+  /* 提示框 */
+  --tooltip-bg: #21262d;
+  --tooltip-text: #c9d1d9;
+
+  /* 日历相关 */
+  --date-number-color: #8b949e;
+  --heading-color: #58a6ff; /* GitHub 风格的蓝色 */
+  --calendar-day-bg: #161b22;
+  --calendar-today-bg: #1f6feb33; /* 带透明度的蓝色 */
+  --calendar-weekend-bg: #161b22;
+  --calendar-day-hover-bg: #1c2128;
+  --calendar-hour-hover-bg: #1c2128;
+
+  /* 搜索框 */
+  --search-bg: #0d1117;
+  --search-border: #30363d;
+
+  /* 按钮相关 - 蓝色主题 */
+  --button-primary: #1f6feb; /* GitHub 风格的蓝色 */
+  --button-primary-hover: #388bfd; /* 悬停时更亮的蓝色 */
+  --button-secondary: #21262d;
+  --active-item-bg: #1f6feb33; /* 带透明度的蓝色 */
+  --active-item-border: #58a6ff; /* 更亮的蓝色边框 */
+
+  /* 事件文本 */
+  --event-title-color: #c9d1d9;
+  --event-description-color: #8b949e;
+  --event-time-color: #8b949e;
+  --sidebar-title-color: #c9d1d9;
+  --hour-cell-hover: #1c2128;
 }
 
 /* 暗黑模式下的滚动条样式 */
@@ -74,16 +91,16 @@
 }
 
 .dark-mode ::-webkit-scrollbar-track {
-  background: #2a2a2a;
+  background: #161b22;
 }
 
 .dark-mode ::-webkit-scrollbar-thumb {
-  background: #4b5563;
+  background: #30363d;
   border-radius: 4px;
 }
 
 .dark-mode ::-webkit-scrollbar-thumb:hover {
-  background: #6b7280;
+  background: #3f444c;
 }
 
 /* 覆盖各种组件的默认样式 */
@@ -102,6 +119,8 @@
 }
 
 /* 确保颜色过渡平滑 */
-body, html, * {
+body,
+html,
+* {
   transition: background-color 0.3s, color 0.3s, border-color 0.3s;
 }

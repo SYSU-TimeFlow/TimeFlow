@@ -78,7 +78,6 @@
               ? 'Search events...'
               : 'Enter command...'
           "
-        
           class="pl-8 pr-4 py-1 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent w-64"
           :class="{
             'command-mode-input': uiStore.appMode === 'command',
@@ -93,7 +92,7 @@
 
         <i
           class="fas absolute left-3 top-1/2 transform -translate-y-1/2 text-sm pointer-events-none"
-          :class=" [
+          :class="[
             uiStore.isSearchActive && uiStore.appMode === 'normal'
               ? 'fa-search text-gray-500'
               : '',
@@ -249,8 +248,9 @@ function getEventNotifyKey(event: any) {
   // 判断是否为待办事项（start为1970年）
   const start = event.start ? new Date(event.start).getTime() : 0;
   const end = event.end ? new Date(event.end).getTime() : 0;
-  const isTodo = (!event.start || new Date(event.start).getFullYear() === 1970)
-    && (event.eventType === "todo" || event.eventType === "both");
+  const isTodo =
+    (!event.start || new Date(event.start).getFullYear() === 1970) &&
+    (event.eventType === "todo" || event.eventType === "both");
   // 对于待办事项，只用id和end，日历事件用id+start+end
   return isTodo ? `${event.id}|${end}` : `${event.id}|${start}|${end}`;
 }
@@ -263,7 +263,7 @@ const checkAndNotifyEvents = () => {
   // 合并所有事件，按id去重
   const allEvents = eventStore.events;
   const uniqueEventsMap = new Map<number, any>();
-  allEvents.forEach(event => {
+  allEvents.forEach((event) => {
     if (event.id && !uniqueEventsMap.has(event.id)) {
       uniqueEventsMap.set(event.id, event);
     }
@@ -275,7 +275,8 @@ const checkAndNotifyEvents = () => {
     if (!event.id || notifiedEventKeys.value.has(notifyKey)) return;
 
     // 解析开始和结束时间
-    const start = event.start instanceof Date ? event.start : new Date(event.start);
+    const start =
+      event.start instanceof Date ? event.start : new Date(event.start);
     const end = event.end instanceof Date ? event.end : new Date(event.end);
 
     const isStartValid = start.getFullYear() > 1970 && !isNaN(start.getTime());
@@ -307,7 +308,8 @@ function sendEventNotification(event: any, type: string) {
   let targetTime: Date | null = null;
 
   if (type === "即将开始" && event.start) {
-    targetTime = event.start instanceof Date ? event.start : new Date(event.start);
+    targetTime =
+      event.start instanceof Date ? event.start : new Date(event.start);
   } else if (type === "即将结束" && event.end) {
     targetTime = event.end instanceof Date ? event.end : new Date(event.end);
   }
@@ -361,7 +363,7 @@ onMounted(() => {
   if ("Notification" in window && Notification.permission === "default") {
     Notification.requestPermission();
   }
-  notifyTimer = window.setInterval(checkAndNotifyEvents, 5000);//每隔5秒检查一次
+  notifyTimer = window.setInterval(checkAndNotifyEvents, 5000); //每隔5秒检查一次
 });
 
 // 组件卸载时清除滚动回调
@@ -747,7 +749,7 @@ declare global {
 /* 导航按钮和图标按钮统一样式 */
 .nav-button {
   color: #606060;
-  font-size: 14px;
+  font-size: var(--base-font-size);
   transition: all 0.2s ease;
 }
 
@@ -895,20 +897,42 @@ button:has(.fa-times):hover {
 
 /* 铃铛按钮震动动画 */
 .bell-shake {
-  animation: bell-shake 0.6s cubic-bezier(.36,.07,.19,.97) both;
+  animation: bell-shake 0.6s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
 }
 @keyframes bell-shake {
-  0% { transform: rotate(0);}
-  10% { transform: rotate(-15deg);}
-  20% { transform: rotate(10deg);}
-  30% { transform: rotate(-10deg);}
-  40% { transform: rotate(6deg);}
-  50% { transform: rotate(-4deg);}
-  60% { transform: rotate(2deg);}
-  70% { transform: rotate(-1deg);}
-  80% { transform: rotate(1deg);}
-  90% { transform: rotate(0);}
-  100% { transform: rotate(0);}
+  0% {
+    transform: rotate(0);
+  }
+  10% {
+    transform: rotate(-15deg);
+  }
+  20% {
+    transform: rotate(10deg);
+  }
+  30% {
+    transform: rotate(-10deg);
+  }
+  40% {
+    transform: rotate(6deg);
+  }
+  50% {
+    transform: rotate(-4deg);
+  }
+  60% {
+    transform: rotate(2deg);
+  }
+  70% {
+    transform: rotate(-1deg);
+  }
+  80% {
+    transform: rotate(1deg);
+  }
+  90% {
+    transform: rotate(0);
+  }
+  100% {
+    transform: rotate(0);
+  }
 }
 
 /* 铃铛禁用状态样式 */
@@ -927,5 +951,18 @@ button:has(.fa-times):hover {
   z-index: 2;
   /* 旋转和微调位置，让斜线自然穿过铃铛 */
   transform: rotate(-90deg) translate(-8px, 5px);
+}
+
+/* 修改字号相关的样式 */
+.calendar-title {
+  font-size: var(--heading-font-size);
+}
+
+.nav-button {
+  font-size: var(--base-font-size);
+}
+
+.view-selector {
+  font-size: var(--base-font-size);
 }
 </style>

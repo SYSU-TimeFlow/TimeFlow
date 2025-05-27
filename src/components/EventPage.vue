@@ -121,7 +121,8 @@
             v-model="eventStore.currentEvent.description"
             class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent h-24"
             placeholder="Event description"
-          ></textarea>      </div>
+          ></textarea>
+        </div>
       </div>
       <!-- 模态框底部，包含操作按钮 -->
       <div
@@ -261,5 +262,22 @@ onUnmounted(() => {
 /* 复选框调整 */
 .dark-mode input[type="checkbox"] {
   filter: invert(0.8) hue-rotate(180deg); /* 改变复选框颜色以匹配暗色主题 */
+}
+
+/* 修改字号相关的样式 */
+.event-title {
+  font-size: var(--heading-font-size);
+}
+
+.event-time {
+  font-size: var(--base-font-size);
+}
+
+.event-description {
+  font-size: var(--base-font-size);
+}
+
+.event-details {
+  font-size: var(--small-text-font-size);
 }
 </style>

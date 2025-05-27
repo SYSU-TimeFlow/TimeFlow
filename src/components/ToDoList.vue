@@ -23,7 +23,8 @@
               @click="eventStore.setFilter(filter.value)"
               class="px-4 py-2 rounded-xl transition cursor-pointer"
               :class="{
-                'bg-indigo-600 text-white': eventStore.activeFilter === filter.value,
+                'bg-indigo-600 text-white':
+                  eventStore.activeFilter === filter.value,
                 'bg-gray-100 text-gray-700 hover:bg-gray-200':
                   eventStore.activeFilter !== filter.value,
               }"
@@ -40,7 +41,9 @@
               @click="eventStore.toggleTodo(todo.id)"
               class="flex justify-between items-center p-5 bg-white rounded-2xl shadow-sm hover:shadow-md transition cursor-pointer border-l-4 group todo-item"
               :style="{
-                borderLeftColor: eventStore.categories.find(c => c.id === todo.categoryId)?.color || '#e5e7eb',
+                borderLeftColor:
+                  eventStore.categories.find((c) => c.id === todo.categoryId)
+                    ?.color || '#e5e7eb',
                 opacity: todo.completed ? 0.7 : 1,
                 backgroundColor: todo.completed ? '#f9fafb' : 'white',
               }"
@@ -56,16 +59,20 @@
                 <!-- 备注 -->
                 <div v-if="todo.description" class="text-xs text-gray-400 mt-1">
                   {{ todo.description }}
-                </div>                <!-- 格式化显示的截止日期（精确到分钟） -->
-                <div v-if="todo.end && new Date(todo.end).getFullYear() > 1970" class="text-sm text-gray-500 mt-1">
+                </div>
+                <!-- 格式化显示的截止日期（精确到分钟） -->
+                <div
+                  v-if="todo.end && new Date(todo.end).getFullYear() > 1970"
+                  class="text-sm text-gray-500 mt-1"
+                >
                   截止：{{ eventStore.formatDateForDisplay(todo.end) }}
                 </div>
-                <div v-else class="text-sm text-gray-500 mt-1">
-                  无截止时间
-                </div>
+                <div v-else class="text-sm text-gray-500 mt-1">无截止时间</div>
               </div>
 
-              <div class="flex gap-2 opacity-0 group-hover:opacity-100 transition todo-actions">
+              <div
+                class="flex gap-2 opacity-0 group-hover:opacity-100 transition todo-actions"
+              >
                 <!-- 编辑按钮 -->
                 <button
                   @click.stop="eventStore.openEditTodoModal(todo)"
@@ -133,6 +140,19 @@ function getFilterCount(filterType: FilterType) {
 </script>
 
 <style scoped>
+/* 修改字号相关的样式 */
+.todo-title {
+  font-size: var(--heading-font-size);
+}
+
+.todo-item {
+  font-size: var(--base-font-size);
+}
+
+.todo-description {
+  font-size: var(--small-text-font-size);
+}
+
 /* 原有样式保持不变 */
 
 /* Todo视图分类选项颜色调整 */
@@ -144,7 +164,7 @@ function getFilterCount(filterType: FilterType) {
 }
 
 .dark-mode button[class*="bg-gray-100"] {
-  background-color: var(--bg-tertiary) !important; 
+  background-color: var(--bg-tertiary) !important;
   color: var(--text-secondary) !important;
 }
 

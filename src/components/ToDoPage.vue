@@ -20,16 +20,21 @@
       <div class="space-y-4">
         <!-- 标题 -->
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">任务标题</label>
+          <label class="block text-sm font-medium text-gray-700 mb-1"
+            >任务标题</label
+          >
           <input
             v-model="eventStore.currentEvent.title"
             class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
             placeholder="请输入任务标题"
           />
-        </div>        <!-- 截止日期（精确到分钟） -->
+        </div>
+        <!-- 截止日期（精确到分钟） -->
         <div>
           <div class="flex justify-between items-center mb-1">
-            <label class="block text-sm font-medium text-gray-700">截止时间</label>
+            <label class="block text-sm font-medium text-gray-700"
+              >截止时间</label
+            >
             <label class="inline-flex items-center">
               <input
                 type="checkbox"
@@ -49,24 +54,33 @@
         </div>
         <!-- 分类选择 -->
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">分类</label>
+          <label class="block text-sm font-medium text-gray-700 mb-1"
+            >分类</label
+          >
           <div class="flex gap-2 flex-wrap">
             <button
               v-for="category in eventStore.categories"
               :key="category.id"
               :class="[
                 'w-7 h-7 rounded-full border-2',
-                eventStore.currentEvent.categoryId === category.id ? 'border-gray-800' : 'border-transparent',
+                eventStore.currentEvent.categoryId === category.id
+                  ? 'border-gray-800'
+                  : 'border-transparent',
               ]"
               :style="{ backgroundColor: category.color }"
-              @click="eventStore.currentEvent.categoryId = category.id; eventStore.currentEvent.categoryColor = category.color;"
+              @click="
+                eventStore.currentEvent.categoryId = category.id;
+                eventStore.currentEvent.categoryColor = category.color;
+              "
               type="button"
             ></button>
           </div>
         </div>
         <!-- 备注 -->
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">备注</label>
+          <label class="block text-sm font-medium text-gray-700 mb-1"
+            >备注</label
+          >
           <textarea
             v-model="eventStore.currentEvent.description"
             class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition h-20"
@@ -80,7 +94,8 @@
             class="px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-xl transition"
           >
             取消
-          </button>          <button
+          </button>
+          <button
             @click="saveTodo"
             class="px-4 py-2 bg-indigo-600 text-white hover:bg-indigo-700 rounded-xl transition"
           >
@@ -123,12 +138,15 @@ const syncToCalendar = ref(false);
 const hasDeadline = ref(true);
 
 // 打开待办事项模态框时的处理
-watch(() => eventStore.showTodoModal, (isOpen) => {
-  if (isOpen) {
-    // 检查是否有截止时间
-    hasDeadline.value = !!eventStore.currentEvent.end;
+watch(
+  () => eventStore.showTodoModal,
+  (isOpen) => {
+    if (isOpen) {
+      // 检查是否有截止时间
+      hasDeadline.value = !!eventStore.currentEvent.end;
+    }
   }
-});
+);
 
 // 监听截止时间设置变化
 watch(hasDeadline, (newValue) => {
@@ -181,14 +199,14 @@ function saveTodo() {
 }
 
 /* 输入框样式适配暗黑模式 */
-.dark-mode input, 
+.dark-mode input,
 .dark-mode textarea {
   background-color: var(--bg-tertiary);
   color: var(--text-primary);
   border-color: var(--border-color);
 }
 
-.dark-mode input::placeholder, 
+.dark-mode input::placeholder,
 .dark-mode textarea::placeholder {
   color: var(--text-tertiary);
 }
@@ -203,7 +221,7 @@ function saveTodo() {
   color: var(--heading-color) !important;
 }
 
-.dark-mode input, 
+.dark-mode input,
 .dark-mode textarea,
 .dark-mode select {
   background-color: var(--bg-tertiary) !important;
@@ -228,5 +246,23 @@ function saveTodo() {
 .dark-mode .bg-gray-200 {
   background-color: var(--bg-tertiary) !important;
   color: var(--text-secondary) !important;
+}
+
+/* 添加字体大小变量 */
+.text-xl {
+  font-size: var(--font-size-xl);
+}
+
+.text-sm {
+  font-size: var(--font-size-sm);
+}
+
+input,
+textarea {
+  font-size: var(--font-size-base);
+}
+
+button {
+  font-size: var(--font-size-base);
 }
 </style>

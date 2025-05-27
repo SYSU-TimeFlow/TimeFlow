@@ -524,6 +524,23 @@ function applyFontSizeChange() {
 </script>
 
 <style scoped>
+/* 修改字号相关的样式 */
+.settings-title {
+  font-size: var(--heading-font-size);
+}
+
+.settings-section-title {
+  font-size: var(--subheading-font-size);
+}
+
+.settings-label {
+  font-size: var(--base-font-size);
+}
+
+.settings-description {
+  font-size: var(--small-text-font-size);
+}
+
 /* 组件样式，圆角、阴影、滚动条、动画等 */
 .settings-container {
   min-width: 320px;

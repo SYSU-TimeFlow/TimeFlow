@@ -31,12 +31,14 @@
           <i class="fas fa-times"></i>
         </button>
       </div>
-      
+
       <!-- 模态框内容区域 -->
       <div class="modal-body p-6 max-h-[70vh] overflow-y-auto">
         <!-- 导航部分 -->
         <div class="shortcut-section mb-6">
-          <h4 class="text-md font-semibold mb-3 text-gray-700 border-b pb-1">导航</h4>
+          <h4 class="text-md font-semibold mb-3 text-gray-700 border-b pb-1">
+            导航
+          </h4>
           <div class="grid grid-cols-2 gap-4">
             <div class="shortcut-item flex justify-between">
               <span class="key-combo"><kbd>h</kbd> 或 <kbd>←</kbd></span>
@@ -56,10 +58,12 @@
             </div>
           </div>
         </div>
-        
+
         <!-- 视图切换部分 -->
         <div class="shortcut-section mb-6">
-          <h4 class="text-md font-semibold mb-3 text-gray-700 border-b pb-1">视图切换</h4>
+          <h4 class="text-md font-semibold mb-3 text-gray-700 border-b pb-1">
+            视图切换
+          </h4>
           <div class="grid grid-cols-2 gap-4">
             <div class="shortcut-item flex justify-between">
               <span class="key-combo"><kbd>1</kbd></span>
@@ -79,10 +83,12 @@
             </div>
           </div>
         </div>
-        
+
         <!-- 模式切换部分 -->
         <div class="shortcut-section mb-6">
-          <h4 class="text-md font-semibold mb-3 text-gray-700 border-b pb-1">模式与搜索</h4>
+          <h4 class="text-md font-semibold mb-3 text-gray-700 border-b pb-1">
+            模式与搜索
+          </h4>
           <div class="grid grid-cols-2 gap-4">
             <div class="shortcut-item flex justify-between">
               <span class="key-combo"><kbd>/</kbd></span>
@@ -98,10 +104,12 @@
             </div>
           </div>
         </div>
-        
+
         <!-- 事件操作部分 -->
         <div class="shortcut-section mb-6">
-          <h4 class="text-md font-semibold mb-3 text-gray-700 border-b pb-1">事件操作</h4>
+          <h4 class="text-md font-semibold mb-3 text-gray-700 border-b pb-1">
+            事件操作
+          </h4>
           <div class="grid grid-cols-2 gap-4">
             <div class="shortcut-item flex justify-between">
               <span class="key-combo"><kbd>a</kbd></span>
@@ -117,10 +125,12 @@
             </div>
           </div>
         </div>
-        
+
         <!-- 其他快捷键 -->
         <div class="shortcut-section">
-          <h4 class="text-md font-semibold mb-3 text-gray-700 border-b pb-1">其他</h4>
+          <h4 class="text-md font-semibold mb-3 text-gray-700 border-b pb-1">
+            其他
+          </h4>
           <div class="grid grid-cols-2 gap-4">
             <div class="shortcut-item flex justify-between">
               <span class="key-combo"><kbd>?</kbd></span>
@@ -129,7 +139,7 @@
           </div>
         </div>
       </div>
-      
+
       <!-- 模态框底部 -->
       <div class="modal-footer p-4 border-t border-gray-200 flex justify-end">
         <button
@@ -222,5 +232,22 @@ kbd {
 /* 描述文本样式 */
 .description {
   font-size: 0.9rem;
+}
+
+/* 修改字号相关的样式 */
+.help-title {
+  font-size: var(--heading-font-size);
+}
+
+.help-section-title {
+  font-size: var(--subheading-font-size);
+}
+
+.help-content {
+  font-size: var(--base-font-size);
+}
+
+.help-note {
+  font-size: var(--small-text-font-size);
 }
 </style>
