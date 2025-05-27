@@ -63,13 +63,12 @@ export const useSettingStore = defineStore("setting", () => {
   // 保存所有设置 - 修改为通过 Electron API 保存
   async function saveSettings() {
     try {
-      // 先应用设置
-      applyTheme(themeMode.value);
-      applyFontSize(fontSize.value);
-
-      // 然后保存设置
       // @ts-ignore
       await window.electronAPI.saveSettings(allSettings.value);
+      // 应用主题设置
+      applyTheme(themeMode.value);
+      // 应用字号设置
+      applyFontSize(fontSize.value);
     } catch (error) {
       console.error("Error saving settings via Electron API:", error);
     }
@@ -107,24 +106,21 @@ export const useSettingStore = defineStore("setting", () => {
         synced.value =
           typeof settings.synced === "boolean" ? settings.synced : true;
 
-        // 加载完设置后应用主题和字号
+        // 加载完设置后应用主题
         applyTheme(themeMode.value);
-        applyFontSize(fontSize.value);
       } else {
         // 如果从 main process 返回的是空对象或 undefined，则可能需要应用一套默认值
         // 或者依赖 ref 的初始值。当前行为是依赖 ref 初始值。
         console.log(
           "No settings loaded from main process or settings were empty, using defaults."
         );
-        // 应用默认主题和字号
+        // 应用默认主题
         applyTheme("light");
-        applyFontSize("medium");
       }
     } catch (error) {
       console.error("Error loading settings via Electron API:", error);
       // 出错时，保持当前 ref 的默认值
       applyTheme("light");
-      applyFontSize("medium");
     }
   }
 
@@ -159,25 +155,6 @@ export const useSettingStore = defineStore("setting", () => {
       // @ts-ignore
       electronAPI.setNativeTheme(theme);
     }
-  }
-
-  /**
-   * 应用字号到DOM
-   * @param size 字号大小 ('small'|'medium'|'large')
-   */
-  function applyFontSize(size: string) {
-    const html = document.documentElement;
-
-    // 移除所有字号相关的类
-    html.classList.remove("font-size-small", "font-size-large");
-
-    // 根据字号大小添加对应的类
-    if (size === "small") {
-      html.classList.add("font-size-small");
-    } else if (size === "large") {
-      html.classList.add("font-size-large");
-    }
-    // medium 是默认值，不需要添加额外的类
   }
 
   // =========================== END 主题管理代码 END ==============================
@@ -239,32 +216,65 @@ export const useSettingStore = defineStore("setting", () => {
     showSettings.value = false;
   }
 
-  // setter
-  async function setFontSize(value: string) {
-    fontSize.value = value;
+  // 设置字号
+  async function setFontSize(newFontSize: string) {
+    fontSize.value = newFontSize;
     // 立即应用字号变更
-    applyFontSize(value);
+    applyFontSize(newFontSize);
   }
+
+  // 设置图标样式
   async function setIconStyle(value: string) {
     iconStyle.value = value;
   }
+
+  // 设置通知
   async function setNotifications(value: boolean) {
     notifications.value = value;
   }
+
+  // 设置通知声音
   async function setNotificationSound(value: boolean) {
     notificationSound.value = value;
   }
+
+  // 设置音效
   async function setSoundEffect(value: boolean) {
     soundEffect.value = value;
   }
+
+  // 设置24小时制
   async function setHour24(value: boolean) {
     hour24.value = value;
   }
+
+  // 设置显示农历
   async function setShowLunar(value: boolean) {
     showLunar.value = value;
   }
+
+  // 设置周起始日
   async function setWeekStart(value: string) {
     weekStart.value = value;
+  }
+
+  /**
+   * 应用字号到DOM
+   * @param fontSize 字号大小 ('small'|'medium'|'large')
+   */
+  function applyFontSize(fontSize: string) {
+    const html = document.documentElement;
+
+    // 移除所有字号相关的类
+    html.classList.remove("font-size-small", "font-size-large");
+
+    // 根据设置添加对应的类
+    if (fontSize === "small") {
+      html.classList.add("font-size-small");
+    } else if (fontSize === "large") {
+      html.classList.add("font-size-large");
+    }
+    // medium 是默认值，不需要添加类
   }
 
   return {
@@ -298,6 +308,6 @@ export const useSettingStore = defineStore("setting", () => {
     setShowLunar,
     setWeekStart,
     applyTheme,
-    applyFontSize, // 导出字号应用方法
+    applyFontSize,
   };
 });

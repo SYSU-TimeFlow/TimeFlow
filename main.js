@@ -33,7 +33,6 @@ const createWindow = () => {
       contextIsolation: true, // 启用上下文隔离
       nodeIntegration: false, // 禁用 Node 集成以提高安全性
     },
-
   });
 
   // 监听窗口状态变化
@@ -56,7 +55,13 @@ const appDataStore = new Store({ name: "events_data" });
 const settingsConfigStore = new Store({ name: "settings_data" });
 
 // 新增：初始化 IPC 数据处理器
-initializeIpcHandlers(ipcMain, appDataStore, settingsConfigStore, __dirname, BrowserWindow);
+initializeIpcHandlers(
+  ipcMain,
+  appDataStore,
+  settingsConfigStore,
+  __dirname,
+  BrowserWindow
+);
 
 // 当 Electron 完成初始化时创建窗口（防止白屏等待加载初始化）
 app.whenReady().then(() => {

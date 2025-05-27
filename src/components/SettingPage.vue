@@ -67,19 +67,30 @@
       <!-- 字号选择 -->
       <div class="mb-4 flex items-center justify-between">
         <span class="flex items-center text-gray-700">
-          <!-- 字体大小图标 -->
+          <!-- 小A大A图标 -->
           <svg
             class="w-5 h-5 mr-2 text-green-500"
             fill="none"
-            stroke="currentColor"
-            stroke-width="2"
             viewBox="0 0 24 24"
           >
-            <path
-              d="M4 6h16M4 12h16M4 18h7"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            />
+            <text
+              x="2"
+              y="19"
+              font-size="10"
+              fill="currentColor"
+              font-family="Arial"
+            >
+              A
+            </text>
+            <text
+              x="12"
+              y="19"
+              font-size="16"
+              fill="currentColor"
+              font-family="Arial"
+            >
+              A
+            </text>
           </svg>
           字号
         </span>
@@ -454,20 +465,30 @@ onUnmounted(() => {
  * 保存设置并关闭窗口
  * 显示一个提示，然后在短暂延迟后关闭设置界面
  */
-function saveAndClose() {
-  // 使用store的方法保存设置
-  settingStore.saveSettings();
+async function saveAndClose() {
+  try {
+    // 使用store的方法保存设置
+    await settingStore.saveSettings();
 
-  // 显示提示并延迟关闭
-  toastMessage.value = "设置已保存！";
-  toastType.value = "success";
-  showToast.value = true;
-  setTimeout(() => {
-    settingStore.closeSettings();
+    // 显示提示并延迟关闭
+    toastMessage.value = "设置已保存！";
+    toastType.value = "success";
+    showToast.value = true;
+    setTimeout(() => {
+      settingStore.closeSettings();
+      setTimeout(() => {
+        showToast.value = false;
+      }, 2500);
+    }, 1000);
+  } catch (error) {
+    console.error("保存设置失败:", error);
+    toastMessage.value = "保存设置失败，请重试";
+    toastType.value = "error";
+    showToast.value = true;
     setTimeout(() => {
       showToast.value = false;
     }, 2500);
-  }, 1000);
+  }
 }
 
 /**
@@ -542,17 +563,5 @@ function applyFontSizeChange() {
   backdrop-filter: blur(4px); /* 轻微高斯模糊，数值可调整 */
   -webkit-backdrop-filter: blur(4px); /* 兼容 Safari */
   background: rgba(0, 0, 0, 0.1); /* 轻微透明黑色，增强模糊可见性 */
-}
-
-/* 暗黑模式下的选择框样式 */
-.dark-mode select {
-  background-color: var(--bg-tertiary);
-  color: var(--text-primary);
-  border-color: var(--border-color);
-}
-
-.dark-mode select:focus {
-  border-color: var(--heading-color);
-  box-shadow: 0 0 0 2px rgba(74, 136, 229, 0.3);
 }
 </style>

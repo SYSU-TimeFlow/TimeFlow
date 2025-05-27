@@ -6,35 +6,47 @@
   --font-size-xlarge: 1.25rem; /* 20px */
   --font-size-xxlarge: 1.5rem; /* 24px */
 
-  /* 基础字号大小 */
+  /* 应用默认字号 */
   --base-font-size: var(--font-size-medium);
-
-  /* 标题字号大小 */
-  --heading-1-size: var(--font-size-xxlarge);
-  --heading-2-size: var(--font-size-xlarge);
-  --heading-3-size: var(--font-size-large);
-
-  /* 文本字号大小 */
-  --text-size: var(--base-font-size);
-  --text-small-size: var(--font-size-small);
+  --heading-font-size: var(--font-size-xlarge);
+  --subheading-font-size: var(--font-size-large);
+  --small-text-font-size: var(--font-size-small);
 }
 
 /* 小字号模式 */
 .font-size-small {
   --base-font-size: var(--font-size-small);
-  --heading-1-size: var(--font-size-xlarge);
-  --heading-2-size: var(--font-size-large);
-  --heading-3-size: var(--font-size-medium);
-  --text-size: var(--font-size-small);
-  --text-small-size: 0.75rem;
+  --heading-font-size: var(--font-size-large);
+  --subheading-font-size: var(--font-size-medium);
+  --small-text-font-size: 0.75rem;
 }
 
 /* 大字号模式 */
 .font-size-large {
   --base-font-size: var(--font-size-large);
-  --heading-1-size: 1.75rem;
-  --heading-2-size: 1.5rem;
-  --heading-3-size: var(--font-size-xlarge);
-  --text-size: var(--font-size-large);
-  --text-small-size: var(--font-size-medium);
+  --heading-font-size: var(--font-size-xxlarge);
+  --subheading-font-size: var(--font-size-xlarge);
+  --small-text-font-size: var(--font-size-medium);
+}
+
+/* 应用字号到全局元素 */
+body {
+  font-size: var(--base-font-size);
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-size: var(--heading-font-size);
+}
+
+.subheading {
+  font-size: var(--subheading-font-size);
+}
+
+.small-text {
+  font-size: var(--small-text-font-size);
 }
