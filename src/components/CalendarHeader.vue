@@ -2,6 +2,7 @@
   @component: CalendarHeader
   @description: 应用程序头部组件，包含标题、导航按钮、搜索框和窗口控制按钮
   @author: huzch
+  @modified: lijzh89
   @date: 2025-05-25
 -->
 

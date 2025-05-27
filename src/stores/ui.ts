@@ -254,7 +254,10 @@ export const useUiStore = defineStore("ui", () => {
   }
   function calculateEventTop(event: any): number {
     // 对于both类型事件（即待办事项），使用截止时间减去1小时作为展示位置
-    if (event.eventType === 'both' && new Date(event.start).getFullYear() <= 1970) {
+    if (
+      event.eventType === "both" &&
+      new Date(event.start).getFullYear() <= 1970
+    ) {
       const end = new Date(event.end);
       // 确保待办事项至少显示在截止时间前1小时的位置
       const endHour = end.getHours();
@@ -263,7 +266,7 @@ export const useUiStore = defineStore("ui", () => {
       const displayHour = endHour > 0 ? endHour - 1 : 0;
       return ((displayHour * 60 + endMinute) / 60) * 64;
     }
-    
+
     // 对于普通事件，使用原来的计算方式
     const start = new Date(event.start);
     return ((start.getHours() * 60 + start.getMinutes()) / 60) * 64;
@@ -271,10 +274,13 @@ export const useUiStore = defineStore("ui", () => {
 
   function calculateEventHeight(event: any): number {
     // 对于both类型事件（即待办事项），固定高度为1小时
-    if (event.eventType === 'both' && new Date(event.start).getFullYear() <= 1970) {
+    if (
+      event.eventType === "both" &&
+      new Date(event.start).getFullYear() <= 1970
+    ) {
       return 64; // 1小时的高度
     }
-    
+
     // 对于普通事件，使用原来的计算方式
     const start = new Date(event.start);
     const end = new Date(event.end);
@@ -368,17 +374,20 @@ export const useUiStore = defineStore("ui", () => {
       const eventIndex = eventStore.events.findIndex((e) => e.id === eventId);
       if (eventIndex !== -1) {
         const originalEvent = eventStore.events[eventIndex];
-        
+
         // 检查是否为待办类型事件（both类型且无实际开始时间）
-        if (originalEvent.eventType === 'both' && new Date(originalEvent.start).getFullYear() <= 1970) {
+        if (
+          originalEvent.eventType === "both" &&
+          new Date(originalEvent.start).getFullYear() <= 1970
+        ) {
           // 对于待办类型，只修改截止日期(end)，保持相同的时间点
           const originalEnd = new Date(originalEvent.end);
           const newEnd = new Date(day.date);
           newEnd.setHours(originalEnd.getHours(), originalEnd.getMinutes());
-          
+
           eventStore.events[eventIndex] = {
             ...originalEvent,
-            end: newEnd
+            end: newEnd,
           };
         } else {
           // 普通事件的原有处理逻辑
@@ -387,7 +396,10 @@ export const useUiStore = defineStore("ui", () => {
           const duration = originalEnd.getTime() - originalStart.getTime();
 
           const newStart = new Date(day.date);
-          newStart.setHours(originalStart.getHours(), originalStart.getMinutes());
+          newStart.setHours(
+            originalStart.getHours(),
+            originalStart.getMinutes()
+          );
           const newEnd = new Date(newStart.getTime() + duration);
 
           eventStore.events[eventIndex] = {

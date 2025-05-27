@@ -1,6 +1,18 @@
 import { defineStore } from "pinia";
 import { ref, computed, watch } from "vue";
 
+// 添加 electronAPI 的类型定义
+declare global {
+  interface Window {
+    electronAPI?: {
+      saveSettings: (settings: any) => Promise<void>;
+      loadSettings: () => Promise<any>;
+      setNativeTheme: (theme: string) => void;
+      setWeekStart: (startDay: string) => void;
+    };
+  }
+}
+
 // 添加接口定义
 interface Settings {
   themeMode: string;
@@ -13,7 +25,23 @@ interface Settings {
   showLunar: boolean;
   weekStart: string;
   language: string;
-  synced: boolean; // 新增 synced 属性
+  synced: boolean;
+}
+
+// 添加日期相关的接口定义
+interface CalendarDay {
+  date: string;
+  dayNumber: number;
+  isCurrentMonth: boolean;
+  isToday: boolean;
+  isWeekend: boolean;
+}
+
+interface WeekDay {
+  date: string;
+  dayNumber: number;
+  dayName: string;
+  isToday: boolean;
 }
 
 export const useSettingStore = defineStore("setting", () => {
@@ -256,6 +284,30 @@ export const useSettingStore = defineStore("setting", () => {
   // 设置周起始日
   async function setWeekStart(value: string) {
     weekStart.value = value;
+    // 立即应用周起始日变更
+    applyWeekStart(value);
+  }
+
+  /**
+   * 应用周起始日设置
+   * @param startDay 周起始日 ('0' 为周日, '1' 为周一)
+   */
+  function applyWeekStart(startDay: string) {
+    // 更新 UI 相关的周起始日设置
+    if (window.electronAPI) {
+      window.electronAPI.setWeekStart(startDay);
+    }
+  }
+
+  // 获取周起始日
+  function getWeekStart(): string {
+    return weekStart.value;
+  }
+
+  // 切换周起始日
+  async function toggleWeekStart() {
+    const newValue = weekStart.value === "0" ? "1" : "0";
+    await setWeekStart(newValue);
   }
 
   /**
@@ -340,7 +392,7 @@ export const useSettingStore = defineStore("setting", () => {
         isLeap = true;
         monthDays = getLeapMonthDays(lunarYear);
       } else {
-        monthDays = getMonthDays(lunarYear, lunarMonth);
+        monthDays = getLunarMonthDays(lunarYear, lunarMonth);
       }
 
       if (isLeap && lunarMonth === leapMonth + 1) {
@@ -458,8 +510,164 @@ export const useSettingStore = defineStore("setting", () => {
   /**
    * 获取农历某月的总天数
    */
-  function getMonthDays(year: number, month: number): number {
+  function getLunarMonthDays(year: number, month: number): number {
     return lunarInfo[year - 1900] & (0x10000 >> month) ? 30 : 29;
+  }
+
+  /**
+   * 获取月视图的日期数组
+   * @param currentDate 当前日期
+   * @returns 月视图的日期数组
+   */
+  function getMonthDays(currentDate: Date): CalendarDay[] {
+    const startDay = parseInt(weekStart.value);
+
+    // 获取当月第一天
+    const firstDay = new Date(
+      currentDate.getFullYear(),
+      currentDate.getMonth(),
+      1
+    );
+    // 获取当月最后一天
+    const lastDay = new Date(
+      currentDate.getFullYear(),
+      currentDate.getMonth() + 1,
+      0
+    );
+
+    // 计算当月第一天是星期几（0-6）
+    let firstDayOfWeek = firstDay.getDay();
+    // 根据周起始日调整
+    firstDayOfWeek = (firstDayOfWeek - startDay + 7) % 7;
+
+    // 计算需要显示的上个月的天数
+    const prevMonthDays = firstDayOfWeek;
+
+    // 计算当月总天数
+    const currentMonthDays = lastDay.getDate();
+
+    // 计算需要显示的总天数（确保是7的倍数）
+    const totalDays = Math.ceil((prevMonthDays + currentMonthDays) / 7) * 7;
+
+    // 计算需要显示的下个月的天数
+    const nextMonthDays = totalDays - prevMonthDays - currentMonthDays;
+
+    const days: CalendarDay[] = [];
+
+    // 添加上个月的日期
+    const prevMonth = new Date(
+      currentDate.getFullYear(),
+      currentDate.getMonth(),
+      0
+    );
+    for (let i = prevMonthDays - 1; i >= 0; i--) {
+      const date = new Date(
+        currentDate.getFullYear(),
+        currentDate.getMonth() - 1,
+        prevMonth.getDate() - i
+      );
+      days.push({
+        date: date.toISOString(),
+        dayNumber: date.getDate(),
+        isCurrentMonth: false,
+        isToday: false,
+        isWeekend: date.getDay() === 0 || date.getDay() === 6,
+      });
+    }
+
+    // 添加当月的日期
+    for (let i = 1; i <= currentMonthDays; i++) {
+      const date = new Date(
+        currentDate.getFullYear(),
+        currentDate.getMonth(),
+        i
+      );
+      days.push({
+        date: date.toISOString(),
+        dayNumber: i,
+        isCurrentMonth: true,
+        isToday: date.toDateString() === new Date().toDateString(),
+        isWeekend: date.getDay() === 0 || date.getDay() === 6,
+      });
+    }
+
+    // 添加下个月的日期
+    for (let i = 1; i <= nextMonthDays; i++) {
+      const date = new Date(
+        currentDate.getFullYear(),
+        currentDate.getMonth() + 1,
+        i
+      );
+      days.push({
+        date: date.toISOString(),
+        dayNumber: i,
+        isCurrentMonth: false,
+        isToday: false,
+        isWeekend: date.getDay() === 0 || date.getDay() === 6,
+      });
+    }
+
+    return days;
+  }
+
+  /**
+   * 获取周视图的日期数组
+   * @param currentDate 当前日期
+   * @returns 周视图的日期数组
+   */
+  function getWeekDays(currentDate: Date): WeekDay[] {
+    const startDay = parseInt(weekStart.value);
+
+    // 获取当前日期是星期几（0-6）
+    let currentDayOfWeek = currentDate.getDay();
+    // 根据周起始日调整
+    currentDayOfWeek = (currentDayOfWeek - startDay + 7) % 7;
+
+    // 计算本周的第一天
+    const firstDayOfWeek = new Date(currentDate);
+    firstDayOfWeek.setDate(currentDate.getDate() - currentDayOfWeek);
+
+    // 生成一周的日期
+    const weekDays: WeekDay[] = [];
+    for (let i = 0; i < 7; i++) {
+      const date = new Date(firstDayOfWeek);
+      date.setDate(firstDayOfWeek.getDate() + i);
+
+      weekDays.push({
+        date: date.toISOString(),
+        dayNumber: date.getDate(),
+        dayName: [
+          "星期日",
+          "星期一",
+          "星期二",
+          "星期三",
+          "星期四",
+          "星期五",
+          "星期六",
+        ][date.getDay()],
+        isToday: date.toDateString() === new Date().toDateString(),
+      });
+    }
+
+    return weekDays;
+  }
+
+  /**
+   * 获取星期几显示顺序
+   * @returns 星期几显示顺序数组
+   */
+  function getWeekDayNames() {
+    const weekDays = [
+      "星期日",
+      "星期一",
+      "星期二",
+      "星期三",
+      "星期四",
+      "星期五",
+      "星期六",
+    ];
+    const startDay = parseInt(weekStart.value);
+    return [...weekDays.slice(startDay), ...weekDays.slice(0, startDay)];
   }
 
   return {
@@ -492,8 +700,14 @@ export const useSettingStore = defineStore("setting", () => {
     setHour24,
     setShowLunar,
     setWeekStart,
+    getWeekStart,
+    toggleWeekStart,
     applyTheme,
     applyFontSize,
     getLunarDate,
+    getLunarMonthDays,
+    getMonthDays,
+    getWeekDays,
+    getWeekDayNames,
   };
 });
