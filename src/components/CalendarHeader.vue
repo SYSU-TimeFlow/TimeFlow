@@ -260,11 +260,8 @@ const checkAndNotifyEvents = () => {
   if (!isNotificationEnabled.value) return;
   const now = new Date();
 
-  // 合并日历事件和Todo事件，按id去重
-  const allEvents = [
-    ...eventStore.events.filter(e => e.eventType !== "todo"),
-    ...eventStore.events.filter(e => e.eventType === "todo"),
-  ];
+  // 合并所有事件，按id去重
+  const allEvents = eventStore.events;
   const uniqueEventsMap = new Map<number, any>();
   allEvents.forEach(event => {
     if (event.id && !uniqueEventsMap.has(event.id)) {
@@ -275,12 +272,16 @@ const checkAndNotifyEvents = () => {
 
   uniqueEvents.forEach((event) => {
     if (!event.id || notifiedEventIds.value.has(event.id)) return;
-    const start =
-      event.start instanceof Date ? event.start : new Date(event.start);
+
+    // 解析开始和结束时间
+    const start = event.start instanceof Date ? event.start : new Date(event.start);
     const end = event.end instanceof Date ? event.end : new Date(event.end);
 
+    const isStartValid = start.getFullYear() > 1970 && !isNaN(start.getTime());
+    const isEndValid = end.getFullYear() > 1970 && !isNaN(end.getTime());
+
     // 1. 有开始和截止时间，且距离开始时间<=15分钟
-    if (start && end && !isNaN(start.getTime()) && !isNaN(end.getTime())) {
+    if (isStartValid && isEndValid) {
       const diff = (start.getTime() - now.getTime()) / 60000;
       if (diff > 0 && diff <= 15) {
         sendEventNotification(event, "即将开始");
@@ -288,11 +289,7 @@ const checkAndNotifyEvents = () => {
       }
     }
     // 2. 只有截止时间，且距离截止<=30分钟
-    else if (
-      (!start || isNaN(start.getTime())) &&
-      end &&
-      !isNaN(end.getTime())
-    ) {
+    else if (!isStartValid && isEndValid) {
       const diff = (end.getTime() - now.getTime()) / 60000;
       if (diff > 0 && diff <= 30) {
         sendEventNotification(event, "即将结束");
@@ -328,7 +325,7 @@ function sendEventNotification(event: any, type: string) {
     body = `日程${type}${event.title}：${timeInfo}结束`;
   }
 
-  // 推荐：通过 Electron API 发送通知
+  // 通过 Electron API 发送通知
   if (window.electronAPI && window.electronAPI.notify) {
     window.electronAPI.notify(`日程提醒：${event.title}`, body);
   }
