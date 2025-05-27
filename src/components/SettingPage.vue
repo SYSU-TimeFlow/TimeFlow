@@ -16,7 +16,7 @@
   >
     <!-- 设置弹窗主容器，阻止点击事件冒泡 -->
     <div
-      class="settings-container bg-white rounded-lg shadow-lg w-[448px] max-w-3xl p-6 relative overflow-y-auto"
+      class="settings-container bg-white rounded-lg shadow-lg w-[448px] max-w-[90vw] p-6 relative overflow-y-auto"
       style="max-height: 90vh"
       @click.stop
     >
@@ -158,7 +158,11 @@
       <div class="mb-4 flex items-center justify-between">
         <span class="flex items-center text-gray-700">
           <!-- 音符图标 -->
-          <svg class="w-5 h-5 mr-2 text-blue-400" fill="none" viewBox="0 0 24 24">
+          <svg
+            class="w-5 h-5 mr-2 text-blue-400"
+            fill="none"
+            viewBox="0 0 24 24"
+          >
             <path
               d="M9 18V5l12-2v13"
               stroke="currentColor"
@@ -204,7 +208,9 @@
       <!-- 空一行 -->
       <div class="text-gray-700"></div>
       <!-- 日期和时间小标题 -->
-      <div class="text-gray-500 text-sm font-semibold mb-2 mt-2">日期和时间</div>
+      <div class="text-gray-500 text-sm font-semibold mb-2 mt-2">
+        日期和时间
+      </div>
       <!-- 每周起始日 -->
       <div class="mb-4 flex items-center justify-between">
         <span class="flex items-center text-gray-700">
@@ -336,40 +342,31 @@
       <div class="text-gray-700"></div>
       <!-- 其他小标题 -->
       <div class="text-gray-500 text-sm font-semibold mb-2 mt-2">其他</div>
-      <!-- 语言选择 -->
+      <!-- 系统同步 -->
       <div class="mb-4 flex items-center justify-between">
         <span class="flex items-center text-gray-700">
-          <!-- Lan字样的图标 -->
-          <svg class="w-5 h-5 mr-2 text-blue-400" fill="none" viewBox="0 0 24 24">
-            <rect
-              x="3"
-              y="4"
-              width="18"
-              height="16"
-              rx="3"
-              fill="currentColor"
-              opacity="0.15"
+          <svg
+            class="w-5 h-5 mr-2 text-teal-500"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path
+              d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+              stroke-linecap="round"
+              stroke-linejoin="round"
             />
-            <text
-              x="6"
-              y="17"
-              font-size="10"
-              fill="currentColor"
-              font-family="Arial"
-            >
-              Lan
-            </text>
           </svg>
-          语言
+          系统同步
         </span>
-        <select
-          v-model="settingStore.language"
-          class="border border-gray-300 rounded-md px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-        >
-          <option value="zh-CN">简体中文</option>
-          <option value="en-US">English</option>
-        </select>
+        <input
+          type="checkbox"
+          v-model="settingStore.synced"
+          class="toggle-checkbox accent-blue-600"
+        />
       </div>
+
       <!-- 空一行 -->
       <div class="text-gray-700"></div>
       <!-- 联系我们小标题 -->
@@ -397,21 +394,36 @@
           >TimeFlow 日历 v1.0.0<br />作者：SYSU-TimeFlow</span
         >
       </div>
-      <!-- 保存按钮 -->
-      <button
-        class="mt-6 w-full py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition cursor-pointer !rounded-button whitespace-nowrap font-medium"
-        @click="saveAndClose"
-      >
-        保存设置
-      </button>
+
+      <!-- 按钮区域 -->
+      <div class="mt-6 flex gap-3">
+        <!-- 重置按钮 -->
+        <button
+          class="w-1/3 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition cursor-pointer !rounded-button whitespace-nowrap font-medium"
+          @click="resetSettings"
+        >
+          重置默认
+        </button>
+        <!-- 保存按钮 -->
+        <button
+          class="w-2/3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition cursor-pointer !rounded-button whitespace-nowrap font-medium"
+          @click="saveAndClose"
+        >
+          保存设置
+        </button>
+      </div>
 
       <!-- 自动消失的提示 -->
       <transition name="fade">
         <div
           v-if="showToast"
-          class="fixed left-1/2 top-20 -translate-x-1/2 bg-green-500 text-white px-6 py-2 rounded shadow-lg z-50"
+          class="fixed left-1/2 top-20 -translate-x-1/2 px-6 py-2 rounded shadow-lg z-50"
+          :class="[
+            toastType === 'success' ? 'bg-green-500' : 'bg-blue-500',
+            'text-white',
+          ]"
         >
-          设置已保存！
+          {{ toastMessage }}
         </div>
       </transition>
     </div>
@@ -419,12 +431,33 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
-import { useSettingStore } from '../stores/setting';
+import { ref, onMounted, onUnmounted } from "vue";
+import { useSettingStore } from "../stores/setting";
 
 // 使用Pinia仓库
 const settingStore = useSettingStore();
 const showToast = ref(false);
+const toastMessage = ref("设置已保存！");
+const toastType = ref("success");
+
+/**
+ * 处理ESC键关闭设置模态框
+ */
+function handleKeyDown(event) {
+  if (event.key === "Escape" && settingStore.showSettings) {
+    settingStore.closeSettings();
+  }
+}
+
+// 组件挂载时添加键盘事件监听
+onMounted(() => {
+  document.addEventListener("keydown", handleKeyDown);
+});
+
+// 组件卸载时移除键盘事件监听
+onUnmounted(() => {
+  document.removeEventListener("keydown", handleKeyDown);
+});
 
 /**
  * 保存设置并关闭窗口
@@ -433,8 +466,10 @@ const showToast = ref(false);
 function saveAndClose() {
   // 使用store的方法保存设置
   settingStore.saveSettings();
-  
+
   // 显示提示并延迟关闭
+  toastMessage.value = "设置已保存！";
+  toastType.value = "success";
   showToast.value = true;
   setTimeout(() => {
     settingStore.closeSettings();
@@ -442,6 +477,23 @@ function saveAndClose() {
       showToast.value = false;
     }, 2500);
   }, 1000);
+}
+
+/**
+ * 重置设置到默认值
+ * 显示一个提示，告知用户设置已重置
+ */
+function resetSettings() {
+  // 使用store的方法重置设置
+  settingStore.resetSettings();
+
+  // 显示提示
+  toastMessage.value = "已重置为默认设置";
+  toastType.value = "info";
+  showToast.value = true;
+  setTimeout(() => {
+    showToast.value = false;
+  }, 2500);
 }
 </script>
 

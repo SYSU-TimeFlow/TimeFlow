@@ -144,10 +144,30 @@
 </template>
 
 <script setup>
+import { onMounted, onUnmounted } from "vue";
 import { useUiStore } from "../stores/ui";
 
 // 使用Pinia仓库
 const uiStore = useUiStore();
+
+/**
+ * 处理ESC键关闭设置模态框
+ */
+function handleKeyDown(event) {
+  if (event.key === "Escape" && uiStore.showHelpModal) {
+    uiStore.closeHelpModal();
+  }
+}
+
+// 组件挂载时添加键盘事件监听
+onMounted(() => {
+  document.addEventListener("keydown", handleKeyDown);
+});
+
+// 组件卸载时移除键盘事件监听
+onUnmounted(() => {
+  document.removeEventListener("keydown", handleKeyDown);
+});
 </script>
 
 <style scoped>
