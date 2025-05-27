@@ -1,7 +1,7 @@
 <!--
   @description 待办事项列表。
-  在新建 events 时，也可以同时添加到 Todo List 中。
-  实现日历与待办事项的同步。
+  显示所有待办事项，包括没有截止时间和有截止时间的待办事项。
+  待办事项的开始时间始终使用1970年作为占位符，截止时间为空时也使用1970年作为占位符。
 -->
 <template>
   <main class="todo-main flex-1 flex flex-col overflow-hidden">
@@ -67,10 +67,12 @@
                 <!-- 备注 -->
                 <div v-if="todo.description" class="text-xs text-gray-400 mt-1">
                   {{ todo.description }}
-                </div>
-                <!-- 格式化显示的截止日期（精确到分钟） -->
-                <div v-if="todo.end" class="text-sm text-gray-500 mt-1">
+                </div>                <!-- 格式化显示的截止日期（精确到分钟） -->
+                <div v-if="todo.end && new Date(todo.end).getFullYear() > 1970" class="text-sm text-gray-500 mt-1">
                   截止：{{ eventStore.formatDateForDisplay(todo.end) }}
+                </div>
+                <div v-else class="text-sm text-gray-500 mt-1">
+                  无截止时间
                 </div>
               </div>
             </div>
