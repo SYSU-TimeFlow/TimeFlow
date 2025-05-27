@@ -141,7 +141,7 @@
             </div>
           </div>
           <!-- 事件网格区：每一列代表一天 -->
-          <div class="flex-1 grid grid-cols-7 relative">
+          <div class="flex-1 grid grid-cols-7 gap-1 p-1 relative">
             <!-- 小时格子背景 -->
             <div v-for="hour in 24" :key="hour" class="contents">
               <div
@@ -236,7 +236,7 @@
           <!-- 事件显示列 -->
           <div class="day-column flex-1 relative">
             <!-- 小时格子背景 -->
-            <div class="hours-grid">
+            <div class="hours-grid grid gap-1 p-1">
               <div
                 v-for="hour in 24"
                 :key="hour"
@@ -509,5 +509,187 @@ const eventStore = useEventStore();
 
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
   background: #a0a0a0;
+}
+
+/* 主题颜色变量 */
+.calendar-main {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+.calendar-day {
+  background-color: var(--bg-secondary);
+  border-color: var(--border-color) !important;
+}
+
+.time-label {
+  color: var(--text-tertiary);
+}
+
+/* 暗黑模式下的日期号优化 */
+.dark-mode .day-number {
+  color: var(--date-number-color);
+  font-weight: 500;
+}
+
+/* 暗黑模式下的标题优化 */
+.dark-mode .calendar-header h2,
+.dark-mode .calendar-header h1 {
+  color: var(--heading-color);
+}
+
+/* 今日日期高亮 */
+.dark-mode .is-today {
+  background-color: var(--calendar-today-bg);
+}
+
+/* 周末日期格子样式 */
+.dark-mode .is-weekend {
+  background-color: var(--calendar-weekend-bg);
+}
+
+/* 当月日期和非当月日期的区分 */
+.dark-mode .calendar-day:not(.is-current-month) .day-number {
+  color: var(--text-tertiary);
+  opacity: 0.7;
+}
+
+/* 当前月份的日期格子 */
+.dark-mode .calendar-day.is-current-month {
+  background-color: var(--calendar-day-bg);
+}
+
+/* 暗黑模式下的小时格子悬停样式 */
+.dark-mode .hour-cell:hover {
+  background-color: var(--hover-bg) !important;
+}
+
+/* 暗黑模式下事件颜色调整 */
+.dark-mode .event-item,
+.dark-mode .day-event {
+  /* 增加不透明度以提高可见度 */
+  opacity: 0.9;
+  /* 添加微弱的发光效果增强可见性 */
+  box-shadow: 0 1px 5px rgba(255, 255, 255, 0.05);
+}
+
+.dark-mode .event-item:hover,
+.dark-mode .day-event:hover {
+  opacity: 1;
+  box-shadow: 0 2px 8px rgba(255, 255, 255, 0.1);
+}
+
+/* 事件时间文本在暗黑模式下的调整 */
+.dark-mode .event-time {
+  font-weight: 600; /* 加粗时间显示 */
+}
+
+/* 覆盖日历格子悬停效果 */
+.dark-mode .calendar-day:hover {
+  background-color: var(--calendar-day-hover-bg) !important; /* 使用变量控制颜色 */
+  border-color: #4a88e5 !important; /* 使用深蓝色边框 */
+  box-shadow: 0 0 0 1px rgba(74, 136, 229, 0.3);
+}
+
+/* 修改这些样式确保周视图和月视图的悬停效果一致 */
+.dark-mode .hour-cell:hover {
+  background-color: var(--calendar-day-hover-bg) !important; /* 使用与calendar-day相同的变量 */
+  border-color: #4a88e5 !important;
+}
+
+/* 高亮边框样式调整 */
+.dark-mode .hour-cell:hover::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border: 1px solid #4a88e5;
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* 暗黑模式下的事件文本颜色调整 */
+.dark-mode .event-title {
+  color: var(--event-title-color) !important; /* 使用新变量 */
+}
+
+.dark-mode .event-description {
+  color: var(--event-description-color) !important; /* 使用新变量 */
+}
+
+.dark-mode .event-time {
+  color: var(--event-time-color) !important; /* 使用新变量 */
+  font-weight: 500; /* 稍微减轻字体粗细 */
+}
+
+/* 确保周视图下的小时格子悬停颜色更接近黑色背景 */
+.dark-mode .hour-cell:hover {
+  background-color: var(--hour-cell-hover) !important; /* 使用新变量 */
+}
+
+/* 确保样式优先级足够高以覆盖原有样式 */
+.dark-mode .hour-cell:hover::after {
+  border-color: #3b5998; /* 更柔和的边框颜色 */
+}
+
+/* 周视图和日视图格子样式统一与月视图 */
+/* 为事件网格添加间隙 */
+.week-view .flex-1.grid,
+.day-view .hours-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0.25rem; /* 添加间隙，与月视图的 gap-1 一致 */
+  padding: 0.25rem;
+}
+
+.day-view .hours-grid {
+  grid-template-columns: 1fr; /* 日视图是单列 */
+}
+
+/* 修改小时格子样式，使其有完整边框和适当间距 */
+.hour-cell {
+  border: 1px solid var(--border-color, #e5e7eb) !important; /* 完整边框替代单边框 */
+  border-radius: 0.25rem; /* 轻微圆角 */
+  margin: 1px;
+  transition: all 0.2s ease-in-out;
+}
+
+/* 移除原有的底部和右侧边框，使用新的完整边框 */
+.week-view .hour-cell,
+.day-view .hour-cell {
+  border-bottom: none;
+  border-right: none;
+}
+
+/* 统一悬停效果与月视图一致 */
+.hour-cell:hover {
+  background-color: #f9fafb !important;
+  border-color: #3b82f6 !important;
+  box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.3);
+  z-index: 5;
+}
+
+/* 移除原有的边框高亮效果 */
+.hour-cell:hover::after {
+  display: none;
+}
+
+/* 暗黑模式下的样式统一 */
+.dark-mode .hour-cell {
+  border-color: var(--border-color, #374151) !important;
+  background-color: var(--bg-secondary);
+}
+
+.dark-mode .hour-cell:hover {
+  background-color: var(--calendar-day-hover-bg) !important;
+  border-color: #4a88e5 !important;
+  box-shadow: 0 0 0 1px rgba(74, 136, 229, 0.3);
+}
+
+/* 移除暗黑模式中的额外边框效果 */
+.dark-mode .hour-cell:hover::after {
+  display: none;
 }
 </style>

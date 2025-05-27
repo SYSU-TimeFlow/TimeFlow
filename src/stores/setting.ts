@@ -65,6 +65,8 @@ export const useSettingStore = defineStore("setting", () => {
     try {
       // @ts-ignore
       await window.electronAPI.saveSettings(allSettings.value);
+      // 应用主题设置
+      applyTheme(themeMode.value);
     } catch (error) {
       console.error("Error saving settings via Electron API:", error);
     }
@@ -101,20 +103,59 @@ export const useSettingStore = defineStore("setting", () => {
         language.value = settings.language || "zh-CN";
         synced.value =
           typeof settings.synced === "boolean" ? settings.synced : true;
+        
+        // 加载完设置后应用主题
+        applyTheme(themeMode.value);
       } else {
         // 如果从 main process 返回的是空对象或 undefined，则可能需要应用一套默认值
         // 或者依赖 ref 的初始值。当前行为是依赖 ref 初始值。
         console.log(
           "No settings loaded from main process or settings were empty, using defaults."
         );
+        // 应用默认主题
+        applyTheme("light");
       }
     } catch (error) {
       console.error("Error loading settings via Electron API:", error);
       // 出错时，保持当前 ref 的默认值
+      applyTheme("light");
     }
   }
 
   // =========================== END 本地存储所需代码 END =============================
+
+  // =========================== BEGIN 主题管理代码 BEGIN ============================
+  
+  /**
+   * 应用主题到DOM
+   * @param theme 主题类型 ('light'|'dark')
+   */
+  function applyTheme(theme: string) {
+    const html = document.documentElement;
+    
+    if (theme === 'dark') {
+      html.classList.add('dark-mode');
+      // 设置系统状态栏颜色（Electron特性）
+      setNativeTheme('dark');
+    } else {
+      html.classList.remove('dark-mode');
+      setNativeTheme('light');
+    }
+  }
+
+  /**
+   * 切换系统原生主题（Electron窗口和状态栏）
+   */
+  const electronAPI = (window as any).electronAPI;
+  function setNativeTheme(theme: 'light' | 'dark') {
+    // 如果是Electron环境
+    if (electronAPI && electronAPI.setNativeTheme) {
+      // @ts-ignore
+      electronAPI.setNativeTheme(theme);
+    }
+  }
+  
+  // =========================== END 主题管理代码 END ==============================
 
   // 同步设置状态
   async function toggleSync() {
@@ -124,6 +165,8 @@ export const useSettingStore = defineStore("setting", () => {
   // 设置主题
   async function setThemeMode(newTheme: string) {
     themeMode.value = newTheme;
+    // 立即应用主题变更
+    applyTheme(newTheme);
   }
 
   // 设置语言
@@ -144,6 +187,9 @@ export const useSettingStore = defineStore("setting", () => {
     weekStart.value = "0";
     language.value = "zh-CN";
     synced.value = true; // 重置时 synced 也应为 true
+    
+    // 应用默认主题
+    applyTheme("light");
   }
 
   // 初始加载
@@ -211,8 +257,8 @@ export const useSettingStore = defineStore("setting", () => {
     toggleSync,
     setThemeMode,
     setLanguage,
-    saveSettings, // 暴露新的 saveSettings
-    loadSettings, // 暴露新的 loadSettings
+    saveSettings, 
+    loadSettings,
     resetSettings,
     toggleSettings,
     closeSettings,
@@ -224,5 +270,6 @@ export const useSettingStore = defineStore("setting", () => {
     setHour24,
     setShowLunar,
     setWeekStart,
+    applyTheme, // 导出主题应用方法
   };
 });

@@ -410,6 +410,9 @@ const activateSearch = () => {
   height: 48px;
   padding-top: 0.5rem;
   padding-bottom: 0.5rem;
+  background-color: var(--header-bg);
+  border-color: var(--border-color);
+  color: var(--text-primary);
 }
 
 /* 区域布局控制 */
@@ -512,6 +515,9 @@ const activateSearch = () => {
 /* 搜索框样式优化 */
 .search-box input {
   height: 32px;
+  background-color: var(--bg-secondary);
+  border-color: var(--border-color);
+  color: var(--text-primary);
 }
 
 /* 统一所有模式下placeholder的样式 */
@@ -643,5 +649,93 @@ button:has(.fa-times):hover {
 .fa-chevron-left,
 .fa-chevron-right {
   font-size: 16px;
+}
+
+/* 暗黑模式下的搜索框优化 */
+.dark-mode .search-box input {
+  background-color: var(--bg-tertiary);
+  border-color: var(--border-color);
+  color: var(--text-primary);
+}
+
+.dark-mode .search-box input::placeholder {
+  color: var(--text-tertiary);
+}
+
+/* 暗黑模式下的搜索结果列表 */
+.dark-mode .search-results {
+  background-color: var(--bg-secondary);
+  border-color: var(--border-color);
+}
+
+.dark-mode .search-results li {
+  border-color: var(--border-color);
+}
+
+.dark-mode .search-results li:hover {
+  background-color: var(--hover-bg);
+}
+
+.dark-mode .search-results li.search-result-focused {
+  background-color: var(--selected-bg);
+  color: var(--text-primary);
+}
+
+/* 暗黑模式下的导航按钮 */
+.dark-mode .nav-button {
+  color: var(--text-secondary);
+}
+
+.dark-mode .nav-button:hover {
+  color: var(--text-primary);
+  background-color: var(--hover-bg);
+}
+
+/* 修复暗黑模式下的高亮标记 */
+.dark-mode :deep(.search-highlight) {
+  background-color: rgba(255, 255, 0, 0.3);
+  color: var(--text-primary);
+}
+
+/* 在暗黑模式样式部分添加/修改 */
+
+/* 标题颜色改为深蓝色 */
+.dark-mode .app-header h1,
+.dark-mode .app-header h2 {
+  color: var(--heading-color);
+}
+
+/* 搜索框样式统一 */
+.dark-mode .mode-indicator {
+  background-color: var(--search-bg);
+  border-color: var(--search-border);
+}
+
+.dark-mode .search-box input {
+  background-color: var(--search-bg);
+  border-color: var(--search-border);
+  color: var(--text-primary);
+}
+
+/* 命令模式样式微调 */
+.dark-mode .command-mode {
+  background-color: rgba(74, 136, 229, 0.1);
+  border-color: #4a88e5;
+}
+
+.dark-mode .command-mode-input:focus {
+  box-shadow: 0 0 0 2px rgba(74, 136, 229, 0.3);
+}
+
+/* 修复暗黑模式下的搜索框placeholder颜色 */
+.dark-mode .search-box input::placeholder,
+.dark-mode .search-mode-input::placeholder,
+.dark-mode .command-mode-input::placeholder {
+  color: var(--text-tertiary) !important;
+}
+
+/* 修复模式指示器文本颜色 */
+.dark-mode .mode-indicator span {
+  color: var(--text-tertiary);
 }
 </style>

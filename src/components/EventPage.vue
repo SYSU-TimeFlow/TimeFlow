@@ -202,4 +202,64 @@ onUnmounted(() => {
   -webkit-backdrop-filter: blur(4px); /* 兼容 Safari */
   background: rgba(0, 0, 0, 0.1); /* 轻微透明黑色，增强模糊可见性 */
 }
+
+/* 暗黑模式适配 */
+.dark-mode .event-modal {
+  background-color: var(--modal-bg);
+  color: var(--text-primary);
+  border-color: var(--border-color);
+}
+
+.dark-mode .modal-header {
+  border-color: var(--border-color);
+  background-color: var(--bg-tertiary);
+}
+
+.dark-mode .modal-body {
+  color: var(--text-primary);
+}
+
+.dark-mode .modal-footer {
+  border-color: var(--border-color);
+  background-color: var(--bg-tertiary);
+}
+
+/* 表单元素样式 */
+.dark-mode .form-group label {
+  color: var(--text-secondary);
+}
+
+.dark-mode .form-group input,
+.dark-mode .form-group select,
+.dark-mode .form-group textarea {
+  background-color: var(--bg-tertiary);
+  color: var(--text-primary);
+  border-color: var(--border-color);
+}
+
+.dark-mode .form-group input::placeholder,
+.dark-mode .form-group textarea::placeholder {
+  color: var(--text-tertiary);
+}
+
+/* 分类颜色选择器边框 */
+.dark-mode .category-option {
+  box-shadow: 0 0 0 1px var(--border-color);
+}
+
+.dark-mode .category-option.border-gray-800 {
+  box-shadow: 0 0 0 2px var(--heading-color);
+  border-color: var(--heading-color) !important;
+}
+
+/* 日期时间选择器 */
+.dark-mode input[type="date"],
+.dark-mode input[type="time"] {
+  color-scheme: dark;
+}
+
+/* 复选框调整 */
+.dark-mode input[type="checkbox"] {
+  filter: invert(0.8) hue-rotate(180deg); /* 改变复选框颜色以匹配暗色主题 */
+}
 </style>

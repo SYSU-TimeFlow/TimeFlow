@@ -10,7 +10,7 @@
   <div
     :class="[
       'view-selector my-3',
-      uiStore.sidebarCollapsed ? 'mx-auto' : 'mx-4', // 根据折叠状态设置不同的边距
+      uiStore.sidebarCollapsed ? 'mx-auto' : 'mx-4',
     ]"
   >
     <!-- "View" 标题，仅在侧边栏未折叠时显示 -->
@@ -30,15 +30,14 @@
         :class="[
           'view-btn flex items-center py-2 px-3 rounded-lg cursor-pointer !rounded-button whitespace-nowrap',
           uiStore.currentView === view.id
-            ? 'bg-blue-100 text-blue-600'
-            : 'hover:bg-gray-200', // 当前选中视图高亮显示
+            ? 'bg-blue-100 text-blue-600 active'
+            : 'hover:bg-gray-200', // 添加active类以便在暗黑模式下识别
         ]"
       >
         <!-- 视图图标 -->
         <i
           :class="`fas ${view.icon} ${uiStore.sidebarCollapsed ? '' : 'mr-3'}`"
         ></i>
-        <!-- 根据侧边栏折叠状态调整图标右边距 -->
         <!-- 视图标签文本，仅在侧边栏未折叠时显示 -->
         <span v-if="!uiStore.sidebarCollapsed">{{ view.label }}</span>
       </button>
@@ -52,3 +51,26 @@ import { useUiStore } from "../stores/ui";
 // 使用Pinia仓库
 const uiStore = useUiStore();
 </script>
+
+<style scoped>
+/* 原有样式保持不变 */
+
+/* 添加暗黑模式下的样式优化 */
+.dark-mode .view-btn:hover:not(.active) {
+  background-color: var(--hover-bg) !important; /* 使用更接近黑色的悬停颜色 */
+  color: var(--text-secondary);
+}
+
+/* 暗黑模式下选中的视图 */
+.dark-mode .view-btn.active,
+.dark-mode .view-btn[class*="bg-blue-100"] {
+  background-color: var(--active-item-bg) !important; /* 使用更柔和的背景色 */
+  color: var(--heading-color) !important;
+  border-left: 2px solid var(--active-item-border);
+}
+
+/* 调整视图选择器标题颜色 */
+.dark-mode .text-sm.font-medium {
+  color: var(--sidebar-title-color) !important;
+}
+</style>

@@ -85,4 +85,33 @@ const uiStore = useUiStore();
   opacity: 0;
   transition: opacity 0.2s ease;
 }
+
+/* 原有样式保持不变 */
+
+/* 暗黑模式下分类项悬停效果 */
+.dark-mode .category-item:hover {
+  background-color: var(--hover-bg) !important; /* 使用与view-btn相同的悬停颜色 */
+  color: var(--text-secondary);
+  border-color: transparent;
+}
+
+/* 暗黑模式下激活的分类项 */
+.dark-mode .category-item.active {
+  background-color: var(--active-item-bg) !important;
+  color: var(--heading-color);
+}
+
+/* 编辑按钮颜色调整 */
+.dark-mode .edit-button {
+  color: var(--text-tertiary);
+}
+
+.dark-mode .edit-button:hover {
+  color: var(--heading-color);
+}
+
+/* 调整分类标题颜色 */
+.dark-mode .text-sm.font-medium {
+  color: var(--sidebar-title-color) !important;
+}
 </style>
