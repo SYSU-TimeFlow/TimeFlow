@@ -77,7 +77,7 @@
               ? 'Search events...'
               : 'Enter command...'
           "
-          class="pl-8 pr-4 py-1 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent w-64"
+          class="pl-8 pr-4 py-1 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent w-64 relative z-10"
           :class="{
             'command-mode-input': uiStore.appMode === 'command',
             'search-mode-input': uiStore.appMode === 'normal',
@@ -90,8 +90,8 @@
         />
 
         <i
-          class="fas absolute left-3 top-1/2 transform -translate-y-1/2 text-sm"
-          :class="[
+          class="fas absolute left-3 top-1/2 transform -translate-y-1/2 text-sm pointer-events-none"
+          :class=" [
             uiStore.isSearchActive && uiStore.appMode === 'normal'
               ? 'fa-search text-gray-400'
               : '',
