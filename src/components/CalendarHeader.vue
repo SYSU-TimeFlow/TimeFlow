@@ -156,9 +156,37 @@
 
     <!-- 右侧区域：其他控制按钮 -->
     <div class="header-right no-drag flex items-center flex-shrink-0">
-      <!-- 保留原有按钮 -->
-      <button class="header-icon-button p-2 rounded-md transition-colors">
-        <i class="fas fa-bell"></i>
+      <!-- 通知铃铛按钮 -->
+      <button
+        class="header-icon-button p-2 rounded-md transition-colors relative"
+        @click="toggleNotification"
+        :title="isNotificationEnabled ? '点击关闭通知' : '点击开启通知'"
+      >
+        <i
+          class="fas fa-bell"
+          :class="{
+            'bell-shake': isBellShaking,
+            'bell-disabled': !isNotificationEnabled,
+          }"
+        ></i>
+        <!-- 斜线覆盖 -->
+        <svg
+          v-if="!isNotificationEnabled"
+          class="bell-slash"
+          width="22"
+          height="22"
+          viewBox="0 0 22 22"
+        >
+          <line
+            x1="3"
+            y1="19"
+            x2="19"
+            y2="3"
+            stroke="#e63946"
+            stroke-width="2.5"
+            stroke-linecap="round"
+          />
+        </svg>
       </button>
       <!-- 设置按钮 -->
       <button
@@ -209,6 +237,100 @@ const electronAPI = (window as any).electronAPI;
 const resultListRef = ref<HTMLUListElement | null>(null);
 const searchInputRef = ref<HTMLInputElement | null>(null);
 
+const isNotificationEnabled = ref(true); // 通知开关
+const isBellShaking = ref(false); // 控制震动动画
+
+// 已通知事件ID集合，防止重复通知
+const notifiedEventIds = ref<Set<number>>(new Set());
+
+// 切换通知状态并触发动画
+const toggleNotification = () => {
+  isNotificationEnabled.value = !isNotificationEnabled.value;
+  isBellShaking.value = true;
+  setTimeout(() => {
+    isBellShaking.value = false;
+  }, 600);
+  if (!isNotificationEnabled.value) {
+    notifiedEventIds.value.clear(); // 关闭通知时清空已通知事件
+  }
+};
+
+// 检查日程并发送通知
+const checkAndNotifyEvents = () => {
+  if (!isNotificationEnabled.value) return;
+  const now = new Date();
+  eventStore.events.forEach((event) => {
+    if (!event.id || notifiedEventIds.value.has(event.id)) return;
+    const start =
+      event.start instanceof Date ? event.start : new Date(event.start);
+    const end = event.end instanceof Date ? event.end : new Date(event.end);
+
+    // 1. 有开始和截止时间，且距离开始时间<=15分钟
+    if (start && end && !isNaN(start.getTime()) && !isNaN(end.getTime())) {
+      const diff = (start.getTime() - now.getTime()) / 60000;
+      if (diff > 0 && diff <= 15) {
+        sendEventNotification(event, "即将开始");
+        notifiedEventIds.value.add(event.id);
+      }
+    }
+    // 2. 只有截止时间，且距离截止<=30分钟
+    else if (
+      (!start || isNaN(start.getTime())) &&
+      end &&
+      !isNaN(end.getTime())
+    ) {
+      const diff = (end.getTime() - now.getTime()) / 60000;
+      if (diff > 0 && diff <= 30) {
+        sendEventNotification(event, "即将结束");
+        notifiedEventIds.value.add(event.id);
+      }
+    }
+  });
+};
+
+// 发送系统通知
+function sendEventNotification(event: any, type: string) {
+  let timeInfo = "";
+  const now = new Date();
+  let targetTime: Date | null = null;
+
+  if (type === "即将开始" && event.start) {
+    targetTime = event.start instanceof Date ? event.start : new Date(event.start);
+  } else if (type === "即将结束" && event.end) {
+    targetTime = event.end instanceof Date ? event.end : new Date(event.end);
+  }
+
+  if (targetTime && !isNaN(targetTime.getTime())) {
+    const diff = Math.round((targetTime.getTime() - now.getTime()) / 60000);
+    if (diff > 0) {
+      timeInfo = `（还有${diff}分钟）`;
+    }
+  }
+
+  let body = "";
+  if (type === "即将开始") {
+    body = `日程${type}${event.title}：${timeInfo}开始`;
+  } else {
+    body = `日程${type}${event.title}：${timeInfo}结束`;
+  }
+
+  if ("Notification" in window) {
+    if (Notification.permission === "granted") {
+      const n = new Notification(`日程提醒：${event.title}`, {
+        body,
+        silent: false,
+      });
+      setTimeout(() => n.close(), 3000);
+    } else if (Notification.permission !== "denied") {
+      Notification.requestPermission().then((permission) => {
+        if (permission === "granted") {
+          sendEventNotification(event, type);
+        }
+      });
+    }
+  }
+}
+
 // 滚动到当前聚焦的搜索结果项
 const scrollToFocusedResult = () => {
   nextTick(() => {
@@ -228,12 +350,17 @@ const scrollToFocusedResult = () => {
   });
 };
 
-// 组件挂载时注册滚动回调
+let notifyTimer: number | undefined;
+
 onMounted(() => {
   eventStore.setScrollUiUpdateCallback(scrollToFocusedResult);
 
   // 注册全局键盘事件
   window.addEventListener("keydown", handleGlobalKeydown);
+  if ("Notification" in window && Notification.permission === "default") {
+    Notification.requestPermission();
+  }
+  notifyTimer = window.setInterval(checkAndNotifyEvents, 5000);//每隔5秒检查一次
 });
 
 // 组件卸载时清除滚动回调
@@ -242,6 +369,7 @@ onUnmounted(() => {
 
   // 清除全局键盘事件
   window.removeEventListener("keydown", handleGlobalKeydown);
+  if (notifyTimer) clearInterval(notifyTimer);
 });
 
 // 格式化事件日期，用于在搜索结果中显示
@@ -643,5 +771,41 @@ button:has(.fa-times):hover {
 .fa-chevron-left,
 .fa-chevron-right {
   font-size: 16px;
+}
+
+/* 铃铛按钮震动动画 */
+.bell-shake {
+  animation: bell-shake 0.6s cubic-bezier(.36,.07,.19,.97) both;
+}
+@keyframes bell-shake {
+  0% { transform: rotate(0);}
+  10% { transform: rotate(-15deg);}
+  20% { transform: rotate(10deg);}
+  30% { transform: rotate(-10deg);}
+  40% { transform: rotate(6deg);}
+  50% { transform: rotate(-4deg);}
+  60% { transform: rotate(2deg);}
+  70% { transform: rotate(-1deg);}
+  80% { transform: rotate(1deg);}
+  90% { transform: rotate(0);}
+  100% { transform: rotate(0);}
+}
+
+/* 铃铛禁用状态样式 */
+.bell-disabled {
+  color: #bdbdbd !important;
+}
+
+/* 铃铛斜线覆盖样式 */
+.bell-slash {
+  position: absolute;
+  left: 2px;
+  top: 2px;
+  width: 18px !important;
+  height: 18px !important;
+  pointer-events: none;
+  z-index: 2;
+  /* 旋转和微调位置，让斜线自然穿过铃铛 */
+  transform: rotate(-90deg) translate(-8px, 5px);
 }
 </style>
