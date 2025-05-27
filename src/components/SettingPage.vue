@@ -67,36 +67,26 @@
       <!-- 字号选择 -->
       <div class="mb-4 flex items-center justify-between">
         <span class="flex items-center text-gray-700">
-          <!-- 小A大A图标 -->
+          <!-- 字体大小图标 -->
           <svg
             class="w-5 h-5 mr-2 text-green-500"
             fill="none"
+            stroke="currentColor"
+            stroke-width="2"
             viewBox="0 0 24 24"
           >
-            <text
-              x="2"
-              y="19"
-              font-size="10"
-              fill="currentColor"
-              font-family="Arial"
-            >
-              A
-            </text>
-            <text
-              x="12"
-              y="19"
-              font-size="16"
-              fill="currentColor"
-              font-family="Arial"
-            >
-              A
-            </text>
+            <path
+              d="M4 6h16M4 12h16M4 18h7"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
           </svg>
           字号
         </span>
         <select
           v-model="settingStore.fontSize"
           class="border border-gray-300 rounded-md px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          @change="applyFontSizeChange"
         >
           <option value="small">小</option>
           <option value="medium">中</option>
@@ -503,6 +493,13 @@ function resetSettings() {
 function applyThemeChange() {
   settingStore.applyTheme(settingStore.themeMode);
 }
+
+/**
+ * 立即应用字号变化，而不等待保存
+ */
+function applyFontSizeChange() {
+  settingStore.applyFontSize(settingStore.fontSize);
+}
 </script>
 
 <style scoped>
@@ -545,5 +542,17 @@ function applyThemeChange() {
   backdrop-filter: blur(4px); /* 轻微高斯模糊，数值可调整 */
   -webkit-backdrop-filter: blur(4px); /* 兼容 Safari */
   background: rgba(0, 0, 0, 0.1); /* 轻微透明黑色，增强模糊可见性 */
+}
+
+/* 暗黑模式下的选择框样式 */
+.dark-mode select {
+  background-color: var(--bg-tertiary);
+  color: var(--text-primary);
+  border-color: var(--border-color);
+}
+
+.dark-mode select:focus {
+  border-color: var(--heading-color);
+  box-shadow: 0 0 0 2px rgba(74, 136, 229, 0.3);
 }
 </style>

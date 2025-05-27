@@ -63,10 +63,13 @@ export const useSettingStore = defineStore("setting", () => {
   // 保存所有设置 - 修改为通过 Electron API 保存
   async function saveSettings() {
     try {
+      // 先应用设置
+      applyTheme(themeMode.value);
+      applyFontSize(fontSize.value);
+
+      // 然后保存设置
       // @ts-ignore
       await window.electronAPI.saveSettings(allSettings.value);
-      // 应用主题设置
-      applyTheme(themeMode.value);
     } catch (error) {
       console.error("Error saving settings via Electron API:", error);
     }
@@ -103,43 +106,46 @@ export const useSettingStore = defineStore("setting", () => {
         language.value = settings.language || "zh-CN";
         synced.value =
           typeof settings.synced === "boolean" ? settings.synced : true;
-        
-        // 加载完设置后应用主题
+
+        // 加载完设置后应用主题和字号
         applyTheme(themeMode.value);
+        applyFontSize(fontSize.value);
       } else {
         // 如果从 main process 返回的是空对象或 undefined，则可能需要应用一套默认值
         // 或者依赖 ref 的初始值。当前行为是依赖 ref 初始值。
         console.log(
           "No settings loaded from main process or settings were empty, using defaults."
         );
-        // 应用默认主题
+        // 应用默认主题和字号
         applyTheme("light");
+        applyFontSize("medium");
       }
     } catch (error) {
       console.error("Error loading settings via Electron API:", error);
       // 出错时，保持当前 ref 的默认值
       applyTheme("light");
+      applyFontSize("medium");
     }
   }
 
   // =========================== END 本地存储所需代码 END =============================
 
   // =========================== BEGIN 主题管理代码 BEGIN ============================
-  
+
   /**
    * 应用主题到DOM
    * @param theme 主题类型 ('light'|'dark')
    */
   function applyTheme(theme: string) {
     const html = document.documentElement;
-    
-    if (theme === 'dark') {
-      html.classList.add('dark-mode');
+
+    if (theme === "dark") {
+      html.classList.add("dark-mode");
       // 设置系统状态栏颜色（Electron特性）
-      setNativeTheme('dark');
+      setNativeTheme("dark");
     } else {
-      html.classList.remove('dark-mode');
-      setNativeTheme('light');
+      html.classList.remove("dark-mode");
+      setNativeTheme("light");
     }
   }
 
@@ -147,14 +153,33 @@ export const useSettingStore = defineStore("setting", () => {
    * 切换系统原生主题（Electron窗口和状态栏）
    */
   const electronAPI = (window as any).electronAPI;
-  function setNativeTheme(theme: 'light' | 'dark') {
+  function setNativeTheme(theme: "light" | "dark") {
     // 如果是Electron环境
     if (electronAPI && electronAPI.setNativeTheme) {
       // @ts-ignore
       electronAPI.setNativeTheme(theme);
     }
   }
-  
+
+  /**
+   * 应用字号到DOM
+   * @param size 字号大小 ('small'|'medium'|'large')
+   */
+  function applyFontSize(size: string) {
+    const html = document.documentElement;
+
+    // 移除所有字号相关的类
+    html.classList.remove("font-size-small", "font-size-large");
+
+    // 根据字号大小添加对应的类
+    if (size === "small") {
+      html.classList.add("font-size-small");
+    } else if (size === "large") {
+      html.classList.add("font-size-large");
+    }
+    // medium 是默认值，不需要添加额外的类
+  }
+
   // =========================== END 主题管理代码 END ==============================
 
   // 同步设置状态
@@ -187,7 +212,7 @@ export const useSettingStore = defineStore("setting", () => {
     weekStart.value = "0";
     language.value = "zh-CN";
     synced.value = true; // 重置时 synced 也应为 true
-    
+
     // 应用默认主题
     applyTheme("light");
   }
@@ -217,6 +242,8 @@ export const useSettingStore = defineStore("setting", () => {
   // setter
   async function setFontSize(value: string) {
     fontSize.value = value;
+    // 立即应用字号变更
+    applyFontSize(value);
   }
   async function setIconStyle(value: string) {
     iconStyle.value = value;
@@ -257,7 +284,7 @@ export const useSettingStore = defineStore("setting", () => {
     toggleSync,
     setThemeMode,
     setLanguage,
-    saveSettings, 
+    saveSettings,
     loadSettings,
     resetSettings,
     toggleSettings,
@@ -270,6 +297,7 @@ export const useSettingStore = defineStore("setting", () => {
     setHour24,
     setShowLunar,
     setWeekStart,
-    applyTheme, // 导出主题应用方法
+    applyTheme,
+    applyFontSize, // 导出字号应用方法
   };
 });

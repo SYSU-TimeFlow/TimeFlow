@@ -1,0 +1,40 @@
+:root {
+  /* 默认字号大小 */
+  --font-size-small: 0.875rem; /* 14px */
+  --font-size-medium: 1rem; /* 16px */
+  --font-size-large: 1.125rem; /* 18px */
+  --font-size-xlarge: 1.25rem; /* 20px */
+  --font-size-xxlarge: 1.5rem; /* 24px */
+
+  /* 基础字号大小 */
+  --base-font-size: var(--font-size-medium);
+
+  /* 标题字号大小 */
+  --heading-1-size: var(--font-size-xxlarge);
+  --heading-2-size: var(--font-size-xlarge);
+  --heading-3-size: var(--font-size-large);
+
+  /* 文本字号大小 */
+  --text-size: var(--base-font-size);
+  --text-small-size: var(--font-size-small);
+}
+
+/* 小字号模式 */
+.font-size-small {
+  --base-font-size: var(--font-size-small);
+  --heading-1-size: var(--font-size-xlarge);
+  --heading-2-size: var(--font-size-large);
+  --heading-3-size: var(--font-size-medium);
+  --text-size: var(--font-size-small);
+  --text-small-size: 0.75rem;
+}
+
+/* 大字号模式 */
+.font-size-large {
+  --base-font-size: var(--font-size-large);
+  --heading-1-size: 1.75rem;
+  --heading-2-size: 1.5rem;
+  --heading-3-size: var(--font-size-xlarge);
+  --text-size: var(--font-size-large);
+  --text-small-size: var(--font-size-medium);
+}
