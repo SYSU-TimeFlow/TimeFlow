@@ -70,8 +70,8 @@
   --search-border: #30363d;
 
   /* 按钮相关 - 蓝色主题 */
-  --button-primary: #1f6feb; /* GitHub 风格的蓝色 */
-  --button-primary-hover: #388bfd; /* 悬停时更亮的蓝色 */
+  --button-primary: #388bfd; /* GitHub 风格的蓝色 */
+  --button-primary-hover: #58a6ff; /* 悬停时更亮的蓝色 */
   --button-secondary: #21262d;
   --active-item-bg: #1f6feb33; /* 带透明度的蓝色 */
   --active-item-border: #58a6ff; /* 更亮的蓝色边框 */
@@ -95,7 +95,7 @@
   --modal-input-text: #e6edf3; /* 模态框输入框文字颜色 */
   --modal-input-border: #30363d; /* 模态框输入框边框颜色 */
   --modal-button-text: #e6edf3; /* 模态框按钮文字颜色 */
-  --modal-button-bg: #1f6feb; /* 模态框按钮背景色 */
+  --modal-button-bg: #58a6ff; /* 模态框按钮背景色 */
   --modal-button-hover: #388bfd; /* 模态框按钮悬停背景色 */
 }
 

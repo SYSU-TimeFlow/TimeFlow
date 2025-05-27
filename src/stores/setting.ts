@@ -303,9 +303,9 @@ export const useSettingStore = defineStore("setting", () => {
   /**
    * 获取农历日期
    * @param date 公历日期
-   * @returns 农历日期字符串
+   * @returns 农历日期对象，包含日期和月份信息
    */
-  function getLunarDate(date: Date): string {
+  function getLunarDate(date: Date): { day: string; month?: string } {
     const year = date.getFullYear();
     const month = date.getMonth() + 1;
     const day = date.getDate();
@@ -365,6 +365,22 @@ export const useSettingStore = defineStore("setting", () => {
     // 计算农历日期
     let lunarDay = offset + 1;
 
+    // 农历月份名称
+    const monthNames = [
+      "正月",
+      "二月",
+      "三月",
+      "四月",
+      "五月",
+      "六月",
+      "七月",
+      "八月",
+      "九月",
+      "十月",
+      "冬月",
+      "腊月",
+    ];
+
     // 农历日期名称
     const dayNames = [
       "初一",
@@ -399,7 +415,16 @@ export const useSettingStore = defineStore("setting", () => {
       "三十",
     ];
 
-    return dayNames[lunarDay - 1];
+    const result: { day: string; month?: string } = {
+      day: dayNames[lunarDay - 1],
+    };
+
+    // 如果是初一，添加月份信息
+    if (lunarDay === 1) {
+      result.month = monthNames[lunarMonth - 1];
+    }
+
+    return result;
   }
 
   /**

@@ -61,9 +61,16 @@
             <!-- 添加农历显示 -->
             <span
               v-if="settingStore.showLunar"
-              class="lunar-date text-xs text-gray-500"
+              class="lunar-date text-xs"
+              :class="{
+                'lunar-month': settingStore.getLunarDate(new Date(day.date))
+                  .month,
+              }"
             >
-              {{ settingStore.getLunarDate(new Date(day.date)) }}
+              {{
+                settingStore.getLunarDate(new Date(day.date)).month ||
+                settingStore.getLunarDate(new Date(day.date)).day
+              }}
             </span>
           </div>
           <!-- 当天事件列表容器 -->
@@ -868,9 +875,19 @@ const settingStore = useSettingStore();
   font-size: var(--small-text-font-size);
 }
 
+/* 农历月份样式 */
+.lunar-month {
+  color: #388bfd !important; /* 亮色模式下的蓝色 */
+  font-weight: 500;
+}
+
 /* 暗黑模式下的农历日期样式 */
 .dark-mode .lunar-date {
   color: var(--text-tertiary);
+}
+
+.dark-mode .lunar-month {
+  color: #58a6ff !important; /* 暗黑模式下的蓝色 */
 }
 
 /* 修改字号相关的样式 */
