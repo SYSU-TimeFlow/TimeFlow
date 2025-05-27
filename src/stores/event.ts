@@ -420,7 +420,6 @@ export const useEventStore = defineStore("event", () => {
   }
 
   // ======================END 搜索功能相关状态和逻辑 END========================
-
   // 获取指定日期的所有日历事件
   function getEventsForDay(date: Date): Event[] {
     const activeCategoryIds = categories.value
@@ -433,8 +432,8 @@ export const useEventStore = defineStore("event", () => {
     end.setHours(23, 59, 59, 999);
     return events.value
       .filter((event) => {
-        // 只考虑日历事件和双重事件
-        if (event.eventType === EventType.TODO) return false;
+        // 只考虑纯日历事件，排除待办事项和双重事件
+        if (event.eventType !== EventType.CALENDAR) return false;
 
         const eventStart = new Date(event.start);
         const eventEnd = new Date(event.end);
@@ -556,7 +555,6 @@ export const useEventStore = defineStore("event", () => {
   const activeTodos = computed(() =>
     allTodos.value.filter((todo) => !todo.completed)
   );
-
   const filteredTodos = computed(() => {
     let list: Event[];
     switch (activeFilter.value) {
@@ -569,18 +567,38 @@ export const useEventStore = defineStore("event", () => {
       default:
         list = allTodos.value;
     }
+    
+    // 所有待办项都应该显示，无论是否有截止日期
     // 优先显示未完成事项，并在各自组内按截止日期升序排序
     return [...list].sort((a, b) => {
+      // 首先按照完成状态排序
       if (a.completed !== b.completed) {
         return a.completed ? 1 : -1; // 未完成在前
       }
-      return a.end.getTime() - b.end.getTime(); // 截止日期升序
+      
+      // 判断是否有截止日期（不是1970年占位符）
+      const aHasDeadline = new Date(a.end).getFullYear() > 1970;
+      const bHasDeadline = new Date(b.end).getFullYear() > 1970;
+      
+      // 如果一个有截止日期而另一个没有
+      if (aHasDeadline !== bHasDeadline) {
+        return aHasDeadline ? -1 : 1; // 有截止日期的优先显示
+      }
+      
+      // 如果都有截止日期，按日期升序排列
+      if (aHasDeadline && bHasDeadline) {
+        return a.end.getTime() - b.end.getTime(); // 截止日期升序
+      }
+      
+      // 如果都没有截止日期，按创建时间（ID）排序
+      return a.id - b.id;
     });
   });
-
   // 打开新建待办事项模态框
   const openNewTodoModal = () => {
     isNewTodo.value = true;
+    // 使用1970年1月1日作为起始时间的占位符
+    const placeholderDate = new Date(0); // 1970-01-01T00:00:00.000Z
     const today = new Date();
     today.setHours(23, 59, 59, 0);
     const defaultCat = categories.value.find((c) => c.id === 5) ||
@@ -589,18 +607,16 @@ export const useEventStore = defineStore("event", () => {
         color: "#43aa8b",
         name: "其他",
         active: true,
-      };
-
-    currentEvent.value = {
+      };    currentEvent.value = {
       id: Date.now(),
       title: "",
-      start: formatDateTimeForInput(today),
-      end: formatDateTimeForInput(today),
+      start: formatDateTimeForInput(placeholderDate), // 使用1970年占位符作为开始时间
+      end: formatDateTimeForInput(today), // 默认有截止时间
       description: "",
       categoryId: defaultCat.id,
       categoryColor: defaultCat.color,
-      allDay: true,
-      eventType: EventType.TODO,
+      allDay: false, // 待办事项设置为非全天事件
+      eventType: EventType.BOTH, // 默认为BOTH类型，因为默认有截止时间
       completed: false,
     };
 
@@ -610,31 +626,56 @@ export const useEventStore = defineStore("event", () => {
   // 打开编辑待办事项模态框
   const openEditTodoModal = (todo: Event) => {
     isNewTodo.value = false;
+    // 使用1970年1月1日作为起始时间的占位符
+    const placeholderDate = new Date(0); // 1970-01-01T00:00:00.000Z
     currentEvent.value = {
       ...todo,
-      start: formatDateTimeForInput(todo.start),
-      end: formatDateTimeForInput(todo.end),
+      start: formatDateTimeForInput(placeholderDate), // 待办事项开始时间始终为1970年占位符
+      end: todo.end ? formatDateTimeForInput(todo.end) : "", // 格式化截止时间（如果有）
     };
     showTodoModal.value = true;
   };
-
   // 保存待办事项
-  const saveTodo = async () => {
+  const saveTodo = async (hasDeadlineParam?: boolean) => {
+    // 确保颜色与分类一致
+    const category = categories.value.find(
+      (c) => c.id === currentEvent.value.categoryId
+    );
+    if (category) {
+      currentEvent.value.categoryColor = category.color;
+    }
+    
+    // 创建一个虚拟日期作为没有截止时间的占位符
+    // 使用1970年1月1日作为一个明显的占位符日期
+    const placeholderDate = new Date(0); // 1970-01-01T00:00:00.000Z
+    
+    // 确定是否有截止时间
+    // 如果传入了hasDeadlineParam参数，优先使用它
+    // 否则根据end值判断是否有截止时间
+    const hasDeadline = hasDeadlineParam !== undefined 
+      ? hasDeadlineParam 
+      : !!(currentEvent.value.end && currentEvent.value.end.trim() !== "");
+    
+    // 处理没有截止时间的情况
+    if (!hasDeadline) {
+      // 无截止时间时，清空end值或设为占位符
+      currentEvent.value.end = formatDateTimeForInput(placeholderDate);
+    } else if (!currentEvent.value.end || currentEvent.value.end.trim() === "") {
+      // 有截止时间但end为空，设置默认值为今天结束
+      const today = new Date();
+      today.setHours(23, 59, 59, 0);
+      currentEvent.value.end = formatDateTimeForInput(today);
+    }
+    
     const todoToSave = {
       ...currentEvent.value,
-      start: new Date(currentEvent.value.start),
-      end: new Date(currentEvent.value.end),
+      start: placeholderDate, // 待办事项开始时间统一设为1970年占位符
+      end: hasDeadline ? new Date(currentEvent.value.end) : placeholderDate,
+      // 根据是否有截止时间确认事件类型
+      eventType: hasDeadline ? EventType.BOTH : EventType.TODO,
+      // 设置为非全天事件
+      allDay: false
     };
-
-    // 确保是待办事项类型
-    if (todoToSave.eventType !== EventType.BOTH) {
-      todoToSave.eventType = EventType.TODO;
-    }
-
-    // 设置为全天事件
-    todoToSave.allDay = true;
-
-    // 同步到日历逻辑保留在界面上处理
 
     if (isNewTodo.value) {
       events.value.push(todoToSave as Event);
@@ -660,15 +701,21 @@ export const useEventStore = defineStore("event", () => {
     return newDate;
   }
 
-  // 将日期格式化为 YYYY/MM/DD hh:mm 格式
+  // 将日期格式化为 YYYY/MM/DD hh:mm 格式，精确到分钟
   function formatDateForDisplay(date: Date): string {
-    return (
-      date.toLocaleDateString("zh-CN", {
-        year: "numeric",
-        month: "2-digit",
-        day: "2-digit",
-      }) + " 23:59"
-    );
+    const dateStr = date.toLocaleDateString("zh-CN", {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    });
+    
+    const timeStr = date.toLocaleTimeString("zh-CN", {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false
+    });
+    
+    return dateStr + " " + timeStr;
   }
 
   // 将日期格式化为 YYYY-MM-DD 格式，以便用户选择或输入日期。
