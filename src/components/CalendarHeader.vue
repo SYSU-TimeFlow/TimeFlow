@@ -2,6 +2,7 @@
   @component: CalendarHeader
   @description: 应用程序头部组件，包含标题、导航按钮、搜索框和窗口控制按钮
   @author: huzch
+  @modified: lijzh89
   @date: 2025-05-25
 -->
 
@@ -550,11 +551,14 @@ const toggleNotification = () => {
 declare global {
   interface Window {
     electronAPI?: {
+      saveSettings: (settings: any) => Promise<void>;
+      loadSettings: () => Promise<any>;
+      setNativeTheme: (theme: string) => void;
+      setWeekStart: (startDay: string) => void;
       notify: (title: string, body: string) => void;
       minimize?: () => void;
       maximize?: () => void;
       close?: () => void;
-      // 根据需要继续补充其它API类型
     };
   }
 }
