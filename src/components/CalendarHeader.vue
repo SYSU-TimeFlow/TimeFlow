@@ -328,20 +328,9 @@ function sendEventNotification(event: any, type: string) {
     body = `日程${type}${event.title}：${timeInfo}结束`;
   }
 
-  if ("Notification" in window) {
-    if (Notification.permission === "granted") {
-      const n = new Notification(`日程提醒：${event.title}`, {
-        body,
-        silent: false,
-      });
-      setTimeout(() => n.close(), 3000);
-    } else if (Notification.permission !== "denied") {
-      Notification.requestPermission().then((permission) => {
-        if (permission === "granted") {
-          sendEventNotification(event, type);
-        }
-      });
-    }
+  // 推荐：通过 Electron API 发送通知
+  if (window.electronAPI && window.electronAPI.notify) {
+    window.electronAPI.notify(`日程提醒：${event.title}`, body);
   }
 }
 
@@ -544,6 +533,18 @@ const activateSearch = () => {
     searchInputRef.value?.focus();
   });
 };
+
+declare global {
+  interface Window {
+    electronAPI?: {
+      notify: (title: string, body: string) => void;
+      minimize?: () => void;
+      maximize?: () => void;
+      close?: () => void;
+      // 根据需要继续补充其它API类型
+    };
+  }
+}
 </script>
 
 <style scoped>
