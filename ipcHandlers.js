@@ -223,6 +223,6 @@ export function initializeIpcHandlers(ipcMain, appDataStore, settingsConfigStore
   ipcMain.handle('notify', (event, { title, body }) => {
     const notification = new Notification({ title, body, silent: false });
     notification.show();
-    setTimeout(() => notification.close(), 3000); // 3秒后自动关闭
+    setTimeout(() => notification.close(), 5000); // 5秒后自动关闭
   });
 }
