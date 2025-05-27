@@ -68,29 +68,48 @@
               :class="[
                 'event-item text-xs p-1 rounded overflow-hidden cursor-pointer',
                 event.allDay ? 'all-day-event' : '', // 全天事件特殊类
+                event.eventType === 'both' ? 'both-event' : '', // both类型事件特殊类
               ]"
               :style="{
                 backgroundColor: event.categoryColor + '33', // 事件背景色，透明度33%
                 borderLeft: `3px solid ${event.categoryColor}`, // 事件左边框颜色
               }"
-              @click.stop="eventStore.openEventDetails(event)"
+              @click.stop="event.eventType === 'both' ? eventStore.toggleTodo(event.id) : eventStore.openEventDetails(event)"
               draggable="true"
               @dragstart="uiStore.handleDragStart($event, event)"
             >
               <!-- 事件时间 -->
-              <div
-                class="event-time font-medium"
-                :style="{ color: event.categoryColor }"
-              >
-                {{
-                  event.allDay ? "All day" : eventStore.formatEventTime(event)
-                }}
+              <div class="flex items-center">
+                <!-- 对于both类型事件，显示复选框 -->
+                <input
+                  v-if="event.eventType === 'both'"
+                  type="checkbox"
+                  :checked="event.completed"
+                  @click.stop="eventStore.toggleTodo(event.id)"
+                  class="mr-1 h-3 w-3 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                />
+                <div
+                  class="event-time font-medium"
+                  :style="{ 
+                    color: event.categoryColor,
+                    textDecoration: event.eventType === 'both' && event.completed ? 'line-through' : 'none' 
+                  }"
+                >
+                  {{
+                    event.allDay 
+                      ? "All day" 
+                      : event.eventType === 'both'
+                        ? eventStore.formatTime(new Date(event.end))
+                        : eventStore.formatEventTime(event)
+                  }}
+                </div>
               </div>
               <!-- 事件标题 -->
               <div
                 class="event-title font-medium truncate"
                 :style="{
                   color: uiStore.getContrastColor(event.categoryColor),
+                  textDecoration: event.eventType === 'both' && event.completed ? 'line-through' : 'none'
                 }"
               >
                 {{ event.title }}
@@ -163,12 +182,14 @@
                 width: `calc(100% / 7)`,
                 left: `calc(${(100 * idx) / 7}% )`,
               }"
-            >
-              <!-- 单个事件项 -->
+            >              <!-- 单个事件项 -->
               <div
                 v-for="event in eventStore.getEventsForDay(day.date)"
                 :key="event.id"
-                class="day-event absolute rounded-sm px-2 py-1 overflow-hidden cursor-pointer"
+                :class="[
+                  'day-event absolute rounded-sm px-2 py-1 overflow-hidden cursor-pointer',
+                  event.eventType === 'both' ? 'both-event-week' : ''
+                ]"
                 :style="{
                   top: `${uiStore.calculateEventTop(event)}px`,
                   height: `${uiStore.calculateEventHeight(event)}px`,
@@ -178,25 +199,51 @@
                   borderLeft: `3px solid ${event.categoryColor}`,
                   zIndex: 10,
                 }"
-                @click.stop="eventStore.openEventDetails(event)"
+                @click.stop="event.eventType === 'both' ? eventStore.toggleTodo(event.id) : eventStore.openEventDetails(event)"
                 draggable="true"
                 @dragstart="uiStore.handleDragStart($event, event)"
               >
-                <div
-                  class="event-time text-xs font-medium"
-                  :style="{ color: event.categoryColor }"
-                >
-                  {{ eventStore.formatEventTime(event) }}
+                <div class="flex items-center w-full">
+                  <!-- 对于both类型事件，显示复选框 -->
+                  <input
+                    v-if="event.eventType === 'both'"
+                    type="checkbox"
+                    :checked="event.completed"
+                    @click.stop="eventStore.toggleTodo(event.id)"
+                    class="mr-1 h-3 w-3 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                  />
+                  <div
+                    class="event-time text-xs font-medium"
+                    :style="{ 
+                      color: event.categoryColor,
+                      textDecoration: event.eventType === 'both' && event.completed ? 'line-through' : 'none' 
+                    }"
+                  >
+                    {{ 
+                      event.allDay 
+                        ? "All day" 
+                        : event.eventType === 'both'
+                          ? eventStore.formatTime(new Date(event.end))
+                          : eventStore.formatEventTime(event) 
+                    }}
+                  </div>
                 </div>
                 <div
                   class="event-title text-sm font-medium truncate"
                   :style="{
                     color: uiStore.getContrastColor(event.categoryColor),
+                    textDecoration: event.eventType === 'both' && event.completed ? 'line-through' : 'none'
                   }"
                 >
                   {{ event.title }}
                 </div>
-                <div class="event-description text-xs truncate text-gray-600">
+                <div 
+                  v-if="event.description"
+                  class="event-description text-xs truncate text-gray-600"
+                  :style="{
+                    textDecoration: event.eventType === 'both' && event.completed ? 'line-through' : 'none'
+                  }"
+                >
                   {{ event.description }}
                 </div>
               </div>
@@ -257,7 +304,10 @@
               <div
                 v-for="event in eventStore.getEventsForDay(uiStore.currentDate)"
                 :key="event.id"
-                class="day-event absolute rounded-sm px-2 py-1 overflow-hidden cursor-pointer"
+                :class="[
+                  'day-event absolute rounded-sm px-2 py-1 overflow-hidden cursor-pointer',
+                  event.eventType === 'both' ? 'both-event-week' : ''
+                ]"
                 :style="{
                   top: `${uiStore.calculateEventTop(event)}px`, // 计算事件的垂直位置
                   height: `${uiStore.calculateEventHeight(event)}px`, // 计算事件的高度
@@ -267,25 +317,51 @@
                   borderLeft: `3px solid ${event.categoryColor}`,
                   zIndex: '10', // 确保事件在网格线上方
                 }"
-                @click.stop="eventStore.openEventDetails(event)"
+                @click.stop="event.eventType === 'both' ? eventStore.toggleTodo(event.id) : eventStore.openEventDetails(event)"
                 draggable="true"
                 @dragstart="uiStore.handleDragStart($event, event)"
               >
-                <div
-                  class="event-time text-xs font-medium"
-                  :style="{ color: event.categoryColor }"
-                >
-                  {{ eventStore.formatEventTime(event) }}
+                <div class="flex items-center w-full">
+                  <!-- 对于both类型事件，显示复选框 -->
+                  <input
+                    v-if="event.eventType === 'both'"
+                    type="checkbox"
+                    :checked="event.completed"
+                    @click.stop="eventStore.toggleTodo(event.id)"
+                    class="mr-1 h-3 w-3 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                  />
+                  <div
+                    class="event-time text-xs font-medium"
+                    :style="{ 
+                      color: event.categoryColor,
+                      textDecoration: event.eventType === 'both' && event.completed ? 'line-through' : 'none' 
+                    }"
+                  >
+                    {{ 
+                      event.allDay 
+                        ? "All day" 
+                        : event.eventType === 'both'
+                          ? eventStore.formatTime(new Date(event.end))
+                          : eventStore.formatEventTime(event) 
+                    }}
+                  </div>
                 </div>
                 <div
                   class="event-title text-sm font-medium truncate"
                   :style="{
                     color: uiStore.getContrastColor(event.categoryColor),
+                    textDecoration: event.eventType === 'both' && event.completed ? 'line-through' : 'none'
                   }"
                 >
                   {{ event.title }}
                 </div>
-                <div class="event-description text-xs truncate text-gray-600">
+                <div 
+                  v-if="event.description"
+                  class="event-description text-xs truncate text-gray-600"
+                  :style="{
+                    textDecoration: event.eventType === 'both' && event.completed ? 'line-through' : 'none'
+                  }"
+                >
                   {{ event.description }}
                 </div>
               </div>
@@ -691,5 +767,45 @@ const eventStore = useEventStore();
 /* 移除暗黑模式中的额外边框效果 */
 .dark-mode .hour-cell:hover::after {
   display: none;
+}
+
+/* Both类型事件（待办任务）的特殊样式 */
+.both-event {
+  display: flex;
+  flex-direction: column;
+}
+
+.both-event.event-item {
+  cursor: pointer;
+}
+
+/* 已完成待办项的样式 */
+.both-event .event-time.line-through,
+.both-event .event-title.line-through {
+  opacity: 0.7;
+}
+
+/* 复选框相关样式 */
+.both-event input[type="checkbox"] {
+  cursor: pointer;
+}
+
+/* 复选框悬停效果 */
+.both-event input[type="checkbox"]:hover {
+  transform: scale(1.2);
+}
+
+/* 周视图中both类型事件的特殊样式 */
+.both-event-week {
+  display: flex;
+  flex-direction: column;
+  /* 移除左侧内边距，保持与其他事件一致 */
+}
+
+/* 周视图中both事件的line-through样式 */
+.both-event-week .event-time.line-through,
+.both-event-week .event-title.line-through,
+.both-event-week .event-description.line-through {
+  opacity: 0.7;
 }
 </style>
