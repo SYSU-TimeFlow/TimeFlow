@@ -1,5 +1,6 @@
 import fs from "fs";
 import path from "path";
+import { Notification } from "electron";
 
 const mapJsonEventTypeToEnumString = (typeNumber) => {
   switch (typeNumber) {
@@ -216,5 +217,12 @@ export function initializeIpcHandlers(ipcMain, appDataStore, settingsConfigStore
     if (win) {
       win.close(); // 关闭窗口
     }
+  });
+
+  // 新增：系统通知处理
+  ipcMain.handle('notify', (event, { title, body }) => {
+    const notification = new Notification({ title, body, silent: false });
+    notification.show();
+    setTimeout(() => notification.close(), 5000); // 5秒后自动关闭
   });
 }
