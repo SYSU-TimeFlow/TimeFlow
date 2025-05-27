@@ -259,7 +259,21 @@ const toggleNotification = () => {
 const checkAndNotifyEvents = () => {
   if (!isNotificationEnabled.value) return;
   const now = new Date();
-  eventStore.events.forEach((event) => {
+
+  // 合并日历事件和Todo事件，按id去重
+  const allEvents = [
+    ...eventStore.events.filter(e => e.eventType !== "todo"),
+    ...eventStore.events.filter(e => e.eventType === "todo"),
+  ];
+  const uniqueEventsMap = new Map<number, any>();
+  allEvents.forEach(event => {
+    if (event.id && !uniqueEventsMap.has(event.id)) {
+      uniqueEventsMap.set(event.id, event);
+    }
+  });
+  const uniqueEvents = Array.from(uniqueEventsMap.values());
+
+  uniqueEvents.forEach((event) => {
     if (!event.id || notifiedEventIds.value.has(event.id)) return;
     const start =
       event.start instanceof Date ? event.start : new Date(event.start);
