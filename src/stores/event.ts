@@ -430,30 +430,50 @@ export const useEventStore = defineStore("event", () => {
     start.setHours(0, 0, 0, 0);
     const end = new Date(date);
     end.setHours(23, 59, 59, 999);
+    
+    // 处理常规日历事件和BOTH类型的待办事项
     return events.value
       .filter((event) => {
-        // 只考虑纯日历事件，排除待办事项和双重事件
-        if (event.eventType !== EventType.CALENDAR) return false;
-
-        const eventStart = new Date(event.start);
-        const eventEnd = new Date(event.end);
-        // 先检查事件日期是否符合条件
+        // 排除纯TODO类型的待办事项
+        if (event.eventType === EventType.TODO) return false;
+        
+        let eventStart: Date;
+        let eventEnd: Date;
+        
+        // 对于BOTH类型的待办，使用截止日期作为事件日期
+        if (event.eventType === EventType.BOTH && new Date(event.start).getFullYear() <= 1970) {
+          eventStart = new Date(event.end);
+          eventEnd = new Date(event.end);
+        } else {
+          eventStart = new Date(event.start);
+          eventEnd = new Date(event.end);
+        }
+        
+        // 检查事件日期是否符合条件
         const dateMatches =
           (eventStart >= start && eventStart <= end) || // 条件1
           (eventEnd >= start && eventEnd <= end) || // 条件2
           (eventStart <= start && eventEnd >= end); // 条件3
+        
         // 再检查事件分类是否被选中
         const categoryMatches = activeCategoryIds.includes(event.categoryId);
+        
         // 同时满足日期和分类两个条件
         return dateMatches && categoryMatches;
       })
       .sort((a, b) => {
-        const aStart = new Date(a.start).getTime();
-        const bStart = new Date(b.start).getTime();
-        if (aStart === bStart) {
+        // 为BOTH类型的待办使用end日期排序，为常规事件使用start日期排序
+        const aTime = a.eventType === EventType.BOTH && new Date(a.start).getFullYear() <= 1970 
+          ? new Date(a.end).getTime() 
+          : new Date(a.start).getTime();
+        const bTime = b.eventType === EventType.BOTH && new Date(b.start).getFullYear() <= 1970 
+          ? new Date(b.end).getTime() 
+          : new Date(b.start).getTime();
+          
+        if (aTime === bTime) {
           return new Date(a.end).getTime() - new Date(b.end).getTime();
         }
-        return aStart - bStart;
+        return aTime - bTime;
       });
   }
 
