@@ -252,13 +252,30 @@ export const useUiStore = defineStore("ui", () => {
       hour12: true,
     }).format(new Date(2025, 0, 1, hour));
   }
-
   function calculateEventTop(event: any): number {
+    // 对于both类型事件（即待办事项），使用截止时间减去1小时作为展示位置
+    if (event.eventType === 'both' && new Date(event.start).getFullYear() <= 1970) {
+      const end = new Date(event.end);
+      // 确保待办事项至少显示在截止时间前1小时的位置
+      const endHour = end.getHours();
+      const endMinute = end.getMinutes();
+      // 如果结束时间在0点之后，则显示在前一小时
+      const displayHour = endHour > 0 ? endHour - 1 : 0;
+      return ((displayHour * 60 + endMinute) / 60) * 64;
+    }
+    
+    // 对于普通事件，使用原来的计算方式
     const start = new Date(event.start);
     return ((start.getHours() * 60 + start.getMinutes()) / 60) * 64;
   }
 
   function calculateEventHeight(event: any): number {
+    // 对于both类型事件（即待办事项），固定高度为1小时
+    if (event.eventType === 'both' && new Date(event.start).getFullYear() <= 1970) {
+      return 64; // 1小时的高度
+    }
+    
+    // 对于普通事件，使用原来的计算方式
     const start = new Date(event.start);
     const end = new Date(event.end);
     const durationHours = (end.getTime() - start.getTime()) / (1000 * 60 * 60);
