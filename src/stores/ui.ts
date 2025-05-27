@@ -78,6 +78,9 @@ export const useUiStore = defineStore("ui", () => {
         day: "numeric",
         year: "numeric",
       }).format(currentDate.value);
+    } else if (currentView.value === "todo-list") {
+      // 如果是待办事项视图，则不显示日期
+      return "";
     }
     return new Intl.DateTimeFormat("zh-CN", options).format(currentDate.value);
   });
