@@ -245,10 +245,13 @@ const notifiedEventKeys = ref<Set<string>>(new Set());
 
 // 生成唯一key
 function getEventNotifyKey(event: any) {
-  // 只要时间有变化，key就会变化
+  // 判断是否为待办事项（start为1970年）
   const start = event.start ? new Date(event.start).getTime() : 0;
   const end = event.end ? new Date(event.end).getTime() : 0;
-  return `${event.id}|${start}|${end}`;
+  const isTodo = (!event.start || new Date(event.start).getFullYear() === 1970)
+    && (event.eventType === "todo" || event.eventType === "both");
+  // 对于待办事项，只用id和end，日历事件用id+start+end
+  return isTodo ? `${event.id}|${end}` : `${event.id}|${start}|${end}`;
 }
 
 // 检查日程并发送通知
