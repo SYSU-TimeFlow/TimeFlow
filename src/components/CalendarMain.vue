@@ -58,6 +58,13 @@
             >
               {{ day.dayNumber }}
             </span>
+            <!-- 添加农历显示 -->
+            <span
+              v-if="settingStore.showLunar"
+              class="lunar-date text-xs text-gray-500"
+            >
+              {{ settingStore.getLunarDate(new Date(day.date)) }}
+            </span>
           </div>
           <!-- 当天事件列表容器 -->
           <div class="day-events mt-1 space-y-1 pb-2 custom-scrollbar">
@@ -74,7 +81,11 @@
                 backgroundColor: event.categoryColor + '33', // 事件背景色，透明度33%
                 borderLeft: `3px solid ${event.categoryColor}`, // 事件左边框颜色
               }"
-              @click.stop="event.eventType === 'both' ? eventStore.toggleTodo(event.id) : eventStore.openEventDetails(event)"
+              @click.stop="
+                event.eventType === 'both'
+                  ? eventStore.toggleTodo(event.id)
+                  : eventStore.openEventDetails(event)
+              "
               draggable="true"
               @dragstart="uiStore.handleDragStart($event, event)"
             >
@@ -90,17 +101,20 @@
                 />
                 <div
                   class="event-time font-medium"
-                  :style="{ 
+                  :style="{
                     color: event.categoryColor,
-                    textDecoration: event.eventType === 'both' && event.completed ? 'line-through' : 'none' 
+                    textDecoration:
+                      event.eventType === 'both' && event.completed
+                        ? 'line-through'
+                        : 'none',
                   }"
                 >
                   {{
-                    event.allDay 
-                      ? "All day" 
-                      : event.eventType === 'both'
-                        ? eventStore.formatTime(new Date(event.end))
-                        : eventStore.formatEventTime(event)
+                    event.allDay
+                      ? "All day"
+                      : event.eventType === "both"
+                      ? eventStore.formatTime(new Date(event.end))
+                      : eventStore.formatEventTime(event)
                   }}
                 </div>
               </div>
@@ -109,7 +123,10 @@
                 class="event-title font-medium truncate"
                 :style="{
                   color: uiStore.getContrastColor(event.categoryColor),
-                  textDecoration: event.eventType === 'both' && event.completed ? 'line-through' : 'none'
+                  textDecoration:
+                    event.eventType === 'both' && event.completed
+                      ? 'line-through'
+                      : 'none',
                 }"
               >
                 {{ event.title }}
@@ -182,13 +199,14 @@
                 width: `calc(100% / 7)`,
                 left: `calc(${(100 * idx) / 7}% )`,
               }"
-            >              <!-- 单个事件项 -->
+            >
+              <!-- 单个事件项 -->
               <div
                 v-for="event in eventStore.getEventsForDay(day.date)"
                 :key="event.id"
                 :class="[
                   'day-event absolute rounded-sm px-2 py-1 overflow-hidden cursor-pointer',
-                  event.eventType === 'both' ? 'both-event-week' : ''
+                  event.eventType === 'both' ? 'both-event-week' : '',
                 ]"
                 :style="{
                   top: `${uiStore.calculateEventTop(event)}px`,
@@ -199,7 +217,11 @@
                   borderLeft: `3px solid ${event.categoryColor}`,
                   zIndex: 10,
                 }"
-                @click.stop="event.eventType === 'both' ? eventStore.toggleTodo(event.id) : eventStore.openEventDetails(event)"
+                @click.stop="
+                  event.eventType === 'both'
+                    ? eventStore.toggleTodo(event.id)
+                    : eventStore.openEventDetails(event)
+                "
                 draggable="true"
                 @dragstart="uiStore.handleDragStart($event, event)"
               >
@@ -214,17 +236,20 @@
                   />
                   <div
                     class="event-time text-xs font-medium"
-                    :style="{ 
+                    :style="{
                       color: event.categoryColor,
-                      textDecoration: event.eventType === 'both' && event.completed ? 'line-through' : 'none' 
+                      textDecoration:
+                        event.eventType === 'both' && event.completed
+                          ? 'line-through'
+                          : 'none',
                     }"
                   >
-                    {{ 
-                      event.allDay 
-                        ? "All day" 
-                        : event.eventType === 'both'
-                          ? eventStore.formatTime(new Date(event.end))
-                          : eventStore.formatEventTime(event) 
+                    {{
+                      event.allDay
+                        ? "All day"
+                        : event.eventType === "both"
+                        ? eventStore.formatTime(new Date(event.end))
+                        : eventStore.formatEventTime(event)
                     }}
                   </div>
                 </div>
@@ -232,16 +257,22 @@
                   class="event-title text-sm font-medium truncate"
                   :style="{
                     color: uiStore.getContrastColor(event.categoryColor),
-                    textDecoration: event.eventType === 'both' && event.completed ? 'line-through' : 'none'
+                    textDecoration:
+                      event.eventType === 'both' && event.completed
+                        ? 'line-through'
+                        : 'none',
                   }"
                 >
                   {{ event.title }}
                 </div>
-                <div 
+                <div
                   v-if="event.description"
                   class="event-description text-xs truncate text-gray-600"
                   :style="{
-                    textDecoration: event.eventType === 'both' && event.completed ? 'line-through' : 'none'
+                    textDecoration:
+                      event.eventType === 'both' && event.completed
+                        ? 'line-through'
+                        : 'none',
                   }"
                 >
                   {{ event.description }}
@@ -306,7 +337,7 @@
                 :key="event.id"
                 :class="[
                   'day-event absolute rounded-sm px-2 py-1 overflow-hidden cursor-pointer',
-                  event.eventType === 'both' ? 'both-event-week' : ''
+                  event.eventType === 'both' ? 'both-event-week' : '',
                 ]"
                 :style="{
                   top: `${uiStore.calculateEventTop(event)}px`, // 计算事件的垂直位置
@@ -317,7 +348,11 @@
                   borderLeft: `3px solid ${event.categoryColor}`,
                   zIndex: '10', // 确保事件在网格线上方
                 }"
-                @click.stop="event.eventType === 'both' ? eventStore.toggleTodo(event.id) : eventStore.openEventDetails(event)"
+                @click.stop="
+                  event.eventType === 'both'
+                    ? eventStore.toggleTodo(event.id)
+                    : eventStore.openEventDetails(event)
+                "
                 draggable="true"
                 @dragstart="uiStore.handleDragStart($event, event)"
               >
@@ -332,17 +367,20 @@
                   />
                   <div
                     class="event-time text-xs font-medium"
-                    :style="{ 
+                    :style="{
                       color: event.categoryColor,
-                      textDecoration: event.eventType === 'both' && event.completed ? 'line-through' : 'none' 
+                      textDecoration:
+                        event.eventType === 'both' && event.completed
+                          ? 'line-through'
+                          : 'none',
                     }"
                   >
-                    {{ 
-                      event.allDay 
-                        ? "All day" 
-                        : event.eventType === 'both'
-                          ? eventStore.formatTime(new Date(event.end))
-                          : eventStore.formatEventTime(event) 
+                    {{
+                      event.allDay
+                        ? "All day"
+                        : event.eventType === "both"
+                        ? eventStore.formatTime(new Date(event.end))
+                        : eventStore.formatEventTime(event)
                     }}
                   </div>
                 </div>
@@ -350,16 +388,22 @@
                   class="event-title text-sm font-medium truncate"
                   :style="{
                     color: uiStore.getContrastColor(event.categoryColor),
-                    textDecoration: event.eventType === 'both' && event.completed ? 'line-through' : 'none'
+                    textDecoration:
+                      event.eventType === 'both' && event.completed
+                        ? 'line-through'
+                        : 'none',
                   }"
                 >
                   {{ event.title }}
                 </div>
-                <div 
+                <div
                   v-if="event.description"
                   class="event-description text-xs truncate text-gray-600"
                   :style="{
-                    textDecoration: event.eventType === 'both' && event.completed ? 'line-through' : 'none'
+                    textDecoration:
+                      event.eventType === 'both' && event.completed
+                        ? 'line-through'
+                        : 'none',
                   }"
                 >
                   {{ event.description }}
@@ -380,10 +424,12 @@
  */
 import { useUiStore } from "../stores/ui";
 import { useEventStore } from "../stores/event";
+import { useSettingStore } from "../stores/setting";
 
 // 使用 Pinia 仓库
 const uiStore = useUiStore();
 const eventStore = useEventStore();
+const settingStore = useSettingStore();
 </script>
 
 <style scoped>
@@ -637,7 +683,8 @@ const eventStore = useEventStore();
 
 /* 暗黑模式下的小时格子悬停样式 */
 .dark-mode .hour-cell:hover {
-  background-color: var(--hover-bg) !important;
+  background-color: var(--calendar-day-hover-bg) !important;
+  border-color: #4a88e5 !important;
 }
 
 /* 暗黑模式下事件颜色调整 */
@@ -662,14 +709,18 @@ const eventStore = useEventStore();
 
 /* 覆盖日历格子悬停效果 */
 .dark-mode .calendar-day:hover {
-  background-color: var(--calendar-day-hover-bg) !important; /* 使用变量控制颜色 */
+  background-color: var(
+    --calendar-day-hover-bg
+  ) !important; /* 使用变量控制颜色 */
   border-color: #4a88e5 !important; /* 使用深蓝色边框 */
   box-shadow: 0 0 0 1px rgba(74, 136, 229, 0.3);
 }
 
 /* 修改这些样式确保周视图和月视图的悬停效果一致 */
 .dark-mode .hour-cell:hover {
-  background-color: var(--calendar-day-hover-bg) !important; /* 使用与calendar-day相同的变量 */
+  background-color: var(
+    --calendar-day-hover-bg
+  ) !important; /* 使用与calendar-day相同的变量 */
   border-color: #4a88e5 !important;
 }
 
@@ -807,5 +858,39 @@ const eventStore = useEventStore();
 .both-event-week .event-title.line-through,
 .both-event-week .event-description.line-through {
   opacity: 0.7;
+}
+
+/* 农历日期样式 */
+.lunar-date {
+  display: block;
+  margin-top: 2px;
+  color: var(--text-tertiary);
+  font-size: var(--small-text-font-size);
+}
+
+/* 暗黑模式下的农历日期样式 */
+.dark-mode .lunar-date {
+  color: var(--text-tertiary);
+}
+
+/* 修改字号相关的样式 */
+.day-number {
+  font-size: var(--base-font-size);
+}
+
+.event-title {
+  font-size: var(--base-font-size);
+}
+
+.event-time {
+  font-size: var(--small-text-font-size);
+}
+
+.event-description {
+  font-size: var(--small-text-font-size);
+}
+
+.time-label {
+  font-size: var(--small-text-font-size);
 }
 </style>

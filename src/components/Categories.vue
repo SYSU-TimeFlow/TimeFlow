@@ -73,6 +73,19 @@ const uiStore = useUiStore();
 </script>
 
 <style scoped>
+/* 修改字号相关的样式 */
+.category-title {
+  font-size: var(--heading-font-size);
+}
+
+.category-item {
+  font-size: var(--base-font-size);
+}
+
+.category-description {
+  font-size: var(--small-text-font-size);
+}
+
 .category-item {
   position: relative;
 }
@@ -90,7 +103,9 @@ const uiStore = useUiStore();
 
 /* 暗黑模式下分类项悬停效果 */
 .dark-mode .category-item:hover {
-  background-color: var(--hover-bg) !important; /* 使用与view-btn相同的悬停颜色 */
+  background-color: var(
+    --hover-bg
+  ) !important; /* 使用与view-btn相同的悬停颜色 */
   color: var(--text-secondary);
   border-color: transparent;
 }

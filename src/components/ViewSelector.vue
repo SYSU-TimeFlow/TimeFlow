@@ -4,7 +4,7 @@
  该组件允许用户在不同的日历视图（如月视图、周视图、日视图）之间切换。
  当侧边栏折叠时，仅显示视图图标；展开时，显示图标和视图名称。
 -->
- 
+
 <template>
   <!-- 视图选择器根元素 -->
   <div
@@ -72,5 +72,18 @@ const uiStore = useUiStore();
 /* 调整视图选择器标题颜色 */
 .dark-mode .text-sm.font-medium {
   color: var(--sidebar-title-color) !important;
+}
+
+/* 添加字体大小变量 */
+.text-sm {
+  font-size: var(--font-size-sm);
+}
+
+.view-btn {
+  font-size: var(--font-size-base);
+}
+
+.view-btn i {
+  font-size: var(--font-size-base);
 }
 </style>

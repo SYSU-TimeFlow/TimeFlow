@@ -524,6 +524,23 @@ function applyFontSizeChange() {
 </script>
 
 <style scoped>
+/* 修改字号相关的样式 */
+.settings-title {
+  font-size: var(--heading-font-size);
+}
+
+.settings-section-title {
+  font-size: var(--subheading-font-size);
+}
+
+.settings-label {
+  font-size: var(--base-font-size);
+}
+
+.settings-description {
+  font-size: var(--small-text-font-size);
+}
+
 /* 组件样式，圆角、阴影、滚动条、动画等 */
 .settings-container {
   min-width: 320px;
@@ -535,19 +552,40 @@ function applyFontSizeChange() {
   color: var(--text-primary);
   border-color: var(--border-color);
 }
+
+/* 深色模式下的 select 样式 */
+.dark-mode select {
+  background-color: var(--bg-tertiary) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--border-color) !important;
+}
+
+.dark-mode select:focus {
+  border-color: var(--button-primary) !important;
+  box-shadow: 0 0 0 2px var(--button-primary-hover) !important;
+}
+
+.dark-mode select option {
+  background-color: var(--bg-tertiary);
+  color: var(--text-primary);
+}
+
 .toggle-checkbox {
   width: 40px;
   height: 20px;
   accent-color: #2563eb; /* Tailwind blue-600 */
 }
+
 .fade-enter-active,
 .fade-leave-active {
   transition: opacity 0.3s;
 }
+
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;
 }
+
 /* 定义淡入动画效果 */
 @keyframes fadeIn {
   from {

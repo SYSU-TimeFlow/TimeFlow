@@ -13,14 +13,20 @@
       @click="uiStore.toggleSidebar"
       :class="[
         'sidebar-toggle text-gray-500 hover:text-gray-700 cursor-pointer absolute right-0 transition-all duration-200',
-        uiStore.sidebarCollapsed ? 'w-8 h-8 flex items-center justify-center rounded-full' : 'p-2',
-        uiStore.showToggleButton ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-4' // 悬停时显示，离开时隐藏
+        uiStore.sidebarCollapsed
+          ? 'w-8 h-8 flex items-center justify-center rounded-full'
+          : 'p-2',
+        uiStore.showToggleButton
+          ? 'opacity-100 translate-x-0'
+          : 'opacity-0 translate-x-4', // 悬停时显示，离开时隐藏
       ]"
-      style="top: 50%; transform: translateY(-50%);" 
+      style="top: 50%; transform: translateY(-50%)"
     >
       <i
         :class="
-          uiStore.sidebarCollapsed ? 'fas fa-chevron-right' : 'fas fa-chevron-left' // 根据折叠状态切换图标
+          uiStore.sidebarCollapsed
+            ? 'fas fa-chevron-right'
+            : 'fas fa-chevron-left' // 根据折叠状态切换图标
         "
       ></i>
     </button>
@@ -33,7 +39,7 @@
       <i
         :class="[
           'fas fa-plus',
-          !uiStore.sidebarCollapsed ? 'mr-2' : '' // 根据折叠状态设置边距
+          !uiStore.sidebarCollapsed ? 'mr-2' : '', // 根据折叠状态设置边距
         ]"
       ></i>
       <!-- 仅在侧边栏展开时显示文字 -->
@@ -71,7 +77,11 @@
       ></span>
       <!-- 同步状态文本，仅在侧边栏展开时显示 -->
       <span v-if="!uiStore.sidebarCollapsed" class="text-xs text-gray-500 ml-2">
-        {{ settingStore.synced ? "Synced with system calendar" : "Sync pending..." }}
+        {{
+          settingStore.synced
+            ? "Synced with system calendar"
+            : "Sync pending..."
+        }}
       </span>
     </div>
   </aside>
@@ -81,15 +91,14 @@
 // import MiniCalendar from "./MiniCalendar.vue";
 import ViewSelector from "./ViewSelector.vue";
 import Categories from "./Categories.vue";
-import { useEventStore } from '../stores/event';
-import { useUiStore } from '../stores/ui';
-import { useSettingStore } from '../stores/setting';
+import { useEventStore } from "../stores/event";
+import { useUiStore } from "../stores/ui";
+import { useSettingStore } from "../stores/setting";
 
 // 使用Pinia仓库
 const eventStore = useEventStore();
 const uiStore = useUiStore();
 const settingStore = useSettingStore();
-
 </script>
 
 <style scoped>
@@ -162,5 +171,18 @@ const settingStore = useSettingStore();
 .dark-mode .sidebar h3,
 .dark-mode .sidebar .text-gray-700 {
   color: var(--sidebar-title-color) !important;
+}
+
+/* 修改字号相关的样式 */
+.sidebar-title {
+  font-size: var(--heading-font-size);
+}
+
+.nav-item {
+  font-size: var(--base-font-size);
+}
+
+.nav-item-icon {
+  font-size: var(--base-font-size);
 }
 </style>
