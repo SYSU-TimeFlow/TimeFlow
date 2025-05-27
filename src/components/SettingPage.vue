@@ -58,6 +58,7 @@
         <select
           v-model="settingStore.themeMode"
           class="border border-gray-300 rounded-md px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          @change="applyThemeChange"
         >
           <option value="light">亮</option>
           <option value="dark">暗</option>
@@ -495,6 +496,13 @@ function resetSettings() {
     showToast.value = false;
   }, 2500);
 }
+
+/**
+ * 立即应用主题变化，而不等待保存
+ */
+function applyThemeChange() {
+  settingStore.applyTheme(settingStore.themeMode);
+}
 </script>
 
 <style scoped>
@@ -504,7 +512,10 @@ function resetSettings() {
   font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
     Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
   transition: all 0.3s;
-  animation: fadeIn 0.1s ease-out; /* 动画名称、持续时间、缓动函数 */
+  animation: fadeIn 0.1s ease-out;
+  background-color: var(--modal-bg);
+  color: var(--text-primary);
+  border-color: var(--border-color);
 }
 .toggle-checkbox {
   width: 40px;

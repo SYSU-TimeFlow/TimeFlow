@@ -1,0 +1,107 @@
+:root {
+  /* 亮色模式的变量 */
+  --bg-primary: #ffffff;
+  --bg-secondary: #f9fafb;
+  --bg-tertiary: #f3f4f6;
+  --bg-sidebar: #f1f5f9;
+  --text-primary: #111827;
+  --text-secondary: #4b5563;
+  --text-tertiary: #6b7280;
+  --border-color: #e5e7eb;
+  --hover-bg: #f3f4f6;
+  --active-bg: #e5e7eb;
+  --card-bg: #ffffff;
+  --modal-bg: #ffffff;
+  --header-bg: #f8fafc;
+  --selected-bg: #dbeafe;
+  --event-hover-shadow: rgba(0, 0, 0, 0.12);
+  --shadow-color: rgba(0, 0, 0, 0.1);
+  --tooltip-bg: #374151;
+  --tooltip-text: #ffffff;
+}
+
+/* 暗黑模式变量 */
+.dark-mode {
+  --bg-primary: #121212;
+  --bg-secondary: #1e1e1e;
+  --bg-tertiary: #2a2a2a;
+  --bg-sidebar: #1a1a1a;
+  /* 修改白色为更柔和的颜色 */
+  --text-primary: #e2e4e8; 
+  --text-secondary: #b8bcc4;
+  --text-tertiary: #8c919c;
+  --border-color: #374151;
+  /* 修改悬停和活动状态的背景色，让它不那么刺眼 */
+  --hover-bg: #222222; /* 更接近黑色的悬停颜色 */
+  --active-bg: #272727; /* 更接近黑色的活动背景 */
+  --card-bg: #1e1e1e;
+  --modal-bg: #1e1e1e;
+  --header-bg: #111827;
+  --selected-bg: #1e3a8a;
+  --event-hover-shadow: rgba(0, 0, 0, 0.5);
+  --shadow-color: rgba(0, 0, 0, 0.5);
+  --tooltip-bg: #e5e7eb;
+  --tooltip-text: #111827;
+  /* 新增/修改变量 */
+  --date-number-color: #b8bcc4; 
+  --heading-color: #4a88e5; /* 改为深蓝色 */
+  --calendar-day-bg: #1a1a1a;
+  --calendar-today-bg: #2c3650;
+  --calendar-weekend-bg: #1c1c1c;
+  --calendar-day-hover-bg: #282828; /* 日历格子悬停背景色 */
+  --calendar-hour-hover-bg: #282828; /* 小时格子悬停背景色 - 确保与day相同 */
+  --search-bg: #252525; /* 新增：搜索框背景色 */
+  --search-border: #3a3a3a; /* 新增：搜索框边框色 */
+  /* 新增按钮相关变量 */
+  --button-primary: #3a5277; /* 更柔和的蓝色按钮 */
+  --button-primary-hover: #445c85; /* 悬停时的颜色 */
+  --button-secondary: #2a3241; /* 次要按钮颜色 */
+  --active-item-bg: #1e293b; /* 更柔和的蓝灰色 */
+  --active-item-border: #3b5998; /* 更柔和的蓝色边框 */
+  
+  /* 新增事件文本相关颜色 */
+  --event-title-color: #c2c7d0; /* 事件标题柔和的淡灰色 */
+  --event-description-color: #a9aeb8; /* 事件描述更淡一些的灰色 */
+  --event-time-color: #b8bcc4; /* 事件时间颜色 */
+  --sidebar-title-color: #c2c7d0; /* 侧边栏标题更亮的灰色 */
+  --hour-cell-hover: #1c1c1c; /* 周/日视图小时格子悬停颜色 */
+}
+
+/* 暗黑模式下的滚动条样式 */
+.dark-mode ::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.dark-mode ::-webkit-scrollbar-track {
+  background: #2a2a2a;
+}
+
+.dark-mode ::-webkit-scrollbar-thumb {
+  background: #4b5563;
+  border-radius: 4px;
+}
+
+.dark-mode ::-webkit-scrollbar-thumb:hover {
+  background: #6b7280;
+}
+
+/* 覆盖各种组件的默认样式 */
+.dark-mode .bg-blue-600 {
+  background-color: var(--button-primary) !important;
+}
+
+.dark-mode .bg-blue-700,
+.dark-mode .hover\:bg-blue-700:hover {
+  background-color: var(--button-primary-hover) !important;
+}
+
+/* 覆盖ToDo视图中的白色背景 */
+.dark-mode .bg-white {
+  background-color: var(--bg-primary) !important;
+}
+
+/* 确保颜色过渡平滑 */
+body, html, * {
+  transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+}

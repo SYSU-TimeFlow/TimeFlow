@@ -150,3 +150,83 @@ function saveTodo() {
   eventStore.saveTodo(hasDeadline.value);
 }
 </script>
+
+<style scoped>
+/* 原有样式保留 */
+
+/* 暗黑模式适配 */
+.todo-page {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+.todo-header {
+  background-color: var(--bg-secondary);
+  border-color: var(--border-color);
+}
+
+.todo-content {
+  background-color: var(--bg-primary);
+}
+
+.filter-button {
+  background-color: var(--bg-tertiary);
+  color: var(--text-secondary);
+  border-color: var(--border-color);
+}
+
+.filter-button.active {
+  background-color: var(--active-bg);
+  color: var(--text-primary);
+}
+
+/* 输入框样式适配暗黑模式 */
+.dark-mode input, 
+.dark-mode textarea {
+  background-color: var(--bg-tertiary);
+  color: var(--text-primary);
+  border-color: var(--border-color);
+}
+
+.dark-mode input::placeholder, 
+.dark-mode textarea::placeholder {
+  color: var(--text-tertiary);
+}
+
+/* 确保模态框正确显示 */
+.dark-mode .bg-white {
+  background-color: var(--modal-bg) !important;
+  color: var(--text-primary);
+}
+
+.dark-mode .text-indigo-600 {
+  color: var(--heading-color) !important;
+}
+
+.dark-mode input, 
+.dark-mode textarea,
+.dark-mode select {
+  background-color: var(--bg-tertiary) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--border-color) !important;
+}
+
+.dark-mode input[type="date"],
+.dark-mode input[type="time"] {
+  color-scheme: dark;
+}
+
+/* 按钮调整 */
+.dark-mode .bg-indigo-600 {
+  background-color: #3a5277 !important; /* 更柔和的蓝色 */
+}
+
+.dark-mode .bg-indigo-600:hover {
+  background-color: #445c85 !important; /* 悬停时略深一点 */
+}
+
+.dark-mode .bg-gray-200 {
+  background-color: var(--bg-tertiary) !important;
+  color: var(--text-secondary) !important;
+}
+</style>
