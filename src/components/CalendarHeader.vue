@@ -48,8 +48,9 @@
         <!-- 模式指示器，非搜索状态显示 -->
         <div
           v-if="!uiStore.isSearchActive"
-          class="mode-indicator pl-8 pr-4 py-1 border border-gray-300 rounded-md text-sm w-64 h-[32px] flex items-center"
+          class="mode-indicator pl-8 pr-4 py-1 border border-gray-300 rounded-md text-sm w-64 h-[32px] flex items-center cursor-pointer"
           :class="{ 'command-mode': uiStore.appMode === 'command' }"
+          @click="activateSearch"
         >
           <span
             v-if="uiStore.appMode === 'normal'"
@@ -391,6 +392,15 @@ const handleInputChange = (event: Event) => {
   const input = event.target as HTMLInputElement;
   let value = input.value;
   eventStore.updateSearchInputValue(value);
+};
+
+// 激活搜索框
+const activateSearch = () => {
+  uiStore.toggleSearchActive(true);
+  uiStore.setAppMode("normal");
+  nextTick(() => {
+    searchInputRef.value?.focus();
+  });
 };
 </script>
 
