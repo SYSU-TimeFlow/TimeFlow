@@ -34,12 +34,11 @@
           </div>
 
           <!-- 待办事项列表 -->
-          <div class="w-full space-y-4">
-            <div
+          <div class="w-full space-y-4">            <div
               v-for="todo in eventStore.filteredTodos"
               :key="todo.id"
-              @click="eventStore.toggleTodo(todo.id)"
-              class="flex justify-between items-center p-5 bg-white rounded-2xl shadow-sm hover:shadow-md transition cursor-pointer border-l-4 group todo-item min-h-[5.5rem]"
+              @click="eventStore.openEditTodoModal(todo)"
+              class="flex justify-between items-center p-3 bg-white rounded-2xl shadow-sm hover:shadow-md transition cursor-pointer border-l-4 group todo-item min-h-[3rem] h-[3rem]"
               :style="{
                 borderLeftColor:
                   eventStore.categories.find((c) => c.id === todo.categoryId)
@@ -47,14 +46,15 @@
                 opacity: todo.completed ? 0.7 : 1,
                 backgroundColor: todo.completed ? '#f9fafb' : 'white',
               }"
-            >
-              <!-- 左侧内容区域，使用flex布局确保垂直分布 -->
-              <div class="flex flex-col justify-between h-full flex-grow mr-4 overflow-hidden">
+            >              <!-- 左侧内容区域 -->
+              <div class="flex items-center h-full flex-grow mr-4 overflow-hidden">
                 <!-- 标题行 -->
                 <div class="flex items-center gap-2">
                   <!-- 完成状态指示器 -->
-                  <div class="w-5 h-5 rounded-full border flex items-center justify-center cursor-pointer"
-                       :class="todo.completed ? 'bg-indigo-500 border-indigo-600' : 'border-gray-300'">
+                  <div 
+                    class="w-5 h-5 rounded-full border flex items-center justify-center cursor-pointer"
+                    :class="todo.completed ? 'bg-indigo-500 border-indigo-600' : 'border-gray-300'"
+                    @click.stop="eventStore.toggleTodo(todo.id)">
                     <i v-if="todo.completed" class="fas fa-check text-white text-xs"></i>
                   </div>
                   
@@ -65,8 +65,7 @@
                   >
                     {{ todo.title }}
                   </div>
-                  
-                  <!-- 分类标签 -->
+                    <!-- 分类标签 -->
                   <div v-if="eventStore.categories.find(c => c.id === todo.categoryId)"
                       class="text-xs px-2 py-0.5 rounded-full"
                       :style="{
@@ -75,40 +74,19 @@
                       }">
                     {{ eventStore.categories.find(c => c.id === todo.categoryId)?.name }}
                   </div>
-                </div>
-                
-                <!-- 详情区域 -->
-                <div class="mt-1 flex flex-col gap-1 overflow-hidden">
-                  <!-- 备注 (如果有) -->
-                  <div v-if="todo.description" class="text-sm text-gray-500 flex items-center gap-1 overflow-hidden">
-                    <i class="fas fa-align-left text-xs flex-shrink-0"></i>
-                    <span class="truncate">{{ todo.description }}</span>
-                  </div>
-                  
-                  <!-- 截止日期 (始终显示以保持一致高度) -->
-                  <div class="text-sm flex items-center gap-1"
-                      :class="todo.end && new Date(todo.end).getFullYear() > 1970 && isOverdue(todo.end) && !todo.completed ? 'text-red-500' : 'text-gray-400'">
-                    <i class="far fa-clock text-xs flex-shrink-0"></i>
-                    <span v-if="todo.end && new Date(todo.end).getFullYear() > 1970">
-                      {{ eventStore.formatDateForDisplay(todo.end) }}
-                    </span>
-                    <span v-else>
-                      无截止时间
-                    </span>
-                  </div>
+                  <!-- 备注图标提示 -->
+                  <i v-if="todo.description" class="fas fa-sticky-note text-gray-400 text-xs ml-1 note-icon" :title="todo.description"></i>
                 </div>
               </div>
-
-              <!-- 右侧操作按钮 -->
+              <!-- 右侧操作区：截止时间单独渲染，删除按钮单独渲染 -->
+              <div v-if="todo.end && new Date(todo.end).getFullYear() > 1970"
+                   class="text-sm flex items-center gap-1 mr-4">
+                <i class="far fa-clock text-xs flex-shrink-0"></i>
+                <span :class="isOverdue(todo.end) && !todo.completed ? 'text-red-500' : 'text-gray-400'">
+                  {{ eventStore.formatDateForDisplay(todo.end) }}
+                </span>
+              </div>
               <div class="flex gap-1 todo-actions">
-                <!-- 编辑按钮 -->
-                <button
-                  @click.stop="eventStore.openEditTodoModal(todo)"
-                  class="p-2 text-blue-500 hover:bg-blue-50 rounded-lg transition"
-                >
-                  <i class="fas fa-pen fa-sm"></i>
-                </button>
-
                 <!-- 删除按钮 -->
                 <button
                   @click.stop="eventStore.deleteEvent(todo.id)"
@@ -282,10 +260,17 @@ function isOverdue(endDate: any): boolean {
 /* 完成状态指示器动画 */
 .todo-item .w-5.h-5 {
   transition: all 0.2s ease;
+  position: relative;
+  z-index: 10; /* 确保复选框在最上层，便于点击 */
 }
 
 .todo-item:hover .w-5.h-5:not(.bg-indigo-500) {
   border-color: #818cf8;
+}
+
+/* 增强复选框悬停效果 */
+.todo-item .w-5.h-5:hover {
+  box-shadow: 0 0 0 2px rgba(129, 140, 248, 0.2);
 }
 
 /* 确保备注不会影响操作按钮 */
@@ -293,7 +278,7 @@ function isOverdue(endDate: any): boolean {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  min-height: 5.5rem;
+  min-height: 3rem;
 }
 
 /* 备注文本限制 */
@@ -326,5 +311,17 @@ function isOverdue(endDate: any): boolean {
 
 .dark-mode .todo-actions button.text-red-500:hover {
   background-color: rgba(239, 68, 68, 0.15) !important;
+}
+
+/* 备注图标悬停样式 */
+.note-icon {
+  cursor: pointer;
+  position: relative;
+  transition: all 0.2s ease;
+}
+
+.note-icon:hover {
+  color: #6366f1 !important;
+  transform: scale(1.2);
 }
 </style>
