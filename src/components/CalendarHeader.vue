@@ -189,6 +189,57 @@
           />
         </svg>
       </button>
+      <!-- 主题切换按钮（放在铃铛和设置按钮之间） -->
+      <button
+        class="header-icon-button p-2 rounded-md transition-colors relative overflow-hidden theme-toggle-btn"
+        :title="settingStore.themeMode === 'dark' ? '切换到亮色模式' : '切换到暗色模式'"
+        @click="handleThemeToggle"
+        @mouseenter="themeBtnHover = true"
+        @mouseleave="themeBtnHover = false"
+      >
+        <!-- 亮模式：灰色太阳 -->
+        <svg
+          v-if="settingStore.themeMode === 'light'"
+          class="theme-sun"
+          width="22"
+          height="22"
+          viewBox="0 0 22 22"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <g stroke="#888" stroke-width="1.2">
+            <line x1="11" y1="1.5" x2="11" y2="4" />
+            <line x1="11" y1="18" x2="11" y2="20.5" />
+            <line x1="1.5" y1="11" x2="4" y2="11" />
+            <line x1="18" y1="11" x2="20.5" y2="11" />
+            <line x1="4.5" y1="4.5" x2="6.5" y2="6.5" />
+            <line x1="15.5" y1="15.5" x2="17.5" y2="17.5" />
+            <line x1="4.5" y1="17.5" x2="6.5" y2="15.5" />
+            <line x1="15.5" y1="6.5" x2="17.5" y2="4.5" />
+          </g>
+          <circle cx="11" cy="11" r="5" fill="#fff" stroke="#888" stroke-width="2" />
+        </svg>
+        <!-- 暗模式：白色月亮，悬浮时轻微摇晃 -->
+        <svg
+          v-else
+          class="theme-moon"
+          :class="{ 'theme-moon-shake': themeBtnHover }"
+          width="22"
+          height="22"
+          viewBox="0 0 22 22"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M17 15.5A7 7 0 0 1 8.5 5c0-.3 0-.6.1-.9A7 7 0 1 0 17 15.5Z"
+            fill="#fff"
+            stroke="#fff"
+            stroke-width="2"
+          />
+          <circle cx="15" cy="9" r="1" fill="#fff" />
+          <circle cx="13" cy="13" r="0.5" fill="#fff" />
+        </svg>
+      </button>
       <!-- 设置按钮 -->
       <button
         @click="settingStore.toggleSettings"
@@ -561,7 +612,14 @@ const toggleNotification = () => {
   settingStore.saveSettings();
 };
 
-// 添加监听器，当设置中的通知状态变化时，可能需要处理相应逻辑
+const themeBtnHover = ref(false);
+
+const handleThemeToggle = () => {
+  // 直接调用 settingStore 的 setThemeMode，保证与设置界面同步
+  settingStore.setThemeMode(settingStore.themeMode === "dark" ? "light" : "dark");
+};
+
+
 watch(() => settingStore.notifications, (newVal) => {
   if (!newVal) {
     // 如果通知被关闭，清空已通知的记录
@@ -983,5 +1041,29 @@ button:has(.fa-times):hover {
 
 .view-selector {
   font-size: var(--base-font-size);
+}
+
+.theme-toggle-btn {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+.theme-moon-shake {
+  animation: moon-shake 1.2s cubic-bezier(.36,.07,.19,.97) infinite;
+}
+@keyframes moon-shake {
+  0%,100% { transform: rotate(0);}
+  20% { transform: rotate(-5deg);}
+  40% { transform: rotate(4deg);}
+  60% { transform: rotate(-3deg);}
+  80% { transform: rotate(2deg);}
 }
 </style>
