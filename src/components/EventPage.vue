@@ -105,8 +105,8 @@
               ]"
               :style="{ backgroundColor: category.color }"
               @click="
-                eventStore.currentEvent.categoryId = category.id; // 更新当前事件的分类ID
-                eventStore.currentEvent.categoryColor = category.color; // 更新当前事件的分类颜色
+                eventStore.currentEvent.categoryId = category.id;
+                eventStore.currentEvent.categoryColor = category.color;
               "
               class="cursor-pointer !rounded-button whitespace-nowrap"
             ></button>
@@ -135,13 +135,6 @@
           class="py-2 px-4 bg-red-600 text-white rounded-lg hover:bg-red-700 cursor-pointer !rounded-button whitespace-nowrap"
         >
           Delete
-        </button>
-        <!-- 取消按钮 -->
-        <button
-          @click="eventStore.closeEventModal"
-          class="py-2 px-4 border border-gray-300 rounded-lg hover:bg-gray-100 cursor-pointer !rounded-button whitespace-nowrap"
-        >
-          Cancel
         </button>
         <!-- 保存按钮 -->
         <button
@@ -204,80 +197,101 @@ onUnmounted(() => {
   background: rgba(0, 0, 0, 0.1); /* 轻微透明黑色，增强模糊可见性 */
 }
 
-/* 暗黑模式适配 */
+/* 暗黑模式适配 - 增强区分度，但保留动态头部颜色 */
 .dark-mode .event-modal {
-  background-color: var(--modal-bg);
+  background-color: var(--modal-bg) !important;
   color: var(--text-primary);
-  border-color: var(--border-color);
+  border: 1px solid var(--modal-border);
+  box-shadow: var(--modal-shadow);
 }
 
+/* 保留头部动态颜色，不覆盖背景 */
 .dark-mode .modal-header {
-  border-color: var(--border-color);
-  background-color: var(--bg-tertiary);
+  border-color: var(--modal-border);
+  /* 不覆盖 background-color，保持动态颜色 */
+}
+
+.dark-mode .modal-header h3 {
+  color: var(--modal-title-color) !important;
+  /* 确保文字在任何背景色上都清晰可见 */
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
+  font-weight: 600;
 }
 
 .dark-mode .modal-body {
   color: var(--text-primary);
+  background-color: var(--modal-bg);
 }
 
 .dark-mode .modal-footer {
-  border-color: var(--border-color);
-  background-color: var(--bg-tertiary);
+  border-color: var(--modal-border);
+  background-color: var(--modal-footer-bg) !important;
 }
 
-/* 表单元素样式 */
+/* 表单元素样式增强 */
 .dark-mode .form-group label {
-  color: var(--text-secondary);
+  color: var(--modal-label-color) !important;
+  font-weight: 500;
 }
 
 .dark-mode .form-group input,
 .dark-mode .form-group select,
 .dark-mode .form-group textarea {
-  background-color: var(--bg-tertiary);
-  color: var(--text-primary);
-  border-color: var(--border-color);
+  background-color: var(--modal-input-bg) !important;
+  color: var(--modal-input-text) !important;
+  border: 1px solid var(--modal-input-border) !important;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.dark-mode .form-group input:focus,
+.dark-mode .form-group textarea:focus {
+  border-color: #58a6ff !important;
+  box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.3) !important;
 }
 
 .dark-mode .form-group input::placeholder,
 .dark-mode .form-group textarea::placeholder {
-  color: var(--text-tertiary);
+  color: var(--text-tertiary) !important;
 }
 
-/* 分类颜色选择器边框 */
+/* 分类颜色选择器增强 */
 .dark-mode .category-option {
-  box-shadow: 0 0 0 1px var(--border-color);
+  box-shadow: 0 0 0 2px var(--modal-border), 0 2px 4px rgba(0, 0, 0, 0.4);
 }
 
 .dark-mode .category-option.border-gray-800 {
-  box-shadow: 0 0 0 2px var(--heading-color);
-  border-color: var(--heading-color) !important;
+  box-shadow: 0 0 0 3px #58a6ff !important;
+  border-color: #58a6ff !important;
 }
 
-/* 日期时间选择器 */
-.dark-mode input[type="date"],
-.dark-mode input[type="time"] {
-  color-scheme: dark;
+/* 按钮样式增强 */
+.dark-mode .modal-footer button.bg-blue-600 {
+  background-color: var(--modal-button-bg) !important;
+  color: var(--modal-button-text) !important;
+  border: 1px solid var(--modal-button-bg);
 }
 
-/* 复选框调整 */
-.dark-mode input[type="checkbox"] {
-  filter: invert(0.8) hue-rotate(180deg); /* 改变复选框颜色以匹配暗色主题 */
+.dark-mode .modal-footer button.bg-blue-600:hover {
+  background-color: var(--modal-button-hover) !important;
 }
 
-/* 修改字号相关的样式 */
-.event-title {
-  font-size: var(--heading-font-size);
+.dark-mode .modal-footer button.bg-gray-200 {
+  background-color: var(--modal-button-secondary) !important;
+  color: var(--text-primary) !important;
+  border: 1px solid var(--modal-border);
 }
 
-.event-time {
-  font-size: var(--base-font-size);
+.dark-mode .modal-footer button.bg-gray-200:hover {
+  background-color: var(--modal-button-secondary-hover) !important;
 }
 
-.event-description {
-  font-size: var(--base-font-size);
+/* 关闭按钮增强 */
+.dark-mode .modal-header button {
+  color: var(--text-secondary) !important;
 }
 
-.event-details {
-  font-size: var(--small-text-font-size);
+.dark-mode .modal-header button:hover {
+  color: #ff6b6b !important;
+  background-color: rgba(255, 107, 107, 0.1);
 }
 </style>

@@ -42,7 +42,7 @@
 
   /* 卡片和模态框 */
   --card-bg: #161b22;
-  --modal-bg: #161b22;
+  --modal-bg: #1c2128; /* 比背景色稍亮的深灰 */
   --header-bg: #0d1117;
 
   /* 选中状态 - 蓝色主题 */
@@ -88,34 +88,41 @@
   --icon-color-hover: #e6edf3; /* 悬停时的图标颜色 */
   --icon-color-active: #58a6ff; /* 激活状态的图标颜色 */
 
-  /* 模态框相关 */
-  --modal-title-color: #e6edf3; /* 模态框标题颜色 */
-  --modal-label-color: #c9d1d9; /* 模态框标签颜色 */
-  --modal-input-bg: #21262d; /* 模态框输入框背景色 */
-  --modal-input-text: #e6edf3; /* 模态框输入框文字颜色 */
-  --modal-input-border: #30363d; /* 模态框输入框边框颜色 */
-  --modal-button-text: #e6edf3; /* 模态框按钮文字颜色 */
-  --modal-button-bg: #58a6ff; /* 模态框按钮背景色 */
-  --modal-button-hover: #388bfd; /* 模态框按钮悬停背景色 */
-}
+  /* 模态框相关 - 增强区分度和文字对比度 */
+  --modal-bg: #1c2128; /* 比背景色稍亮的深灰 */
+  --modal-header-bg: #21262d; /* 模态框头部背景 */
+  --modal-footer-bg: #21262d; /* 模态框底部背景 */
+  --modal-border: #30363d; /* 模态框边框 */
+  --modal-title-color: #f0f6fc; /* 最亮的模态框标题，用于重要文字 */
+  --modal-label-color: #e6edf3; /* 次亮的模态框标签，用于普通文字 */
+  --modal-input-bg: #0d1117; /* 输入框背景更深，增强对比 */
+  --modal-input-text: #f0f6fc; /* 输入框文字更亮 */
+  --modal-input-border: #30363d; /* 输入框边框 */
+  --modal-button-text: #ffffff; /* 按钮文字纯白 */
+  --modal-button-bg: #238636; /* 绿色主按钮 */
+  --modal-button-hover: #2ea043; /* 绿色按钮悬停 */
+  --modal-button-secondary: #21262d; /* 次要按钮背景 */
+  --modal-button-secondary-hover: #30363d; /* 次要按钮悬停 */
+  --modal-shadow: 0 16px 32px rgba(1, 4, 9, 0.85); /* 更明显的阴影 */
 
-/* 暗黑模式下的滚动条样式 */
-.dark-mode ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
+  /* 暗黑模式下的滚动条样式 */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
 
-.dark-mode ::-webkit-scrollbar-track {
-  background: #161b22;
-}
+  ::-webkit-scrollbar-track {
+    background: #161b22;
+  }
 
-.dark-mode ::-webkit-scrollbar-thumb {
-  background: #30363d;
-  border-radius: 4px;
-}
+  ::-webkit-scrollbar-thumb {
+    background: #30363d;
+    border-radius: 4px;
+  }
 
-.dark-mode ::-webkit-scrollbar-thumb:hover {
-  background: #3f444c;
+  ::-webkit-scrollbar-thumb:hover {
+    background: #3f444c;
+  }
 }
 
 /* 覆盖各种组件的默认样式 */
@@ -179,4 +186,16 @@ html,
 
 .dark-mode .modal-footer button.bg-blue-600:hover {
   background-color: var(--modal-button-hover);
+}
+
+/* 暗黑模式下的模态框背景增强 */
+.dark-mode .backdrop-blur-sm {
+  backdrop-filter: blur(8px) !important;
+  -webkit-backdrop-filter: blur(8px) !important;
+  background: rgba(0, 0, 0, 0.6) !important; /* 更深的背景遮罩 */
+}
+
+/* 暗黑模式下的模态框容器增强 */
+.dark-mode .fixed.inset-0.flex.items-center.justify-center {
+  background: rgba(0, 0, 0, 0.75);
 }
