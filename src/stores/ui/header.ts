@@ -14,11 +14,23 @@ export const createHeaderModule = (storeContext: any) => {
 
   // 计算属性
   const weekDays = computed(() => [
-    "星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六",
+    "星期日",
+    "星期一",
+    "星期二",
+    "星期三",
+    "星期四",
+    "星期五",
+    "星期六",
   ]);
 
   const weekDaysShort = computed(() => [
-    "日", "一", "二", "三", "四", "五", "六",
+    "日",
+    "一",
+    "二",
+    "三",
+    "四",
+    "五",
+    "六",
   ]);
 
   // 主日历标题
@@ -30,7 +42,7 @@ export const createHeaderModule = (storeContext: any) => {
     if (currentView.value === "week") {
       return ` ${new Intl.DateTimeFormat("zh-CN", {
         month: "short",
-        day: "numeric", 
+        day: "numeric",
         year: "numeric",
       }).format(getStartOfWeek(currentDate.value))} - ${new Intl.DateTimeFormat(
         "zh-CN",
@@ -43,6 +55,8 @@ export const createHeaderModule = (storeContext: any) => {
         day: "numeric",
         year: "numeric",
       }).format(currentDate.value);
+    } else if (currentView.value === "todo-list") {
+      return "";
     }
     return new Intl.DateTimeFormat("zh-CN", options).format(currentDate.value);
   });

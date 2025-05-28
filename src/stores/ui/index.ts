@@ -66,8 +66,8 @@ export const useUiStore = defineStore("ui", () => {
   const weekModule = createWeekModule(storeContext);
   const dayModule = createDayModule(storeContext);
   const todoModule = createTodoModule(storeContext);
-  const sidebarViewModule = createViewModule(storeContext);
-  const sidebarCategoryModule = createCategoryModule(storeContext);
+  const viewModule = createViewModule(storeContext);
+  const categoryModule = createCategoryModule(storeContext);
 
   // 基础功能
   function toggleSidebar() {
@@ -133,10 +133,10 @@ export const useUiStore = defineStore("ui", () => {
     ...todoModule,
 
     // 侧边栏视图模块
-    ...sidebarViewModule,
+    ...viewModule,
 
     // 侧边栏分类模块
-    ...sidebarCategoryModule,
+    ...categoryModule,
   };
 });
 
