@@ -401,17 +401,10 @@
       <div class="mt-6 flex gap-3">
         <!-- 重置按钮 -->
         <button
-          class="w-1/3 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition cursor-pointer !rounded-button whitespace-nowrap font-medium"
+          class="w-3/3 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition cursor-pointer !rounded-button whitespace-nowrap font-medium"
           @click="resetSettings"
         >
           重置默认
-        </button>
-        <!-- 保存按钮 -->
-        <button
-          class="w-2/3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition cursor-pointer !rounded-button whitespace-nowrap font-medium"
-          @click="saveAndClose"
-        >
-          保存设置
         </button>
       </div>
 
