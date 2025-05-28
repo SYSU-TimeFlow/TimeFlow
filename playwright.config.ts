@@ -1,6 +1,12 @@
 import { defineConfig, _electron as electron } from '@playwright/test'
 
 export default defineConfig({
+  webServer: {
+    command: 'npm run dev', // 启动 Vite 开发服务器的命令
+    url: 'http://localhost:5173', // Vite 开发服务器的 URL
+    reuseExistingServer: !process.env.CI, // 在 CI 环境中不重用现有服务器，本地可以重用
+    timeout: 10 * 1000, // 等待服务器启动的超时时间 (例如 10 秒)
+  },
   projects: [
     {
       name: 'electron',
@@ -9,12 +15,12 @@ export default defineConfig({
         launchOptions: {
           executablePath: './node_modules/.bin/electron', // Electron 可执行文件路径
           args: ['.'], // 启动 Electron 时传入的参数，指向应用目录
-          // 如果你有特定的窗口大小需求，可以在此设置
-          // headless: false, // 设置为 true 会无头模式运行
+          headless: true, // 设置为 true 会无头模式运行
         },
       },
       testDir: './tests', // 测试文件存放目录
-      testMatch: '**/*.spec.ts', // 匹配测试文件后缀
+      testMatch: '**/*.testui.ts', // 匹配测试文件后缀
     },
   ],
+  outputDir: './tests/test-results', // 测试结果输出目录
 })

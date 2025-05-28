@@ -1057,5 +1057,9 @@ export const useEventStore = defineStore("event", () => {
     clearSearchAction,
     setScrollUiUpdateCallback,
     clearScrollUiUpdateCallback,
+
+    // 暴露loadstore，仅供测试
+    loadAppDataFromStore,
+    saveAppDataToStore,
   };
 });
