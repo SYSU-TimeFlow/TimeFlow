@@ -1,0 +1,30 @@
+name: Vitest Unit Tests
+
+on:
+  push:
+    branches: [ dev ]
+  pull_request:
+    branches: [ dev ]       # 针对目标分支是dev的PR
+
+jobs:
+  test:
+    name: Run Unit Tests
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: 22
+        cache: 'npm'         # 启用npm缓存加速依赖安装
+
+    - name: Install dependencies
+      run: npm install
+
+    - name: Run Vitest Tests
+      run: npm test
+      env:
+        CI: true             # 告诉Vitest这是CI环境
