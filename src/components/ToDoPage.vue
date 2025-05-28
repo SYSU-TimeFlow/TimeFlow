@@ -166,8 +166,14 @@ watch(
   () => eventStore.showTodoModal,
   (isOpen) => {
     if (isOpen) {
-      // 检查是否有截止时间
-      hasDeadline.value = !!eventStore.currentEvent.end;
+      // 检查是否有截止时间，并排除1970年的占位符日期
+      if (eventStore.currentEvent.end) {
+        const endDate = new Date(eventStore.currentEvent.end);
+        // 如果截止时间的年份大于1970年，才视为有截止时间
+        hasDeadline.value = endDate.getFullYear() > 1970;
+      } else {
+        hasDeadline.value = false;
+      }
     }
   }
 );
