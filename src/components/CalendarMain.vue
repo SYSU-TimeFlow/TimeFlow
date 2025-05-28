@@ -221,23 +221,20 @@
                   borderLeft: `3px solid ${event.categoryColor}`,
                   zIndex: 10,
                 }"
-                @click.stop="
-                  event.eventType === 'both'
-                    ? eventStore.toggleTodo(event.id)
-                    : eventStore.openEventDetails(event)
-                "
+                @click.stop="event.eventType === 'both' ? eventStore.openEditTodoModal(event) : eventStore.openEventDetails(event)"
                 draggable="true"
                 @dragstart="uiStore.handleDragStart($event, event)"
               >
                 <div class="flex items-center w-full">
-                  <!-- 对于both类型事件，显示复选框 -->
-                  <input
+                  <!-- 自定义圆形复选框，仅点击时切换完成状态 -->
+                  <div
                     v-if="event.eventType === 'both'"
-                    type="checkbox"
-                    :checked="event.completed"
+                    class="w-3 h-3 rounded-full border flex items-center justify-center cursor-pointer mr-1"
+                    :class="event.completed ? 'bg-indigo-500 border-indigo-600' : 'border-gray-300'"
                     @click.stop="eventStore.toggleTodo(event.id)"
-                    class="mr-1 h-3 w-3 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
-                  />
+                  >
+                    <i v-if="event.completed" class="fas fa-check text-white text-[9px]"></i>
+                  </div>
                   <div
                     class="event-time text-xs font-medium"
                     :style="{
