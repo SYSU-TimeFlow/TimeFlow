@@ -34,11 +34,10 @@
           </div>
 
           <!-- 待办事项列表 -->
-          <div class="w-full space-y-4">
-            <div
+          <div class="w-full space-y-4">            <div
               v-for="todo in eventStore.filteredTodos"
               :key="todo.id"
-              @click="eventStore.toggleTodo(todo.id)"
+              @click="eventStore.openEditTodoModal(todo)"
               class="flex justify-between items-center p-5 bg-white rounded-2xl shadow-sm hover:shadow-md transition cursor-pointer border-l-4 group todo-item min-h-[5.5rem]"
               :style="{
                 borderLeftColor:
@@ -53,8 +52,10 @@
                 <!-- 标题行 -->
                 <div class="flex items-center gap-2">
                   <!-- 完成状态指示器 -->
-                  <div class="w-5 h-5 rounded-full border flex items-center justify-center cursor-pointer"
-                       :class="todo.completed ? 'bg-indigo-500 border-indigo-600' : 'border-gray-300'">
+                  <div 
+                    class="w-5 h-5 rounded-full border flex items-center justify-center cursor-pointer"
+                    :class="todo.completed ? 'bg-indigo-500 border-indigo-600' : 'border-gray-300'"
+                    @click.stop="eventStore.toggleTodo(todo.id)">
                     <i v-if="todo.completed" class="fas fa-check text-white text-xs"></i>
                   </div>
                   
@@ -101,14 +102,6 @@
 
               <!-- 右侧操作按钮 -->
               <div class="flex gap-1 todo-actions">
-                <!-- 编辑按钮 -->
-                <button
-                  @click.stop="eventStore.openEditTodoModal(todo)"
-                  class="p-2 text-blue-500 hover:bg-blue-50 rounded-lg transition"
-                >
-                  <i class="fas fa-pen fa-sm"></i>
-                </button>
-
                 <!-- 删除按钮 -->
                 <button
                   @click.stop="eventStore.deleteEvent(todo.id)"
@@ -282,10 +275,17 @@ function isOverdue(endDate: any): boolean {
 /* 完成状态指示器动画 */
 .todo-item .w-5.h-5 {
   transition: all 0.2s ease;
+  position: relative;
+  z-index: 10; /* 确保复选框在最上层，便于点击 */
 }
 
 .todo-item:hover .w-5.h-5:not(.bg-indigo-500) {
   border-color: #818cf8;
+}
+
+/* 增强复选框悬停效果 */
+.todo-item .w-5.h-5:hover {
+  box-shadow: 0 0 0 2px rgba(129, 140, 248, 0.2);
 }
 
 /* 确保备注不会影响操作按钮 */
