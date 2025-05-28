@@ -1,30 +1,29 @@
-name: Vitest Unit Tests
+name: TimeFlow Auto Tests
 
 on:
   push:
-    branches: [ dev ]
+    branches: [dev]
   pull_request:
-    branches: [ dev ]       # 针对目标分支是dev的PR
+    branches: [dev]
 
 jobs:
   test:
-    name: Run Unit Tests
-    runs-on: ubuntu-latest
-
+    runs-on: macos-latest
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: 22
-        cache: 'npm'         # 启用npm缓存加速依赖安装
-
-    - name: Install dependencies
-      run: npm install
-
-    - name: Run Vitest Tests
-      run: npm test
-      env:
-        CI: true             # 告诉Vitest这是CI环境
+      - uses: actions/checkout@v3
+      - name: Configure Node caching
+        uses: actions/cache@v3
+        env:
+          cache-name: cache-node-modules
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-build-${{ env.cache-name }}-
+            ${{ runner.os }}-build-
+            ${{ runner.os }}-
+      - name: Install Node dependencies
+        run: npm install
+      - name: Run tests
+        run: npm test
+        timeout-minutes: 5

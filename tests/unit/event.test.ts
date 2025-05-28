@@ -1,5 +1,5 @@
 import { setActivePinia, createPinia } from "pinia";
-import { useEventStore, Event, EventType } from "../src/stores/event";
+import { useEventStore, Event, EventType } from "../../src/stores/event";
 import { describe, it, expect, beforeEach, vi } from "vitest";
 
 // 模拟 electron-store 的行为
@@ -44,7 +44,7 @@ beforeEach(() => {
   setActivePinia(createPinia());
 });
 
-describe("Event Store", () => {
+describe("eventStore", () => {
   let eventStore: ReturnType<typeof useEventStore>;
 
   beforeEach(async () => {
@@ -52,7 +52,7 @@ describe("Event Store", () => {
     await eventStore.loadAppDataFromStore(); // 确保每次测试前加载数据
   });
 
-  describe("Event Management", () => {
+  describe("Event", () => {
     it("should add a new event and save to local storage", async () => {
       const newEvent = {
         title: "New Event",
@@ -138,7 +138,7 @@ describe("Event Store", () => {
     });
   });
 
-  describe("Category Management", () => {
+  describe("Category", () => {
     it("should add a new category", () => {
       const newCategory = {
         id: 3,
@@ -174,7 +174,7 @@ describe("Event Store", () => {
     });
   });
 
-  describe("Local Storage Integration", () => {
+  describe("Local Storage", () => {
     it("should load events and categories from local storage", async () => {
       await eventStore.loadAppDataFromStore();
 
