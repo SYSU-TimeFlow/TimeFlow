@@ -351,23 +351,20 @@
                   borderLeft: `3px solid ${event.categoryColor}`,
                   zIndex: '10', // 确保事件在网格线上方
                 }"
-                @click.stop="
-                  event.eventType === 'both'
-                    ? eventStore.toggleTodo(event.id)
-                    : eventStore.openEventDetails(event)
-                "
+                @click.stop="event.eventType === 'both' ? eventStore.openEditTodoModal(event) : eventStore.openEventDetails(event)"
                 draggable="true"
                 @dragstart="uiStore.handleDragStart($event, event)"
               >
                 <div class="flex items-center w-full">
-                  <!-- 对于both类型事件，显示复选框 -->
-                  <input
+                  <!-- 自定义圆形复选框，仅点击时切换完成状态 -->
+                  <div
                     v-if="event.eventType === 'both'"
-                    type="checkbox"
-                    :checked="event.completed"
+                    class="w-3 h-3 rounded-full border flex items-center justify-center cursor-pointer mr-1"
+                    :class="event.completed ? 'bg-indigo-500 border-indigo-600' : 'border-gray-300'"
                     @click.stop="eventStore.toggleTodo(event.id)"
-                    class="mr-1 h-3 w-3 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
-                  />
+                  >
+                    <i v-if="event.completed" class="fas fa-check text-white text-[9px]"></i>
+                  </div>
                   <div
                     class="event-time text-xs font-medium"
                     :style="{
@@ -923,14 +920,16 @@ const getWeekViewDays = computed(() => {
   font-size: var(--small-text-font-size);
 }
 
-/* 月视图自定义复选框悬停效果，和ToDoList一致 */
-.event-item .w-3.h-3:hover {
+/* 月/周/日视图自定义复选框悬停效果，和ToDoList一致 */
+.event-item .w-3.h-3:hover,
+.day-event .w-3.h-3:hover,
+.both-event-week .w-3.h-3:hover {
   box-shadow: 0 0 0 2px rgba(129, 140, 248, 0.2);
   border-color: #818cf8;
 }
-
-/* 保证已完成状态下不影响悬停色 */
-.event-item .w-3.h-3.bg-indigo-500:hover {
+.event-item .w-3.h-3.bg-indigo-500:hover,
+.day-event .w-3.h-3.bg-indigo-500:hover,
+.both-event-week .w-3.h-3.bg-indigo-500:hover {
   border-color: #6366f1;
 }
 </style>
