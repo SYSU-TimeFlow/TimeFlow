@@ -558,17 +558,6 @@ watch(() => settingStore.notifications, (newVal) => {
     notifiedEventKeys.value.clear();
   }
 });
-
-declare global {
-  interface Window {
-    electronAPI?: {
-      notify: (title: string, body: string) => void;
-      minimize?: () => void;
-      maximize?: () => void;
-      close?: () => void;
-    };
-  }
-}
 </script>
 
 <style scoped>
