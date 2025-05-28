@@ -490,40 +490,6 @@ export const useEventStore = defineStore("event", () => {
       });
   }
 
-  // 添加新事件统一函数
-  async function addEvent(
-    title: string,
-    start: Date,
-    end: Date,
-    eventType = EventType.CALENDAR
-  ) {
-    const defaultCat = categories.value.find((c) => c.id === 5) ||
-      categories.value[0] || {
-        id: 5,
-        color: "#43aa8b",
-        name: "其他",
-        active: true,
-      };
-    const newEvent = new Event(
-      Date.now(),
-      title,
-      start,
-      end,
-      "",
-      defaultCat.id,
-      defaultCat.color,
-      start.getHours() === 0 &&
-        start.getMinutes() === 0 &&
-        end.getHours() === 23 &&
-        end.getMinutes() === 59 &&
-        end.getSeconds() === 59,
-      eventType
-    );
-
-    events.value.push(newEvent);
-    return newEvent;
-  }
-
   // 保存事件 (新建或更新)
   async function saveEvent() {
     // 确保颜色与分类一致
@@ -1003,7 +969,6 @@ export const useEventStore = defineStore("event", () => {
     emptyStateMessage, // 需要重新实现
 
     // 方法
-    addEvent,
     saveEvent,
     deleteEvent,
     toggleTodo,
