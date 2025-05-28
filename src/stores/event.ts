@@ -1,6 +1,7 @@
 import { defineStore } from "pinia";
 import { ref, computed, nextTick, watch } from "vue";
 import { pinyin } from "pinyin-pro";
+import { useSettingStore } from "./setting";
 
 declare global {
   interface Window {
@@ -56,6 +57,8 @@ interface Category {
 }
 
 export const useEventStore = defineStore("event", () => {
+  const settingStore = useSettingStore();
+
   // 预设颜色选项保持不变
   const colorOptions = [
     "#e63946", // 红色
@@ -728,6 +731,9 @@ export const useEventStore = defineStore("event", () => {
     return dateStr + " " + timeStr;
   }
 
+    return dateStr + " " + timeStr;
+  }
+
   // 空状态消息（根据当前过滤器显示不同消息）
   const emptyStateMessage = computed(() => {
     switch (activeFilter.value) {
@@ -750,15 +756,13 @@ export const useEventStore = defineStore("event", () => {
     if (event.allDay) {
       return "全天";
     }
-    return `${formatTime(event.start)} - ${formatTime(event.end)}`;
+    return `${settingStore.formatTime(event.start)} - ${settingStore.formatTime(
+      event.end
+    )}`;
   }
 
   function formatTime(date: Date): string {
-    return date.toLocaleTimeString("zh-CN", {
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: false,
-    });
+    return settingStore.formatTime(date);
   }
 
   function formatDateTimeForInput(date: Date): string {
