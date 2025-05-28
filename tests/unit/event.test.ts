@@ -1,3 +1,14 @@
+/**
+ * @description TimeFlow 应用中 `eventStore` 的单元测试。
+ * 本文件包含对 `eventStore` 各种功能的测试用例，包括事件删除、更新、按特定日期获取事件、
+ * 按分类过滤事件，以及验证本地存储交互。
+ *
+ * 测试使用 `vitest` 测试框架，并模拟了 `electron-store` 和 `electronAPI` 的行为，
+ * 以模拟应用数据的加载和保存。
+ *
+ * @warning 该测试的详细日志输出已被注释掉，若需要调试或查看详细执行过程，请取消注释相关日志行。
+ *          具体操作：Ctrl+H，替换 `// console.log` 为 `console.log`。
+ */
 import { setActivePinia, createPinia } from "pinia";
 import { useEventStore, Event, EventType } from "../../src/stores/event";
 import { describe, it, expect, beforeEach, vi } from "vitest";
@@ -48,7 +59,7 @@ beforeEach(() => {
       })),
       // 模拟保存应用数据的方法
       saveAppData: vi.fn(async () => {
-        console.log('\x1b[34m%s\x1b[0m', 'Mock saveAppData called');
+        // console.log("\x1b[34m%s\x1b[0m", "Mock saveAppData called");
       }),
     },
   } as any;
@@ -62,63 +73,44 @@ describe("eventStore", () => {
   describe("Event", () => {
     beforeEach(async () => {
       eventStore = useEventStore();
+      // console.log("Loading app data before each test...");
       await eventStore.loadAppDataFromStore(); // 确保每次测试前加载数据
+      // console.log("App data loaded:", eventStore.events);
     });
 
     it("should delete event", async () => {
-
-      console.log('\x1b[34m%s\x1b[0m', 'original event', eventStore.events);
-      
+      // console.log("========== DELETE EVENT BEGIN ==========");
       const eventToDelete = eventStore.events[0];
-      console.log(
-        "\x1b[34m%s\x1b[0m",
-        `original event: length: ${eventStore.events.length}}`
-      );
-      console.log(
-        "\x1b[32m%s\x1b[0m",
-        `Deleting event: ${eventToDelete.title} with ID: ${eventToDelete.id}`
-      );
+      // console.log("Deleting event:", eventToDelete);
       await eventStore.deleteEvent(eventToDelete.id);
 
-      console.log(
-        "\x1b[34m%s\x1b[0m",
-        `updated event: length: ${eventStore.events.length}}`
-      );
-
+      // console.log("Updated events:", eventStore.events);
       expect(eventStore.events).not.toContainEqual(eventToDelete);
 
-      // @ts-ignore 验证本地存储是否正确更新(不包含被删除的事件)
+      // @ts-ignore
       expect(global.window.electronAPI.saveAppData).toHaveBeenCalledWith(
         expect.objectContaining({
           events: expect.not.arrayContaining([eventToDelete]),
         })
       );
+      // console.log("========== DELETE EVENT END ==========");
     });
 
-    console.log("\x1b[32m%s\x1b[0m", "=======================");
-
     it("should update an event and save changes to local storage", async () => {
-      console.log();
-
+      // console.log("========== UPDATE EVENT BEGIN ==========");
       const eventToUpdate = eventStore.events[0];
-      console.log(
-        "\x1b[34m%s\x1b[0m",
-        `original event: ${eventToUpdate.title} with ID: ${eventToUpdate.id}`
-      );
+      // console.log("Original event:", eventToUpdate);
       eventToUpdate.title = "Updated Event";
 
-      console.log(
-        "\x1b[32m%s\x1b[0m",
-        `Updating event to: ${eventToUpdate.title}`
-      );
-
+      // console.log("Updating event title to:", eventToUpdate.title);
       await eventStore.saveEvent();
 
+      // console.log("Updated events:", eventStore.events);
       expect(eventStore.events).toContainEqual(
         expect.objectContaining({ title: "Updated Event" })
       );
 
-      // @ts-ignore 验证本地存储是否正确保存更新
+      // @ts-ignore
       expect(global.window.electronAPI.saveAppData).toHaveBeenCalledWith(
         expect.objectContaining({
           events: expect.arrayContaining([
@@ -126,14 +118,16 @@ describe("eventStore", () => {
           ]),
         })
       );
+      // console.log("========== UPDATE EVENT END ==========");
     });
 
-    console.log("\x1b[32m%s\x1b[0m", "=======================");
-
     it("should fetch events for a specific day", () => {
-      const eventsForDay = eventStore.getEventsForDay(
-        new Date("2025-05-18T00:00:00.000Z")
-      );
+      // console.log("========== FETCH EVENTS FOR DAY BEGIN ==========");
+      const targetDate = new Date("2025-05-18T00:00:00.000Z");
+      // console.log("Fetching events for date:", targetDate);
+      const eventsForDay = eventStore.getEventsForDay(targetDate);
+
+      // console.log("Fetched events:", eventsForDay);
       expect(eventsForDay).toHaveLength(1);
       expect(eventsForDay[0]).toMatchObject({
         title: "Test Event",
@@ -141,11 +135,12 @@ describe("eventStore", () => {
         end: new Date("2025-05-18T11:00:00.000Z"),
         eventType: EventType.CALENDAR,
       });
+      // console.log("========== FETCH EVENTS FOR DAY END ==========");
     });
   });
-
   describe("getEventsForDay", () => {
     it("应该只返回active分类的事件", () => {
+      // console.log("\x1b[32m%s\x1b[0m", "========== FETCH ACTIVE EVENTS BEGIN ============");
       const store = useEventStore();
       store.categories = [
         { id: 1, name: "工作", color: "#ff0000", active: true },
@@ -183,12 +178,20 @@ describe("eventStore", () => {
         ),
       ];
 
+      // console.log("\x1b[34m%s\x1b[0m", "Categories:", store.categories);
+      // console.log("\x1b[34m%s\x1b[0m", "Events:", store.events);
+
       const events = store.getEventsForDay(today);
+      // console.log("\x1b[34m%s\x1b[0m", "Filtered events for today:", events);
+
       expect(events).toHaveLength(1);
       expect(events[0].title).toBe("工作事件");
+      // console.log("\x1b[32m%s\x1b[0m", "========== FETCH ACTIVE EVENTS END ============");
     });
 
     it("应该包含BOTH类型的事件", () => {
+      // console.log("\x1b[32m%s\x1b[0m", "========== FETCH BOTH EVENTS BEGIN ============");
+
       const store = useEventStore();
       store.categories = [
         { id: 1, name: "工作", color: "#ff0000", active: true },
@@ -237,8 +240,13 @@ describe("eventStore", () => {
         ),
       ];
 
+      // console.log("\x1b[34m%s\x1b[0m", "Categories:", store.categories);
+      // console.log("\x1b[34m%s\x1b[0m", "Events:", store.events);
+
       // 获取今天的事件
       const events = store.getEventsForDay(today);
+      // console.log("\x1b[34m%s\x1b[0m", "Filtered events for today:", events);
+
       expect(events).toHaveLength(2);
       // 验证数组中包含这两个事件，不关心顺序
       expect(events).toEqual(
@@ -255,10 +263,13 @@ describe("eventStore", () => {
           }),
         ])
       );
+      // console.log("\x1b[32m%s\x1b[0m", "========== FETCH BOTH EVENTS END ============");
     });
 
     describe("filteredTodos 分类过滤", () => {
       it("应该包含BOTH类型的待办事项", () => {
+        // console.log("\x1b[32m%s\x1b[0m", "========== FILTERED TODOS BEGIN ============");
+
         const store = useEventStore();
         store.categories = [
           { id: 1, name: "工作", color: "#ff0000", active: true },
@@ -303,17 +314,28 @@ describe("eventStore", () => {
           ),
         ];
 
+        // console.log("\x1b[34m%s\x1b[0m", "Categories:", store.categories);
+        // console.log("\x1b[34m%s\x1b[0m", "Events:", store.events);
+
         const todos = store.filteredTodos;
+        // console.log("\x1b[34m%s\x1b[0m", "Filtered todos:", todos);
+
         expect(todos).toHaveLength(2);
         expect(todos[0].title).toBe("纯待办");
         expect(todos[1].title).toBe("BOTH待办");
+        // console.log("\x1b[32m%s\x1b[0m", "========== FILTERED TODOS END ============");
       });
     });
   });
 
   describe("Local Storage", () => {
     it("should load events and categories from local storage", async () => {
+      // console.log("\x1b[32m%s\x1b[0m", "========== LOAD FROM LOCAL STORAGE BEGIN ============");
+
       await eventStore.loadAppDataFromStore();
+
+      // console.log("\x1b[34m%s\x1b[0m", "Loaded categories:", eventStore.categories);
+      // console.log("\x1b[34m%s\x1b[0m", "Loaded events:", eventStore.events);
 
       expect(eventStore.categories).toEqual(
         expect.arrayContaining([
@@ -327,32 +349,35 @@ describe("eventStore", () => {
           expect.objectContaining({ title: "Test Event" }),
         ])
       );
+      // console.log("\x1b[32m%s\x1b[0m", "========== LOAD FROM LOCAL STORAGE END ============");
     });
 
     it("should save events and categories to local storage", async () => {
+      // console.log("\x1b[32m%s\x1b[0m", "========== SAVE TO LOCAL STORAGE BEGIN ============");
 
-      console.log('\x1b[34m%s\x1b[0m', 'Starting test for saving events and categories');
-      
+      // console.log("\x1b[34m%s\x1b[0m", "Starting test for saving events and categories");
+
       const newCategory = {
         id: 3,
         name: "Health",
         color: "#2a9d8f",
         active: true,
       };
-      console.log("original category ", eventStore.categories);
+      // console.log("\x1b[34m%s\x1b[0m", "Original categories:", eventStore.categories);
 
       eventStore.categories.push(newCategory);
 
-      console.log("updated category ", eventStore.categories);
-      
+      // console.log("\x1b[34m%s\x1b[0m", "Updated categories:", eventStore.categories);
+
+      // Uncomment and complete the following lines if needed
       // const newEvent = {
       //   title: "Health Event",
       //   start: new Date("2025-05-20T10:00:00.000Z"),
       //   end: new Date("2025-05-20T11:00:00.000Z"),
       //   eventType: EventType.CALENDAR,
       // };
-      
-      // console.log("original events ", eventStore.events);
+
+      // // console.log("\x1b[34m%s\x1b[0m", "Original events:", eventStore.events);
 
       // await eventStore.addEvent(
       //   newEvent.title,
@@ -361,7 +386,7 @@ describe("eventStore", () => {
       //   newEvent.eventType
       // );
 
-      // console.log("updated events ", eventStore.events);
+      // // console.log("\x1b[34m%s\x1b[0m", "Updated events:", eventStore.events);
 
       // @ts-ignore 验证本地存储是否正确保存
       // expect(global.window.electronAPI.saveAppData).toHaveBeenCalledWith(
@@ -378,6 +403,7 @@ describe("eventStore", () => {
       //     ]),
       //   })
       // );
+      // console.log("\x1b[32m%s\x1b[0m", "========== SAVE TO LOCAL STORAGE END ============");
     });
   });
 });
