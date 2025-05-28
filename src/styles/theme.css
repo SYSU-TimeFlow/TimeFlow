@@ -199,3 +199,21 @@ html,
 .dark-mode .fixed.inset-0.flex.items-center.justify-center {
   background: rgba(0, 0, 0, 0.75);
 }
+
+/* 设置按钮颜色随主题变化，且不受其它按钮 hover 影响 */
+.settings-cog-btn {
+  color: var(--text-secondary);
+}
+.settings-cog-btn:hover {
+  color: var(--text-primary);
+  background-color: var(--hover-bg);
+}
+
+/* 暗黑模式下 */
+.dark-mode .settings-cog-btn {
+  color: var(--icon-color);
+}
+.dark-mode .settings-cog-btn:hover {
+  color: var(--icon-color-hover);
+  background-color: var(--hover-bg);
+}
