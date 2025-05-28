@@ -23,38 +23,37 @@ export const createPageModule = (storeContext: any) => {
 
   // 滚动控制
   function scrollApp(direction: "up" | "down") {
-    const helpModalContent = showHelpModal.value
-      ? document.querySelector(".help-modal .modal-body")
-      : null;
+    const scrollDistance = direction === "up" ? -200 : 200;
 
-    const eventStore = useEventStore();
-    const eventModalContent = eventStore.showEventModal
-      ? document.querySelector(".event-modal .modal-body")
-      : null;
+    // 定义滚动目标的优先级顺序
+    const scrollTargets = [
+      // 模态框优先级最高
+      showHelpModal.value ? ".help-modal .modal-body" : null,
+      useEventStore().showEventModal ? ".event-modal .modal-body" : null,
+      // 具体视图容器
+      ".todo-list-container",
+      ".main-content-area",
+      "main",
+      ".calendar-main",
+    ].filter(Boolean); // 过滤掉 null 值
 
-    if (helpModalContent || eventModalContent) {
-      const modalToScroll = helpModalContent || eventModalContent;
-      modalToScroll?.scrollBy({
-        top: direction === "up" ? -200 : 200,
-        behavior: "smooth",
-      });
-    } else {
-      const mainContent =
-        document.querySelector(".main-content-area") ||
-        document.querySelector("main");
-
-      if (mainContent) {
-        mainContent.scrollBy({
-          top: direction === "up" ? -500 : 500,
+    // 按优先级查找并滚动第一个找到的元素
+    for (const selector of scrollTargets) {
+      const element = document.querySelector(selector as string);
+      if (element) {
+        element.scrollBy({
+          top: scrollDistance,
           behavior: "smooth",
         });
-      } else {
-        window.scrollBy({
-          top: direction === "up" ? -500 : 500,
-          behavior: "smooth",
-        });
+        return; // 找到并滚动后立即返回
       }
     }
+
+    // 如果没有找到任何目标元素，回退到窗口滚动
+    window.scrollBy({
+      top: scrollDistance * 2.5, // 窗口滚动使用更大的距离
+      behavior: "smooth",
+    });
   }
 
   // 命令处理
