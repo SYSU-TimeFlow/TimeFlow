@@ -107,7 +107,7 @@ export const useSettingStore = defineStore("setting", () => {
 
   // 加载设置 - 修改为通过 Electron API 加载
   async function loadSettings() {
-    console.log("LoadSettings called");
+    // console.log("LoadSettings called");
     try {
       // @ts-ignore
       const settings = await window.electronAPI.loadSettings();
@@ -226,7 +226,7 @@ export const useSettingStore = defineStore("setting", () => {
   }
 
   // 初始加载
-  console.log("resetting store initialized, loading settings...");
+  // console.log("resetting store initialized, loading settings...");
   loadSettings();
 
   // 控制设置弹窗显示状态
