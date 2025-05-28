@@ -229,6 +229,7 @@
           viewBox="0 0 22 22"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
+          style="transform: translateY(1px);"
         >
           <path
             d="M17 15.5A7 7 0 0 1 8.5 5c0-.3 0-.6.1-.9A7 7 0 1 0 17 15.5Z"
@@ -243,7 +244,7 @@
       <!-- 设置按钮 -->
       <button
         @click="settingStore.toggleSettings"
-        class="header-icon-button p-2 rounded-md transition-colors"
+        class="header-icon-button p-2 rounded-md transition-colors settings-cog-btn"
         title="打开设置"
         @mouseenter="isCogHovered = true"
         @mouseleave="isCogHovered = false"
