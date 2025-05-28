@@ -120,7 +120,7 @@
                     event.allDay
                       ? "All day"
                       : event.eventType === "both"
-                      ? eventStore.formatTime(new Date(event.end))
+                      ? settingStore.formatTime(new Date(event.end))
                       : eventStore.formatEventTime(event)
                   }}
                 </div>
@@ -180,7 +180,7 @@
               :key="hour"
               class="time-label h-16 text-xs text-gray-500 text-right -translate-y-3 flex items-start justify-end"
             >
-              {{ uiStore.formatHour(hour - 1) }}
+              {{ settingStore.formatHour(hour - 1) }}
             </div>
           </div>
           <!-- 事件网格区：每一列代表一天 -->
@@ -255,7 +255,7 @@
                       event.allDay
                         ? "All day"
                         : event.eventType === "both"
-                        ? eventStore.formatTime(new Date(event.end))
+                        ? settingStore.formatTime(new Date(event.end))
                         : eventStore.formatEventTime(event)
                     }}
                   </div>
@@ -315,7 +315,7 @@
               :key="hour"
               class="time-label h-16 text-xs text-gray-500 text-right -translate-y-3 flex items-start justify-end"
             >
-              {{ uiStore.formatHour(hour - 1) }}
+              {{ settingStore.formatHour(hour - 1) }}
             </div>
           </div>
           <!-- 事件显示列 -->
@@ -388,7 +388,7 @@
                       event.allDay
                         ? "All day"
                         : event.eventType === "both"
-                        ? eventStore.formatTime(new Date(event.end))
+                        ? settingStore.formatTime(new Date(event.end))
                         : eventStore.formatEventTime(event)
                     }}
                   </div>
