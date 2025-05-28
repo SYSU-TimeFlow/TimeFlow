@@ -69,10 +69,10 @@
             v-if="hasDeadline"
             v-model="eventStore.currentEvent.end"
             type="datetime-local"
-            class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent h-10"
           />
-          <div v-else class="text-sm text-gray-500 p-2 bg-gray-50 rounded-md">
-            No deadline set
+          <div v-else class="no-deadline w-full p-2 border rounded-md h-10 flex items-center text-base bg-white dark:bg-[var(--modal-input-bg)]" style="font-family: inherit;">
+            <span class="w-full">无截止时间</span>
           </div>
         </div>
 
@@ -366,5 +366,18 @@ textarea {
 
 button {
   font-size: var(--font-size-base, 1rem);
+}
+
+/* 无截止时间div在暗色模式的样式 */
+.dark-mode .form-group .no-deadline {
+  background-color: var(--modal-input-bg) !important;
+  color: var(--modal-input-text) !important;
+  border: 1px solid var(--modal-input-border) !important;
+  box-shadow: inset 0 1px 2px rgba(0,0,0,0.3);
+}
+.form-group .no-deadline {
+  border: 1px solid #d1d5db !important;
+  color: #111827 !important;
+  background: #fff !important;
 }
 </style>
