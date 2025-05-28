@@ -932,4 +932,14 @@ const getWeekViewDays = computed(() => {
 .both-event-week .w-3.h-3.bg-indigo-500:hover {
   border-color: #6366f1;
 }
+.event-item .w-3.h-3,
+.day-event .w-3.h-3,
+.both-event-week .w-3.h-3 {
+  border-color: #a3a3a3;
+}
+.event-item .w-3.h-3:not(.bg-indigo-500),
+.day-event .w-3.h-3:not(.bg-indigo-500),
+.both-event-week .w-3.h-3:not(.bg-indigo-500) {
+  background-color: #fff;
+}
 </style>
