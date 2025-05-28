@@ -44,7 +44,10 @@ export function getContrastColor(hexColor: string): string {
  */
 export function calculateEventTop(event: any): number {
   // 对于both类型事件（即待办事项），使用截止时间减去1小时作为展示位置
-  if (event.eventType === 'both' && new Date(event.start).getFullYear() <= 1970) {
+  if (
+    event.eventType === "both" &&
+    new Date(event.start).getFullYear() <= 1970
+  ) {
     const end = new Date(event.end);
     // 确保待办事项至少显示在截止时间前1小时的位置
     const endHour = end.getHours();
@@ -53,7 +56,7 @@ export function calculateEventTop(event: any): number {
     const displayHour = endHour > 0 ? endHour - 1 : 0;
     return ((displayHour * 60 + endMinute) / 60) * 64;
   }
-  
+
   // 对于普通事件，使用原来的计算方式
   const start = new Date(event.start);
   return ((start.getHours() * 60 + start.getMinutes()) / 60) * 64;
@@ -64,10 +67,13 @@ export function calculateEventTop(event: any): number {
  */
 export function calculateEventHeight(event: any): number {
   // 对于both类型事件（即待办事项），固定高度为1小时
-  if (event.eventType === 'both' && new Date(event.start).getFullYear() <= 1970) {
+  if (
+    event.eventType === "both" &&
+    new Date(event.start).getFullYear() <= 1970
+  ) {
     return 64; // 1小时的高度
   }
-  
+
   // 对于普通事件，使用原来的计算方式
   const start = new Date(event.start);
   const end = new Date(event.end);
@@ -113,15 +119,15 @@ export function deepClone<T>(obj: T): T {
   if (obj === null || typeof obj !== "object") {
     return obj;
   }
-  
+
   if (obj instanceof Date) {
     return new Date(obj.getTime()) as T;
   }
-  
+
   if (obj instanceof Array) {
-    return obj.map(item => deepClone(item)) as T;
+    return obj.map((item) => deepClone(item)) as T;
   }
-  
+
   if (typeof obj === "object") {
     const clonedObj = {} as T;
     for (const key in obj) {
@@ -131,7 +137,7 @@ export function deepClone<T>(obj: T): T {
     }
     return clonedObj;
   }
-  
+
   return obj;
 }
 
@@ -179,4 +185,50 @@ export function isToday(date: Date): boolean {
 export function isWeekend(date: Date): boolean {
   const day = date.getDay();
   return day === 0 || day === 6;
+}
+
+/**
+ * 格式化事件时间显示
+ */
+export function formatEventTime(event: any, hour24: boolean): string {
+  if (event.allDay) {
+    return "全天";
+  }
+  return `${formatTime(event.start, hour24)} - ${formatTime(
+    event.end,
+    hour24
+  )}`;
+}
+
+/**
+ * 格式化时间为12小时制或24小时制
+ */
+export function formatTime(date: Date, hour24: boolean): string {
+  if (hour24) {
+    // 24小时制
+    return date.toLocaleTimeString("zh-CN", {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+    });
+  } else {
+    // 12小时制
+    return date.toLocaleTimeString("zh-CN", {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true,
+    });
+  }
+}
+
+/**
+ * 将日期格式化为 YYYY-MM-DDThh:mm 格式，用于输入框
+ */
+export function formatDateTimeForInput(date: Date): string {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  const hours = String(date.getHours()).padStart(2, "0");
+  const minutes = String(date.getMinutes()).padStart(2, "0");
+  return `${year}-${month}-${day}T${hours}:${minutes}`;
 }
