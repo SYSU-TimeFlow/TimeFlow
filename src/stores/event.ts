@@ -1,6 +1,11 @@
 import { defineStore } from "pinia";
 import { ref, computed, nextTick, watch } from "vue";
 import { pinyin } from "pinyin-pro";
+import {
+  formatEventTime as formatEventTimeUtil,
+  formatTime as formatTimeUtil,
+  formatDateTimeForInput as formatDateTimeForInputUtil,
+} from "../utils";
 
 declare global {
   interface Window {
@@ -747,27 +752,15 @@ export const useEventStore = defineStore("event", () => {
 
   // 日期时间格式化相关函数
   function formatEventTime(event: Event): string {
-    if (event.allDay) {
-      return "全天";
-    }
-    return `${formatTime(event.start)} - ${formatTime(event.end)}`;
+    return formatEventTimeUtil(event, false); // 默认使用12小时制
   }
 
   function formatTime(date: Date): string {
-    return date.toLocaleTimeString("zh-CN", {
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: false,
-    });
+    return formatTimeUtil(date, false); // 默认使用12小时制
   }
 
   function formatDateTimeForInput(date: Date): string {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    const day = String(date.getDate()).padStart(2, "0");
-    const hours = String(date.getHours()).padStart(2, "0");
-    const minutes = String(date.getMinutes()).padStart(2, "0");
-    return `${year}-${month}-${day}T${hours}:${minutes}`;
+    return formatDateTimeForInputUtil(date);
   }
 
   // 事件模态框相关函数
