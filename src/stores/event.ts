@@ -733,9 +733,6 @@ export const useEventStore = defineStore("event", () => {
     return dateStr + " " + timeStr;
   }
 
-    return dateStr + " " + timeStr;
-  }
-
   // 空状态消息（根据当前过滤器显示不同消息）
   const emptyStateMessage = computed(() => {
     switch (activeFilter.value) {
