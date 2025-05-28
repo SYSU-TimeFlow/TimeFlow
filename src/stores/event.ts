@@ -165,7 +165,6 @@ export const useEventStore = defineStore("event", () => {
 
   // =======================END 事件管理本地存储相关代码 END========================
 
-
   // 其余状态管理保持基本不变
   const showCategoryModal = ref(false);
   const isNewCategory = ref(true);
@@ -443,85 +442,58 @@ export const useEventStore = defineStore("event", () => {
     start.setHours(0, 0, 0, 0);
     const end = new Date(date);
     end.setHours(23, 59, 59, 999);
-    
+
     // 处理常规日历事件和BOTH类型的待办事项
     return events.value
       .filter((event) => {
         // 排除纯TODO类型的待办事项
         if (event.eventType === EventType.TODO) return false;
-        
+
         let eventStart: Date;
         let eventEnd: Date;
-        
+
         // 对于BOTH类型的待办，使用截止日期作为事件日期
-        if (event.eventType === EventType.BOTH && new Date(event.start).getFullYear() <= 1970) {
+        if (
+          event.eventType === EventType.BOTH &&
+          new Date(event.start).getFullYear() <= 1970
+        ) {
           eventStart = new Date(event.end);
           eventEnd = new Date(event.end);
         } else {
           eventStart = new Date(event.start);
           eventEnd = new Date(event.end);
         }
-        
+
         // 检查事件日期是否符合条件
         const dateMatches =
           (eventStart >= start && eventStart <= end) || // 条件1
           (eventEnd >= start && eventEnd <= end) || // 条件2
           (eventStart <= start && eventEnd >= end); // 条件3
-        
+
         // 再检查事件分类是否被选中
         const categoryMatches = activeCategoryIds.includes(event.categoryId);
-        
+
         // 同时满足日期和分类两个条件
         return dateMatches && categoryMatches;
       })
       .sort((a, b) => {
         // 为BOTH类型的待办使用end日期排序，为常规事件使用start日期排序
-        const aTime = a.eventType === EventType.BOTH && new Date(a.start).getFullYear() <= 1970 
-          ? new Date(a.end).getTime() 
-          : new Date(a.start).getTime();
-        const bTime = b.eventType === EventType.BOTH && new Date(b.start).getFullYear() <= 1970 
-          ? new Date(b.end).getTime() 
-          : new Date(b.start).getTime();
-          
+        const aTime =
+          a.eventType === EventType.BOTH &&
+          new Date(a.start).getFullYear() <= 1970
+            ? new Date(a.end).getTime()
+            : new Date(a.start).getTime();
+        const bTime =
+          b.eventType === EventType.BOTH &&
+          new Date(b.start).getFullYear() <= 1970
+            ? new Date(b.end).getTime()
+            : new Date(b.start).getTime();
+
         if (aTime === bTime) {
           return new Date(a.end).getTime() - new Date(b.end).getTime();
         }
         return aTime - bTime;
       });
-  }
-
-  // 添加新事件统一函数
-  async function addEvent(
-    title: string,
-    start: Date,
-    end: Date,
-    eventType = EventType.CALENDAR
-  ) {
-    const defaultCat = categories.value.find((c) => c.id === 5) ||
-      categories.value[0] || {
-        id: 5,
-        color: "#43aa8b",
-        name: "其他",
-        active: true,
-      };
-    const newEvent = new Event(
-      Date.now(),
-      title,
-      start,
-      end,
-      "",
-      defaultCat.id,
-      defaultCat.color,
-      start.getHours() === 0 &&
-        start.getMinutes() === 0 &&
-        end.getHours() === 23 &&
-        end.getMinutes() === 59 &&
-        end.getSeconds() === 59,
-      eventType
-    );
-
-    events.value.push(newEvent);
-    return newEvent;
   }
 
   // 保存事件 (新建或更新)
@@ -600,7 +572,7 @@ export const useEventStore = defineStore("event", () => {
       default:
         list = allTodos.value;
     }
-    
+
     // 所有待办项都应该显示，无论是否有截止日期
     // 优先显示未完成事项，并在各自组内按截止日期升序排序
     return [...list].sort((a, b) => {
@@ -608,21 +580,21 @@ export const useEventStore = defineStore("event", () => {
       if (a.completed !== b.completed) {
         return a.completed ? 1 : -1; // 未完成在前
       }
-      
+
       // 判断是否有截止日期（不是1970年占位符）
       const aHasDeadline = new Date(a.end).getFullYear() > 1970;
       const bHasDeadline = new Date(b.end).getFullYear() > 1970;
-      
+
       // 如果一个有截止日期而另一个没有
       if (aHasDeadline !== bHasDeadline) {
         return aHasDeadline ? -1 : 1; // 有截止日期的优先显示
       }
-      
+
       // 如果都有截止日期，按日期升序排列
       if (aHasDeadline && bHasDeadline) {
         return a.end.getTime() - b.end.getTime(); // 截止日期升序
       }
-      
+
       // 如果都没有截止日期，按创建时间（ID）排序
       return a.id - b.id;
     });
@@ -640,7 +612,8 @@ export const useEventStore = defineStore("event", () => {
         color: "#43aa8b",
         name: "其他",
         active: true,
-      };    currentEvent.value = {
+      };
+    currentEvent.value = {
       id: Date.now(),
       title: "",
       start: formatDateTimeForInput(placeholderDate), // 使用1970年占位符作为开始时间
@@ -677,29 +650,33 @@ export const useEventStore = defineStore("event", () => {
     if (category) {
       currentEvent.value.categoryColor = category.color;
     }
-    
+
     // 创建一个虚拟日期作为没有截止时间的占位符
     // 使用1970年1月1日作为一个明显的占位符日期
     const placeholderDate = new Date(0); // 1970-01-01T00:00:00.000Z
-    
+
     // 确定是否有截止时间
     // 如果传入了hasDeadlineParam参数，优先使用它
     // 否则根据end值判断是否有截止时间
-    const hasDeadline = hasDeadlineParam !== undefined 
-      ? hasDeadlineParam 
-      : !!(currentEvent.value.end && currentEvent.value.end.trim() !== "");
-    
+    const hasDeadline =
+      hasDeadlineParam !== undefined
+        ? hasDeadlineParam
+        : !!(currentEvent.value.end && currentEvent.value.end.trim() !== "");
+
     // 处理没有截止时间的情况
     if (!hasDeadline) {
       // 无截止时间时，清空end值或设为占位符
       currentEvent.value.end = formatDateTimeForInput(placeholderDate);
-    } else if (!currentEvent.value.end || currentEvent.value.end.trim() === "") {
+    } else if (
+      !currentEvent.value.end ||
+      currentEvent.value.end.trim() === ""
+    ) {
       // 有截止时间但end为空，设置默认值为今天结束
       const today = new Date();
       today.setHours(23, 59, 59, 0);
       currentEvent.value.end = formatDateTimeForInput(today);
     }
-    
+
     const todoToSave = {
       ...currentEvent.value,
       start: placeholderDate, // 待办事项开始时间统一设为1970年占位符
@@ -707,7 +684,7 @@ export const useEventStore = defineStore("event", () => {
       // 根据是否有截止时间确认事件类型
       eventType: hasDeadline ? EventType.BOTH : EventType.TODO,
       // 设置为非全天事件
-      allDay: false
+      allDay: false,
     };
 
     if (isNewTodo.value) {
@@ -741,22 +718,14 @@ export const useEventStore = defineStore("event", () => {
       month: "2-digit",
       day: "2-digit",
     });
-    
+
     const timeStr = date.toLocaleTimeString("zh-CN", {
       hour: "2-digit",
       minute: "2-digit",
-      hour12: false
+      hour12: false,
     });
-    
-    return dateStr + " " + timeStr;
-  }
 
-  // 将日期格式化为 YYYY-MM-DD 格式，以便用户选择或输入日期。
-  function formatDateForInput(date: Date): string {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    const day = String(date.getDate()).padStart(2, "0");
-    return `${year}-${month}-${day}`;
+    return dateStr + " " + timeStr;
   }
 
   // 空状态消息（根据当前过滤器显示不同消息）
@@ -882,7 +851,6 @@ export const useEventStore = defineStore("event", () => {
         event.categoryColor = newColor;
       }
     });
-
   }
 
   function openNewCategoryModal() {
@@ -979,7 +947,7 @@ export const useEventStore = defineStore("event", () => {
   // 添加一个通用的 watch 函数来监听 events 和 categories 的变化
 
   return {
-    // 导出枚举类型供组件使用
+    // 枚举类型
     EventType,
 
     // 状态
@@ -1000,32 +968,38 @@ export const useEventStore = defineStore("event", () => {
     completedTodos,
     activeTodos,
     filteredTodos,
-    emptyStateMessage, // 需要重新实现
+    emptyStateMessage,
 
-    // 方法
-    addEvent,
+    // 事件相关方法
     saveEvent,
     deleteEvent,
     toggleTodo,
+    saveTodo,
     setFilter,
+
+    // 待办事项模态框方法
     openNewTodoModal,
     openEditTodoModal,
-    saveTodo,
     closeTodoModal,
+
+    // 事件模态框方法
+    openNewEventModal,
+    openEventDetails,
+    closeEventModal,
     toggleEventModal,
 
     // 工具函数
     getEventsForDay,
+    setTimeToEndOfDay,
+
+    // 格式化相关函数
+    formatDateForDisplay,
     formatEventTime,
     formatTime,
     formatDateTimeForInput,
-    openNewEventModal,
-    openEventDetails,
-    closeEventModal,
-    setTimeToEndOfDay,
 
-    // 分类相关
-    toggleCategory, // 已是 async
+    // 分类相关方法
+    toggleCategory,
     colorOptions,
     isColorUsed,
     selectColor,
@@ -1037,11 +1011,7 @@ export const useEventStore = defineStore("event", () => {
     saveCategory,
     deleteCategory,
 
-    // 格式化相关
-    formatDateForDisplay,
-    formatDateForInput,
-
-    // 搜索相关导出保持不变
+    // 搜索相关
     searchInputValue,
     searchQuery,
     isSearchFocused,
@@ -1058,7 +1028,7 @@ export const useEventStore = defineStore("event", () => {
     setScrollUiUpdateCallback,
     clearScrollUiUpdateCallback,
 
-    // 暴露loadstore，仅供测试
+    // 数据存储相关，仅供测试
     loadAppDataFromStore,
     saveAppDataToStore,
   };

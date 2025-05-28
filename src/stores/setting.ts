@@ -107,7 +107,7 @@ export const useSettingStore = defineStore("setting", () => {
 
   // 加载设置 - 修改为通过 Electron API 加载
   async function loadSettings() {
-    console.log("LoadSettings called");
+    // console.log("LoadSettings called");
     try {
       // @ts-ignore
       const settings = await window.electronAPI.loadSettings();
@@ -226,7 +226,7 @@ export const useSettingStore = defineStore("setting", () => {
   }
 
   // 初始加载
-  console.log("resetting store initialized, loading settings...");
+  // console.log("resetting store initialized, loading settings...");
   loadSettings();
 
   // 控制设置弹窗显示状态
@@ -672,6 +672,7 @@ export const useSettingStore = defineStore("setting", () => {
   }
 
   return {
+    // 状态变量
     synced,
     themeMode,
     fontSize,
@@ -683,16 +684,19 @@ export const useSettingStore = defineStore("setting", () => {
     showLunar,
     weekStart,
     language,
+
+    // 计算属性
     allSettings,
+
+    // 设置弹窗相关
     showSettings,
+    toggleSettings,
+    closeSettings,
+
+    // 设置操作方法
     toggleSync,
     setThemeMode,
     setLanguage,
-    saveSettings,
-    loadSettings,
-    resetSettings,
-    toggleSettings,
-    closeSettings,
     setFontSize,
     setIconStyle,
     setNotifications,
@@ -703,10 +707,24 @@ export const useSettingStore = defineStore("setting", () => {
     setWeekStart,
     getWeekStart,
     toggleWeekStart,
+
+    // 本地存储相关
+    saveSettings,
+    loadSettings,
+    resetSettings,
+
+    // 主题和样式相关
     applyTheme,
     applyFontSize,
+
+    // 农历相关
     getLunarDate,
+    getLunarYearDays,
+    getLeapMonth,
+    getLeapMonthDays,
     getLunarMonthDays,
+
+    // 日期视图相关
     getMonthDays,
     getWeekDays,
     getWeekDayNames,
