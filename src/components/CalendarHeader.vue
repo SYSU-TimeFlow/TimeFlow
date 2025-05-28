@@ -194,8 +194,16 @@
         @click="settingStore.toggleSettings"
         class="header-icon-button p-2 rounded-md transition-colors"
         title="打开设置"
+        @mouseenter="isCogHovered = true"
+        @mouseleave="isCogHovered = false"
       >
-        <i class="fas fa-cog"></i>
+        <i
+          class="fas fa-cog"
+          :style="{
+            transform: `rotate(${cogRotation}deg)`,
+            transition: 'transform 0.5s cubic-bezier(0.4, 0, 0.2, 1)'
+          }"
+        ></i>
       </button>
       <div class="window-actions flex">
         <button
@@ -239,6 +247,8 @@ const resultListRef = ref<HTMLUListElement | null>(null);
 const searchInputRef = ref<HTMLInputElement | null>(null);
 
 const isBellShaking = ref(false); // 控制震动动画
+const isCogHovered = ref(false);
+const cogRotation = ref(0);
 
 // 已通知事件唯一标识集合，防止重复通知（考虑时间变化）
 const notifiedEventKeys = ref<Set<string>>(new Set());
@@ -556,6 +566,15 @@ watch(() => settingStore.notifications, (newVal) => {
   if (!newVal) {
     // 如果通知被关闭，清空已通知的记录
     notifiedEventKeys.value.clear();
+  }
+});
+
+// 监听悬浮状态，控制旋转角度
+watch(isCogHovered, (hovered) => {
+  if (hovered) {
+    cogRotation.value += 90;
+  } else {
+    cogRotation.value -= 90;
   }
 });
 </script>
