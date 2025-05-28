@@ -2,7 +2,7 @@
   @component: CalendarHeader
   @description: 应用程序头部组件，包含标题、导航按钮、搜索框和窗口控制按钮
   @author: huzch
-  @modified: lijzh89
+  @modified: DuSuang
   @date: 2025-05-25
 -->
 
@@ -161,18 +161,18 @@
       <button
         class="header-icon-button p-2 rounded-md transition-colors relative"
         @click="toggleNotification"
-        :title="isNotificationEnabled ? '点击关闭通知' : '点击开启通知'"
+        :title="settingStore.notifications ? '点击关闭通知' : '点击开启通知'"
       >
         <i
           class="fas fa-bell"
           :class="{
             'bell-shake': isBellShaking,
-            'bell-disabled': !isNotificationEnabled,
+            'bell-disabled': !settingStore.notifications,
           }"
         ></i>
         <!-- 斜线覆盖 -->
         <svg
-          v-if="!isNotificationEnabled"
+          v-if="!settingStore.notifications"
           class="bell-slash"
           width="22"
           height="22"
@@ -222,7 +222,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, nextTick, onMounted, onUnmounted } from "vue";
+import { ref, nextTick, onMounted, onUnmounted, watch } from "vue";
 import { useUiStore } from "../stores/ui";
 import { useSettingStore } from "../stores/setting";
 import { useEventStore } from "../stores/event";
@@ -238,7 +238,6 @@ const electronAPI = (window as any).electronAPI;
 const resultListRef = ref<HTMLUListElement | null>(null);
 const searchInputRef = ref<HTMLInputElement | null>(null);
 
-const isNotificationEnabled = ref(true); // 通知开关
 const isBellShaking = ref(false); // 控制震动动画
 
 // 已通知事件唯一标识集合，防止重复通知（考虑时间变化）
@@ -256,9 +255,9 @@ function getEventNotifyKey(event: any) {
   return isTodo ? `${event.id}|${end}` : `${event.id}|${start}|${end}`;
 }
 
-// 检查日程并发送通知
+// 检查日程并发送通知 - 修改为使用settingStore.notifications
 const checkAndNotifyEvents = () => {
-  if (!isNotificationEnabled.value) return;
+  if (!settingStore.notifications) return;
   const now = new Date();
 
   // 合并所有事件，按id去重
@@ -535,26 +534,34 @@ const activateSearch = () => {
   });
 };
 
-// 通知开关切换
+// 通知开关切换 - 修改为使用settingStore.notifications
 const toggleNotification = () => {
-  isNotificationEnabled.value = !isNotificationEnabled.value;
+  settingStore.notifications = !settingStore.notifications;
   isBellShaking.value = true;
   setTimeout(() => {
     isBellShaking.value = false;
   }, 600);
+  
   // 关闭通知时清空，开启时不清空
-  if (!isNotificationEnabled.value) {
+  if (!settingStore.notifications) {
     notifiedEventKeys.value.clear();
   }
+  
+  // 保存设置更改
+  settingStore.saveSettings();
 };
+
+// 添加监听器，当设置中的通知状态变化时，可能需要处理相应逻辑
+watch(() => settingStore.notifications, (newVal) => {
+  if (!newVal) {
+    // 如果通知被关闭，清空已通知的记录
+    notifiedEventKeys.value.clear();
+  }
+});
 
 declare global {
   interface Window {
     electronAPI?: {
-      saveSettings: (settings: any) => Promise<void>;
-      loadSettings: () => Promise<any>;
-      setNativeTheme: (theme: string) => void;
-      setWeekStart: (startDay: string) => void;
       notify: (title: string, body: string) => void;
       minimize?: () => void;
       maximize?: () => void;
