@@ -942,4 +942,34 @@ const getWeekViewDays = computed(() => {
 .both-event-week .w-3.h-3:not(.bg-indigo-500) {
   background-color: #fff;
 }
+
+/* 去除周视图和日视图左侧时间轴与顶部表头的白色边框 */
+.week-view .time-labels,
+.day-view .time-labels {
+  border-right: none !important;
+  background: transparent !important;
+}
+
+.week-view .grid > .grid > div:first-child,
+.day-view .grid > .day-header {
+  border-bottom: none !important;
+  background: transparent !important;
+}
+
+/* 去除月/周/日视图最上端的白色边框/白线 */
+.calendar-grid > .grid,
+.week-view > .grid,
+.day-view > .grid,
+.calendar-grid .grid-cols-7 > div,
+.week-view .grid > .grid > div,
+.day-view .day-header {
+  border-top: none !important;
+  background: transparent !important;
+}
+
+/* 针对月视图顶部星期栏的白线 */
+.calendar-grid .grid-cols-7 {
+  border-top: none !important;
+  background: transparent !important;
+}
 </style>
