@@ -70,10 +70,20 @@ describe("eventStore", () => {
       console.log('\x1b[34m%s\x1b[0m', 'original event', eventStore.events);
       
       const eventToDelete = eventStore.events[0];
+      console.log(
+        "\x1b[34m%s\x1b[0m",
+        `original event: length: ${eventStore.events.length}}`
+      );
+      console.log(
+        "\x1b[32m%s\x1b[0m",
+        `Deleting event: ${eventToDelete.title} with ID: ${eventToDelete.id}`
+      );
       await eventStore.deleteEvent(eventToDelete.id);
 
-      console.log('\x1b[34m%s\x1b[0m', 'updated event', eventStore.events);
-      
+      console.log(
+        "\x1b[34m%s\x1b[0m",
+        `updated event: length: ${eventStore.events.length}}`
+      );
 
       expect(eventStore.events).not.toContainEqual(eventToDelete);
 
@@ -85,11 +95,23 @@ describe("eventStore", () => {
       );
     });
 
+    console.log("\x1b[32m%s\x1b[0m", "=======================");
+
     it("should update an event and save changes to local storage", async () => {
       console.log();
 
       const eventToUpdate = eventStore.events[0];
+      console.log(
+        "\x1b[34m%s\x1b[0m",
+        `original event: ${eventToUpdate.title} with ID: ${eventToUpdate.id}`
+      );
       eventToUpdate.title = "Updated Event";
+
+      console.log(
+        "\x1b[32m%s\x1b[0m",
+        `Updating event to: ${eventToUpdate.title}`
+      );
+
       await eventStore.saveEvent();
 
       expect(eventStore.events).toContainEqual(
@@ -105,6 +127,8 @@ describe("eventStore", () => {
         })
       );
     });
+
+    console.log("\x1b[32m%s\x1b[0m", "=======================");
 
     it("should fetch events for a specific day", () => {
       const eventsForDay = eventStore.getEventsForDay(
