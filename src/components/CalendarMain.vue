@@ -972,4 +972,18 @@ const getWeekViewDays = computed(() => {
   border-top: none !important;
   background: transparent !important;
 }
+
+/* 暗黑模式下修正周视图表头背景、文字和底线颜色 */
+.dark-mode .week-view .day-header {
+  background-color: var(--bg-secondary) !important;
+  border-bottom: 1px solid var(--border-color) !important;
+}
+.dark-mode .week-view .day-header .text-sm,
+.dark-mode .week-view .day-header .text-lg {
+  color: var(--text-tertiary) !important;
+}
+.dark-mode .week-view .bg-white {
+  background-color: var(--bg-secondary) !important;
+  border-bottom: 1px solid var(--border-color) !important;
+}
 </style>
