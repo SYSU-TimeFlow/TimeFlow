@@ -14,6 +14,7 @@ import { setActivePinia, createPinia } from "pinia";
 import { useEventStore } from "../../src/stores/event";
 import { Event, EventType } from "../../src/const";
 import { describe, it, expect, beforeEach, vi } from "vitest";
+import { createPageModule } from "../../src/stores/ui/page";
 
 // 模拟 electron-store 的行为
 vi.mock("electron-store", () => {
@@ -71,17 +72,17 @@ beforeEach(() => {
 
 describe("saveCategory", () => {
   let eventStore: ReturnType<typeof useEventStore>;
-
+  
   beforeEach(async () => {
     eventStore = useEventStore();
-    // console.log("Loading app data before each test...");
-    await eventStore.loadAppDataFromStore(); // 确保每次测试前加载数据
-    // console.log("App data loaded:", eventStore.categories, eventStore.events);
+    await eventStore.loadAppDataFromStore();
   });
-
+  
   it("应该添加新分类", () => {
     // console.log("========== ADD NEW CATEGORY BEGIN ==========");
+    const pageModule = createPageModule({});
     const store = useEventStore();
+    const originalLength = store.categories.length;
     store.currentCategory = {
       id: 3,
       name: "新分类",
@@ -94,9 +95,10 @@ describe("saveCategory", () => {
     store.saveCategory();
 
     // console.log("Updated categories:", store.categories);
-    expect(store.categories).toHaveLength(3);
+    expect(store.categories).toHaveLength(originalLength + 1);
     expect(store.categories[2]).toEqual(store.currentCategory);
-    expect(store.showCategoryModal).toBe(false);
+    expect(pageModule.showCategoryModal.value).toBe(false);
+
     // console.log("========== ADD NEW CATEGORY END ==========");
   });
 
@@ -120,25 +122,25 @@ describe("saveCategory", () => {
     // console.log("Updated categories:", store.categories);
     expect(store.categories).toHaveLength(1);
     expect(store.categories[0]).toEqual(store.currentCategory);
-    expect(store.showCategoryModal).toBe(false);
     // console.log("========== UPDATE EXISTING CATEGORY END ==========");
   });
 
   it("当表单无效时不应该保存", () => {
     const store = useEventStore();
+    const pageModule = createPageModule({});
     store.currentCategory = {
       id: 1,
       name: "", // 无效名称
       color: "#7209b7",
       active: true,
     };
-    store.showCategoryModal = true; // 模态框打开
+    pageModule.showCategoryModal.value = true; // 模态框打开
     store.isNewCategory = true;
 
     store.saveCategory();
 
     expect(store.categories).toHaveLength(2);
-    expect(store.showCategoryModal).toBe(true); // 模态框保持打开
+    expect(pageModule.showCategoryModal.value).toBe(true); // 模态框保持打开
   });
 
   it("更新分类时应该更新关联事件的分类颜色", async () => {
@@ -182,6 +184,8 @@ describe("deleteCategory", () => {
   it("应该删除分类并将关联事件重新分配到默认分类", () => {
     // console.log("========== DELETE CATEGORY BEGIN ==========");
     const store = useEventStore();
+    const pageModule = createPageModule({});
+
     store.categories = [
       { id: 1, name: "工作", color: "#ff0000", active: true },
       { id: 5, name: "其他", color: "#43aa8b", active: true },
@@ -230,7 +234,7 @@ describe("deleteCategory", () => {
     expect(store.events[0].categoryId).toBe(5);
     expect(store.events[0].categoryColor).toBe("#43aa8b");
     expect(store.events[1].categoryId).toBe(5); // 保持不变
-    expect(store.showCategoryModal).toBe(false);
+    expect(pageModule.showCategoryModal.value).toBe(false);
     // console.log("========== DELETE CATEGORY END ==========");
   });
 
