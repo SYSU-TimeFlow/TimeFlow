@@ -10,11 +10,6 @@
       <!-- 待办事项列表其余部分保持不变 -->
       <div class="flex-1 overflow-auto p-6">
         <div class="max-w-6xl mx-auto flex flex-col items-center">
-          <!-- 标题区 -->
-          <h1 class="text-3xl font-bold text-indigo-600 text-center mb-10">
-            To-Do
-          </h1>
-
           <!-- 过滤选项 -->
           <div class="w-full mb-6 flex justify-center gap-4">
             <button
