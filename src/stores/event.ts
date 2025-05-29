@@ -376,7 +376,13 @@ export const useEventStore = defineStore("event", () => {
   // Action: 选择一个搜索结果
   function selectSearchResultAction(eventData: any) {
     const uiStore = useUiStore();
-    uiStore.openEventDetails(eventData); // openEventDetails 是 store 中已有的 action
+    // 如果是待办事项（TODO 或 BOTH），直接进入待办编辑页面
+    if (eventData.eventType === EventType.TODO || eventData.eventType === EventType.BOTH) {
+      uiStore.openEditTodoModal(eventData);
+    } else{
+      // 否则打开事件详情
+      uiStore.openEventDetails(eventData);
+    }
     // @ts-ignore
     clearSearchAction();
   }
