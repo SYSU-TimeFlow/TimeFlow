@@ -104,13 +104,7 @@
         </div>
       </div>
 
-      <!-- 添加新待办事项按钮 -->
-      <button
-        @click="eventStore.openNewTodoModal"
-        class="fixed right-6 bottom-6 w-14 h-14 bg-indigo-600 text-white rounded-full flex items-center justify-center shadow-lg hover:bg-indigo-700 transition"
-      >
-        <i class="fas fa-plus text-xl"></i>
-      </button>
+      <!-- 已移除添加按钮 -->
     </div>
   </div>
 </template>
