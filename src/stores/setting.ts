@@ -1,5 +1,14 @@
 import { defineStore } from "pinia";
 import { ref, computed, watch } from "vue";
+import {
+  Settings,
+  CalendarDay,
+  WeekDay,
+  lunarInfo,
+  monthNames,
+  dayNames,
+  weekDays
+} from "../const";
 
 // 添加 electronAPI 的类型定义
 // 没有运行时效果，只是告诉 TypeScript 这些属性的存在，是合法的
@@ -14,37 +23,6 @@ declare global {
       close?: () => void;
     };
   }
-}
-
-// 添加接口定义
-interface Settings {
-  themeMode: string;
-  fontSize: string;
-  iconStyle: string;
-  notifications: boolean;
-  notificationSound: boolean;
-  soundEffect: boolean;
-  hour24: boolean;
-  showLunar: boolean;
-  weekStart: string;
-  language: string;
-  synced: boolean;
-}
-
-// 添加日期相关的接口定义
-interface CalendarDay {
-  date: string;
-  dayNumber: number;
-  isCurrentMonth: boolean;
-  isToday: boolean;
-  isWeekend: boolean;
-}
-
-interface WeekDay {
-  date: string;
-  dayNumber: number;
-  dayName: string;
-  isToday: boolean;
 }
 
 export const useSettingStore = defineStore("setting", () => {
@@ -315,29 +293,6 @@ export const useSettingStore = defineStore("setting", () => {
     // medium 是默认值，不需要添加类
   }
 
-  // 农历数据表
-  const lunarInfo = [
-    0x04bd8, 0x04ae0, 0x0a570, 0x054d5, 0x0d260, 0x0d950, 0x16554, 0x056a0,
-    0x09ad0, 0x055d2, 0x04ae0, 0x0a5b6, 0x0a4d0, 0x0d250, 0x1d255, 0x0b540,
-    0x0d6a0, 0x0ada2, 0x095b0, 0x14977, 0x04970, 0x0a4b0, 0x0b4b5, 0x06a50,
-    0x06d40, 0x1ab54, 0x02b60, 0x09570, 0x052f2, 0x04970, 0x06566, 0x0d4a0,
-    0x0ea50, 0x06e95, 0x05ad0, 0x02b60, 0x186e3, 0x092e0, 0x1c8d7, 0x0c950,
-    0x0d4a0, 0x1d8a6, 0x0b550, 0x056a0, 0x1a5b4, 0x025d0, 0x092d0, 0x0d2b2,
-    0x0a950, 0x0b557, 0x06ca0, 0x0b550, 0x15355, 0x04da0, 0x0a5d0, 0x14573,
-    0x052d0, 0x0a9a8, 0x0e950, 0x06aa0, 0x0aea6, 0x0ab50, 0x04b60, 0x0aae4,
-    0x0a570, 0x05260, 0x0f263, 0x0d950, 0x05b57, 0x056a0, 0x096d0, 0x04dd5,
-    0x04ad0, 0x0a4d0, 0x0d4d4, 0x0d250, 0x0d558, 0x0b540, 0x0b5a0, 0x195a6,
-    0x095b0, 0x049b0, 0x0a974, 0x0a4b0, 0x0b27a, 0x06a50, 0x06d40, 0x0af46,
-    0x0ab60, 0x09570, 0x04af5, 0x04970, 0x064b0, 0x074a3, 0x0ea50, 0x06b58,
-    0x055c0, 0x0ab60, 0x096d5, 0x092e0, 0x0c960, 0x0d954, 0x0d4a0, 0x0da50,
-    0x07552, 0x056a0, 0x0abb7, 0x025d0, 0x092d0, 0x0cab5, 0x0a950, 0x0b4a0,
-    0x0baa4, 0x0ad50, 0x055d9, 0x04ba0, 0x0a5b0, 0x15176, 0x052b0, 0x0a930,
-    0x07954, 0x06aa0, 0x0ad50, 0x05b52, 0x04b60, 0x0a6e6, 0x0a4e0, 0x0d260,
-    0x0ea65, 0x0d530, 0x05aa0, 0x076a3, 0x096d0, 0x04bd7, 0x04ad0, 0x0a4d0,
-    0x1d0b6, 0x0d250, 0x0d520, 0x0dd45, 0x0b5a0, 0x056d0, 0x055b2, 0x049b0,
-    0x0a577, 0x0a4b0, 0x0aa50, 0x1b255, 0x06d20, 0x0ada0,
-  ];
-
   /**
    * 获取农历日期
    * @param date 公历日期
@@ -402,56 +357,6 @@ export const useSettingStore = defineStore("setting", () => {
 
     // 计算农历日期
     let lunarDay = offset + 1;
-
-    // 农历月份名称
-    const monthNames = [
-      "正月",
-      "二月",
-      "三月",
-      "四月",
-      "五月",
-      "六月",
-      "七月",
-      "八月",
-      "九月",
-      "十月",
-      "冬月",
-      "腊月",
-    ];
-
-    // 农历日期名称
-    const dayNames = [
-      "初一",
-      "初二",
-      "初三",
-      "初四",
-      "初五",
-      "初六",
-      "初七",
-      "初八",
-      "初九",
-      "初十",
-      "十一",
-      "十二",
-      "十三",
-      "十四",
-      "十五",
-      "十六",
-      "十七",
-      "十八",
-      "十九",
-      "二十",
-      "廿一",
-      "廿二",
-      "廿三",
-      "廿四",
-      "廿五",
-      "廿六",
-      "廿七",
-      "廿八",
-      "廿九",
-      "三十",
-    ];
 
     const result: { day: string; month?: string } = {
       day: dayNames[lunarDay - 1],
@@ -553,7 +458,7 @@ export const useSettingStore = defineStore("setting", () => {
         prevMonth.getDate() - i
       );
       days.push({
-        date: date.toISOString(),
+        date,
         dayNumber: date.getDate(),
         isCurrentMonth: false,
         isToday: false,
@@ -569,7 +474,7 @@ export const useSettingStore = defineStore("setting", () => {
         i
       );
       days.push({
-        date: date.toISOString(),
+        date,
         dayNumber: i,
         isCurrentMonth: true,
         isToday: date.toDateString() === new Date().toDateString(),
@@ -585,7 +490,7 @@ export const useSettingStore = defineStore("setting", () => {
         i
       );
       days.push({
-        date: date.toISOString(),
+        date,
         dayNumber: i,
         isCurrentMonth: false,
         isToday: false,
@@ -620,7 +525,7 @@ export const useSettingStore = defineStore("setting", () => {
       date.setDate(firstDayOfWeek.getDate() + i);
 
       weekDays.push({
-        date: date.toISOString(),
+        date,
         dayNumber: date.getDate(),
         dayName: [
           "星期日",
@@ -643,57 +548,8 @@ export const useSettingStore = defineStore("setting", () => {
    * @returns 星期几显示顺序数组
    */
   function getWeekDayNames() {
-    const weekDays = [
-      "星期日",
-      "星期一",
-      "星期二",
-      "星期三",
-      "星期四",
-      "星期五",
-      "星期六",
-    ];
     const startDay = parseInt(weekStart.value);
     return [...weekDays.slice(startDay), ...weekDays.slice(0, startDay)];
-  }
-
-  /**
-   * 格式化小时为12小时制或24小时制
-   * @param hour 小时数（0-23）
-   * @returns 格式化后的小时字符串
-   */
-  function formatHour(hour: number): string {
-    if (hour24.value) {
-      // 24小时制
-      return `${hour.toString().padStart(2, "0")}:00`;
-    } else {
-      // 12小时制
-      const period = hour >= 12 ? "PM" : "AM";
-      const hour12 = hour % 12 || 12;
-      return `${hour12}:00 ${period}`;
-    }
-  }
-
-  /**
-   * 格式化时间为12小时制或24小时制
-   * @param date 日期对象
-   * @returns 格式化后的时间字符串
-   */
-  function formatTime(date: Date): string {
-    if (hour24.value) {
-      // 24小时制
-      return date.toLocaleTimeString("zh-CN", {
-        hour: "2-digit",
-        minute: "2-digit",
-        hour12: false,
-      });
-    } else {
-      // 12小时制
-      return date.toLocaleTimeString("zh-CN", {
-        hour: "2-digit",
-        minute: "2-digit",
-        hour12: true,
-      });
-    }
   }
 
   return {
@@ -753,7 +609,5 @@ export const useSettingStore = defineStore("setting", () => {
     getMonthDays,
     getWeekDays,
     getWeekDayNames,
-    formatHour,
-    formatTime,
   };
 });

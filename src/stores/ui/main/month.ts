@@ -1,14 +1,7 @@
 import { computed } from "vue";
 import { useEventStore } from "../../event";
 import { getStartOfWeek, getEndOfWeek } from "../../../utils";
-
-interface CalendarDay {
-  date: Date;
-  dayNumber: number;
-  isCurrentMonth: boolean;
-  isToday: boolean;
-  isWeekend: boolean;
-}
+import { CalendarDay } from "../../../const";
 
 export const createMonthModule = (storeContext: any) => {
   const { currentDate, selectedDate, draggedEvent } = storeContext;

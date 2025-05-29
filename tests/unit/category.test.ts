@@ -11,7 +11,8 @@
  */
 
 import { setActivePinia, createPinia } from "pinia";
-import { useEventStore, Event, EventType } from "../../src/stores/event";
+import { useEventStore } from "../../src/stores/event";
+import { Event, EventType } from "../../src/const/index";
 import { describe, it, expect, beforeEach, vi } from "vitest";
 
 // 模拟 electron-store 的行为

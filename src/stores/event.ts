@@ -1,11 +1,8 @@
 import { defineStore } from "pinia";
 import { ref, computed, nextTick, watch } from "vue";
 import { pinyin } from "pinyin-pro";
-import {
-  formatEventTime as formatEventTimeUtil,
-  formatTime as formatTimeUtil,
-  formatDateTimeForInput as formatDateTimeForInputUtil,
-} from "../utils";
+import { formatDateForInput } from "../utils";
+import { EventType, Event, FilterType, Category, colorOptions } from "../const";
 
 declare global {
   interface Window {
@@ -20,61 +17,7 @@ declare global {
   }
 }
 
-// 事件类型枚举
-export enum EventType {
-  CALENDAR = "calendar",
-  TODO = "todo",
-  BOTH = "both", // 同时作为日历事件和待办事项
-}
-
-// 统一的事件类
-export class Event {
-  constructor(
-    public id: number,
-    public title: string,
-    public start: Date,
-    public end: Date,
-    public description: string = "",
-    public categoryId: number = 5,
-    public categoryColor: string = "#43aa8b",
-    public allDay: boolean = false,
-    public eventType: EventType = EventType.CALENDAR,
-    public completed: boolean = false
-  ) {}
-}
-
-// 过滤器类型增加 today
-export type FilterType = "all" | "completed" | "active" | "today";
-
-interface TodoFilter {
-  value: FilterType;
-  label: string;
-  count: number;
-}
-
-// 新增：分类接口定义
-interface Category {
-  id: number;
-  name: string;
-  color: string;
-  active: boolean;
-}
-
 export const useEventStore = defineStore("event", () => {
-  // 预设颜色选项保持不变
-  const colorOptions = [
-    "#e63946", // 红色
-    "#f8961e", // 橙色
-    "#fcbf49", // 黄色
-    "#2a9d8f", // 青绿色
-    "#43aa8b", // 绿色
-    "#4cc9f0", // 青色
-    "#3a86ff", // 蓝色
-    "#7209b7", // 紫色
-    "#f72585", // 粉色
-    "#495057", // 深灰色
-  ];
-
   // =======================BEGIN 事件管理本地存储相关代码 BEGIN========================
 
   // 修改：categories 初始化为空数组，将通过API加载
@@ -638,8 +581,8 @@ export const useEventStore = defineStore("event", () => {
     currentEvent.value = {
       id: Date.now(),
       title: "",
-      start: formatDateTimeForInput(placeholderDate), // 使用1970年占位符作为开始时间
-      end: formatDateTimeForInput(today), // 默认有截止时间
+      start: formatDateForInput(placeholderDate), // 使用1970年占位符作为开始时间
+      end: formatDateForInput(today), // 默认有截止时间
       description: "",
       categoryId: defaultCat.id,
       categoryColor: defaultCat.color,
@@ -658,8 +601,8 @@ export const useEventStore = defineStore("event", () => {
     const placeholderDate = new Date(0); // 1970-01-01T00:00:00.000Z
     currentEvent.value = {
       ...todo,
-      start: formatDateTimeForInput(placeholderDate), // 待办事项开始时间始终为1970年占位符
-      end: todo.end ? formatDateTimeForInput(todo.end) : "", // 格式化截止时间（如果有）
+      start: formatDateForInput(placeholderDate), // 待办事项开始时间始终为1970年占位符
+      end: todo.end ? formatDateForInput(todo.end) : "", // 格式化截止时间（如果有）
     };
     showTodoModal.value = true;
   };
@@ -688,7 +631,7 @@ export const useEventStore = defineStore("event", () => {
     // 处理没有截止时间的情况
     if (!hasDeadline) {
       // 无截止时间时，清空end值或设为占位符
-      currentEvent.value.end = formatDateTimeForInput(placeholderDate);
+      currentEvent.value.end = formatDateForInput(placeholderDate);
     } else if (
       !currentEvent.value.end ||
       currentEvent.value.end.trim() === ""
@@ -696,7 +639,7 @@ export const useEventStore = defineStore("event", () => {
       // 有截止时间但end为空，设置默认值为今天结束
       const today = new Date();
       today.setHours(23, 59, 59, 0);
-      currentEvent.value.end = formatDateTimeForInput(today);
+      currentEvent.value.end = formatDateForInput(today);
     }
 
     const todoToSave = {
@@ -733,23 +676,6 @@ export const useEventStore = defineStore("event", () => {
     return newDate;
   }
 
-  // 将日期格式化为 YYYY/MM/DD hh:mm 格式，精确到分钟
-  function formatDateForDisplay(date: Date): string {
-    const dateStr = date.toLocaleDateString("zh-CN", {
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-    });
-
-    const timeStr = date.toLocaleTimeString("zh-CN", {
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: false,
-    });
-
-    return dateStr + " " + timeStr;
-  }
-
   // 空状态消息（根据当前过滤器显示不同消息）
   const emptyStateMessage = computed(() => {
     switch (activeFilter.value) {
@@ -765,19 +691,6 @@ export const useEventStore = defineStore("event", () => {
   // 设置待办事项过滤器
   function setFilter(filter: FilterType) {
     activeFilter.value = filter;
-  }
-
-  // 日期时间格式化相关函数
-  function formatEventTime(event: Event): string {
-    return formatEventTimeUtil(event, false); // 默认使用12小时制
-  }
-
-  function formatTime(date: Date): string {
-    return formatTimeUtil(date, false); // 默认使用12小时制
-  }
-
-  function formatDateTimeForInput(date: Date): string {
-    return formatDateTimeForInputUtil(date);
   }
 
   // 事件模态框相关函数
@@ -796,8 +709,8 @@ export const useEventStore = defineStore("event", () => {
     currentEvent.value = {
       id: Date.now(),
       title: "",
-      start: formatDateTimeForInput(startDate),
-      end: formatDateTimeForInput(endDate),
+      start: formatDateForInput(startDate),
+      end: formatDateForInput(endDate),
       description: "",
       categoryId: defaultCat.id,
       categoryColor: defaultCat.color,
@@ -813,8 +726,8 @@ export const useEventStore = defineStore("event", () => {
     isNewEvent.value = false;
     currentEvent.value = {
       ...event,
-      start: formatDateTimeForInput(event.start),
-      end: formatDateTimeForInput(event.end),
+      start: formatDateForInput(event.start),
+      end: formatDateForInput(event.end),
     };
 
     if (event.eventType === EventType.TODO) {
@@ -1002,12 +915,6 @@ export const useEventStore = defineStore("event", () => {
     // 工具函数
     getEventsForDay,
     setTimeToEndOfDay,
-
-    // 格式化相关函数
-    formatDateForDisplay,
-    formatEventTime,
-    formatTime,
-    formatDateTimeForInput,
 
     // 分类相关方法
     toggleCategory,

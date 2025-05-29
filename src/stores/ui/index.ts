@@ -11,32 +11,7 @@ import { createTodoModule } from "./main/todo";
 import { createViewModule } from "./sidebar/view";
 import { createCategoryModule } from "./sidebar/category";
 
-// 导入工具函数
-import { 
-  formatHour, 
-  getStartOfWeek, 
-  getEndOfWeek, 
-  getContrastColor,
-  calculateEventTop,
-  calculateEventHeight
-} from "../../utils";
-
-// 添加类型定义
-interface CalendarDay {
-  date: Date;
-  dayNumber: number;
-  isCurrentMonth: boolean;
-  isToday: boolean;
-  isWeekend: boolean;
-}
-
-interface WeekViewDay {
-  date: Date;
-  dayName: string;
-  dayNumber: number;
-  isToday: boolean;
-  events: any[];
-}
+import { CalendarDay, WeekViewDay } from "../../const";
 
 export const useUiStore = defineStore("ui", () => {
   // 核心状态
@@ -105,14 +80,6 @@ export const useUiStore = defineStore("ui", () => {
     setAppMode,
     toggleSearchActive,
     handleDragStart,
-
-    // 工具函数
-    formatHour,
-    getStartOfWeek,
-    getEndOfWeek,
-    getContrastColor,
-    calculateEventTop,
-    calculateEventHeight,
 
     // 页面模块
     ...pageModule,

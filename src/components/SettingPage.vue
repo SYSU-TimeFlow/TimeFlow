@@ -455,36 +455,6 @@ onUnmounted(() => {
 });
 
 /**
- * 保存设置并关闭窗口
- * 显示一个提示，然后在短暂延迟后关闭设置界面
- */
-async function saveAndClose() {
-  try {
-    // 使用store的方法保存设置
-    await settingStore.saveSettings();
-
-    // 显示提示并延迟关闭
-    toastMessage.value = "设置已保存！";
-    toastType.value = "success";
-    showToast.value = true;
-    setTimeout(() => {
-      settingStore.closeSettings();
-      setTimeout(() => {
-        showToast.value = false;
-      }, 2500);
-    }, 1000);
-  } catch (error) {
-    console.error("保存设置失败:", error);
-    toastMessage.value = "保存设置失败，请重试";
-    toastType.value = "error";
-    showToast.value = true;
-    setTimeout(() => {
-      showToast.value = false;
-    }, 2500);
-  }
-}
-
-/**
  * 重置设置到默认值
  * 显示一个提示，告知用户设置已重置
  */

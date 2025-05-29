@@ -2,8 +2,6 @@ import { ref } from "vue";
 import { useEventStore } from "../event";
 
 export const createPageModule = (storeContext: any) => {
-  const { appMode, isSearchActive } = storeContext;
-
   // 页面控制状态
   const showHelpModal = ref(false);
   const showToggleButton = ref(false);
