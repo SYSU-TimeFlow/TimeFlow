@@ -6,6 +6,7 @@
   "main": "./main.js",
   "scripts": {
     "dev": "vite",
+    "codegen": "cd ./tests/ui && node ./codegen.js",
     "build": "vite build",
     "preview": "vite preview",
     "test": "vitest run && playwright test",
@@ -30,6 +31,7 @@
     "electron-builder": "^26.0.12",
     "nodemon": "^3.1.10",
     "playwright": "^1.52.0",
+    "tree-kill": "^1.2.2",
     "vite": "^6.3.5",
     "vitest": "^3.1.4"
   }

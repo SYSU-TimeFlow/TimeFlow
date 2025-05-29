@@ -42,7 +42,7 @@ const createWindow = () => {
   if (isDev) {
     // 在开发模式下加载本地服务器
     win.loadURL("http://localhost:5173");
-    win.webContents.openDevTools();
+    // win.webContents.openDevTools();
   } else {
     // 在生产模式下加载vite打包后的文件
     win.loadFile(path.join(__dirname, "dist/index.html"));
