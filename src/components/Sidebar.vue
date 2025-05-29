@@ -117,6 +117,7 @@ const settingStore = useSettingStore();
   background-color: var(--bg-sidebar);
   border-color: var(--border-color);
   color: var(--text-primary);
+  transition: width 0.1s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .sidebar-nav-item {
