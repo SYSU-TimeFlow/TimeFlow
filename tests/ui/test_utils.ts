@@ -58,7 +58,7 @@ export const setUpEverything = async (): Promise<{
   electronApp: ElectronApplication,
   page: Page
 }> => {
-  await killProcessOnPort(VITE_PORT);
+  // await killProcessOnPort(VITE_PORT);
   const viteProcess = await startVite();
   const electronApp = await launchElectron();
   const page = await getMainPage(electronApp);

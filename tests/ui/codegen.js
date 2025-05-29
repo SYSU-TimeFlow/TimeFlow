@@ -11,21 +11,32 @@ const __dirname = path.dirname(__filename);
 const execPromise = promisify(exec);
 
 const killProcessOnPort = async (port) => {
-  console.log(`Killing process on port ${port}...`);
+  console.log(`🔍 Killing process on port ${port}...`);
   const platform = process.platform;
 
-  const command = platform === 'win32'
-    ? `powershell -Command "Get-NetTCPConnection -LocalPort ${port} | Where-Object { $_.OwningProcess -ne 0 } | Select-Object -ExpandProperty OwningProcess | ForEach-Object { Stop-Process -Id $_ -Force }"`
-    : `lsof -ti:${port} | xargs kill -9`;
+  let command;
 
+  if (platform === 'win32') {
+    // Windows 使用 PowerShell 查找并终止进程
+    command = `powershell -Command "Get-NetTCPConnection -LocalPort ${port} | Where-Object { $_.OwningProcess -ne 0 } | Select-Object -ExpandProperty OwningProcess | ForEach-Object { Stop-Process -Id $_ -Force }"`;
+  } else if (platform === 'darwin' || platform === 'linux') {
+    // macOS ('darwin') 和 Ubuntu/Linux 使用 lsof 和 kill
+    command = `lsof -ti:${port} | xargs kill -9 2>/dev/null || true`;
+  } else {
+    throw new Error(`🚫 Unsupported platform: ${platform}`);
+  }
 
   try {
     const { stdout, stderr } = await execPromise(command);
-    console.log(`✅ Killed process on port ${port}`);
-    if (stdout) console.log(stdout);
-    if (stderr) console.error(stderr);
+    if (stdout) console.log(`📜 Output: ${stdout}`);
+    if (stderr) console.error(`⚠️ Warning: ${stderr}`);
+    console.log(`✅ Successfully killed process on port ${port}`);
   } catch (error) {
-    console.error(`❌ Failed to kill process on port ${port}:`, error.message);
+    if (error.code === 1 && (platform === 'darwin' || platform === 'linux')) {
+      console.log(`ℹ️ No process found on port ${port} or already killed`);
+    } else {
+      console.error(`❌ Failed to kill process on port ${port}:`, error.message);
+    }
   }
 };
 
