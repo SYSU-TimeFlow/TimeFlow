@@ -116,6 +116,7 @@ const eventStore = useEventStore();
 
 // 定义过滤器选项，并明确指定类型
 const filters: { value: FilterType; label: string }[] = [
+  { value: "today", label: "我的一天" },
   { value: "all", label: "全部" },
   { value: "active", label: "进行中" },
   { value: "completed", label: "已完成" },
@@ -124,6 +125,8 @@ const filters: { value: FilterType; label: string }[] = [
 // 获取不同过滤器的待办事项数量
 function getFilterCount(filterType: FilterType) {
   switch (filterType) {
+    case "today":
+      return eventStore.todayTodos.length;
     case "active":
       return eventStore.activeTodos.length;
     case "completed":

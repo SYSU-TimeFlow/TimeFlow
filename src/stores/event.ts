@@ -43,8 +43,8 @@ export class Event {
   ) {}
 }
 
-// 过滤器类型保持不变
-export type FilterType = "all" | "completed" | "active";
+// 过滤器类型增加 today
+export type FilterType = "all" | "completed" | "active" | "today";
 
 interface TodoFilter {
   value: FilterType;
@@ -565,9 +565,26 @@ export const useEventStore = defineStore("event", () => {
   const activeTodos = computed(() =>
     allTodos.value.filter((todo) => !todo.completed)
   );
+  const todayTodos = computed(() => {
+    const now = new Date();
+    return allTodos.value.filter((todo) => {
+      if (!todo.end) return false;
+      const end = new Date(todo.end);
+      if (end.getFullYear() <= 1970) return false;
+      return (
+        end.getFullYear() === now.getFullYear() &&
+        end.getMonth() === now.getMonth() &&
+        end.getDate() === now.getDate()
+      );
+    });
+  });
+
   const filteredTodos = computed(() => {
     let list: Event[];
     switch (activeFilter.value) {
+      case "today":
+        list = todayTodos.value;
+        break;
       case "completed":
         list = completedTodos.value;
         break;
@@ -960,6 +977,7 @@ export const useEventStore = defineStore("event", () => {
     allTodos,
     completedTodos,
     activeTodos,
+    todayTodos,
     filteredTodos,
     emptyStateMessage,
 
