@@ -10,11 +10,6 @@
       <!-- 待办事项列表其余部分保持不变 -->
       <div class="flex-1 overflow-auto p-6">
         <div class="max-w-6xl mx-auto flex flex-col items-center">
-          <!-- 标题区 -->
-          <h1 class="text-3xl font-bold text-indigo-600 text-center mb-10">
-            To-Do
-          </h1>
-
           <!-- 过滤选项 -->
           <div class="w-full mb-6 flex justify-center gap-4">
             <button
@@ -109,13 +104,7 @@
         </div>
       </div>
 
-      <!-- 添加新待办事项按钮 -->
-      <button
-        @click="eventStore.openNewTodoModal"
-        class="fixed right-6 bottom-6 w-14 h-14 bg-indigo-600 text-white rounded-full flex items-center justify-center shadow-lg hover:bg-indigo-700 transition"
-      >
-        <i class="fas fa-plus text-xl"></i>
-      </button>
+      <!-- 已移除添加按钮 -->
     </div>
   </div>
 </template>
@@ -127,6 +116,7 @@ const eventStore = useEventStore();
 
 // 定义过滤器选项，并明确指定类型
 const filters: { value: FilterType; label: string }[] = [
+  { value: "today", label: "我的一天" },
   { value: "all", label: "全部" },
   { value: "active", label: "进行中" },
   { value: "completed", label: "已完成" },
@@ -135,6 +125,8 @@ const filters: { value: FilterType; label: string }[] = [
 // 获取不同过滤器的待办事项数量
 function getFilterCount(filterType: FilterType) {
   switch (filterType) {
+    case "today":
+      return eventStore.todayTodos.length;
     case "active":
       return eventStore.activeTodos.length;
     case "completed":
