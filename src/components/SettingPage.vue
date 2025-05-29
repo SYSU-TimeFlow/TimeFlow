@@ -10,9 +10,9 @@
 <template>
   <!-- 模态框容器，仅当 showSettings 为 true 时显示 -->
   <div
-    v-if="settingStore.showSettings"
+    v-if="uiStore.showSettings"
     class="fixed inset-0 bg-transparent backdrop-blur-sm flex items-center justify-center z-50"
-    @click="settingStore.closeSettings"
+    @click="uiStore.closeSettings()"
   >
     <!-- 设置弹窗主容器，阻止点击事件冒泡 -->
     <div
@@ -25,7 +25,7 @@
         <!-- 关闭按钮 -->
         <button
           class="text-red-500 hover:text-red-700 cursor-pointer text-xl transition"
-          @click="settingStore.closeSettings"
+          @click="uiStore.closeSettings"
           title="关闭"
         >
           <i class="fas fa-times"></i>
@@ -428,9 +428,11 @@
 <script setup>
 import { ref, onMounted, onUnmounted } from "vue";
 import { useSettingStore } from "../stores/setting";
+import { useUiStore } from "../stores/ui";
 
 // 使用Pinia仓库
 const settingStore = useSettingStore();
+const uiStore = useUiStore();
 const showToast = ref(false);
 const toastMessage = ref("设置已保存！");
 const toastType = ref("success");
@@ -439,8 +441,8 @@ const toastType = ref("success");
  * 处理ESC键关闭设置模态框
  */
 function handleKeyDown(event) {
-  if (event.key === "Escape" && settingStore.showSettings) {
-    settingStore.closeSettings();
+  if (event.key === "Escape" && uiStore.showSettings) {
+    uiStore.closeSettings();
   }
 }
 

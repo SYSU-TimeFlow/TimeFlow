@@ -90,8 +90,8 @@
               }"
               @click.stop="
                 event.eventType === 'both'
-                  ? eventStore.openEditTodoModal(event)
-                  : eventStore.openEventDetails(event)
+                  ? uiStore.openEditTodoModal(event)
+                  : uiStore.openEventDetails(event)
               "
               draggable="true"
               @dragstart="uiStore.handleDragStart($event, event)"
@@ -235,8 +235,8 @@
                 }"
                 @click.stop="
                   event.eventType === 'both'
-                    ? eventStore.openEditTodoModal(event)
-                    : eventStore.openEventDetails(event)
+                    ? uiStore.openEditTodoModal(event)
+                    : uiStore.openEventDetails(event)
                 "
                 draggable="true"
                 @dragstart="uiStore.handleDragStart($event, event)"
@@ -376,8 +376,8 @@
                 }"
                 @click.stop="
                   event.eventType === 'both'
-                    ? eventStore.openEditTodoModal(event)
-                    : eventStore.openEventDetails(event)
+                    ? uiStore.openEditTodoModal(event)
+                    : uiStore.openEventDetails(event)
                 "
                 draggable="true"
                 @dragstart="uiStore.handleDragStart($event, event)"

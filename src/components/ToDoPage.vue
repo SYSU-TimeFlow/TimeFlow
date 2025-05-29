@@ -2,9 +2,9 @@
 <template>
   <!-- 模态框容器，仅当 showTodoModal 为 true 时显示 -->
   <div
-    v-if="eventStore.showTodoModal"
+    v-if="uiStore.showTodoModal"
     class="fixed inset-0 bg-transparent backdrop-blur-sm flex items-center justify-center z-50"
-    @click="eventStore.closeTodoModal"
+    @click="uiStore.closeTodoModal"
   >
     <!-- 待办事项模态框主体，阻止事件冒泡到父级 -->
     <div
@@ -24,7 +24,7 @@
         </h3>
         <!-- 关闭按钮 -->
         <button
-          @click="eventStore.closeTodoModal"
+          @click="uiStore.closeTodoModal"
           class="text-gray-500 hover:text-gray-700 cursor-pointer !rounded-button whitespace-nowrap"
         >
           <i class="fas fa-times"></i>
@@ -71,7 +71,11 @@
             type="datetime-local"
             class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent h-10"
           />
-          <div v-else class="no-deadline w-full p-2 border rounded-md h-10 flex items-center text-base bg-white dark:bg-[var(--modal-input-bg)]" style="font-family: inherit;">
+          <div
+            v-else
+            class="no-deadline w-full p-2 border rounded-md h-10 flex items-center text-base bg-white dark:bg-[var(--modal-input-bg)]"
+            style="font-family: inherit"
+          >
             <span class="w-full">无截止时间</span>
           </div>
         </div>
@@ -134,16 +138,18 @@
 <script lang="ts" setup>
 import { ref, watch, onMounted, onUnmounted } from "vue";
 import { useEventStore } from "../stores/event";
+import { useUiStore } from "../stores/ui";
 import { formatDateForInput } from "../utils";
 
 const eventStore = useEventStore();
+const uiStore = useUiStore();
 
 /**
  * 处理ESC键关闭设置模态框
  */
 function handleKeyDown(event) {
-  if (event.key === "Escape" && eventStore.showTodoModal) {
-    eventStore.closeTodoModal();
+  if (event.key === "Escape" && uiStore.showTodoModal) {
+    uiStore.closeTodoModal();
   }
 }
 
@@ -162,7 +168,7 @@ const hasDeadline = ref(true);
 
 // 打开待办事项模态框时的处理
 watch(
-  () => eventStore.showTodoModal,
+  () => uiStore.showTodoModal,
   (isOpen) => {
     if (isOpen) {
       // 检查是否有截止时间，并排除1970年的占位符日期
@@ -183,7 +189,10 @@ watch(hasDeadline, (newValue) => {
     // 如果取消设置截止时间，使用1970年作为占位符
     const placeholderDate = new Date(0); // 1970-01-01
     eventStore.currentEvent.end = formatDateForInput(placeholderDate);
-  } else if (!eventStore.currentEvent.end || new Date(eventStore.currentEvent.end).getFullYear() <= 1970) {
+  } else if (
+    !eventStore.currentEvent.end ||
+    new Date(eventStore.currentEvent.end).getFullYear() <= 1970
+  ) {
     // 如果设置了截止时间但end为空或是占位符，设置默认值为今天结束
     const today = new Date();
     today.setHours(23, 59, 59, 0);
@@ -332,14 +341,6 @@ function saveTodo() {
   filter: brightness(1.2);
 }
 
-/* 移除之前的样式，保持与EventPage一致 */
-.todo-page,
-.todo-header,
-.todo-content,
-.filter-button {
-  /* 移除这些样式，因为已经重构为模态框结构 */
-}
-
 /* 统一文本颜色 */
 .dark-mode .text-gray-700 {
   color: var(--modal-label-color) !important;
@@ -372,7 +373,7 @@ button {
   background-color: var(--modal-input-bg) !important;
   color: var(--modal-input-text) !important;
   border: 1px solid var(--modal-input-border) !important;
-  box-shadow: inset 0 1px 2px rgba(0,0,0,0.3);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 .form-group .no-deadline {
   border: 1px solid #d1d5db !important;

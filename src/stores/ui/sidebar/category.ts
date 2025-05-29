@@ -2,6 +2,7 @@ import { computed } from "vue";
 import { useEventStore } from "../../event";
 
 export const createCategoryModule = (storeContext: any) => {
+  const { openNewCategoryModal, openCategoryDetails } = storeContext;
   const eventStore = useEventStore();
 
   // 获取所有分类
@@ -11,7 +12,7 @@ export const createCategoryModule = (storeContext: any) => {
 
   // 获取激活的分类
   const activeCategories = computed(() => {
-    return eventStore.categories.filter(category => category.active);
+    return eventStore.categories.filter((category) => category.active);
   });
 
   function toggleCategory(categoryId: number) {
@@ -19,11 +20,11 @@ export const createCategoryModule = (storeContext: any) => {
   }
 
   function addNewCategory() {
-    eventStore.openNewCategoryModal();
+    openNewCategoryModal();
   }
 
   function editCategory(category: any) {
-    eventStore.openCategoryDetails(category);
+    openCategoryDetails(category);
   }
 
   function deleteCategory(categoryId: number) {
@@ -31,12 +32,12 @@ export const createCategoryModule = (storeContext: any) => {
   }
 
   function getCategoryColor(categoryId: number): string {
-    const category = eventStore.categories.find(c => c.id === categoryId);
-    return category ? category.color : '#43aa8b';
+    const category = eventStore.categories.find((c) => c.id === categoryId);
+    return category ? category.color : "#43aa8b";
   }
 
   function isCategoryActive(categoryId: number): boolean {
-    const category = eventStore.categories.find(c => c.id === categoryId);
+    const category = eventStore.categories.find((c) => c.id === categoryId);
     return category ? category.active : false;
   }
 

@@ -36,13 +36,26 @@ export const useUiStore = defineStore("ui", () => {
 
   // 初始化各模块
   const pageModule = createPageModule(storeContext);
-  const headerModule = createHeaderModule(storeContext);
-  const monthModule = createMonthModule(storeContext);
-  const weekModule = createWeekModule(storeContext);
-  const dayModule = createDayModule(storeContext);
-  const todoModule = createTodoModule(storeContext);
-  const viewModule = createViewModule(storeContext);
-  const categoryModule = createCategoryModule(storeContext);
+
+  // 将 pageModule 的函数添加到 storeContext 中，供其他模块使用
+  const extendedStoreContext = {
+    ...storeContext,
+    // 从 pageModule 中提取需要在其他模块中使用的函数
+    openNewEventModal: pageModule.openNewEventModal,
+    openEventDetails: pageModule.openEventDetails,
+    openNewTodoModal: pageModule.openNewTodoModal,
+    openEditTodoModal: pageModule.openEditTodoModal,
+    openNewCategoryModal: pageModule.openNewCategoryModal,
+    openCategoryDetails: pageModule.openCategoryDetails,
+  };
+
+  const headerModule = createHeaderModule(extendedStoreContext);
+  const monthModule = createMonthModule(extendedStoreContext);
+  const weekModule = createWeekModule(extendedStoreContext);
+  const dayModule = createDayModule(extendedStoreContext);
+  const todoModule = createTodoModule(extendedStoreContext);
+  const viewModule = createViewModule(extendedStoreContext);
+  const categoryModule = createCategoryModule(extendedStoreContext);
 
   // 基础功能
   function toggleSidebar() {

@@ -8,9 +8,9 @@
 <template>
   <!-- 模态框容器，仅当 showCategoryModal 为 true 时显示 -->
   <div
-    v-if="eventStore.showCategoryModal"
+    v-if="uiStore.showCategoryModal"
     class="fixed inset-0 bg-transparent backdrop-blur-sm flex items-center justify-center z-50"
-    @click="eventStore.closeCategoryModal"
+    @click="uiStore.closeCategoryModal()"
   >
     <!-- 分类模态框主体，阻止事件冒泡到父级 -->
     <div
@@ -30,7 +30,7 @@
         </h3>
         <!-- 关闭按钮 -->
         <button
-          @click="eventStore.closeCategoryModal"
+          @click="uiStore.closeCategoryModal()"
           class="text-gray-500 hover:text-gray-700 cursor-pointer !rounded-button whitespace-nowrap"
         >
           <i class="fas fa-times"></i>
@@ -59,7 +59,7 @@
           <!-- 预设颜色选项 -->
           <div class="color-selector flex flex-wrap gap-3 mb-2">
             <button
-              v-for="color in eventStore.colorOptions"
+              v-for="color in colorOptions"
               :key="color"
               :class="[
                 'color-option w-8 h-8 rounded-full border-2',
@@ -112,16 +112,19 @@
 <script setup>
 import { onMounted, onUnmounted } from "vue";
 import { useEventStore } from "../stores/event";
+import { useUiStore } from "../stores/ui";
+import { colorOptions } from "../const";
 
 // 使用Pinia仓库
 const eventStore = useEventStore();
+const uiStore = useUiStore();
 
 /**
  * 处理ESC键关闭设置模态框
  */
 function handleKeyDown(event) {
-  if (event.key === "Escape" && eventStore.showCategoryModal) {
-    eventStore.closeCategoryModal();
+  if (event.key === "Escape" && uiStore.showCategoryModal) {
+    uiStore.closeCategoryModal();
   }
 }
 

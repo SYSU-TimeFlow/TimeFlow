@@ -4,7 +4,7 @@ import { getStartOfWeek } from "../../../utils";
 import { WeekViewDay, weekDays } from "../../../const";
 
 export const createWeekModule = (storeContext: any) => {
-  const { currentDate } = storeContext;
+  const { currentDate, openNewEventModal } = storeContext;
 
   // 获取周视图日期数据
   const weekViewDays = computed(() => {
@@ -30,11 +30,9 @@ export const createWeekModule = (storeContext: any) => {
   });
 
   function handleHourClick(day: any, hour: number) {
-    const eventStore = useEventStore();
-
     const date = new Date(day.date);
     date.setHours(hour, 0, 0, 0);
-    eventStore.openNewEventModal(date);
+    openNewEventModal(date);
   }
 
   return {

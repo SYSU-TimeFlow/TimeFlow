@@ -8,9 +8,9 @@
 <template>
   <!-- 模态框容器，仅当 showEventModal 为 true 时显示 -->
   <div
-    v-if="eventStore.showEventModal"
+    v-if="uiStore.showEventModal"
     class="fixed inset-0 bg-transparent backdrop-blur-sm flex items-center justify-center z-50"
-    @click="eventStore.closeEventModal"
+    @click="uiStore.closeEventModal()"
   >
     <!-- 事件模态框主体，阻止事件冒泡到父级 -->
     <div
@@ -30,7 +30,7 @@
         </h3>
         <!-- 关闭按钮 -->
         <button
-          @click="eventStore.closeEventModal"
+          @click="uiStore.closeEventModal()"
           class="text-gray-500 hover:text-gray-700 cursor-pointer !rounded-button whitespace-nowrap"
         >
           <i class="fas fa-times"></i>
@@ -151,16 +151,18 @@
 <script setup>
 import { onMounted, onUnmounted } from "vue";
 import { useEventStore } from "../stores/event";
+import { useUiStore } from "../stores/ui";
 
 // 使用Pinia仓库
 const eventStore = useEventStore();
+const uiStore = useUiStore();
 
 /**
  * 处理ESC键关闭设置模态框
  */
 function handleKeyDown(event) {
-  if (event.key === "Escape" && eventStore.showEventModal) {
-    eventStore.closeEventModal();
+  if (event.key === "Escape" && uiStore.showEventModal) {
+    uiStore.closeEventModal();
   }
 }
 

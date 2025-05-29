@@ -7,7 +7,7 @@ import {
   lunarInfo,
   monthNames,
   dayNames,
-  weekDays
+  weekDays,
 } from "../const";
 
 // 添加 electronAPI 的类型定义
@@ -191,24 +191,6 @@ export const useSettingStore = defineStore("setting", () => {
   // 初始加载
   // console.log("resetting store initialized, loading settings...");
   loadSettings();
-
-  // 控制设置弹窗显示状态
-  const showSettings = ref(false);
-
-  // 切换设置弹窗显示/隐藏
-  async function toggleSettings() {
-    showSettings.value = !showSettings.value;
-
-    // 如果打开设置，确保已加载最新设置
-    if (showSettings.value) {
-      await loadSettings();
-    }
-  }
-
-  // 关闭设置弹窗
-  function closeSettings() {
-    showSettings.value = false;
-  }
 
   // 设置字号
   async function setFontSize(newFontSize: string) {
@@ -568,11 +550,6 @@ export const useSettingStore = defineStore("setting", () => {
 
     // 计算属性
     allSettings,
-
-    // 设置弹窗相关
-    showSettings,
-    toggleSettings,
-    closeSettings,
 
     // 设置操作方法
     toggleSync,

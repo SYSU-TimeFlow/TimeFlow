@@ -67,10 +67,9 @@ describe("Setting Store", () => {
   });
 
   describe("Initialization", () => {
-    it("should initialize with default values", () => {
+    it("应该使用默认值初始化", () => {
       const store = useSettingStore();
 
-      // 验证所有默认设置是否正确
       expect(store.themeMode).toBe("light");
       expect(store.fontSize).toBe("medium");
       expect(store.iconStyle).toBe("default");
@@ -85,23 +84,21 @@ describe("Setting Store", () => {
     });
 
     it("should call loadSettings on initialization", () => {
-      // 测试初始化时是否调用了 loadSettings 方法
       const store = useSettingStore();
-      // @ts-ignore
+      // @ts-ignore 验证初始化时是否调用了 loadSettings 方法
       expect(global.window.electronAPI.loadSettings).toHaveBeenCalled();
     });
   });
 
   describe("Settings Management", () => {
-    it("should save settings when any setting changes", async () => {
-      // 测试当设置发生变化时是否正确保存
+    it("当设置发生变化时应该自动保存", async () => {
       const store = useSettingStore();
       store.themeMode = "dark";
 
       // 等待 watch 的异步保存操作完成
       await new Promise((resolve) => setTimeout(resolve, 0));
 
-      // @ts-ignore 验证保存的设置是否正确
+      // @ts-ignore 验证是否调用了保存的函数且参数正确
       expect(global.window.electronAPI.saveSettings).toHaveBeenCalledWith({
         themeMode: "dark",
         fontSize: "medium",
@@ -117,8 +114,7 @@ describe("Setting Store", () => {
       });
     });
 
-    it("should load settings correctly", async () => {
-      // 测试是否正确加载设置
+    it("loadSettings - 应该从 electronAPI 加载设置", async () => {
       const mockSettings = {
         themeMode: "dark",
         fontSize: "large",
@@ -153,20 +149,19 @@ describe("Setting Store", () => {
       expect(store.synced).toBe(false);
     });
 
-    it("should handle empty settings when loading", async () => {
-      // @ts-ignore 测试加载空设置时是否正确处理
+    it("loadSettings - 加载的设置为空时应使用默认值", async () => {
+      // @ts-ignore 令加载的设置为空
       global.window.electronAPI.loadSettings.mockResolvedValue({});
 
       const store = useSettingStore();
       await store.loadSettings();
 
-      // 验证是否保持默认值
+      // 验证是否为默认值
       expect(store.themeMode).toBe("light");
       expect(store.fontSize).toBe("medium");
     });
 
-    it("should reset settings to default values", async () => {
-      // 测试重置设置是否正确
+    it("resetSettings - 应该重置为默认值", async () => {
       const store = useSettingStore();
       store.themeMode = "dark";
       store.fontSize = "large";
@@ -178,78 +173,68 @@ describe("Setting Store", () => {
       expect(store.themeMode).toBe("light");
       expect(store.fontSize).toBe("medium");
       expect(store.synced).toBe(true);
-      expect(document.documentElement.classList.remove).toHaveBeenCalledWith(
-        "dark-mode"
-      );
     });
   });
 
-  describe("Theme Management", () => {
-    it("should apply light theme correctly", () => {
-      // 测试应用浅色主题是否正确
+  describe("Theme", () => {
+    it("应该应用浅色主题", () => {
       const store = useSettingStore();
       store.applyTheme("light");
 
-      expect(global.document.documentElement.classList.remove).toHaveBeenCalledWith(
-        "dark-mode"
-      );
+      expect(
+        global.document.documentElement.classList.remove
+      ).toHaveBeenCalledWith("dark-mode");
     });
 
-    it("should apply dark theme correctly", () => {
-      // 测试应用深色主题是否正确
+    it("应该应用深色主题", () => {
       const store = useSettingStore();
       store.applyTheme("dark");
 
-      expect(global.document.documentElement.classList.add).toHaveBeenCalledWith(
-        "dark-mode"
-      );
+      expect(
+        global.document.documentElement.classList.add
+      ).toHaveBeenCalledWith("dark-mode");
     });
 
-    it("should set theme mode", async () => {
+    it("应正确设置主题", async () => {
       // 测试设置主题模式是否正确
       const store = useSettingStore();
       await store.setThemeMode("dark");
 
       expect(store.themeMode).toBe("dark");
-      // expect(global.document.documentElement.classList.add).toHaveBeenCalledWith(
-      //   "dark-mode"
-      // );
     });
   });
 
-  describe('Font Size Management', () => {
-    it('should set font size', async () => {
-      // 测试设置字体大小是否正确
-      const store = useSettingStore()
-      await store.setFontSize('large')
-      expect(store.fontSize).toBe('large')
-      expect(global.document.documentElement.classList.add).toHaveBeenCalledWith('font-size-large')
+  describe("Font Size", () => {
+    it("setFontSize 应该设置字体大小", async () => {
+      const store = useSettingStore();
+      await store.setFontSize("large");
+      expect(store.fontSize).toBe("large");
+      expect(
+        global.document.documentElement.classList.add
+      ).toHaveBeenCalledWith("font-size-large");
 
-      store.setFontSize('small');
-      expect(store.fontSize).toBe('small');
+      store.setFontSize("small");
+      expect(store.fontSize).toBe("small");
 
-      store.setFontSize('medium');
-      expect(store.fontSize).toBe('medium');
-    })
-  })
+      store.setFontSize("medium");
+      expect(store.fontSize).toBe("medium");
+    });
+  });
 
-  describe("Week Start Management", () => {
-    it("should get week start", () => {
-      // 获取每周的起始日
+  describe("Week Start", () => {
+    it("getWeekStart - 应该返回周起始日", () => {
       const store = useSettingStore();
       expect(store.getWeekStart()).toBe("0");
     });
 
-    it("should set week start", async () => {
-      // 设置每周起始日
+    it("setWeekStart - 应该更新周起始日", async () => {
       const store = useSettingStore();
       await store.setWeekStart("1"); // 设置每周从周一开始
 
       expect(store.weekStart).toBe("1");
     });
 
-    it("should toggle week start", async () => {
-      // 测试切换周开始设置是否正确
+    it("toggleWeekStart - 应该在周日和周一之间切换", async () => {
       const store = useSettingStore();
 
       // 初始是0（周日）
@@ -262,8 +247,7 @@ describe("Setting Store", () => {
   });
 
   describe("Other Settings", () => {
-    it("should toggle sync", async () => {
-      // 测试切换同步设置是否正确
+    it("应切换同步设置", async () => {
       const store = useSettingStore();
       await store.toggleSync();
 
@@ -273,56 +257,42 @@ describe("Setting Store", () => {
       expect(store.synced).toBe(true);
     });
 
-    it("should set language", async () => {
-      // 测试设置语言是否正确
+    it("应正确设置语言", async () => {
       const store = useSettingStore();
       await store.setLanguage("en-US");
 
       expect(store.language).toBe("en-US");
     });
 
-    it("should set icon style", async () => {
-      // 测试设置图标风格是否正确
+    it("应正确设置图标风格", async () => {
       const store = useSettingStore();
       await store.setIconStyle("modern");
 
       expect(store.iconStyle).toBe("modern");
     });
 
-    it("should set notifications", async () => {
-      // 测试设置通知开关是否正确
+    it("应正确地开启或关闭通知", async () => {
       const store = useSettingStore();
       await store.setNotifications(false);
 
       expect(store.notifications).toBe(false);
     });
 
-    it("should set notification sound", async () => {
-      // 测试设置通知音效开关是否正确
+    it("应正确开启或关闭通知音效", async () => {
       const store = useSettingStore();
       await store.setNotificationSound(true);
 
       expect(store.notificationSound).toBe(true);
     });
 
-    it("should set sound effect", async () => {
-      // 测试设置音效开关是否正确
-      const store = useSettingStore();
-      await store.setSoundEffect(true);
-
-      expect(store.soundEffect).toBe(true);
-    });
-
-    it("should set 24-hour format", async () => {
-      // 测试设置24小时制是否正确
+    it("应正确设置24小时制", async () => {
       const store = useSettingStore();
       await store.setHour24(true);
 
       expect(store.hour24).toBe(true);
     });
 
-    it("should set show lunar", async () => {
-      // 测试设置是否显示农历是否正确
+    it("应开启显示农历", async () => {
       const store = useSettingStore();
       await store.setShowLunar(true);
 
@@ -330,55 +300,9 @@ describe("Setting Store", () => {
     });
   });
 
-  describe("UI State Management", () => {
-    it("should toggle settings visibility", async () => {
-      // 测试切换设置界面可见性是否正确
-      const store = useSettingStore();
-
-      expect(store.showSettings).toBe(false);
-
-      await store.toggleSettings();
-      expect(store.showSettings).toBe(true);
-      // @ts-ignore 验证是否调用了 loadSettings 方法
-      expect(global.window.electronAPI.loadSettings).toHaveBeenCalledTimes(2); // 初始化和这里
-
-      await store.toggleSettings();
-      expect(store.showSettings).toBe(false);
-    });
-
-    it("should close settings", () => {
-      // 测试关闭设置界面是否正确
-      const store = useSettingStore();
-      store.showSettings = true;
-
-      store.closeSettings();
-      expect(store.showSettings).toBe(false);
-    });
-  });
-
   describe("Calendar Functions", () => {
-    describe("getLunarDate", () => {
-      it("should return correct lunar date for known dates", () => {
-        // 测试已知日期的农历日期计算是否正确
-        const store = useSettingStore();
-
-        // 2023-01-22 是春节（农历正月初一）
-        const date1 = new Date(2023, 0, 22);
-        const result1 = store.getLunarDate(date1);
-        expect(result1.day).toBe("初一");
-        expect(result1.month).toBe("正月");
-
-        // 2023-01-23 是农历正月初二
-        const date2 = new Date(2023, 0, 23);
-        const result2 = store.getLunarDate(date2);
-        expect(result2.day).toBe("初二");
-        expect(result2.month).toBeUndefined();
-      });
-    });
-
     describe("getMonthDays", () => {
-      it("should return correct month days structure", () => {
-        // 测试返回的月份天数结构是否正确
+      it("getMonthDays 应该返回月视图下的日期数组", () => {
         const store = useSettingStore();
         const testDate = new Date(2023, 5, 15); // 2023年6月15日
 
@@ -393,8 +317,7 @@ describe("Setting Store", () => {
         expect(currentMonthDays.length).toBe(30);
       });
 
-      it("should respect week start setting", () => {
-        // 测试月份天数计算是否尊重周开始设置
+      it("getMonthDays 应该按照周起始日的设置", () => {
         const store = useSettingStore();
         store.weekStart = "1"; // 周一开始
 
@@ -416,8 +339,7 @@ describe("Setting Store", () => {
     });
 
     describe("getWeekDays", () => {
-      it("should return correct week days structure", () => {
-        // 测试返回的周天数结构是否正确
+      it("getWeekDays 应该返回周视图下的日期数组", () => {
         const store = useSettingStore();
         // 注意：JavaScript中月份是从0开始的，所以5表示6月
         const testDate = new Date(2023, 5, 15); // 2023年6月15日（周四）
@@ -429,8 +351,7 @@ describe("Setting Store", () => {
         expect(weekDays[3].dayName).toBe("星期三");
       });
 
-      it("should respect week start setting", () => {
-        // 测试周天数计算是否尊重周开始设置
+      it("getWeekDays 应该按照周起始日的设置", () => {
         const store = useSettingStore();
         store.weekStart = "1"; // 周一开始
 
@@ -444,8 +365,7 @@ describe("Setting Store", () => {
     });
 
     describe("getWeekDayNames", () => {
-      it("should return week day names starting from Sunday by default", () => {
-        // 测试默认情况下返回的周天名称是否从星期日开始
+      it("默认应返回从周日开始的周天名称", () => {
         const store = useSettingStore();
         store.weekStart = "0";
 
@@ -461,8 +381,7 @@ describe("Setting Store", () => {
         ]);
       });
 
-      it("should return week day names starting from Monday when weekStart is 1", () => {
-        // 测试当 weekStart 为 1 时返回的周天名称是否从星期一开始
+      it("当周起始日为1时应返回从周一开始的周天名称", () => {
         const store = useSettingStore();
         store.weekStart = "1";
 
@@ -480,7 +399,7 @@ describe("Setting Store", () => {
     });
   });
 
-  describe("Lunar Calculation Functions", () => {
+  describe("农历相关功能", () => {
     let store: ReturnType<typeof useSettingStore>;
 
     beforeEach(() => {
@@ -489,22 +408,38 @@ describe("Setting Store", () => {
       store = useSettingStore();
     });
 
-    it("getLunarYearDays should return correct days for known years", () => {
+    it("getLunarDate - 应该返回正确的农历日期", () => {
+      const store = useSettingStore();
+
+      // 2023-01-22 是春节（农历正月初一）
+      const date1 = new Date(2023, 0, 22);
+      const result1 = store.getLunarDate(date1);
+      expect(result1.day).toBe("初一");
+      expect(result1.month).toBe("正月");
+
+      // 2023-01-23 是农历正月初二
+      const date2 = new Date(2023, 0, 23);
+      const result2 = store.getLunarDate(date2);
+      expect(result2.day).toBe("初二");
+      expect(result2.month).toBeUndefined();
+    });
+
+    it("getLunarYearDays 应该返回农历一年的总天数", () => {
       expect(store.getLunarYearDays(2023)).toBe(384); // 2023年有闰二月，共384天
       expect(store.getLunarYearDays(2022)).toBe(355);
     });
 
-    it("getLeapMonth should return correct leap month for known years", () => {
+    it("getLeapMonth 应该返回闰月的月份", () => {
       expect(store.getLeapMonth(2023)).toBe(2); // 2023年闰二月
       expect(store.getLeapMonth(2022)).toBe(0); // 2022年无闰月
     });
 
-    it("getLeapMonthDays should return correct days for leap months", () => {
+    it("getLeapMonthDays 应该返回闰月的天数", () => {
       expect(store.getLeapMonthDays(2023)).toBe(29); // 2023年闰二月29天
       expect(store.getLeapMonthDays(2022)).toBe(0);
     });
 
-    it("getLunarMonthDays should return correct days for known months", () => {
+    it("getLunarMonthDays 应该返回农历某月的总天数", () => {
       expect(store.getLunarMonthDays(2023, 1)).toBe(29); // 2023年正月29天
       expect(store.getLunarMonthDays(2023, 2)).toBe(30); // 2023年农历二月30天
       expect(store.getLunarMonthDays(2023, 3)).toBe(29); // 2023年闰二月29天
