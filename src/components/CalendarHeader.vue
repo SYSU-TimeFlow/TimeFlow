@@ -130,9 +130,14 @@
                   )
                 "
               ></span>
-              <span class="text-xs text-gray-500 ml-2">{{
-                formatEventDate(event.start)
-              }}</span>
+              <span v-if="event.eventType === 'todo' || event.eventType === 'both'">
+                <span v-if="event.end && new Date(event.end).getFullYear() > 1970" class="text-xs text-gray-500 ml-2">
+                  {{ formatEventDate(event.end) }}
+                </span>
+              </span>
+              <span v-else class="text-xs text-gray-500 ml-2">
+                {{ formatEventDate(event.start) }}
+              </span>
             </li>
             <li
               v-if="
