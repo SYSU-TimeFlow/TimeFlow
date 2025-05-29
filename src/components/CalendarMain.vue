@@ -88,19 +88,31 @@
                 backgroundColor: event.categoryColor + '33', // 事件背景色，透明度33%
                 borderLeft: `3px solid ${event.categoryColor}`, // 事件左边框颜色
               }"
-              @click.stop="event.eventType === 'both' ? eventStore.openEditTodoModal(event) : eventStore.openEventDetails(event)"
+              @click.stop="
+                event.eventType === 'both'
+                  ? eventStore.openEditTodoModal(event)
+                  : eventStore.openEventDetails(event)
+              "
               draggable="true"
               @dragstart="uiStore.handleDragStart($event, event)"
             >
               <!-- 事件时间 -->
               <div class="flex items-center">
                 <!-- 自定义圆形复选框，仅点击时切换完成状态 -->
-                <div 
+                <div
                   v-if="event.eventType === 'both'"
                   class="w-3 h-3 rounded-full border flex items-center justify-center cursor-pointer mr-1"
-                  :class="event.completed ? 'bg-indigo-500 border-indigo-600' : 'border-gray-300'"
-                  @click.stop="eventStore.toggleTodo(event.id)">
-                  <i v-if="event.completed" class="fas fa-check text-white text-[9px]"></i>
+                  :class="
+                    event.completed
+                      ? 'bg-indigo-500 border-indigo-600'
+                      : 'border-gray-300'
+                  "
+                  @click.stop="eventStore.toggleTodo(event.id)"
+                >
+                  <i
+                    v-if="event.completed"
+                    class="fas fa-check text-white text-[9px]"
+                  ></i>
                 </div>
                 <!-- 时间显示 -->
                 <div
@@ -126,7 +138,7 @@
               <div
                 class="event-title font-medium truncate"
                 :style="{
-                  color: uiStore.getContrastColor(event.categoryColor),
+                  color: getContrastColor(event.categoryColor),
                   textDecoration:
                     event.eventType === 'both' && event.completed
                       ? 'line-through'
@@ -213,15 +225,19 @@
                   event.eventType === 'both' ? 'both-event-week' : '',
                 ]"
                 :style="{
-                  top: `${uiStore.calculateEventTop(event)}px`,
-                  height: `${uiStore.calculateEventHeight(event)}px`,
+                  top: `${calculateEventTop(event)}px`,
+                  height: `${calculateEventHeight(event)}px`,
                   left: '4px',
                   right: '4px',
                   backgroundColor: event.categoryColor + '33',
                   borderLeft: `3px solid ${event.categoryColor}`,
                   zIndex: 10,
                 }"
-                @click.stop="event.eventType === 'both' ? eventStore.openEditTodoModal(event) : eventStore.openEventDetails(event)"
+                @click.stop="
+                  event.eventType === 'both'
+                    ? eventStore.openEditTodoModal(event)
+                    : eventStore.openEventDetails(event)
+                "
                 draggable="true"
                 @dragstart="uiStore.handleDragStart($event, event)"
               >
@@ -230,10 +246,17 @@
                   <div
                     v-if="event.eventType === 'both'"
                     class="w-3 h-3 rounded-full border flex items-center justify-center cursor-pointer mr-1"
-                    :class="event.completed ? 'bg-indigo-500 border-indigo-600' : 'border-gray-300'"
+                    :class="
+                      event.completed
+                        ? 'bg-indigo-500 border-indigo-600'
+                        : 'border-gray-300'
+                    "
                     @click.stop="eventStore.toggleTodo(event.id)"
                   >
-                    <i v-if="event.completed" class="fas fa-check text-white text-[9px]"></i>
+                    <i
+                      v-if="event.completed"
+                      class="fas fa-check text-white text-[9px]"
+                    ></i>
                   </div>
                   <div
                     class="event-time text-xs font-medium"
@@ -257,7 +280,7 @@
                 <div
                   class="event-title text-sm font-medium truncate"
                   :style="{
-                    color: uiStore.getContrastColor(event.categoryColor),
+                    color: getContrastColor(event.categoryColor),
                     textDecoration:
                       event.eventType === 'both' && event.completed
                         ? 'line-through'
@@ -343,15 +366,19 @@
                   event.eventType === 'both' ? 'both-event-week' : '',
                 ]"
                 :style="{
-                  top: `${uiStore.calculateEventTop(event)}px`, // 计算事件的垂直位置
-                  height: `${uiStore.calculateEventHeight(event)}px`, // 计算事件的高度
+                  top: `${calculateEventTop(event)}px`, // 计算事件的垂直位置
+                  height: `${calculateEventHeight(event)}px`, // 计算事件的高度
                   left: '4px',
                   right: '4px',
                   backgroundColor: event.categoryColor + '33',
                   borderLeft: `3px solid ${event.categoryColor}`,
                   zIndex: '10', // 确保事件在网格线上方
                 }"
-                @click.stop="event.eventType === 'both' ? eventStore.openEditTodoModal(event) : eventStore.openEventDetails(event)"
+                @click.stop="
+                  event.eventType === 'both'
+                    ? eventStore.openEditTodoModal(event)
+                    : eventStore.openEventDetails(event)
+                "
                 draggable="true"
                 @dragstart="uiStore.handleDragStart($event, event)"
               >
@@ -360,10 +387,17 @@
                   <div
                     v-if="event.eventType === 'both'"
                     class="w-3 h-3 rounded-full border flex items-center justify-center cursor-pointer mr-1"
-                    :class="event.completed ? 'bg-indigo-500 border-indigo-600' : 'border-gray-300'"
+                    :class="
+                      event.completed
+                        ? 'bg-indigo-500 border-indigo-600'
+                        : 'border-gray-300'
+                    "
                     @click.stop="eventStore.toggleTodo(event.id)"
                   >
-                    <i v-if="event.completed" class="fas fa-check text-white text-[9px]"></i>
+                    <i
+                      v-if="event.completed"
+                      class="fas fa-check text-white text-[9px]"
+                    ></i>
                   </div>
                   <div
                     class="event-time text-xs font-medium"
@@ -387,7 +421,7 @@
                 <div
                   class="event-title text-sm font-medium truncate"
                   :style="{
-                    color: uiStore.getContrastColor(event.categoryColor),
+                    color: getContrastColor(event.categoryColor),
                     textDecoration:
                       event.eventType === 'both' && event.completed
                         ? 'line-through'
@@ -426,7 +460,14 @@ import { useUiStore } from "../stores/ui";
 import { useEventStore } from "../stores/event";
 import { useSettingStore } from "../stores/setting";
 import { computed } from "vue";
-import { formatHour, formatTime, formatEventTime } from "../utils";
+import {
+  formatHour,
+  formatTime,
+  formatEventTime,
+  calculateEventHeight,
+  calculateEventTop,
+  getContrastColor,
+} from "../utils";
 
 // 使用 Pinia 仓库
 const uiStore = useUiStore();
