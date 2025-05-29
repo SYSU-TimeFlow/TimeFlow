@@ -10,7 +10,8 @@
  *          具体操作：Ctrl+H，替换 `// console.log` 为 `console.log`。
  */
 import { setActivePinia, createPinia } from "pinia";
-import { useEventStore, Event, EventType } from "../../src/stores/event";
+import { useEventStore } from "../../src/stores/event";
+import { Event, EventType } from "../../src/const";
 import { describe, it, expect, beforeEach, vi } from "vitest";
 
 // 模拟 electron-store 的行为

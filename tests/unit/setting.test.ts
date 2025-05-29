@@ -13,7 +13,7 @@ vi.mock("electron-store", () => {
   };
 });
 
-// beforeEach 确保每个测试用例开始时，events 数组存储的内容相同
+// beforeEach 确保每个测试用例开始时都初始化环境
 beforeEach(() => {
   global.document = {
     documentElement: {
