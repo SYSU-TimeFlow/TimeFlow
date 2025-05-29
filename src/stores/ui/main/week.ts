@@ -1,14 +1,7 @@
 import { computed } from "vue";
 import { useEventStore } from "../../event";
 import { getStartOfWeek } from "../../../utils";
-
-interface WeekViewDay {
-  date: Date;
-  dayName: string;
-  dayNumber: number;
-  isToday: boolean;
-  events: any[];
-}
+import { WeekViewDay, weekDays } from "../../../const";
 
 export const createWeekModule = (storeContext: any) => {
   const { currentDate } = storeContext;
@@ -20,10 +13,6 @@ export const createWeekModule = (storeContext: any) => {
     const startOfWeek = getStartOfWeek(currentDate.value);
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-
-    const weekDays = [
-      "星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"
-    ];
 
     for (let i = 0; i < 7; i++) {
       const day = new Date(startOfWeek);

@@ -110,8 +110,9 @@
 </template>
 
 <script setup lang="ts">
-import { useEventStore, FilterType } from "../stores/event";
+import { useEventStore } from "../stores/event";
 import { formatDateForDisplay } from "../utils";
+import { FilterType } from "../const";
 
 const eventStore = useEventStore();
 

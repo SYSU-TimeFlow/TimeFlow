@@ -2,6 +2,7 @@ import { defineStore } from "pinia";
 import { ref, computed, nextTick, watch } from "vue";
 import { pinyin } from "pinyin-pro";
 import { formatDateForInput } from "../utils";
+import { EventType, Event, FilterType, Category, colorOptions } from "../const";
 
 declare global {
   interface Window {
@@ -16,61 +17,7 @@ declare global {
   }
 }
 
-// 事件类型枚举
-export enum EventType {
-  CALENDAR = "calendar",
-  TODO = "todo",
-  BOTH = "both", // 同时作为日历事件和待办事项
-}
-
-// 统一的事件类
-export class Event {
-  constructor(
-    public id: number,
-    public title: string,
-    public start: Date,
-    public end: Date,
-    public description: string = "",
-    public categoryId: number = 5,
-    public categoryColor: string = "#43aa8b",
-    public allDay: boolean = false,
-    public eventType: EventType = EventType.CALENDAR,
-    public completed: boolean = false
-  ) {}
-}
-
-// 过滤器类型增加 today
-export type FilterType = "all" | "completed" | "active" | "today";
-
-interface TodoFilter {
-  value: FilterType;
-  label: string;
-  count: number;
-}
-
-// 新增：分类接口定义
-interface Category {
-  id: number;
-  name: string;
-  color: string;
-  active: boolean;
-}
-
 export const useEventStore = defineStore("event", () => {
-  // 预设颜色选项保持不变
-  const colorOptions = [
-    "#e63946", // 红色
-    "#f8961e", // 橙色
-    "#fcbf49", // 黄色
-    "#2a9d8f", // 青绿色
-    "#43aa8b", // 绿色
-    "#4cc9f0", // 青色
-    "#3a86ff", // 蓝色
-    "#7209b7", // 紫色
-    "#f72585", // 粉色
-    "#495057", // 深灰色
-  ];
-
   // =======================BEGIN 事件管理本地存储相关代码 BEGIN========================
 
   // 修改：categories 初始化为空数组，将通过API加载

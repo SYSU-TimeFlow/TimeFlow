@@ -12,30 +12,15 @@ import { createViewModule } from "./sidebar/view";
 import { createCategoryModule } from "./sidebar/category";
 
 // 导入工具函数
-import { 
-  getStartOfWeek, 
-  getEndOfWeek, 
+import {
+  getStartOfWeek,
+  getEndOfWeek,
   getContrastColor,
   calculateEventTop,
-  calculateEventHeight
+  calculateEventHeight,
 } from "../../utils";
 
-// 添加类型定义
-interface CalendarDay {
-  date: Date;
-  dayNumber: number;
-  isCurrentMonth: boolean;
-  isToday: boolean;
-  isWeekend: boolean;
-}
-
-interface WeekViewDay {
-  date: Date;
-  dayName: string;
-  dayNumber: number;
-  isToday: boolean;
-  events: any[];
-}
+import { CalendarDay, WeekViewDay } from "../../const";
 
 export const useUiStore = defineStore("ui", () => {
   // 核心状态
