@@ -168,23 +168,8 @@ export const useSettingStore = defineStore("setting", () => {
 
     if (theme === "dark") {
       html.classList.add("dark-mode");
-      // 设置系统状态栏颜色（Electron特性）
-      setNativeTheme("dark");
     } else {
       html.classList.remove("dark-mode");
-      setNativeTheme("light");
-    }
-  }
-
-  /**
-   * 切换系统原生主题（Electron窗口和状态栏）
-   */
-  const electronAPI = (window as any).electronAPI;
-  function setNativeTheme(theme: "light" | "dark") {
-    // 如果是Electron环境
-    if (electronAPI && electronAPI.setNativeTheme) {
-      // @ts-ignore
-      electronAPI.setNativeTheme(theme);
     }
   }
 

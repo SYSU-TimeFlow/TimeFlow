@@ -44,7 +44,7 @@ beforeEach(() => {
         };
       }),
       // 模拟保存设置的saveSettings方法
-      saveSettings: vi.fn(async () => {
+      saveSettings: vi.fn(async (setting: any) => {
         console.log("\x1b[34m%s\x1b[0m", "Mock saveSetting called");
       }),
     },
@@ -90,7 +90,8 @@ describe("Setting Store", () => {
       store.themeMode = "dark";
 
       // 等待 watch 的异步保存操作完成
-      await new Promise((resolve) => setTimeout(resolve, 0));
+      await store.saveSettings();
+      // await new Promise((resolve) => setTimeout(resolve, 0));
 
       // @ts-ignore 验证保存的设置是否正确
       expect(global.window.electronAPI.saveSettings).toHaveBeenCalledWith({
