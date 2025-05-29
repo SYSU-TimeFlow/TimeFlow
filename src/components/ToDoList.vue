@@ -78,7 +78,7 @@
                    class="text-sm flex items-center gap-1 mr-4">
                 <i class="far fa-clock text-xs flex-shrink-0"></i>
                 <span :class="isOverdue(todo.end) && !todo.completed ? 'text-red-500' : 'text-gray-400'">
-                  {{ eventStore.formatDateForDisplay(todo.end) }}
+                  {{ formatDateForDisplay(todo.end) }}
                 </span>
               </div>
               <div class="flex gap-1 todo-actions">
@@ -111,6 +111,7 @@
 
 <script setup lang="ts">
 import { useEventStore, FilterType } from "../stores/event";
+import { formatDateForDisplay } from "../utils";
 
 const eventStore = useEventStore();
 

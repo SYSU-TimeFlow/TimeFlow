@@ -656,45 +656,7 @@ export const useSettingStore = defineStore("setting", () => {
     return [...weekDays.slice(startDay), ...weekDays.slice(0, startDay)];
   }
 
-  /**
-   * 格式化小时为12小时制或24小时制
-   * @param hour 小时数（0-23）
-   * @returns 格式化后的小时字符串
-   */
-  function formatHour(hour: number): string {
-    if (hour24.value) {
-      // 24小时制
-      return `${hour.toString().padStart(2, "0")}:00`;
-    } else {
-      // 12小时制
-      const period = hour >= 12 ? "PM" : "AM";
-      const hour12 = hour % 12 || 12;
-      return `${hour12}:00 ${period}`;
-    }
-  }
-
-  /**
-   * 格式化时间为12小时制或24小时制
-   * @param date 日期对象
-   * @returns 格式化后的时间字符串
-   */
-  function formatTime(date: Date): string {
-    if (hour24.value) {
-      // 24小时制
-      return date.toLocaleTimeString("zh-CN", {
-        hour: "2-digit",
-        minute: "2-digit",
-        hour12: false,
-      });
-    } else {
-      // 12小时制
-      return date.toLocaleTimeString("zh-CN", {
-        hour: "2-digit",
-        minute: "2-digit",
-        hour12: true,
-      });
-    }
-  }
+  
 
   return {
     // 状态变量
@@ -753,7 +715,5 @@ export const useSettingStore = defineStore("setting", () => {
     getMonthDays,
     getWeekDays,
     getWeekDayNames,
-    formatHour,
-    formatTime,
   };
 });

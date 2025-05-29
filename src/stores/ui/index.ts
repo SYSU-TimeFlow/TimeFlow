@@ -13,7 +13,6 @@ import { createCategoryModule } from "./sidebar/category";
 
 // 导入工具函数
 import { 
-  formatHour, 
   getStartOfWeek, 
   getEndOfWeek, 
   getContrastColor,
@@ -107,7 +106,6 @@ export const useUiStore = defineStore("ui", () => {
     handleDragStart,
 
     // 工具函数
-    formatHour,
     getStartOfWeek,
     getEndOfWeek,
     getContrastColor,

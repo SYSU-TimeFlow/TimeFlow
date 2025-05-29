@@ -117,8 +117,8 @@
                     event.allDay
                       ? "All day"
                       : event.eventType === "both"
-                      ? settingStore.formatTime(new Date(event.end))
-                      : eventStore.formatEventTime(event)
+                      ? formatTime(new Date(event.end), settingStore.hour24)
+                      : formatEventTime(event, settingStore.hour24)
                   }}
                 </div>
               </div>
@@ -177,7 +177,7 @@
               :key="hour"
               class="time-label h-16 text-xs text-gray-500 text-right -translate-y-3 flex items-start justify-end"
             >
-              {{ settingStore.formatHour(hour - 1) }}
+              {{ formatHour(hour - 1, settingStore.hour24) }}
             </div>
           </div>
           <!-- 事件网格区：每一列代表一天 -->
@@ -249,8 +249,8 @@
                       event.allDay
                         ? "All day"
                         : event.eventType === "both"
-                        ? settingStore.formatTime(new Date(event.end))
-                        : eventStore.formatEventTime(event)
+                        ? formatTime(new Date(event.end), settingStore.hour24)
+                        : formatEventTime(event, settingStore.hour24)
                     }}
                   </div>
                 </div>
@@ -309,7 +309,7 @@
               :key="hour"
               class="time-label h-16 text-xs text-gray-500 text-right -translate-y-3 flex items-start justify-end"
             >
-              {{ settingStore.formatHour(hour - 1) }}
+              {{ formatHour(hour - 1, settingStore.hour24) }}
             </div>
           </div>
           <!-- 事件显示列 -->
@@ -379,8 +379,8 @@
                       event.allDay
                         ? "All day"
                         : event.eventType === "both"
-                        ? settingStore.formatTime(new Date(event.end))
-                        : eventStore.formatEventTime(event)
+                        ? formatTime(new Date(event.end), settingStore.hour24)
+                        : formatEventTime(event, settingStore.hour24)
                     }}
                   </div>
                 </div>
@@ -426,6 +426,7 @@ import { useUiStore } from "../stores/ui";
 import { useEventStore } from "../stores/event";
 import { useSettingStore } from "../stores/setting";
 import { computed } from "vue";
+import { formatHour, formatTime, formatEventTime } from "../utils";
 
 // 使用 Pinia 仓库
 const uiStore = useUiStore();

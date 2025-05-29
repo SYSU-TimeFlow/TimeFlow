@@ -19,16 +19,6 @@ export function getEndOfWeek(date: Date): Date {
 }
 
 /**
- * 格式化小时显示
- */
-export function formatHour(hour: number): string {
-  return new Intl.DateTimeFormat("zh-CN", {
-    hour: "numeric",
-    hour12: true,
-  }).format(new Date(2025, 0, 1, hour));
-}
-
-/**
  * 根据背景色获取对比色（黑色或白色）
  */
 export function getContrastColor(hexColor: string): string {
@@ -142,26 +132,6 @@ export function deepClone<T>(obj: T): T {
 }
 
 /**
- * 格式化日期为字符串
- */
-export function formatDate(date: Date, format: string = "YYYY-MM-DD"): string {
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const day = String(date.getDate()).padStart(2, "0");
-  const hours = String(date.getHours()).padStart(2, "0");
-  const minutes = String(date.getMinutes()).padStart(2, "0");
-  const seconds = String(date.getSeconds()).padStart(2, "0");
-
-  return format
-    .replace("YYYY", String(year))
-    .replace("MM", month)
-    .replace("DD", day)
-    .replace("HH", hours)
-    .replace("mm", minutes)
-    .replace("ss", seconds);
-}
-
-/**
  * 检查两个日期是否是同一天
  */
 export function isSameDay(date1: Date, date2: Date): boolean {
@@ -222,13 +192,47 @@ export function formatTime(date: Date, hour24: boolean): string {
 }
 
 /**
+ * 格式化小时为12小时制或24小时制
+ * @param hour 小时数（0-23）
+ * @returns 格式化后的小时字符串
+ */
+export function formatHour(hour: number, hour24: boolean): string {
+  if (hour24) {
+    // 24小时制
+    return `${hour.toString().padStart(2, "0")}:00`;
+  } else {
+    // 12小时制
+    const period = hour >= 12 ? "PM" : "AM";
+    const hour12 = hour % 12 || 12;
+    return `${hour12}:00 ${period}`;
+  }
+}
+
+/**
  * 将日期格式化为 YYYY-MM-DDThh:mm 格式，用于输入框
  */
-export function formatDateTimeForInput(date: Date): string {
+export function formatDateForInput(date: Date): string {
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, "0");
   const day = String(date.getDate()).padStart(2, "0");
   const hours = String(date.getHours()).padStart(2, "0");
   const minutes = String(date.getMinutes()).padStart(2, "0");
   return `${year}-${month}-${day}T${hours}:${minutes}`;
+}
+
+// 将日期格式化为 YYYY/MM/DD hh:mm 格式，精确到分钟
+export function formatDateForDisplay(date: Date): string {
+  const dateStr = date.toLocaleDateString("zh-CN", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  });
+
+  const timeStr = date.toLocaleTimeString("zh-CN", {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  });
+
+  return dateStr + " " + timeStr;
 }
