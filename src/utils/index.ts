@@ -72,66 +72,6 @@ export function calculateEventHeight(event: any): number {
 }
 
 /**
- * 防抖函数
- */
-export function debounce<T extends (...args: any[]) => any>(
-  func: T,
-  wait: number
-): (...args: Parameters<T>) => void {
-  let timeout: any;
-  return (...args: Parameters<T>) => {
-    clearTimeout(timeout);
-    timeout = setTimeout(() => func.apply(this, args), wait);
-  };
-}
-
-/**
- * 节流函数
- */
-export function throttle<T extends (...args: any[]) => any>(
-  func: T,
-  wait: number
-): (...args: Parameters<T>) => void {
-  let inThrottle: boolean;
-  return (...args: Parameters<T>) => {
-    if (!inThrottle) {
-      func.apply(this, args);
-      inThrottle = true;
-      setTimeout(() => (inThrottle = false), wait);
-    }
-  };
-}
-
-/**
- * 深拷贝函数
- */
-export function deepClone<T>(obj: T): T {
-  if (obj === null || typeof obj !== "object") {
-    return obj;
-  }
-
-  if (obj instanceof Date) {
-    return new Date(obj.getTime()) as T;
-  }
-
-  if (obj instanceof Array) {
-    return obj.map((item) => deepClone(item)) as T;
-  }
-
-  if (typeof obj === "object") {
-    const clonedObj = {} as T;
-    for (const key in obj) {
-      if (obj.hasOwnProperty(key)) {
-        clonedObj[key] = deepClone(obj[key]);
-      }
-    }
-    return clonedObj;
-  }
-
-  return obj;
-}
-
-/**
  * 检查两个日期是否是同一天
  */
 export function isSameDay(date1: Date, date2: Date): boolean {
