@@ -2,42 +2,43 @@ import { computed } from "vue";
 import { useEventStore } from "../../event";
 
 export const createTodoModule = (storeContext: any) => {
+  const { openNewTodoModal, openEditTodoModal } = storeContext;
   const eventStore = useEventStore();
 
   // 获取所有待办事项
   const todoItems = computed(() => {
-    return eventStore.events.filter(event => 
-      event.eventType === 'both' || event.eventType === 'todo'
+    return eventStore.events.filter(
+      (event) => event.eventType === "both" || event.eventType === "todo"
     );
   });
 
   // 获取已完成的待办事项
   const completedTodos = computed(() => {
-    return todoItems.value.filter(todo => todo.completed);
+    return todoItems.value.filter((todo) => todo.completed);
   });
 
   // 获取未完成的待办事项
   const activeTodos = computed(() => {
-    return todoItems.value.filter(todo => !todo.completed);
+    return todoItems.value.filter((todo) => !todo.completed);
   });
 
   function toggleTodo(todoId: number) {
-    const todo = eventStore.events.find(event => event.id === todoId);
+    const todo = eventStore.events.find((event) => event.id === todoId);
     if (todo) {
       todo.completed = !todo.completed;
     }
   }
 
   function addNewTodo() {
-    eventStore.openNewTodoModal();
+    openNewTodoModal();
   }
 
   function editTodo(todo: any) {
-    eventStore.openEditTodoModal(todo);
+    openEditTodoModal(todo);
   }
 
   function deleteTodo(todoId: number) {
-    const index = eventStore.events.findIndex(event => event.id === todoId);
+    const index = eventStore.events.findIndex((event) => event.id === todoId);
     if (index !== -1) {
       eventStore.events.splice(index, 1);
     }

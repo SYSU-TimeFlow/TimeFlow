@@ -14,7 +14,7 @@
       <span class="text-sm font-medium text-gray-700">Categories</span>
       <!-- 添加新分类按钮 -->
       <button
-        @click="eventStore.openNewCategoryModal"
+        @click="uiStore.openNewCategoryModal()"
         class="text-gray-500 hover:text-gray-700 cursor-pointer !rounded-button whitespace-nowrap"
         title="添加新分类"
       >
@@ -52,7 +52,7 @@
         <!-- 编辑按钮，仅在侧边栏未折叠且鼠标悬停时显示 -->
         <button
           v-if="!uiStore.sidebarCollapsed"
-          @click="eventStore.openCategoryDetails(category)"
+          @click="uiStore.openCategoryDetails(category)"
           class="edit-button text-gray-400 hover:text-gray-600 ml-2 opacity-0 group-hover:opacity-100 transition-opacity"
           title="编辑分类"
         >

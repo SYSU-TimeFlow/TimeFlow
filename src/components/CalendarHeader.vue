@@ -192,7 +192,11 @@
       <!-- 主题切换按钮（放在铃铛和设置按钮之间） -->
       <button
         class="header-icon-button p-2 rounded-md transition-colors relative overflow-hidden theme-toggle-btn"
-        :title="settingStore.themeMode === 'dark' ? '切换到亮色模式' : '切换到暗色模式'"
+        :title="
+          settingStore.themeMode === 'dark'
+            ? '切换到亮色模式'
+            : '切换到暗色模式'
+        "
         @click="handleThemeToggle"
         @mouseenter="themeBtnHover = true"
         @mouseleave="themeBtnHover = false"
@@ -217,7 +221,14 @@
             <line x1="4.5" y1="17.5" x2="6.5" y2="15.5" />
             <line x1="15.5" y1="6.5" x2="17.5" y2="4.5" />
           </g>
-          <circle cx="11" cy="11" r="5" fill="#fff" stroke="#888" stroke-width="2" />
+          <circle
+            cx="11"
+            cy="11"
+            r="5"
+            fill="#fff"
+            stroke="#888"
+            stroke-width="2"
+          />
         </svg>
         <!-- 暗模式：白色月亮，悬浮时轻微摇晃 -->
         <svg
@@ -229,7 +240,7 @@
           viewBox="0 0 22 22"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
-          style="transform: translateY(1px);"
+          style="transform: translateY(1px)"
         >
           <path
             d="M17 15.5A7 7 0 0 1 8.5 5c0-.3 0-.6.1-.9A7 7 0 1 0 17 15.5Z"
@@ -243,7 +254,7 @@
       </button>
       <!-- 设置按钮 -->
       <button
-        @click="settingStore.toggleSettings"
+        @click="uiStore.toggleSettings()"
         class="header-icon-button p-2 rounded-md transition-colors settings-cog-btn"
         title="打开设置"
         @mouseenter="isCogHovered = true"
@@ -253,7 +264,7 @@
           class="fas fa-cog"
           :style="{
             transform: `rotate(${cogRotation}deg)`,
-            transition: 'transform 0.5s cubic-bezier(0.4, 0, 0.2, 1)'
+            transition: 'transform 0.5s cubic-bezier(0.4, 0, 0.2, 1)',
           }"
         ></i>
       </button>
@@ -529,11 +540,11 @@ const handleGlobalKeydown = (event: KeyboardEvent) => {
         event.preventDefault();
         break;
       case "a":
-        eventStore.toggleEventModal();
+        uiStore.toggleEventModal();
         event.preventDefault();
         break;
       case "s":
-        settingStore.toggleSettings();
+        uiStore.toggleSettings();
         event.preventDefault();
         break;
       case "/":
@@ -603,12 +614,12 @@ const toggleNotification = () => {
   setTimeout(() => {
     isBellShaking.value = false;
   }, 600);
-  
+
   // 关闭通知时清空，开启时不清空
   if (!settingStore.notifications) {
     notifiedEventKeys.value.clear();
   }
-  
+
   // 保存设置更改
   settingStore.saveSettings();
 };
@@ -617,16 +628,20 @@ const themeBtnHover = ref(false);
 
 const handleThemeToggle = () => {
   // 直接调用 settingStore 的 setThemeMode，保证与设置界面同步
-  settingStore.setThemeMode(settingStore.themeMode === "dark" ? "light" : "dark");
+  settingStore.setThemeMode(
+    settingStore.themeMode === "dark" ? "light" : "dark"
+  );
 };
 
-
-watch(() => settingStore.notifications, (newVal) => {
-  if (!newVal) {
-    // 如果通知被关闭，清空已通知的记录
-    notifiedEventKeys.value.clear();
+watch(
+  () => settingStore.notifications,
+  (newVal) => {
+    if (!newVal) {
+      // 如果通知被关闭，清空已通知的记录
+      notifiedEventKeys.value.clear();
+    }
   }
-});
+);
 
 // 监听悬浮状态，控制旋转角度
 watch(isCogHovered, (hovered) => {
@@ -1058,13 +1073,24 @@ button:has(.fa-times):hover {
   overflow: hidden;
 }
 .theme-moon-shake {
-  animation: moon-shake 1.2s cubic-bezier(.36,.07,.19,.97) infinite;
+  animation: moon-shake 1.2s cubic-bezier(0.36, 0.07, 0.19, 0.97) infinite;
 }
 @keyframes moon-shake {
-  0%,100% { transform: rotate(0);}
-  20% { transform: rotate(-5deg);}
-  40% { transform: rotate(4deg);}
-  60% { transform: rotate(-3deg);}
-  80% { transform: rotate(2deg);}
+  0%,
+  100% {
+    transform: rotate(0);
+  }
+  20% {
+    transform: rotate(-5deg);
+  }
+  40% {
+    transform: rotate(4deg);
+  }
+  60% {
+    transform: rotate(-3deg);
+  }
+  80% {
+    transform: rotate(2deg);
+  }
 }
 </style>

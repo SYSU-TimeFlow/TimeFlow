@@ -4,7 +4,8 @@ import { getStartOfWeek, getEndOfWeek } from "../../../utils";
 import { CalendarDay } from "../../../const";
 
 export const createMonthModule = (storeContext: any) => {
-  const { currentDate, selectedDate, draggedEvent } = storeContext;
+  const { currentDate, selectedDate, draggedEvent, openNewEventModal } =
+    storeContext;
 
   // 月视图的日期格子数据
   const calendarDays = computed(() => {
@@ -45,15 +46,13 @@ export const createMonthModule = (storeContext: any) => {
   });
 
   function handleDayClick(day: any, isAddEvent = false) {
-    const eventStore = useEventStore();
-
     if (day.isCurrentMonth) {
       currentDate.value = new Date(day.date);
       selectedDate.value = new Date(day.date);
       if (isAddEvent) {
         const startDate = new Date(day.date);
         startDate.setHours(9, 0, 0, 0);
-        eventStore.openNewEventModal(startDate);
+        openNewEventModal(startDate);
       }
     }
   }
@@ -66,17 +65,20 @@ export const createMonthModule = (storeContext: any) => {
       const eventIndex = eventStore.events.findIndex((e) => e.id === eventId);
       if (eventIndex !== -1) {
         const originalEvent = eventStore.events[eventIndex];
-        
+
         // 检查是否为待办类型事件（both类型且无实际开始时间）
-        if (originalEvent.eventType === 'both' && new Date(originalEvent.start).getFullYear() <= 1970) {
+        if (
+          originalEvent.eventType === "both" &&
+          new Date(originalEvent.start).getFullYear() <= 1970
+        ) {
           // 对于待办类型，只修改截止日期(end)，保持相同的时间点
           const originalEnd = new Date(originalEvent.end);
           const newEnd = new Date(day.date);
           newEnd.setHours(originalEnd.getHours(), originalEnd.getMinutes());
-          
+
           eventStore.events[eventIndex] = {
             ...originalEvent,
-            end: newEnd
+            end: newEnd,
           };
         } else {
           // 普通事件的原有处理逻辑
@@ -85,7 +87,10 @@ export const createMonthModule = (storeContext: any) => {
           const duration = originalEnd.getTime() - originalStart.getTime();
 
           const newStart = new Date(day.date);
-          newStart.setHours(originalStart.getHours(), originalStart.getMinutes());
+          newStart.setHours(
+            originalStart.getHours(),
+            originalStart.getMinutes()
+          );
           const newEnd = new Date(newStart.getTime() + duration);
 
           eventStore.events[eventIndex] = {

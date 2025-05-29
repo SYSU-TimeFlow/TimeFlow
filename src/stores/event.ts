@@ -1,6 +1,7 @@
 import { defineStore } from "pinia";
 import { ref, computed, nextTick, watch } from "vue";
 import { pinyin } from "pinyin-pro";
+import { useUiStore } from "./ui";
 import { formatDateForInput } from "../utils";
 import { EventType, Event, FilterType, Category, colorOptions } from "../const";
 
@@ -114,7 +115,7 @@ export const useEventStore = defineStore("event", () => {
   // =======================END 事件管理本地存储相关代码 END========================
 
   // 其余状态管理保持基本不变
-  const showCategoryModal = ref(false);
+
   const isNewCategory = ref(true);
   // 修改：为 currentCategory 添加类型注解
   const currentCategory = ref<Category>({
@@ -125,7 +126,7 @@ export const useEventStore = defineStore("event", () => {
   });
 
   // 事件模态框状态管理
-  const showEventModal = ref(false);
+
   const isNewEvent = ref(true);
   const currentEvent = ref({
     id: 0,
@@ -141,7 +142,7 @@ export const useEventStore = defineStore("event", () => {
   });
 
   // Todo模态框状态，统一到事件模态框
-  const showTodoModal = ref(false);
+
   const isNewTodo = ref(true);
   const activeFilter = ref<FilterType>("all");
 
@@ -374,7 +375,8 @@ export const useEventStore = defineStore("event", () => {
 
   // Action: 选择一个搜索结果
   function selectSearchResultAction(eventData: any) {
-    openEventDetails(eventData); // openEventDetails 是 store 中已有的 action
+    const uiStore = useUiStore();
+    uiStore.openEventDetails(eventData); // openEventDetails 是 store 中已有的 action
     // @ts-ignore
     clearSearchAction();
   }
@@ -468,7 +470,8 @@ export const useEventStore = defineStore("event", () => {
         events.value[index] = eventToSave as Event;
       }
     }
-    closeEventModal();
+    const uiStore = useUiStore();
+    uiStore.closeEventModal();
   }
 
   async function deleteEvent(id?: number) {
@@ -479,7 +482,8 @@ export const useEventStore = defineStore("event", () => {
       events.value.splice(index, 1);
     }
 
-    closeEventModal();
+    const uiStore = useUiStore();
+    uiStore.closeEventModal();
   }
 
   // 切换待办事项完成状态
@@ -565,47 +569,9 @@ export const useEventStore = defineStore("event", () => {
     });
   });
   // 打开新建待办事项模态框
-  const openNewTodoModal = () => {
-    isNewTodo.value = true;
-    // 使用1970年1月1日作为起始时间的占位符
-    const placeholderDate = new Date(0); // 1970-01-01T00:00:00.000Z
-    const today = new Date();
-    today.setHours(23, 59, 59, 0);
-    const defaultCat = categories.value.find((c) => c.id === 5) ||
-      categories.value[0] || {
-        id: 5,
-        color: "#43aa8b",
-        name: "其他",
-        active: true,
-      };
-    currentEvent.value = {
-      id: Date.now(),
-      title: "",
-      start: formatDateForInput(placeholderDate), // 使用1970年占位符作为开始时间
-      end: formatDateForInput(today), // 默认有截止时间
-      description: "",
-      categoryId: defaultCat.id,
-      categoryColor: defaultCat.color,
-      allDay: false, // 待办事项设置为非全天事件
-      eventType: EventType.BOTH, // 默认为BOTH类型，因为默认有截止时间
-      completed: false,
-    };
-
-    showTodoModal.value = true;
-  };
 
   // 打开编辑待办事项模态框
-  const openEditTodoModal = (todo: Event) => {
-    isNewTodo.value = false;
-    // 使用1970年1月1日作为起始时间的占位符
-    const placeholderDate = new Date(0); // 1970-01-01T00:00:00.000Z
-    currentEvent.value = {
-      ...todo,
-      start: formatDateForInput(placeholderDate), // 待办事项开始时间始终为1970年占位符
-      end: todo.end ? formatDateForInput(todo.end) : "", // 格式化截止时间（如果有）
-    };
-    showTodoModal.value = true;
-  };
+
   // 保存待办事项
   const saveTodo = async (hasDeadlineParam?: boolean) => {
     // 确保颜色与分类一致
@@ -661,13 +627,11 @@ export const useEventStore = defineStore("event", () => {
       }
     }
 
-    closeTodoModal();
+    const uiStore = useUiStore();
+    uiStore.closeTodoModal();
   };
 
   // 关闭待办事项模态框
-  const closeTodoModal = () => {
-    showTodoModal.value = false;
-  };
 
   // 设置时间为一天的末尾 (23:59:59)
   function setTimeToEndOfDay(date: Date): Date {
@@ -691,58 +655,6 @@ export const useEventStore = defineStore("event", () => {
   // 设置待办事项过滤器
   function setFilter(filter: FilterType) {
     activeFilter.value = filter;
-  }
-
-  // 事件模态框相关函数
-  function openNewEventModal(date?: Date) {
-    isNewEvent.value = true;
-    const startDate = date || new Date();
-    const endDate = new Date(startDate.getTime() + 60 * 60 * 1000);
-    const defaultCat = categories.value.find((c) => c.id === 5) ||
-      categories.value[0] || {
-        id: 5,
-        color: "#43aa8b",
-        name: "其他",
-        active: true,
-      };
-
-    currentEvent.value = {
-      id: Date.now(),
-      title: "",
-      start: formatDateForInput(startDate),
-      end: formatDateForInput(endDate),
-      description: "",
-      categoryId: defaultCat.id,
-      categoryColor: defaultCat.color,
-      allDay: false,
-      eventType: EventType.CALENDAR,
-      completed: false,
-    };
-
-    showEventModal.value = true;
-  }
-
-  function openEventDetails(event: Event) {
-    isNewEvent.value = false;
-    currentEvent.value = {
-      ...event,
-      start: formatDateForInput(event.start),
-      end: formatDateForInput(event.end),
-    };
-
-    if (event.eventType === EventType.TODO) {
-      showTodoModal.value = true;
-    } else {
-      showEventModal.value = true;
-    }
-  }
-
-  function closeEventModal() {
-    showEventModal.value = false;
-  }
-
-  function toggleEventModal() {
-    showEventModal.value = !showEventModal.value;
   }
 
   // 分类相关函数
@@ -776,27 +688,7 @@ export const useEventStore = defineStore("event", () => {
     });
   }
 
-  function openNewCategoryModal() {
-    isNewCategory.value = true;
-    currentCategory.value = {
-      id: Date.now(),
-      name: "",
-      color: colorOptions.find((c) => !isColorUsed(c)) || colorOptions[0], // 尝试选择一个未使用的颜色
-      active: true,
-    };
-    showCategoryModal.value = true;
-  }
-
-  function openCategoryDetails(category: Category) {
-    // 修改：参数类型为 Category
-    isNewCategory.value = false;
-    currentCategory.value = { ...category };
-    showCategoryModal.value = true;
-  }
-
-  function closeCategoryModal() {
-    showCategoryModal.value = false;
-  }
+  
 
   async function saveCategory() {
     if (!isCategoryFormValid()) return;
@@ -822,7 +714,8 @@ export const useEventStore = defineStore("event", () => {
         }
       }
     }
-    closeCategoryModal();
+    const uiStore = useUiStore();
+    uiStore.closeCategoryModal();
   }
 
   async function deleteCategory() {
@@ -847,7 +740,8 @@ export const useEventStore = defineStore("event", () => {
           console.error(
             "No suitable default category found to reassign events to. This should not happen if there's more than one category."
           );
-          closeCategoryModal();
+          const uiStore = useUiStore();
+          uiStore.closeCategoryModal();
           return;
         }
 
@@ -861,7 +755,8 @@ export const useEventStore = defineStore("event", () => {
         categories.value.splice(index, 1);
       }
     }
-    closeCategoryModal();
+    const uiStore = useUiStore();
+    uiStore.closeCategoryModal();
   }
 
   // 初始化时加载应用数据
@@ -870,19 +765,13 @@ export const useEventStore = defineStore("event", () => {
   // 添加一个通用的 watch 函数来监听 events 和 categories 的变化
 
   return {
-    // 枚举类型
-    EventType,
-
     // 状态
     events,
     categories,
-    showEventModal,
     isNewEvent,
     currentEvent,
-    showCategoryModal,
     isNewCategory,
     currentCategory,
-    showTodoModal,
     isNewTodo,
     activeFilter,
 
@@ -901,31 +790,16 @@ export const useEventStore = defineStore("event", () => {
     saveTodo,
     setFilter,
 
-    // 待办事项模态框方法
-    openNewTodoModal,
-    openEditTodoModal,
-    closeTodoModal,
-
-    // 事件模态框方法
-    openNewEventModal,
-    openEventDetails,
-    closeEventModal,
-    toggleEventModal,
-
     // 工具函数
     getEventsForDay,
     setTimeToEndOfDay,
 
     // 分类相关方法
     toggleCategory,
-    colorOptions,
     isColorUsed,
     selectColor,
     isCategoryFormValid,
     updateEventCategoryColor,
-    openNewCategoryModal,
-    openCategoryDetails,
-    closeCategoryModal,
     saveCategory,
     deleteCategory,
 

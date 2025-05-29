@@ -31,9 +31,9 @@
       ></i>
     </button>
     <!-- 添加新事件按钮 -->
-    <button
+    <buttonui
       v-if="uiStore.currentView !== 'todo-list'"
-      @click="eventStore.openNewEventModal()"
+      @click="uiStore.openNewEventModal()"
       class="add-event-btn mx-4 my-3 py-2 px-4 bg-blue-600 text-white rounded-lg flex items-center justify-center hover:bg-blue-700 transition cursor-pointer !rounded-button whitespace-nowrap"
     >
       <i
@@ -44,11 +44,11 @@
       ></i>
       <!-- 仅在侧边栏展开时显示文字 -->
       <span v-if="!uiStore.sidebarCollapsed">Add Event</span>
-    </button>
+    </buttonui>
     <!-- 仅在待办视图显示 Add Todo 按钮-->
     <button
       v-if="uiStore.currentView === 'todo-list'"
-      @click="eventStore.openNewTodoModal()"
+      @click="uiStore.openNewTodoModal()"
       class="add-event-btn mx-4 my-3 py-2 px-4 bg-blue-600 text-white rounded-lg flex items-center justify-center hover:bg-blue-700 transition cursor-pointer !rounded-button whitespace-nowrap"
     >
       <i
@@ -88,15 +88,12 @@
 </template>
 
 <script setup>
-// import MiniCalendar from "./MiniCalendar.vue";
 import ViewSelector from "./ViewSelector.vue";
 import Categories from "./Categories.vue";
-import { useEventStore } from "../stores/event";
 import { useUiStore } from "../stores/ui";
 import { useSettingStore } from "../stores/setting";
 
 // 使用Pinia仓库
-const eventStore = useEventStore();
 const uiStore = useUiStore();
 const settingStore = useSettingStore();
 </script>
