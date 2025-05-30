@@ -406,6 +406,25 @@
                 draggable="true"
                 @dragstart="uiStore.handleDragStart($event, event)"
               >
+                <!-- 添加上下箭头按钮 -->
+                <div
+                  class="event-controls absolute right-2 top-1/2 -translate-y-1/2 flex flex-col gap-1"
+                >
+                  <button
+                    class="move-btn w-6 h-6 flex items-center justify-center rounded-full bg-white/80 hover:bg-white shadow-sm"
+                    @click.stop="uiStore.moveEventUp(event)"
+                    title="向上移动30分钟"
+                  >
+                    <i class="fas fa-chevron-up text-xs text-gray-600"></i>
+                  </button>
+                  <button
+                    class="move-btn w-6 h-6 flex items-center justify-center rounded-full bg-white/80 hover:bg-white shadow-sm"
+                    @click.stop="uiStore.moveEventDown(event)"
+                    title="向下移动30分钟"
+                  >
+                    <i class="fas fa-chevron-down text-xs text-gray-600"></i>
+                  </button>
+                </div>
                 <div class="flex items-center w-full">
                   <!-- 自定义圆形复选框，仅点击时切换完成状态 -->
                   <div
@@ -1165,6 +1184,35 @@ const getWeekViewDays = computed(() => {
 /* 确保事件在时间轴上方显示 */
 .day-event {
   z-index: 10;
+}
+
+/* 移动按钮样式 */
+.move-btn {
+  transition: all 0.2s ease;
+  opacity: 0;
+}
+
+.day-event:hover .move-btn {
+  opacity: 1;
+}
+
+.move-btn:hover {
+  transform: scale(1.1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* 暗黑模式下的移动按钮样式 */
+.dark-mode .move-btn {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+  color: var(--text-primary) !important;
+}
+
+.dark-mode .move-btn:hover {
+  background-color: rgba(255, 255, 255, 0.2) !important;
+}
+
+.dark-mode .move-btn i {
+  color: var(--text-primary) !important;
 }
 
 /* 移除原有的格子相关样式 */
