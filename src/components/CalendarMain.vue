@@ -392,118 +392,119 @@
             </div>
             <!-- 事件渲染区域 -->
             <div class="events absolute top-0 left-0 right-0">
-              <!-- 单个事件项 -->
-              <div
-                v-for="event in eventStore.getEventsForDay(
-                  new Date(uiStore.currentDate)
+              <template
+                v-for="(group, groupIdx) in getEventGroups(
+                  eventStore.getEventsForDay(new Date(uiStore.currentDate))
                 )"
-                :key="event.id"
-                :class="[
-                  'day-event absolute rounded-sm px-2 py-1 overflow-hidden cursor-pointer',
-                  event.eventType === 'both' ? 'both-event-week' : '',
-                ]"
-                :style="{
-                  top: `${event.allDay ? 8 : calculateEventTop(event) + 8}px`,
-                  height: `${
-                    event.allDay ? 1536 : calculateEventHeight(event)
-                  }px`,
-                  left: '4px',
-                  right: '4px',
-                  backgroundColor: event.categoryColor + '33',
-                  borderLeft: `3px solid ${event.categoryColor}`,
-                  zIndex: '10',
-                  transform:
-                    uiStore.draggedEvent === event.id
-                      ? `translateY(${uiStore.calculateDragOffset(event)})`
-                      : 'none',
-                }"
-                @click.stop="
-                  event.eventType === 'both'
-                    ? uiStore.openEditTodoModal(event)
-                    : uiStore.openEventDetails(event)
-                "
-                draggable="true"
-                @dragstart="uiStore.handleDragStart($event, event)"
+                :key="groupIdx"
               >
-                <!-- 添加可拖动的上边框 -->
                 <div
-                  v-if="!event.allDay && event.eventType !== 'both'"
-                  class="event-resize-handle top-handle"
-                  @mousedown.stop="
-                    uiStore.handleDayEventResize($event, event, 'top')
+                  v-for="(event, idx) in group"
+                  :key="event.id"
+                  :class="[
+                    'day-event absolute rounded-sm px-2 py-1 overflow-hidden cursor-pointer',
+                    event.eventType === 'both' ? 'both-event-week' : '',
+                  ]"
+                  :style="{
+                    top: `${event.allDay ? 8 : calculateEventTop(event) + 8}px`,
+                    height: `${event.allDay ? 1536 : calculateEventHeight(event)}px`,
+                    left: `calc(${(100 / group.length) * idx}% + 4px)`,
+                    width: `calc(${100 / group.length}% - 8px)`,
+                    backgroundColor: event.categoryColor + '33',
+                    borderLeft: `3px solid ${event.categoryColor}`,
+                    zIndex: '10',
+                    pointerEvents: uiStore.draggedEvent
+                      ? (uiStore.draggedEvent.id === event.id ? 'auto' : 'none')
+                      : 'auto',
+                  }"
+                  @click.stop="
+                    event.eventType === 'both'
+                      ? uiStore.openEditTodoModal(event)
+                      : uiStore.openEventDetails(event)
                   "
-                  @click.stop
-                ></div>
-                <!-- 添加可拖动的下边框 -->
-                <div
-                  v-if="!event.allDay && event.eventType !== 'both'"
-                  class="event-resize-handle bottom-handle"
-                  @mousedown.stop="
-                    uiStore.handleDayEventResize($event, event, 'bottom')
-                  "
-                  @click.stop
-                ></div>
-                <div class="flex items-center w-full">
-                  <!-- 自定义圆形复选框，仅点击时切换完成状态 -->
+                  draggable="true"
+                  @dragstart="uiStore.handleDragStart($event, event)"
+                >
+                  <!-- 添加可拖动的上边框 -->
                   <div
-                    v-if="event.eventType === 'both'"
-                    class="w-3 h-3 rounded-full border flex items-center justify-center cursor-pointer mr-1"
-                    :class="
-                      event.completed
-                        ? 'bg-indigo-500 border-indigo-600'
-                        : 'border-gray-300'
+                    v-if="!event.allDay && event.eventType !== 'both'"
+                    class="event-resize-handle top-handle"
+                    @mousedown.stop="
+                      uiStore.handleDayEventResize($event, event, 'top')
                     "
-                    @click.stop="eventStore.toggleTodo(event.id)"
-                  >
-                    <i
-                      v-if="event.completed"
-                      class="fas fa-check text-white text-[9px]"
-                    ></i>
+                    @click.stop
+                  ></div>
+                  <!-- 添加可拖动的下边框 -->
+                  <div
+                    v-if="!event.allDay && event.eventType !== 'both'"
+                    class="event-resize-handle bottom-handle"
+                    @mousedown.stop="
+                      uiStore.handleDayEventResize($event, event, 'bottom')
+                    "
+                    @click.stop
+                  ></div>
+                  <div class="flex items-center w-full">
+                    <!-- 自定义圆形复选框，仅点击时切换完成状态 -->
+                    <div
+                      v-if="event.eventType === 'both'"
+                      class="w-3 h-3 rounded-full border flex items-center justify-center cursor-pointer mr-1"
+                      :class="
+                        event.completed
+                          ? 'bg-indigo-500 border-indigo-600'
+                          : 'border-gray-300'
+                      "
+                      @click.stop="eventStore.toggleTodo(event.id)"
+                    >
+                      <i
+                        v-if="event.completed"
+                        class="fas fa-check text-white text-[9px]"
+                      ></i>
+                    </div>
+                    <div
+                      class="event-time text-xs font-medium"
+                      :style="{
+                        color: event.categoryColor,
+                        textDecoration:
+                          event.eventType === 'both' && event.completed
+                            ? 'line-through'
+                            : 'none',
+                      }"
+                    >
+                      {{
+                        event.allDay
+                          ? "All day"
+                          : event.eventType === "both"
+                          ? formatTime(new Date(event.end), settingStore.hour24)
+                          : formatEventTime(event, settingStore.hour24)
+                      }}
+                    </div>
                   </div>
                   <div
-                    class="event-time text-xs font-medium"
+                    class="event-title text-sm font-medium truncate"
                     :style="{
-                      color: event.categoryColor,
+                      color: getContrastColor(event.categoryColor),
                       textDecoration:
                         event.eventType === 'both' && event.completed
                           ? 'line-through'
                           : 'none',
                     }"
                   >
-                    {{
-                      event.allDay
-                        ? "All day"
-                        : event.eventType === "both"
-                        ? formatTime(new Date(event.end), settingStore.hour24)
-                        : formatEventTime(event, settingStore.hour24)
-                    }}
+                    {{ event.title }}
+                  </div>
+                  <div
+                    v-if="event.description"
+                    class="event-description text-xs truncate text-gray-600"
+                    :style="{
+                      textDecoration:
+                        event.eventType === 'both' && event.completed
+                          ? 'line-through'
+                          : 'none',
+                    }"
+                  >
+                    {{ event.description }}
                   </div>
                 </div>
-                <div
-                  class="event-title text-sm font-medium truncate"
-                  :style="{
-                    color: getContrastColor(event.categoryColor),
-                    textDecoration:
-                      event.eventType === 'both' && event.completed
-                        ? 'line-through'
-                        : 'none',
-                  }"
-                >
-                  {{ event.title }}
-                </div>
-                <div
-                  v-if="event.description"
-                  class="event-description text-xs truncate text-gray-600"
-                  :style="{
-                    textDecoration:
-                      event.eventType === 'both' && event.completed
-                        ? 'line-through'
-                        : 'none',
-                  }"
-                >
-                  {{ event.description }}
-                </div>
-              </div>
+              </template>
             </div>
           </div>
         </div>
@@ -528,6 +529,7 @@ import {
   calculateEventHeight,
   calculateEventTop,
   getContrastColor,
+  getEventGroups, // 新增
 } from "../utils";
 
 // 使用 Pinia 仓库
@@ -802,7 +804,9 @@ const getWeekViewDays = computed(() => {
 
 /* 暗黑模式下的小时格子悬停样式 */
 .dark-mode .hour-cell:hover {
-  background-color: var(--calendar-day-hover-bg) !important;
+  background-color: var(
+    --calendar-day-hover-bg
+  ) !important; /* 使用变量控制颜色 */
   border-color: #4a88e5 !important;
 }
 
