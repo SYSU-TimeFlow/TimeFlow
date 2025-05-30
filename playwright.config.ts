@@ -19,7 +19,7 @@ export default defineConfig({
         },
       },
       testDir: './tests', // 测试文件存放目录
-      testMatch: '**/*.testui.ts', // 匹配测试文件后缀
+      testMatch: '**/*.e2e.ts', // 匹配测试文件后缀
     },
   ],
   outputDir: './tests/test-results', // 测试结果输出目录

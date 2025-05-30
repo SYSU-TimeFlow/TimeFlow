@@ -6,10 +6,12 @@
   "main": "./main.js",
   "scripts": {
     "dev": "vite",
-    "codegen": "cd ./tests/ui && node ./codegen.js",
+    "codegen": "cd ./tests/e2e && node ./codegen.js",
     "build": "vite build",
     "preview": "vite preview",
     "test": "vitest run && playwright test",
+    "test:unit": "vitest run",
+    "test:e2e": "playwright test",
     "start": "nodemon --exec electron . --watch ./ --ext .js, .html, .css, .vue, .json, .ts",
     "electron:build": "vite build & electron-builder build --config electron-builder.json"
   },
