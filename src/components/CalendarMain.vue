@@ -37,7 +37,7 @@
           ]"
           @click="uiStore.handleDayClick(day, true)"
           @dragover.prevent
-          @drop="uiStore.handleDrop($event, day)"
+          @drop="uiStore.handleMonthDrop($event, day)"
         >
           <!-- 日期头部，包含日期数字和添加事件按钮 -->
           <div
@@ -203,7 +203,6 @@
                 style="z-index: 1"
                 @click="uiStore.handleHourClick(day.date, hour - 1)"
                 @dragover.prevent
-                @drop="uiStore.handleDrop($event, { ...day, hour: hour - 1 })"
               ></div>
             </div>
             <!-- 事件渲染区域 -->
@@ -215,6 +214,8 @@
                 width: `calc(100% / 7)`,
                 left: `calc(${(100 * idx) / 7}% )`,
               }"
+              @dragover.prevent
+              @drop="uiStore.handleWeekDrop($event, day)"
             >
               <!-- 单个事件项 -->
               <div
@@ -247,6 +248,24 @@
                 draggable="true"
                 @dragstart="uiStore.handleDragStart($event, event)"
               >
+                <!-- 添加可拖动的上边框 -->
+                <div
+                  v-if="!event.allDay && event.eventType !== 'both'"
+                  class="event-resize-handle top-handle"
+                  @mousedown.stop="
+                    uiStore.handleWeekEventResize($event, event, 'top')
+                  "
+                  @click.stop
+                ></div>
+                <!-- 添加可拖动的下边框 -->
+                <div
+                  v-if="!event.allDay && event.eventType !== 'both'"
+                  class="event-resize-handle bottom-handle"
+                  @mousedown.stop="
+                    uiStore.handleWeekEventResize($event, event, 'bottom')
+                  "
+                  @click.stop
+                ></div>
                 <div class="flex items-center w-full">
                   <!-- 自定义圆形复选框，仅点击时切换完成状态 -->
                   <div
@@ -364,7 +383,7 @@
                 @click="uiStore.handleHourClick(uiStore.currentDate, hour - 1)"
                 @dragover.prevent
                 @drop="
-                  uiStore.handleDropDay($event, {
+                  uiStore.handleDayDrop($event, {
                     date: uiStore.currentDate,
                     hour: hour - 1,
                   })
@@ -384,10 +403,10 @@
                   event.eventType === 'both' ? 'both-event-week' : '',
                 ]"
                 :style="{
-                  top: `${event.allDay ? 8 : calculateEventTop(event) + 8}px`, // 全天事件固定在顶部
+                  top: `${event.allDay ? 8 : calculateEventTop(event) + 8}px`,
                   height: `${
                     event.allDay ? 1536 : calculateEventHeight(event)
-                  }px`, // 全天事件高度为24小时
+                  }px`,
                   left: '4px',
                   right: '4px',
                   backgroundColor: event.categoryColor + '33',
@@ -406,6 +425,24 @@
                 draggable="true"
                 @dragstart="uiStore.handleDragStart($event, event)"
               >
+                <!-- 添加可拖动的上边框 -->
+                <div
+                  v-if="!event.allDay && event.eventType !== 'both'"
+                  class="event-resize-handle top-handle"
+                  @mousedown.stop="
+                    uiStore.handleDayEventResize($event, event, 'top')
+                  "
+                  @click.stop
+                ></div>
+                <!-- 添加可拖动的下边框 -->
+                <div
+                  v-if="!event.allDay && event.eventType !== 'both'"
+                  class="event-resize-handle bottom-handle"
+                  @mousedown.stop="
+                    uiStore.handleDayEventResize($event, event, 'bottom')
+                  "
+                  @click.stop
+                ></div>
                 <div class="flex items-center w-full">
                   <!-- 自定义圆形复选框，仅点击时切换完成状态 -->
                   <div
@@ -1172,5 +1209,32 @@ const getWeekViewDays = computed(() => {
 .half-hour-cell,
 .hours-grid {
   display: none;
+}
+
+/* 添加事件调整大小的手柄样式 */
+.event-resize-handle {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 6px;
+  cursor: ns-resize;
+  z-index: 20;
+}
+
+.event-resize-handle.top-handle {
+  top: 0;
+}
+
+.event-resize-handle.bottom-handle {
+  bottom: 0;
+}
+
+.event-resize-handle:hover {
+  background-color: rgba(59, 130, 246, 0.3);
+}
+
+/* 暗黑模式下的调整手柄样式 */
+.dark-mode .event-resize-handle:hover {
+  background-color: rgba(74, 136, 229, 0.3);
 }
 </style>

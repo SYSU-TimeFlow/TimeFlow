@@ -45,14 +45,14 @@ export const createDayModule = (storeContext: any) => {
 
   // 检查时间是否有效
   function isValidTime(hour: number, minute: number) {
-    return hour >= 0 && hour < 24 && (minute === 0 || minute === 30);
+    return hour >= 0 && hour < 24 && minute % 5 === 0;
   }
 
   // 检查时间变化是否足够大
   function isTimeChangeSignificant(originalTime: Date, newTime: Date): boolean {
     const timeDiff = Math.abs(newTime.getTime() - originalTime.getTime());
-    // 如果时间差超过15分钟（900000毫秒），则认为变化显著
-    return timeDiff >= 900000;
+    // 如果时间差超过5分钟（300000毫秒），则认为变化显著
+    return timeDiff >= 300000;
   }
 
   function handleHourClick(day: any, hour: number, minute: number = 0) {
@@ -61,7 +61,75 @@ export const createDayModule = (storeContext: any) => {
     openNewEventModal(date);
   }
 
-  function handleDropDay(event: DragEvent, day: any) {
+  // 处理事件调整大小开始
+  function handleDayEventResize(
+    event: MouseEvent,
+    calendarEvent: any,
+    handle: "top" | "bottom"
+  ) {
+    event.preventDefault();
+    event.stopPropagation();
+
+    const eventStore = useEventStore();
+    const eventElement = event.target as HTMLElement;
+    const eventRect = eventElement.getBoundingClientRect();
+    const startY = event.clientY;
+    const originalStart = new Date(calendarEvent.start);
+    const originalEnd = new Date(calendarEvent.end);
+
+    // 计算每个时间单位对应的像素高度（64px/小时）
+    const pixelsPerHour = 64;
+    const pixelsPerMinute = pixelsPerHour / 60;
+
+    function handleMouseMove(e: MouseEvent) {
+      const deltaY = e.clientY - startY;
+      const deltaMinutes = Math.round(deltaY / pixelsPerMinute / 5) * 5; // 对齐到5分钟
+
+      if (handle === "top") {
+        const newStart = new Date(originalStart);
+        newStart.setMinutes(newStart.getMinutes() + deltaMinutes);
+
+        // 确保新的开始时间不晚于结束时间
+        if (newStart < originalEnd) {
+          const eventIndex = eventStore.events.findIndex(
+            (e) => e.id === calendarEvent.id
+          );
+          if (eventIndex !== -1) {
+            eventStore.events[eventIndex] = {
+              ...calendarEvent,
+              start: newStart,
+            };
+          }
+        }
+      } else {
+        const newEnd = new Date(originalEnd);
+        newEnd.setMinutes(newEnd.getMinutes() + deltaMinutes);
+
+        // 确保新的结束时间不早于开始时间
+        if (newEnd > originalStart) {
+          const eventIndex = eventStore.events.findIndex(
+            (e) => e.id === calendarEvent.id
+          );
+          if (eventIndex !== -1) {
+            eventStore.events[eventIndex] = {
+              ...calendarEvent,
+              end: newEnd,
+            };
+          }
+        }
+      }
+    }
+
+    function handleMouseUp() {
+      document.removeEventListener("mousemove", handleMouseMove);
+      document.removeEventListener("mouseup", handleMouseUp);
+    }
+
+    document.addEventListener("mousemove", handleMouseMove);
+    document.addEventListener("mouseup", handleMouseUp);
+  }
+
+  function handleDayDrop(event: DragEvent, day: any) {
     const eventStore = useEventStore();
 
     if (draggedEvent.value && event.dataTransfer) {
@@ -173,7 +241,8 @@ export const createDayModule = (storeContext: any) => {
   return {
     dayViewEvents,
     handleHourClick,
-    handleDropDay,
+    handleDayDrop,
     calculateDragOffset,
+    handleDayEventResize,
   };
 };
