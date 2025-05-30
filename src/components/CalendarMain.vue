@@ -225,7 +225,7 @@
                   event.eventType === 'both' ? 'both-event-week' : '',
                 ]"
                 :style="{
-                  top: `${calculateEventTop(event)}px`,
+                  top: `${calculateEventTop(event) + 8}px`, // 加上8px的偏移，与整点线对齐
                   height: `${calculateEventHeight(event)}px`,
                   left: '4px',
                   right: '4px',
@@ -337,16 +337,28 @@
           </div>
           <!-- 事件显示列 -->
           <div class="day-column flex-1 relative">
-            <!-- 小时格子背景 -->
-            <div class="hours-grid grid gap-1 p-1">
+            <!-- 时间轴背景 -->
+            <div class="time-axis relative">
+              <!-- 整点时间线 -->
               <div
                 v-for="hour in 24"
                 :key="hour"
-                class="hour-cell h-16 border-b border-gray-200 relative"
+                class="time-line absolute left-0 right-0"
+                :style="{
+                  top: `${(hour - 1) * 64 + 8}px`,
+                  height: '1px',
+                  backgroundColor: 'var(--border-color)',
+                }"
+              ></div>
+              <!-- 渲染24小时的时间轴 -->
+              <div
+                v-for="hour in 24"
+                :key="hour"
+                class="time-slot h-16 relative"
                 @click="uiStore.handleHourClick(uiStore.currentDate, hour - 1)"
                 @dragover.prevent
                 @drop="
-                  uiStore.handleDrop($event, {
+                  uiStore.handleDropDay($event, {
                     date: uiStore.currentDate,
                     hour: hour - 1,
                   })
@@ -366,13 +378,13 @@
                   event.eventType === 'both' ? 'both-event-week' : '',
                 ]"
                 :style="{
-                  top: `${calculateEventTop(event)}px`, // 计算事件的垂直位置
-                  height: `${calculateEventHeight(event)}px`, // 计算事件的高度
+                  top: `${calculateEventTop(event) + 8}px`, // 加上8px的偏移，与整点线对齐
+                  height: `${calculateEventHeight(event)}px`,
                   left: '4px',
                   right: '4px',
                   backgroundColor: event.categoryColor + '33',
                   borderLeft: `3px solid ${event.categoryColor}`,
-                  zIndex: '10', // 确保事件在网格线上方
+                  zIndex: '10',
                 }"
                 @click.stop="
                   event.eventType === 'both'
@@ -1027,5 +1039,126 @@ const getWeekViewDays = computed(() => {
 .dark-mode .week-view .bg-white {
   background-color: var(--bg-secondary) !important;
   border-bottom: 1px solid var(--border-color) !important;
+}
+
+/* 添加半小时格子的样式 */
+.half-hour-cell {
+  transition: background-color 0.15s ease;
+  position: relative;
+}
+
+.half-hour-cell:hover {
+  background-color: #f0f4ff !important;
+}
+
+.half-hour-cell:hover::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border: 1px solid #3b82f6;
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* 暗黑模式下的半小时格子样式 */
+.dark-mode .half-hour-cell:hover {
+  background-color: var(--calendar-day-hover-bg) !important;
+}
+
+.dark-mode .half-hour-cell:hover::after {
+  border-color: #4a88e5;
+}
+
+/* 调整小时格子的边框样式 */
+.hour-cell {
+  border-bottom: 1px solid var(--border-color) !important;
+}
+
+.half-hour-cell {
+  border-bottom: 1px solid var(--border-color-light) !important;
+}
+
+/* 确保事件在半小时格子上方显示 */
+.day-event {
+  z-index: 10;
+}
+
+/* 时间轴样式 */
+.time-axis {
+  position: relative;
+  height: 100%;
+}
+
+.time-slot {
+  position: relative;
+  transition: background-color 0.15s ease;
+  height: 64px; /* 确保高度固定 */
+}
+
+.time-slot:hover {
+  position: relative;
+}
+
+.time-slot:hover::before {
+  content: "";
+  position: absolute;
+  top: 8px; /* 与当前整点线对齐 */
+  left: 0;
+  right: 0;
+  bottom: -8px; /* 与下一个整点线对齐 */
+  background-color: #f0f4ff;
+  z-index: 1;
+}
+
+.time-slot:hover::after {
+  content: "";
+  position: absolute;
+  top: 8px; /* 与当前整点线对齐 */
+  left: 0;
+  right: 0;
+  bottom: -8px; /* 与下一个整点线对齐 */
+  border: 1px solid #3b82f6;
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* 暗黑模式下的时间轴样式 */
+.dark-mode .time-slot:hover::before {
+  background-color: var(--calendar-day-hover-bg);
+}
+
+.dark-mode .time-slot:hover::after {
+  border-color: #4a88e5;
+}
+
+/* 时间线样式 */
+.time-line {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background-color: var(--border-color);
+  z-index: 1;
+}
+
+/* 暗黑模式下的时间线样式 */
+.dark-mode .time-line {
+  background-color: var(--border-color);
+  opacity: 0.5;
+}
+
+/* 确保事件在时间轴上方显示 */
+.day-event {
+  z-index: 10;
+}
+
+/* 移除原有的格子相关样式 */
+.hour-cell,
+.half-hour-cell,
+.hours-grid {
+  display: none;
 }
 </style>
