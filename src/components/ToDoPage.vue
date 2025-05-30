@@ -10,6 +10,7 @@
     <div
       class="todo-modal bg-white rounded-lg shadow-lg w-full max-w-md overflow-hidden"
       @click.stop
+      ref="modalRef"
     >
       <!-- 模态框头部 -->
       <div
@@ -44,6 +45,7 @@
             class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             placeholder="Enter task title"
           />
+          <div v-if="eventStore.todoError" class="text-red-500 text-xs mt-1">{{ eventStore.todoError }}</div>
         </div>
 
         <!-- 截止时间设置区域 -->
@@ -165,6 +167,32 @@ onUnmounted(() => {
 
 // 使用本地变量跟踪是否设置截止时间
 const hasDeadline = ref(true);
+const modalRef = ref<HTMLElement | null>(null);
+
+// 响应式绑定 eventStore 的错误和 shake 状态
+watch(
+  () => eventStore.todoError,
+  (val) => {
+    if (val && modalRef.value) {
+      // 先移除再添加，确保动画能重复触发
+      modalRef.value.classList.remove("shake");
+      void modalRef.value.offsetWidth;
+      modalRef.value.classList.add("shake");
+    }
+  }
+);
+watch(
+  () => eventStore.todoShake,
+  (val) => {
+    if (val && modalRef.value) {
+      modalRef.value.classList.remove("shake");
+      void modalRef.value.offsetWidth;
+      modalRef.value.classList.add("shake");
+      // 动画触发后立即重置 shake 标志，避免下次无效
+      eventStore.todoShake = false;
+    }
+  }
+);
 
 // 打开待办事项模态框时的处理
 watch(
@@ -198,6 +226,11 @@ watch(hasDeadline, (newValue) => {
     today.setHours(23, 59, 59, 0);
     eventStore.currentEvent.end = formatDateForInput(today);
   }
+});
+
+// 输入时清除错误提示
+watch(() => eventStore.currentEvent.title, () => {
+  if (eventStore.todoError) eventStore.todoError = "";
 });
 
 // 保存待办事项
@@ -379,5 +412,32 @@ button {
   border: 1px solid #d1d5db !important;
   color: #111827 !important;
   background: #fff !important;
+}
+
+/* 摇动动画 */
+@keyframes shake {
+  0% {
+    transform: translateX(0);
+  }
+  20% {
+    transform: translateX(-8px);
+  }
+  40% {
+    transform: translateX(8px);
+  }
+  60% {
+    transform: translateX(-8px);
+  }
+  80% {
+    transform: translateX(8px);
+  }
+  100% {
+    transform: translateX(0);
+  }
+}
+
+/* 添加抖动效果类 */
+.shake {
+  animation: shake 0.3s;
 }
 </style>

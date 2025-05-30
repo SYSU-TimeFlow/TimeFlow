@@ -454,6 +454,29 @@ export const useEventStore = defineStore("event", () => {
 
   // 保存事件 (新建或更新)
   async function saveEvent() {
+    // 标题校验
+    if (!currentEvent.value.title || currentEvent.value.title.trim() === "") {
+      eventTitleError.value = "标题不能为空";
+      eventTimeError.value = "";
+      eventShake.value = false;
+      await nextTick();
+      eventShake.value = true;
+      return;
+    }
+    // 结束时间不能早于开始时间
+    const start = new Date(currentEvent.value.start);
+    const end = new Date(currentEvent.value.end);
+    if (end < start) {
+      eventTitleError.value = "";
+      eventTimeError.value = "结束时间不能早于开始时间";
+      eventShake.value = false;
+      await nextTick();
+      eventShake.value = true;
+      return;
+    }
+    eventTitleError.value = "";
+    eventTimeError.value = "";
+    eventShake.value = false;
     // 确保颜色与分类一致
     const category = categories.value.find(
       (c) => c.id === currentEvent.value.categoryId
@@ -578,8 +601,27 @@ export const useEventStore = defineStore("event", () => {
 
   // 打开编辑待办事项模态框
 
-  // 保存待办事项
-  const saveTodo = async (hasDeadlineParam?: boolean) => {
+  // 响应式校验状态
+  const todoError = ref("");
+  const todoShake = ref(false);
+  const eventTitleError = ref("");
+  const eventTimeError = ref("");
+  const eventShake = ref(false);
+
+  // 保存待办事项（响应式状态实现）
+  const saveTodo = async (
+    hasDeadlineParam?: boolean
+  ) => {
+    // 标题校验
+    if (!currentEvent.value.title || currentEvent.value.title.trim() === "") {
+      todoError.value = "标题不能为空";
+      todoShake.value = false;
+      await nextTick();
+      todoShake.value = true;
+      return;
+    }
+    todoError.value = "";
+    todoShake.value = false;
     // 确保颜色与分类一致
     const category = categories.value.find(
       (c) => c.id === currentEvent.value.categoryId
@@ -829,5 +871,12 @@ export const useEventStore = defineStore("event", () => {
     // 数据存储相关，仅供测试
     loadAppDataFromStore,
     saveAppDataToStore,
+
+    // 响应式校验状态
+    todoError,
+    todoShake,
+    eventTitleError,
+    eventTimeError,
+    eventShake,
   };
 });
