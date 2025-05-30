@@ -16,6 +16,7 @@
     <div
       class="event-modal bg-white rounded-lg shadow-lg w-full max-w-md overflow-hidden"
       @click.stop
+      ref="modalRef"
     >
       <!-- 模态框头部 -->
       <div
@@ -49,6 +50,7 @@
             class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             placeholder="Event title"
           />
+          <div v-if="eventStore.eventError" class="text-red-500 text-xs mt-1">{{ eventStore.eventError }}</div>
         </div>
         <!-- 开始和结束时间输入区域 -->
         <div class="form-row flex space-x-4 mb-4">
@@ -149,13 +151,14 @@
 </template>
 
 <script setup>
-import { onMounted, onUnmounted } from "vue";
+import { ref, watch, onMounted, onUnmounted } from "vue";
 import { useEventStore } from "../stores/event";
 import { useUiStore } from "../stores/ui";
 
 // 使用Pinia仓库
 const eventStore = useEventStore();
 const uiStore = useUiStore();
+const modalRef = ref(null);
 
 /**
  * 处理ESC键关闭设置模态框
@@ -175,6 +178,20 @@ onMounted(() => {
 onUnmounted(() => {
   document.removeEventListener("keydown", handleKeyDown);
 });
+
+// 监听 eventShake，触发 shake 动画
+watch(
+  () => eventStore.eventShake,
+  (val) => {
+    if (val && modalRef.value) {
+      modalRef.value.classList.remove("shake");
+      void modalRef.value.offsetWidth;
+      modalRef.value.classList.add("shake");
+      // 动画触发后立即重置 shake 标志，避免下次无效
+      eventStore.eventShake = false;
+    }
+  }
+);
 </script>
 
 <style scoped>
@@ -295,5 +312,18 @@ onUnmounted(() => {
 .dark-mode .modal-header button:hover {
   color: #ff6b6b !important;
   background-color: rgba(255, 107, 107, 0.1);
+}
+
+/* 摇动动画定义 */
+@keyframes shake {
+  0% { transform: translateX(0); }
+  20% { transform: translateX(-8px); }
+  40% { transform: translateX(8px); }
+  60% { transform: translateX(-8px); }
+  80% { transform: translateX(8px); }
+  100% { transform: translateX(0); }
+}
+.shake {
+  animation: shake 0.3s;
 }
 </style>

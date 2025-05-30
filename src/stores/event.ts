@@ -454,6 +454,16 @@ export const useEventStore = defineStore("event", () => {
 
   // 保存事件 (新建或更新)
   async function saveEvent() {
+    // 标题校验
+    if (!currentEvent.value.title || currentEvent.value.title.trim() === "") {
+      eventError.value = "标题不能为空";
+      eventShake.value = false;
+      await nextTick();
+      eventShake.value = true;
+      return;
+    }
+    eventError.value = "";
+    eventShake.value = false;
     // 确保颜色与分类一致
     const category = categories.value.find(
       (c) => c.id === currentEvent.value.categoryId
@@ -581,6 +591,8 @@ export const useEventStore = defineStore("event", () => {
   // 响应式校验状态
   const todoError = ref("");
   const todoShake = ref(false);
+  const eventError = ref("");
+  const eventShake = ref(false);
 
   // 保存待办事项（响应式状态实现）
   const saveTodo = async (
@@ -849,5 +861,7 @@ export const useEventStore = defineStore("event", () => {
     // 响应式校验状态
     todoError,
     todoShake,
+    eventError,
+    eventShake,
   };
 });
