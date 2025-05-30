@@ -10,6 +10,8 @@ test('Add & Delete Event', async () => {
     // |以下是你可以替换的部分 - 每次录制新测试后替换这里|
     // ================================================
 
+    // 该测试用例的目的是添加一个事件，然后删除它
+
     await page.goto('http://localhost:5173/#/');
     await page.locator('div').filter({ hasText: /^5$/ }).first().click();
     await page.getByRole('textbox', { name: 'Event title' }).click();
