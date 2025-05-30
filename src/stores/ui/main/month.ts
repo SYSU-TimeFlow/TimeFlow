@@ -57,7 +57,7 @@ export const createMonthModule = (storeContext: any) => {
     }
   }
 
-  function handleDrop(event: DragEvent, day: any) {
+  function handleMonthDrop(event: DragEvent, day: any) {
     const eventStore = useEventStore();
 
     if (draggedEvent.value && event.dataTransfer) {
@@ -107,6 +107,6 @@ export const createMonthModule = (storeContext: any) => {
   return {
     calendarDays,
     handleDayClick,
-    handleDrop,
+    handleMonthDrop,
   };
 };
