@@ -236,7 +236,7 @@
                   borderLeft: `3px solid ${event.categoryColor}`,
                   zIndex: '10',
                   transform:
-                    uiStore.draggedEvent === event.id
+                    uiStore.draggedEvent?.id === event.id
                       ? `translateY(${uiStore.calculateDragOffset(event)})`
                       : 'none',
                 }"
@@ -413,9 +413,12 @@
                     backgroundColor: event.categoryColor + '33',
                     borderLeft: `3px solid ${event.categoryColor}`,
                     zIndex: '10',
+                    transform: uiStore.draggedEvent && uiStore.draggedEvent.id === event.id
+                      ? `translateY(${uiStore.calculateDragOffset(event)})`
+                      : 'none',
                     pointerEvents: uiStore.draggedEvent
                       ? (uiStore.draggedEvent.id === event.id ? 'auto' : 'none')
-                      : 'auto',
+                      : 'auto'
                   }"
                   @click.stop="
                     event.eventType === 'both'
