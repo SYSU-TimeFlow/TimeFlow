@@ -578,8 +578,24 @@ export const useEventStore = defineStore("event", () => {
 
   // 打开编辑待办事项模态框
 
-  // 保存待办事项
-  const saveTodo = async (hasDeadlineParam?: boolean) => {
+  // 响应式校验状态
+  const todoError = ref("");
+  const todoShake = ref(false);
+
+  // 保存待办事项（响应式状态实现）
+  const saveTodo = async (
+    hasDeadlineParam?: boolean
+  ) => {
+    // 标题校验
+    if (!currentEvent.value.title || currentEvent.value.title.trim() === "") {
+      todoError.value = "标题不能为空";
+      todoShake.value = false;
+      await nextTick();
+      todoShake.value = true;
+      return;
+    }
+    todoError.value = "";
+    todoShake.value = false;
     // 确保颜色与分类一致
     const category = categories.value.find(
       (c) => c.id === currentEvent.value.categoryId
@@ -829,5 +845,9 @@ export const useEventStore = defineStore("event", () => {
     // 数据存储相关，仅供测试
     loadAppDataFromStore,
     saveAppDataToStore,
+
+    // 响应式校验状态
+    todoError,
+    todoShake,
   };
 });
