@@ -456,13 +456,26 @@ export const useEventStore = defineStore("event", () => {
   async function saveEvent() {
     // 标题校验
     if (!currentEvent.value.title || currentEvent.value.title.trim() === "") {
-      eventError.value = "标题不能为空";
+      eventTitleError.value = "标题不能为空";
+      eventTimeError.value = "";
       eventShake.value = false;
       await nextTick();
       eventShake.value = true;
       return;
     }
-    eventError.value = "";
+    // 结束时间不能早于开始时间
+    const start = new Date(currentEvent.value.start);
+    const end = new Date(currentEvent.value.end);
+    if (end < start) {
+      eventTitleError.value = "";
+      eventTimeError.value = "结束时间不能早于开始时间";
+      eventShake.value = false;
+      await nextTick();
+      eventShake.value = true;
+      return;
+    }
+    eventTitleError.value = "";
+    eventTimeError.value = "";
     eventShake.value = false;
     // 确保颜色与分类一致
     const category = categories.value.find(
@@ -591,7 +604,8 @@ export const useEventStore = defineStore("event", () => {
   // 响应式校验状态
   const todoError = ref("");
   const todoShake = ref(false);
-  const eventError = ref("");
+  const eventTitleError = ref("");
+  const eventTimeError = ref("");
   const eventShake = ref(false);
 
   // 保存待办事项（响应式状态实现）
@@ -861,7 +875,8 @@ export const useEventStore = defineStore("event", () => {
     // 响应式校验状态
     todoError,
     todoShake,
-    eventError,
+    eventTitleError,
+    eventTimeError,
     eventShake,
   };
 });

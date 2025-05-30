@@ -50,7 +50,7 @@
             class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             placeholder="Event title"
           />
-          <div v-if="eventStore.eventError" class="text-red-500 text-xs mt-1">{{ eventStore.eventError }}</div>
+          <div v-if="eventStore.eventTitleError" class="text-red-500 text-xs mt-1">{{ eventStore.eventTitleError }}</div>
         </div>
         <!-- 开始和结束时间输入区域 -->
         <div class="form-row flex space-x-4 mb-4">
@@ -75,6 +75,7 @@
             />
           </div>
         </div>
+        <div v-if="eventStore.eventTimeError" class="text-red-500 text-xs mb-2">{{ eventStore.eventTimeError }}</div>
         <!-- 全天事件选择区域 -->
         <div class="form-group mb-4">
           <div class="flex items-center mb-2">
@@ -190,6 +191,21 @@ watch(
       // 动画触发后立即重置 shake 标志，避免下次无效
       eventStore.eventShake = false;
     }
+  }
+);
+
+// 监听开始/结束时间输入，清除时间错误提示
+watch(
+  [() => eventStore.currentEvent.start, () => eventStore.currentEvent.end],
+  () => {
+    if (eventStore.eventTimeError) eventStore.eventTimeError = "";
+  }
+);
+// 监听标题输入，清除标题错误提示
+watch(
+  () => eventStore.currentEvent.title,
+  () => {
+    if (eventStore.eventTitleError) eventStore.eventTitleError = "";
   }
 );
 </script>
