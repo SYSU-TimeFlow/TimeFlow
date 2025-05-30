@@ -223,6 +223,12 @@ export function initializeIpcHandlers(ipcMain, appDataStore, settingsConfigStore
   ipcMain.handle('notify', (event, { title, body }) => {
     const notification = new Notification({ title, body, silent: false });
     notification.show();
+    notification.on('click', () => {
+      const win = BrowserWindow.getAllWindows()[0]; // 获取第一个窗口
+      if (win) {
+        win.show(); // 点击通知时显示窗口
+      }
+    });
     setTimeout(() => notification.close(), 5000); // 5秒后自动关闭
   });
 }
