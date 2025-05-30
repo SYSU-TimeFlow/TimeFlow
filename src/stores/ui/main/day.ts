@@ -70,6 +70,22 @@ export const createDayModule = (storeContext: any) => {
       if (eventIndex !== -1) {
         const originalEvent = eventStore.events[eventIndex];
 
+        // 如果是全天事件，保持全天状态
+        if (originalEvent.allDay) {
+          const newStart = new Date(day.date);
+          newStart.setHours(0, 0, 0, 0);
+          const newEnd = new Date(day.date);
+          newEnd.setHours(23, 59, 59, 999);
+
+          eventStore.events[eventIndex] = {
+            ...originalEvent,
+            start: newStart,
+            end: newEnd,
+          };
+          draggedEvent.value = null;
+          return;
+        }
+
         // 计算新的时间
         const { hour, minute } = calculateTimeFromMousePosition(event, day);
 
@@ -98,8 +114,10 @@ export const createDayModule = (storeContext: any) => {
           const hasOverlap = eventStore.events.some(
             (e) =>
               e.id !== originalEvent.id &&
-              e.eventType === "both" &&
-              new Date(e.end).getTime() === newEnd.getTime()
+              e.eventType !== "both" && // 只检查与普通事件的重叠
+              ((newEnd >= new Date(e.start) && newEnd < new Date(e.end)) ||
+                (newEnd > new Date(e.start) && newEnd <= new Date(e.end)) ||
+                (newEnd <= new Date(e.start) && newEnd >= new Date(e.end)))
           );
 
           if (!hasOverlap) {
@@ -130,6 +148,7 @@ export const createDayModule = (storeContext: any) => {
           const hasOverlap = eventStore.events.some(
             (e) =>
               e.id !== originalEvent.id &&
+              e.eventType !== "both" && // 只检查与普通事件的重叠
               ((newStart >= new Date(e.start) && newStart < new Date(e.end)) ||
                 (newEnd > new Date(e.start) && newEnd <= new Date(e.end)) ||
                 (newStart <= new Date(e.start) && newEnd >= new Date(e.end)))

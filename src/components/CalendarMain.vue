@@ -225,13 +225,15 @@
                   event.eventType === 'both' ? 'both-event-week' : '',
                 ]"
                 :style="{
-                  top: `${calculateEventTop(event) + 8}px`, // 加上8px的偏移，与整点线对齐
-                  height: `${calculateEventHeight(event)}px`,
+                  top: `${event.allDay ? 8 : calculateEventTop(event) + 8}px`, // 全天事件固定在顶部
+                  height: `${
+                    event.allDay ? 1536 : calculateEventHeight(event)
+                  }px`, // 全天事件高度为24小时
                   left: '4px',
                   right: '4px',
                   backgroundColor: event.categoryColor + '33',
                   borderLeft: `3px solid ${event.categoryColor}`,
-                  zIndex: 10,
+                  zIndex: '10',
                   transform:
                     uiStore.draggedEvent === event.id
                       ? `translateY(${uiStore.calculateDragOffset(event)})`
@@ -382,8 +384,10 @@
                   event.eventType === 'both' ? 'both-event-week' : '',
                 ]"
                 :style="{
-                  top: `${calculateEventTop(event) + 8}px`, // 加上8px的偏移，与整点线对齐
-                  height: `${calculateEventHeight(event)}px`,
+                  top: `${event.allDay ? 8 : calculateEventTop(event) + 8}px`, // 全天事件固定在顶部
+                  height: `${
+                    event.allDay ? 1536 : calculateEventHeight(event)
+                  }px`, // 全天事件高度为24小时
                   left: '4px',
                   right: '4px',
                   backgroundColor: event.categoryColor + '33',
