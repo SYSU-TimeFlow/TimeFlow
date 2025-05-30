@@ -24,16 +24,35 @@ export const createDayModule = (storeContext: any) => {
     return { hour, minute };
   }
 
+  // 计算拖拽时事件信息的偏移量
+  function calculateDragOffset(event: any) {
+    if (!draggedEvent.value) return 0;
+
+    const eventStore = useEventStore();
+    const draggedEventData = eventStore.events.find(
+      (e) => e.id === draggedEvent.value
+    );
+    if (!draggedEventData) return 0;
+
+    const startTime = new Date(draggedEventData.start);
+    const endTime = new Date(draggedEventData.end);
+    const duration = endTime.getTime() - startTime.getTime();
+    const hours = duration / (1000 * 60 * 60);
+
+    // 每个小时的高度是64px，所以事件高度的一半就是 (hours * 64) / 2
+    return -(hours * 64) / 2;
+  }
+
   // 检查时间是否有效
   function isValidTime(hour: number, minute: number) {
     return hour >= 0 && hour < 24 && (minute === 0 || minute === 30);
   }
 
-  // 格式化时间显示
-  function formatTimeDisplay(hour: number, minute: number) {
-    const hourStr = hour.toString().padStart(2, "0");
-    const minuteStr = minute.toString().padStart(2, "0");
-    return `${hourStr}:${minuteStr}`;
+  // 检查时间变化是否足够大
+  function isTimeChangeSignificant(originalTime: Date, newTime: Date): boolean {
+    const timeDiff = Math.abs(newTime.getTime() - originalTime.getTime());
+    // 如果时间差超过15分钟（900000毫秒），则认为变化显著
+    return timeDiff >= 900000;
   }
 
   function handleHourClick(day: any, hour: number, minute: number = 0) {
@@ -69,6 +88,12 @@ export const createDayModule = (storeContext: any) => {
           const newEnd = new Date(day.date);
           newEnd.setHours(hour, minute, 0, 0);
 
+          // 检查时间变化是否显著
+          if (!isTimeChangeSignificant(new Date(originalEvent.end), newEnd)) {
+            event.preventDefault();
+            return;
+          }
+
           // 检查是否与现有事件重叠（排除当前事件）
           const hasOverlap = eventStore.events.some(
             (e) =>
@@ -95,6 +120,12 @@ export const createDayModule = (storeContext: any) => {
           newStart.setHours(hour, minute, 0, 0);
           const newEnd = new Date(newStart.getTime() + duration);
 
+          // 检查时间变化是否显著
+          if (!isTimeChangeSignificant(originalStart, newStart)) {
+            event.preventDefault();
+            return;
+          }
+
           // 检查是否与现有事件重叠（排除当前事件）
           const hasOverlap = eventStore.events.some(
             (e) =>
@@ -105,7 +136,7 @@ export const createDayModule = (storeContext: any) => {
           );
 
           // 如果新位置与当前位置不同，则更新事件
-          if (!hasOverlap && newStart.getTime() !== originalStart.getTime()) {
+          if (!hasOverlap) {
             eventStore.events[eventIndex] = {
               ...originalEvent,
               start: newStart,
@@ -124,5 +155,6 @@ export const createDayModule = (storeContext: any) => {
     dayViewEvents,
     handleHourClick,
     handleDropDay,
+    calculateDragOffset,
   };
 };

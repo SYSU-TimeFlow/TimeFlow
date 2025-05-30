@@ -232,6 +232,10 @@
                   backgroundColor: event.categoryColor + '33',
                   borderLeft: `3px solid ${event.categoryColor}`,
                   zIndex: 10,
+                  transform:
+                    uiStore.draggedEvent === event.id
+                      ? `translateY(${uiStore.calculateDragOffset(event)})`
+                      : 'none',
                 }"
                 @click.stop="
                   event.eventType === 'both'
@@ -385,6 +389,10 @@
                   backgroundColor: event.categoryColor + '33',
                   borderLeft: `3px solid ${event.categoryColor}`,
                   zIndex: '10',
+                  transform:
+                    uiStore.draggedEvent === event.id
+                      ? `translateY(${uiStore.calculateDragOffset(event)})`
+                      : 'none',
                 }"
                 @click.stop="
                   event.eventType === 'both'
