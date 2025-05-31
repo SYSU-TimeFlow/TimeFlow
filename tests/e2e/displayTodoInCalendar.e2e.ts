@@ -13,7 +13,7 @@ test('displayTodoInCalendar', async () => {
     // 该测试是在todo列表中添加一个事件，然后在日历中查看它是否可见
 
     await page.goto('http://localhost:5173/#/');
-    await page.getByRole('button', { name: 'To-Do' }).click();
+    await page.getByRole('button', { name: '待办' }).click();
     await page.getByRole('button', { name: '+ Add Event' }).click();
     await page.getByRole('textbox', { name: 'Enter task title' }).click();
     await page.getByRole('textbox', { name: 'Enter task title' }).fill('EventTypeBoth');
@@ -21,11 +21,8 @@ test('displayTodoInCalendar', async () => {
     await expect(page.getByText('EventTypeBoth')).toBeVisible();
     await page.getByRole('button', { name: '月' }).click();
     await expect(page.getByText('EventTypeBoth')).toBeVisible();
-    await page.getByRole('button', { name: 'To-Do' }).click();
+    await page.getByRole('button', { name: '待办' }).click();
     await page.getByRole('button', { name: '' }).click();
-
-    // dark mode
-    
   
     // ===============================================
     // |替换部分结束                                  |

@@ -42,7 +42,7 @@
           <!-- 日期头部，包含日期数字和添加事件按钮 -->
           <div
             :class="[
-              'day-header flex justify-between items-center p-1 rounded-t bg-inherit flex-shrink-0', 
+              'day-header flex justify-between items-center p-1 rounded-t bg-inherit flex-shrink-0',
               day.isToday ? 'bg-blue-50' : '',
             ]"
           >
@@ -74,7 +74,10 @@
             </span>
           </div>
           <!-- 当天事件列表容器 -->
-          <div class="day-events mt-1 space-y-1 pb-2 custom-scrollbar flex-grow overflow-auto"> <!-- MODIFIED: Added flex-grow overflow-auto -->
+          <div
+            class="day-events mt-1 space-y-1 pb-2 custom-scrollbar flex-grow overflow-auto"
+          >
+            <!-- MODIFIED: Added flex-grow overflow-auto -->
             <!-- 单个事件项 -->
             <div
               v-for="event in eventStore.getEventsForDay(new Date(day.date))"
@@ -159,62 +162,83 @@
       class="week-view flex-1 overflow-visible p-4"
     >
       <!-- 周视图网格布局 -->
-      <div class="grid grid-cols-1 max-h-[1664px] border border-gray-200">
+      <div class="grid grid-cols-1 max-h-[1664px]">
         <!-- sticky头部：日期栏+全天事件栏 -->
-        <div class="sticky top-0 z-30 bg-white shadow-sm">
+        <div class="sticky top-0 z-30 shadow-sm">
           <!-- 周视图头部，显示本周7天 -->
-          <div class="grid grid-cols-[80px_repeat(7,1fr)] border-b border-gray-200">
-          <!-- 左侧空白，用于对齐时间轴 -->
-          <div class="bg-white"></div>
-          <!-- 渲染每一天的表头（星期几和日期） -->
-          <div
-            v-for="(day, idx) in getWeekViewDays"
-            :key="idx"
-              class="day-header flex flex-col items-center justify-center p-2 bg-white"
-          >
-            <div class="text-sm font-medium">{{ day.dayName }}</div>
+          <div class="grid grid-cols-[80px_repeat(7,1fr)]">
+            <!-- 左侧空白，用于对齐时间轴 -->
+            <div></div>
+            <!-- 渲染每一天的表头（星期几和日期） -->
             <div
-              class="text-lg rounded-full w-8 h-8 flex items-center justify-center"
-              :class="{ 'bg-blue-600 text-white': day.isToday }"
+              v-for="(day, idx) in getWeekViewDays"
+              :key="idx"
+              class="day-header flex flex-col items-center justify-center p-2"
             >
-              {{ day.dayNumber }}
+              <div class="text-sm font-medium">{{ day.dayName }}</div>
+              <div
+                class="text-lg rounded-full w-8 h-8 flex items-center justify-center"
+                :class="{ 'bg-blue-600 text-white': day.isToday }"
+              >
+                {{ day.dayNumber }}
+              </div>
             </div>
           </div>
-        </div>
-                  <!-- 全天事件栏，仅当有全天事件时渲染 -->
+          <!-- 全天事件栏，仅当有全天事件时渲染 -->
           <div
-            v-if="getWeekViewDays.some(day => eventStore.getEventsForDay(new Date(day.date)).some(e => e.allDay))"
-            class="grid grid-cols-[80px_repeat(7,1fr)] bg-white border-b border-gray-100 h-[48px]"
-            style="height:28px;min-height:28px;max-height:28px;"
+            v-if="
+              getWeekViewDays.some((day) =>
+                eventStore
+                  .getEventsForDay(new Date(day.date))
+                  .some((e) => e.allDay)
+              )
+            "
+            class="grid grid-cols-[80px_repeat(7,1fr)] h-[48px]"
+            style="height: 28px; min-height: 28px; max-height: 28px"
           >
-            <div class="flex items-center justify-center text-xs font-semibold text-gray-500 h-[28px]">全天</div>
+            <div
+              class="flex items-center justify-center text-xs font-semibold text-gray-500 h-[28px]"
+            >
+              全天
+            </div>
             <div
               v-for="(day, idx) in getWeekViewDays"
               :key="'allday-' + idx"
               class="relative h-full overflow-hidden"
             >
-              <template v-for="(group, groupIdx) in uiStore.getEventGroups(eventStore.getEventsForDay(new Date(day.date)).filter(e => e.allDay))" :key="'allday-group-' + groupIdx">
+              <template
+                v-for="(group, groupIdx) in uiStore.getEventGroups(
+                  eventStore
+                    .getEventsForDay(new Date(day.date))
+                    .filter((e) => e.allDay)
+                )"
+                :key="'allday-group-' + groupIdx"
+              >
                 <div
                   v-for="(event, eventIdx) in group"
                   :key="event.id"
                   class="allday-bar absolute rounded px-2 py-0 truncate cursor-pointer border-l-2"
                   :style="{
                     top: `${groupIdx * 24 + 6}px`,
-                    left: `calc(${(100 / group.length) * eventIdx}% + 2px)` ,
-                    width: `calc(${100 / group.length}% - 4px)` ,
+                    left: `calc(${(100 / group.length) * eventIdx}% + 2px)`,
+                    width: `calc(${100 / group.length}% - 4px)`,
                     height: '20px',
                     backgroundColor: event.categoryColor + '22',
                     borderColor: event.categoryColor,
                     color: getContrastColor(event.categoryColor),
                     zIndex: 10 + groupIdx,
                   }"
-                  @click.stop="event.eventType === 'both' ? uiStore.openEditTodoModal(event) : uiStore.openEventDetails(event)"
+                  @click.stop="
+                    event.eventType === 'both'
+                      ? uiStore.openEditTodoModal(event)
+                      : uiStore.openEventDetails(event)
+                  "
                 >
                   <span
                     class="event-title text-sm font-medium truncate"
-                      :style="{
-                        color: getContrastColor(event.categoryColor),
-                      }"
+                    :style="{
+                      color: getContrastColor(event.categoryColor),
+                    }"
                   >
                     {{ event.title }}
                   </span>
@@ -224,7 +248,8 @@
           </div>
         </div>
         <!-- 周视图主体内容，包含时间标签和每天的事件列 -->
-        <div class="flex h-full pt-[12px]"> <!-- pt高度等于sticky头部高度，避免内容被遮挡 -->
+        <div class="flex h-full pt-[12px]">
+          <!-- pt高度等于sticky头部高度，避免内容被遮挡 -->
           <!-- 左侧时间标签列 -->
           <div class="time-labels border-r border-gray-200 pr-4 w-20">
             <!-- 渲染24小时的时间标签 -->
@@ -237,14 +262,14 @@
             </div>
           </div>
           <!-- 事件网格区：每一列代表一天 -->
-          <div class="flex-1 grid grid-cols-7 gap-1 p-1 relative">
+          <div class="flex-1 grid grid-cols-7 relative">
             <!-- 小时格子背景 -->
             <div v-for="hour in 24" :key="hour" class="contents">
               <div
                 v-for="(day, idx) in getWeekViewDays"
                 :key="idx"
-                class="hour-cell h-16 border-r border-gray-200 relative hover:!bg-gray-50 cursor-pointer select-none" 
-                style="z-index: 1"
+                class="hour-cell relative cursor-pointer select-none"
+                style="transform: translateY(8px); z-index: 1"
                 @click="uiStore.handleHourClick(day.date, hour - 1)"
                 @dragover.prevent
               ></div>
@@ -255,10 +280,10 @@
               :key="`week-line-${h_idx}`"
               class="absolute left-0 right-0"
               :style="{
-                top: `${(h_idx * 64) + 12}px`, // (hour_index * cell_height) + parent_padding_top (4px) + label_offset (8px)
+                top: `${(h_idx - 1) * 64 + 8}px`, // MODIFIED: Adjusted top calculation
                 height: '1px',
                 backgroundColor: 'var(--border-color)',
-                zIndex: 2 //确保线条在hour-cell背景之上，但在事件之下
+                zIndex: 0, //确保线条在hour-cell背景之上，但在事件之下
               }"
             ></div>
             <!-- 事件渲染区域 -->
@@ -273,112 +298,166 @@
               @dragover.prevent
               @drop="uiStore.handleWeekDrop($event, day)"
             >
-              <!-- 单个事件项（非全天事件） -->
-              <div
-                v-for="event in eventStore.getEventsForDay(new Date(day.date)).filter(e => !e.allDay)"
-                :key="event.id"
-                :class=" [
-                  'day-event absolute rounded-sm px-2 py-1 overflow-hidden cursor-pointer',
-                  event.eventType === 'both' ? 'both-event-week' : '',
-                ]"
-                :style="{
-                  top: `${calculateEventTop(event) + 8}px`,
-                  height: `${calculateEventHeight(event)}px`,
-                  left: '4px',
-                  right: '4px',
-                  backgroundColor: event.categoryColor + '33',
-                  borderLeft: `3px solid ${event.categoryColor}`,
-                  zIndex: '10',
-                  transform:
-                    uiStore.draggedEvent?.id === event.id
-                      ? `translateY(${uiStore.calculateDragOffset(event)})`
-                      : 'none',
-                }"
-                @click.stop="
-                  event.eventType === 'both'
-                    ? uiStore.openEditTodoModal(event)
-                    : uiStore.openEventDetails(event)
-                "
-                draggable="true"
-                @dragstart="uiStore.handleDragStart($event, event)"
+              <template
+                v-for="(group, groupIdx) in getEventGroups(
+                  eventStore.getEventsForDay(new Date(day.date))
+                )"
+                :key="groupIdx"
               >
-                <!-- 添加可拖动的上边框 -->
-                <div
-                  v-if="event.eventType !== 'both'"
-                  class="event-resize-handle top-handle"
-                  @mousedown.stop="
-                    uiStore.handleWeekEventResize($event, event, 'top')
-                  "
-                  @click.stop
-                ></div>
-                <!-- 添加可拖动的下边框 -->
-                <div
-                  v-if="event.eventType !== 'both'"
-                  class="event-resize-handle bottom-handle"
-                  @mousedown.stop="
-                    uiStore.handleWeekEventResize($event, event, 'bottom')
-                  "
-                  @click.stop
-                ></div>
-                <div class="flex items-center w-full">
-                  <!-- 自定义圆形复选框，仅点击时切换完成状态 -->
+                <!-- 判断分组内是否有重叠（即分组内事件数大于1） -->
+                <template v-if="group.length > 1">
+                  <!-- 显示+N，样式与事件块一致，背景色取第一个事件 -->
                   <div
-                    v-if="event.eventType === 'both'"
-                    class="w-3 h-3 rounded-full border flex items-center justify-center cursor-pointer mr-1"
-                    :class="
-                      event.completed
-                        ? 'bg-indigo-500 border-indigo-600'
-                        : 'border-gray-300'
-                    "
-                    @click.stop="eventStore.toggleTodo(event.id)"
-                  >
-                    <i
-                      v-if="event.completed"
-                      class="fas fa-check text-white text-[9px]"
-                    ></i>
-                  </div>
-                  <div
-                    class="event-time text-xs font-medium"
+                    class="day-event absolute rounded-sm px-2 py-1 overflow-hidden cursor-pointer flex items-center justify-center"
                     :style="{
-                      color: event.categoryColor,
-                      textDecoration:
-                        event.eventType === 'both' && event.completed
-                          ? 'line-through'
+                      top: `${
+                        Math.min(...group.map((e) => calculateEventTop(e))) + 8
+                      }px`,
+                      height: `${
+                        Math.max(
+                          ...group.map(
+                            (e) =>
+                              calculateEventTop(e) + calculateEventHeight(e)
+                          )
+                        ) -
+                          Math.min(...group.map((e) => calculateEventTop(e))) ||
+                        64
+                      }px`,
+                      left: '4px',
+                      right: '4px',
+                      backgroundColor: group[0].categoryColor + '33',
+                      borderLeft: `3px solid ${group[0].categoryColor}`,
+                      zIndex: 20,
+                      fontSize: '2rem',
+                      color: group[0].categoryColor,
+                      fontWeight: 'bold',
+                    }"
+                    @click="
+                      uiStore.currentView = 'day';
+                      uiStore.currentDate = day.date;
+                    "
+                  >
+                    +{{ group.length }}
+                  </div>
+                </template>
+                <template v-else>
+                  <!-- 正常显示不重叠的事件 -->
+                  <div
+                    v-for="event in group"
+                    :key="event.id"
+                    :class="[
+                      'day-event absolute rounded-sm px-2 py-1 overflow-hidden cursor-pointer',
+                      event.eventType === 'both' ? 'both-event-week' : '',
+                    ]"
+                    :style="{
+                      top: `${
+                        event.allDay ? 8 : calculateEventTop(event) + 8
+                      }px`,
+                      height: `${
+                        event.allDay ? 1536 : calculateEventHeight(event)
+                      }px`,
+                      left: '4px',
+                      right: '4px',
+                      backgroundColor: event.categoryColor + '33',
+                      borderLeft: `3px solid ${event.categoryColor}`,
+                      zIndex: '10',
+                      transform:
+                        uiStore.draggedEvent?.id === event.id
+                          ? `translateY(${uiStore.calculateDragOffset(event)})`
                           : 'none',
                     }"
+                    @click.stop="
+                      event.eventType === 'both'
+                        ? uiStore.openEditTodoModal(event)
+                        : uiStore.openEventDetails(event)
+                    "
+                    draggable="true"
+                    @dragstart="uiStore.handleDragStart($event, event)"
                   >
-                    {{
-                      event.eventType === "both"
-                        ? formatTime(new Date(event.end), settingStore.hour24)
-                        : formatEventTime(event, settingStore.hour24)
-                    }}
+                    <!-- 添加可拖动的上边框 -->
+                    <div
+                      v-if="!event.allDay"
+                      class="event-resize-handle top-handle"
+                      @mousedown.stop="
+                        uiStore.handleWeekEventResize($event, event, 'top')
+                      "
+                      @click.stop
+                    ></div>
+                    <!-- 添加可拖动的下边框 -->
+                    <div
+                      v-if="!event.allDay"
+                      class="event-resize-handle bottom-handle"
+                      @mousedown.stop="
+                        uiStore.handleWeekEventResize($event, event, 'bottom')
+                      "
+                      @click.stop
+                    ></div>
+                    <div class="flex items-center w-full">
+                      <!-- 自定义圆形复选框，仅点击时切换完成状态 -->
+                      <div
+                        v-if="event.eventType === 'both'"
+                        class="w-3 h-3 rounded-full border flex items-center justify-center cursor-pointer mr-1"
+                        :class="
+                          event.completed
+                            ? 'bg-indigo-500 border-indigo-600'
+                            : 'border-gray-300'
+                        "
+                        @click.stop="eventStore.toggleTodo(event.id)"
+                      >
+                        <i
+                          v-if="event.completed"
+                          class="fas fa-check text-white text-[9px]"
+                        ></i>
+                      </div>
+                      <div
+                        class="event-time text-xs font-medium"
+                        :style="{
+                          color: event.categoryColor,
+                          textDecoration:
+                            event.eventType === 'both' && event.completed
+                              ? 'line-through'
+                              : 'none',
+                        }"
+                      >
+                        {{
+                          event.allDay
+                            ? "All day"
+                            : event.eventType === "both"
+                            ? formatTime(
+                                new Date(event.end),
+                                settingStore.hour24
+                              )
+                            : formatEventTime(event, settingStore.hour24)
+                        }}
+                      </div>
+                    </div>
+                    <div
+                      class="event-title text-sm font-medium truncate"
+                      :style="{
+                        color: getContrastColor(event.categoryColor),
+                        textDecoration:
+                          event.eventType === 'both' && event.completed
+                            ? 'line-through'
+                            : 'none',
+                      }"
+                    >
+                      {{ event.title }}
+                    </div>
+                    <div
+                      v-if="event.description"
+                      class="event-description text-xs truncate text-gray-600"
+                      :style="{
+                        textDecoration:
+                          event.eventType === 'both' && event.completed
+                            ? 'line-through'
+                            : 'none',
+                      }"
+                    >
+                      {{ event.description }}
+                    </div>
                   </div>
-                </div>
-                <div
-                  class="event-title text-sm font-medium truncate"
-                  :style="{
-                    color: getContrastColor(event.categoryColor),
-                    textDecoration:
-                      event.eventType === 'both' && event.completed
-                        ? 'line-through'
-                        : 'none',
-                  }"
-                >
-                  {{ event.title }}
-                </div>
-                <div
-                  v-if="event.description"
-                  class="event-description text-xs truncate text-gray-600"
-                  :style="{
-                    textDecoration:
-                      event.eventType === 'both' && event.completed
-                        ? 'line-through'
-                        : 'none',
-                  }"
-                >
-                  {{ event.description }}
-                </div>
-              </div>
+                </template>
+              </template>
             </div>
           </div>
         </div>
@@ -401,35 +480,57 @@
         </div>
         <!-- 新增：全天事件栏，sticky 固定，仅有全天事件时渲染 -->
         <div
-          v-if="eventStore.getEventsForDay(new Date(uiStore.currentDate)).some(e => e.allDay)"
+          v-if="
+            eventStore
+              .getEventsForDay(new Date(uiStore.currentDate))
+              .some((e) => e.allDay)
+          "
           class="sticky top-0 z-30 bg-white border-b border-gray-100"
-          style="height:28px;min-height:28px;max-height:28px;"
+          style="height: 28px; min-height: 28px; max-height: 28px"
         >
           <div class="flex items-center h-full">
-            <div class="flex items-center justify-center text-xs font-semibold text-gray-500 h-[28px] w-16 flex-shrink-0">全天</div>
+            <div
+              class="flex items-center justify-center text-xs font-semibold text-gray-500 h-[28px] w-16 flex-shrink-0"
+            >
+              全天
+            </div>
             <div class="flex-1 relative h-full overflow-hidden">
-              <template v-for="(group, groupIdx) in uiStore.getEventGroups(eventStore.getEventsForDay(new Date(uiStore.currentDate)).filter(e => e.allDay))" :key="'allday-group-' + groupIdx">
+              <template
+                v-for="(group, groupIdx) in uiStore.getEventGroups(
+                  eventStore
+                    .getEventsForDay(new Date(uiStore.currentDate))
+                    .filter((e) => e.allDay)
+                )"
+                :key="'allday-group-' + groupIdx"
+              >
                 <div
                   v-for="(event, eventIdx) in group"
                   :key="event.id"
                   class="allday-bar absolute rounded px-2 py-0 truncate cursor-pointer border-l-2"
                   :style="{
                     top: `${groupIdx * 24 + 6}px`,
-                    left: `calc(${(100 / group.length) * eventIdx}% + 2px)` ,
-                    width: `calc(${100 / group.length}% - 4px)` ,
+                    left: `calc(${(100 / group.length) * eventIdx}% + 2px)`,
+                    width: `calc(${100 / group.length}% - 4px)`,
                     height: '20px',
                     backgroundColor: event.categoryColor + '22',
                     borderColor: event.categoryColor,
                     color: getContrastColor(event.categoryColor),
                     zIndex: 10 + groupIdx,
                   }"
-                  @click.stop="event.eventType === 'both' ? uiStore.openEditTodoModal(event) : uiStore.openEventDetails(event)"
+                  @click.stop="
+                    event.eventType === 'both'
+                      ? uiStore.openEditTodoModal(event)
+                      : uiStore.openEventDetails(event)
+                  "
                 >
                   <span
                     class="event-title text-sm font-medium truncate"
                     :style="{
                       color: getContrastColor(event.categoryColor),
-                      textDecoration: event.eventType === 'both' && event.completed ? 'line-through' : 'none',
+                      textDecoration:
+                        event.eventType === 'both' && event.completed
+                          ? 'line-through'
+                          : 'none',
                     }"
                   >
                     {{ event.title }}
@@ -472,7 +573,12 @@
                 v-for="hour in 24"
                 :key="hour"
                 class="time-slot h-16 relative"
-                @click="uiStore.handleHourClick(uiStore.currentDate, hour - 1)"
+                @click="
+                  uiStore.handleHourClick(
+                    { date: uiStore.currentDate },
+                    hour - 1
+                  )
+                "
                 @dragover.prevent
                 @drop="
                   uiStore.handleDayDrop($event, {
@@ -484,33 +590,56 @@
             </div>
             <!-- 事件渲染区域 -->
             <div class="events absolute top-0 left-0 right-0">
-              <template
+              <!-- 日视图事件渲染区域 -->
+              <div
                 v-for="(group, groupIdx) in uiStore.getEventGroups(
-                  eventStore.getEventsForDay(new Date(uiStore.currentDate)).filter(e => !e.allDay)
+                  eventStore
+                    .getEventsForDay(new Date(uiStore.currentDate))
+                    .filter((e) => !e.allDay)
                 )"
                 :key="groupIdx"
               >
                 <div
                   v-for="(event, idx) in group"
                   :key="event.id"
-                  :class=" [
+                  :class="[
                     'day-event absolute rounded-sm px-2 py-1 overflow-hidden cursor-pointer',
                     event.eventType === 'both' ? 'both-event-week' : '',
                   ]"
                   :style="{
-                    top: `${calculateEventTop(event) + 8}px`,
-                    height: `${calculateEventHeight(event)}px`,
-                    left: `calc(${(100 / group.length) * idx}% + 4px)` ,
-                    width: `calc(${100 / group.length}% - 8px)` ,
+                    // 对于待办事项，top始终为8px，height为截止时间到0点的高度
+                    top:
+                      event.eventType === 'both'
+                        ? '8px'
+                        : `${
+                            event.allDay ? 8 : calculateEventTop(event) + 8
+                          }px`,
+                    height:
+                      event.eventType === 'both'
+                        ? `${
+                            ((new Date(event.end).getHours() * 60 +
+                              new Date(event.end).getMinutes()) /
+                              60) *
+                            64
+                          }px`
+                        : `${
+                            event.allDay ? 1536 : calculateEventHeight(event)
+                          }px`,
+                    left: `calc(${(100 / group.length) * idx}% + 4px)`,
+                    width: `calc(${100 / group.length}% - 8px)`,
                     backgroundColor: event.categoryColor + '33',
                     borderLeft: `3px solid ${event.categoryColor}`,
                     zIndex: '10',
-                    transform: uiStore.draggedEvent && uiStore.draggedEvent.id === event.id
-                      ? `translateY(${uiStore.calculateDragOffset(event)})`
-                      : 'none',
+                    transform:
+                      uiStore.draggedEvent &&
+                      uiStore.draggedEvent.id === event.id
+                        ? `translateY(${uiStore.calculateDragOffset(event)})`
+                        : 'none',
                     pointerEvents: uiStore.draggedEvent
-                      ? (uiStore.draggedEvent.id === event.id ? 'auto' : 'none')
-                      : 'auto'
+                      ? uiStore.draggedEvent.id === event.id
+                        ? 'auto'
+                        : 'none'
+                      : 'auto',
                   }"
                   @click.stop="
                     event.eventType === 'both'
@@ -522,7 +651,7 @@
                 >
                   <!-- 添加可拖动的上边框 -->
                   <div
-                    v-if="event.eventType !== 'both'"
+                    v-if="!event.allDay"
                     class="event-resize-handle top-handle"
                     @mousedown.stop="
                       uiStore.handleDayEventResize($event, event, 'top')
@@ -531,7 +660,7 @@
                   ></div>
                   <!-- 添加可拖动的下边框 -->
                   <div
-                    v-if="event.eventType !== 'both'"
+                    v-if="!event.allDay"
                     class="event-resize-handle bottom-handle"
                     @mousedown.stop="
                       uiStore.handleDayEventResize($event, event, 'bottom')
@@ -597,7 +726,7 @@
                     {{ event.description }}
                   </div>
                 </div>
-              </template>
+              </div>
             </div>
           </div>
         </div>
@@ -659,16 +788,6 @@ const getWeekViewDays = computed(() => {
   right: 0;
   height: 3px;
   background-color: #3b82f6;
-}
-
-/* 日期单元格鼠标悬停时的背景色 */
-.calendar-day:hover {
-  background-color: #f9fafb;
-}
-
-/* 周/日视图中小时单元格鼠标悬停时的背景色 */
-.hour-cell:hover {
-  background-color: #f9fafb; /* 淡灰色背景 */
 }
 
 /* 调整周视图和日视图中的时间标签垂直对齐 */
@@ -741,7 +860,7 @@ const getWeekViewDays = computed(() => {
   border-color: currentColor;
 }
 
-.week-view > div:first-child,
+.week-view,
 .day-view > div:first-child {
   border: none;
   border-radius: 8px;
@@ -804,38 +923,6 @@ const getWeekViewDays = computed(() => {
   margin-bottom: 4px;
 }
 
-/* 优化小型滚动条样式，适合紧凑空间 */
-.calendar-day::-webkit-scrollbar {
-  width: 4px; /* 格子内滚动条更窄 */
-}
-
-.calendar-day::-webkit-scrollbar-thumb {
-  background: #c1c1c1;
-  border-radius: 2px;
-}
-
-.calendar-day:hover::-webkit-scrollbar-thumb {
-  background: #a0a0a0; /* 鼠标悬停时显示更明显的滚动条 */
-}
-
-/* 保持原有的自定义滚动条样式 */
-.custom-scrollbar::-webkit-scrollbar {
-  width: 8px;
-}
-
-.custom-scrollbar::-webkit-scrollbar-track {
-  background: #f1f1f1;
-}
-
-.custom-scrollbar::-webkit-scrollbar-thumb {
-  background: #c1c1c1;
-  border-radius: 4px;
-}
-
-.custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: #a0a0a0;
-}
-
 /* 主题颜色变量 */
 .calendar-main {
   background-color: var(--bg-primary);
@@ -855,22 +942,6 @@ const getWeekViewDays = computed(() => {
 .dark-mode .day-number {
   color: var(--date-number-color);
   font-weight: 500;
-}
-
-/* 暗黑模式下的标题优化 */
-.dark-mode .calendar-header h2,
-.dark-mode .calendar-header h1 {
-  color: var(--heading-color);
-}
-
-/* 今日日期高亮 */
-.dark-mode .is-today {
-  background-color: var(--calendar-today-bg);
-}
-
-/* 周末日期格子样式 */
-.dark-mode .is-weekend {
-  background-color: var(--calendar-weekend-bg);
 }
 
 /* 当月日期和非当月日期的区分 */
@@ -921,14 +992,6 @@ const getWeekViewDays = computed(() => {
   box-shadow: 0 0 0 1px rgba(74, 136, 229, 0.3);
 }
 
-/* 修改这些样式确保周视图和月视图的悬停效果一致 */
-.dark-mode .hour-cell:hover {
-  background-color: var(
-    --calendar-day-hover-bg
-  ) !important; /* 使用与calendar-day相同的变量 */
-  border-color: #4a88e5 !important;
-}
-
 /* 高亮边框样式调整 */
 .dark-mode .hour-cell:hover::after {
   content: "";
@@ -954,75 +1017,6 @@ const getWeekViewDays = computed(() => {
 .dark-mode .event-time {
   color: var(--event-time-color) !important; /* 使用新变量 */
   font-weight: 500; /* 稍微减轻字体粗细 */
-}
-
-/* 确保周视图下的小时格子悬停颜色更接近黑色背景 */
-.dark-mode .hour-cell:hover {
-  background-color: var(--hour-cell-hover) !important; /* 使用新变量 */
-}
-
-/* 确保样式优先级足够高以覆盖原有样式 */
-.dark-mode .hour-cell:hover::after {
-  border-color: #3b5998; /* 更柔和的边框颜色 */
-}
-
-/* 周视图和日视图格子样式统一与月视图 */
-/* 为事件网格添加间隙 */
-.week-view .flex-1.grid,
-.day-view .hours-grid {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap: 0.25rem; /* 添加间隙，与月视图的 gap-1 一致 */
-  padding: 0.25rem;
-}
-
-.day-view .hours-grid {
-  grid-template-columns: 1fr; /* 日视图是单列 */
-}
-
-/* 修改小时格子样式，使其有完整边框和适当间距 */
-.hour-cell {
-  border: 1px solid var(--border-color, #e5e7eb) !important; /* 完整边框替代单边框 */
-  border-radius: 0.25rem; /* 轻微圆角 */
-  margin: 1px;
-  transition: all 0.2s ease-in-out;
-}
-
-/* 移除原有的底部和右侧边框，使用新的完整边框 */
-.week-view .hour-cell,
-.day-view .hour-cell {
-  border-bottom: none;
-  border-right: none;
-}
-
-/* 统一悬停效果与月视图一致 */
-.hour-cell:hover {
-  background-color: #f9fafb !important;
-  border-color: #3b82f6 !important;
-  box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.3);
-  z-index: 5;
-}
-
-/* 移除原有的边框高亮效果 */
-.hour-cell:hover::after {
-  display: none;
-}
-
-/* 暗黑模式下的样式统一 */
-.dark-mode .hour-cell {
-  border-color: var(--border-color, #374151) !important;
-  background-color: var(--bg-secondary);
-}
-
-.dark-mode .hour-cell:hover {
-  background-color: var(--calendar-day-hover-bg) !important;
-  border-color: #4a88e5 !important;
-  box-shadow: 0 0 0 1px rgba(74, 136, 229, 0.3);
-}
-
-/* 移除暗黑模式中的额外边框效果 */
-.dark-mode .hour-cell:hover::after {
-  display: none;
 }
 
 /* Both类型事件（待办任务）的特殊样式 */
@@ -1109,71 +1103,16 @@ const getWeekViewDays = computed(() => {
   font-size: var(--small-text-font-size);
 }
 
-/* 月/周/日视图自定义复选框悬停效果，和ToDoList一致 */
-.event-item .w-3.h-3:hover,
-.day-event .w-3.h-3:hover,
-.both-event-week .w-3.h-3:hover {
-  box-shadow: 0 0 0 2px rgba(129, 140, 248, 0.2);
-  border-color: #818cf8;
-}
-.event-item .w-3.h-3.bg-indigo-500:hover,
-.day-event .w-3.h-3.bg-indigo-500:hover,
-.both-event-week .w-3.h-3.bg-indigo-500:hover {
-  border-color: #6366f1;
-}
-.event-item .w-3.h-3,
-.day-event .w-3.h-3,
-.both-event-week .w-3.h-3 {
-  border-color: #a3a3a3;
-}
-.event-item .w-3.h-3:not(.bg-indigo-500),
-.day-event .w-3.h-3:not(.bg-indigo-500),
-.both-event-week .w-3.h-3:not(.bg-indigo-500) {
-  background-color: #fff;
-}
-
 /* 去除周视图和日视图左侧时间轴与顶部表头的白色边框 */
 .week-view .time-labels,
-.day-view .time-labels {
-  border-right: none !important;
-  background: transparent !important;
-}
-
-.week-view .grid > .grid > div:first-child,
+.day-view .time-labels,
 .day-view .grid > .day-header {
-  border-bottom: none !important;
-  background: transparent !important;
+  border: none !important;
 }
 
-/* 去除月/周/日视图最上端的白色边框/白线 */
-.calendar-grid > .grid,
-.week-view > .grid,
-.day-view > .grid,
-.calendar-grid > .grid.mb-2 > div, /* MODIFIED: Made selector more specific for weekday headers */
-.week-view .grid > .grid > div,
-.day-view .day-header {
-  border-top: none !important;
-  background: transparent !important;
-}
-
-/* 针对月视图顶部星期栏的白线 */
-.calendar-grid .grid-cols-7 {
-  border-top: none !important;
-  background: transparent !important;
-}
-
-/* 暗黑模式下修正周视图表头背景、文字和底线颜色 */
-.dark-mode .week-view .day-header {
-  background-color: var(--bg-secondary) !important;
-  border-bottom: 1px solid var(--border-color) !important;
-}
 .dark-mode .week-view .day-header .text-sm,
 .dark-mode .week-view .day-header .text-lg {
   color: var(--text-tertiary) !important;
-}
-.dark-mode .week-view .bg-white {
-  background-color: var(--bg-secondary) !important;
-  border-bottom: 1px solid var(--border-color) !important;
 }
 
 /* 添加半小时格子的样式 */
@@ -1205,11 +1144,6 @@ const getWeekViewDays = computed(() => {
 
 .dark-mode .half-hour-cell:hover::after {
   border-color: #4a88e5;
-}
-
-/* 调整小时格子的边框样式 */
-.hour-cell {
-  border-bottom: 1px solid var(--border-color) !important;
 }
 
 .half-hour-cell {
@@ -1269,39 +1203,6 @@ const getWeekViewDays = computed(() => {
   border-color: #4a88e5;
 }
 
-/* 时间线样式 */
-.time-line {
-  position: absolute;
-  left: 0;
-  right: 0;
-  height: 1px;
-  background-color: var(--border-color);
-  z-index: 1;
-}
-
-/* 暗黑模式下的时间线样式 */
-.dark-mode .time-line {
-  background-color: var(--border-color);
-  opacity: 0.5;
-}
-
-/* 确保周视图的 hour-cell 没有底部边框 */
-.week-view .hour-cell {
-  border-bottom-width: 0 !important;
-}
-
-/* 确保事件在时间轴上方显示 */
-.day-event {
-  z-index: 10;
-}
-
-/* 移除原有的格子相关样式 */
-.hour-cell,
-.half-hour-cell,
-.hours-grid {
-  display: none;
-}
-
 /* 添加事件调整大小的手柄样式 */
 .event-resize-handle {
   position: absolute;
@@ -1310,14 +1211,6 @@ const getWeekViewDays = computed(() => {
   height: 6px;
   cursor: ns-resize;
   z-index: 20;
-}
-
-.event-resize-handle.top-handle {
-  top: 0;
-}
-
-.event-resize-handle.bottom-handle {
-  bottom: 0;
 }
 
 .event-resize-handle:hover {

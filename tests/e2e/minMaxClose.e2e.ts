@@ -23,7 +23,7 @@ test('min & max & close', async () => {
     // 最大化
     await page.getByRole('button', { name: '' }).click();
     // 等待窗口大小变化
-    await page.waitForTimeout(500); // 等待 1 秒钟以确保窗口大小变化
+    await page.waitForTimeout(1000); // 等待 1 秒钟以确保窗口大小变化
     const maxSize = await page.evaluate(() => {
       return {
         width: window.innerWidth,
@@ -37,7 +37,7 @@ test('min & max & close', async () => {
     await page.getByRole('button', { name: '' }).click();
 
     // 等待窗口大小变化
-    await page.waitForTimeout(500); // 等待 1 秒钟以确保窗口大小变化
+    await page.waitForTimeout(1000); // 等待 1 秒钟以确保窗口大小变化
 
     const returnSize = await page.evaluate(() => {
       return {

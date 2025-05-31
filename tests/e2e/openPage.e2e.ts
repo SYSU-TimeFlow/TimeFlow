@@ -46,14 +46,14 @@ test('openPages', async () => {
     await page.locator('buttonui').click();
     await expect(page.getByRole('heading', { name: 'New Event' })).toBeVisible();
     await page.getByRole('button', { name: '' }).nth(1).click();
-    await page.getByRole('button', { name: ' To-Do' }).click();
+    await page.getByRole('button', { name: ' 待办' }).click();
     await page.getByRole('button', { name: '+ Add Event' }).click();
     await expect(page.getByRole('heading', { name: 'New Todo' })).toBeVisible();
     await page.getByRole('button', { name: '' }).nth(1).click();
     await page.getByRole('heading', { name: 'TimeFlow' }).click();
-    await expect(page.getByText('Add Event View 月周日To-DoSynced')).not.toBeVisible();
+    await expect(page.getByText('Add Event View 月周日待办')).not.toBeVisible();
     await page.getByRole('heading', { name: 'TimeFlow' }).click();
-    await expect(page.getByText('Add Event View 月周日To-DoSynced')).toBeVisible();
+    await expect(page.getByText('Add Event View 月周日待办')).toBeVisible();
 
     // 模拟按下？打开快捷键帮助页面
     await page.keyboard.press('?');
