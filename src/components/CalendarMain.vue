@@ -532,6 +532,7 @@ import {
   calculateEventHeight,
   calculateEventTop,
   getContrastColor,
+  getEventGroups, // 新增
 } from "../utils";
 
 // 使用 Pinia 仓库
