@@ -393,7 +393,7 @@
             <!-- 事件渲染区域 -->
             <div class="events absolute top-0 left-0 right-0">
               <template
-                v-for="(group, groupIdx) in getEventGroups(
+                v-for="(group, groupIdx) in uiStore.getEventGroups(
                   eventStore.getEventsForDay(new Date(uiStore.currentDate))
                 )"
                 :key="groupIdx"
@@ -532,7 +532,6 @@ import {
   calculateEventHeight,
   calculateEventTop,
   getContrastColor,
-  getEventGroups, // 新增
 } from "../utils";
 
 // 使用 Pinia 仓库
