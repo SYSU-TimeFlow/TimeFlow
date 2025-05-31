@@ -416,7 +416,8 @@
             </div>
             <!-- 事件渲染区域 -->
             <div class="events absolute top-0 left-0 right-0">
-              <template
+              <!-- 日视图事件渲染区域 -->
+              <div
                 v-for="(group, groupIdx) in uiStore.getEventGroups(
                   eventStore.getEventsForDay(new Date(uiStore.currentDate))
                 )"
@@ -430,8 +431,11 @@
                     event.eventType === 'both' ? 'both-event-week' : '',
                   ]"
                   :style="{
-                    top: `${event.allDay ? 8 : calculateEventTop(event) + 8}px`,
-                    height: `${event.allDay ? 1536 : calculateEventHeight(event)}px`,
+                    // 对于待办事项，top始终为8px，height为截止时间到0点的高度
+                    top: event.eventType === 'both' ? '8px' : `${event.allDay ? 8 : calculateEventTop(event) + 8}px`,
+                    height: event.eventType === 'both'
+                      ? `${(new Date(event.end).getHours() * 60 + new Date(event.end).getMinutes()) / 60 * 64}px`
+                      : `${event.allDay ? 1536 : calculateEventHeight(event)}px`,
                     left: `calc(${(100 / group.length) * idx}% + 4px)`,
                     width: `calc(${100 / group.length}% - 8px)`,
                     backgroundColor: event.categoryColor + '33',
@@ -531,7 +535,7 @@
                     {{ event.description }}
                   </div>
                 </div>
-              </template>
+              </div>
             </div>
           </div>
         </div>
