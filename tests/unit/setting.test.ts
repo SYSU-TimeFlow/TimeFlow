@@ -34,13 +34,10 @@ beforeEach(() => {
           fontSize: "medium",
           iconStyle: "default",
           notifications: true,
-          notificationSound: false,
-          soundEffect: false,
           hour24: false,
           showLunar: false,
           weekStart: "0",
           language: "zh-CN",
-          synced: true,
         };
       }),
       // 模拟保存设置的saveSettings方法
@@ -74,13 +71,10 @@ describe("Setting Store", () => {
       expect(store.fontSize).toBe("medium");
       expect(store.iconStyle).toBe("default");
       expect(store.notifications).toBe(true);
-      expect(store.notificationSound).toBe(false);
-      expect(store.soundEffect).toBe(false);
       expect(store.hour24).toBe(false);
       expect(store.showLunar).toBe(false);
       expect(store.weekStart).toBe("0");
       expect(store.language).toBe("zh-CN");
-      expect(store.synced).toBe(true);
     });
 
     it("should call loadSettings on initialization", () => {
@@ -104,13 +98,10 @@ describe("Setting Store", () => {
         fontSize: "medium",
         iconStyle: "default",
         notifications: true,
-        notificationSound: false,
-        soundEffect: false,
         hour24: false,
         showLunar: false,
         weekStart: "0",
         language: "zh-CN",
-        synced: true,
       });
     });
 
@@ -120,13 +111,10 @@ describe("Setting Store", () => {
         fontSize: "large",
         iconStyle: "modern",
         notifications: false,
-        notificationSound: true,
-        soundEffect: true,
         hour24: true,
         showLunar: true,
         weekStart: "1",
         language: "en-US",
-        synced: false,
       };
 
       // @ts-ignore 模拟加载设置的返回值
@@ -140,13 +128,10 @@ describe("Setting Store", () => {
       expect(store.fontSize).toBe("large");
       expect(store.iconStyle).toBe("modern");
       expect(store.notifications).toBe(false);
-      expect(store.notificationSound).toBe(true);
-      expect(store.soundEffect).toBe(true);
       expect(store.hour24).toBe(true);
       expect(store.showLunar).toBe(true);
       expect(store.weekStart).toBe("1");
       expect(store.language).toBe("en-US");
-      expect(store.synced).toBe(false);
     });
 
     it("loadSettings - 加载的设置为空时应使用默认值", async () => {
@@ -165,14 +150,12 @@ describe("Setting Store", () => {
       const store = useSettingStore();
       store.themeMode = "dark";
       store.fontSize = "large";
-      store.synced = false;
 
       await store.resetSettings();
 
       // 验证是否重置为默认值
       expect(store.themeMode).toBe("light");
       expect(store.fontSize).toBe("medium");
-      expect(store.synced).toBe(true);
     });
   });
 
@@ -196,7 +179,6 @@ describe("Setting Store", () => {
     });
 
     it("应正确设置主题", async () => {
-      // 测试设置主题模式是否正确
       const store = useSettingStore();
       await store.setThemeMode("dark");
 
@@ -247,16 +229,6 @@ describe("Setting Store", () => {
   });
 
   describe("Other Settings", () => {
-    it("应切换同步设置", async () => {
-      const store = useSettingStore();
-      await store.toggleSync();
-
-      expect(store.synced).toBe(false);
-
-      await store.toggleSync();
-      expect(store.synced).toBe(true);
-    });
-
     it("应正确设置语言", async () => {
       const store = useSettingStore();
       await store.setLanguage("en-US");
@@ -276,13 +248,6 @@ describe("Setting Store", () => {
       await store.setNotifications(false);
 
       expect(store.notifications).toBe(false);
-    });
-
-    it("应正确开启或关闭通知音效", async () => {
-      const store = useSettingStore();
-      await store.setNotificationSound(true);
-
-      expect(store.notificationSound).toBe(true);
     });
 
     it("应正确设置24小时制", async () => {
