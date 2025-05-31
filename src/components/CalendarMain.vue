@@ -1071,7 +1071,7 @@ const getWeekViewDays = computed(() => {
 .calendar-grid > .grid,
 .week-view > .grid,
 .day-view > .grid,
-.calendar-grid .grid-cols-7 > div,
+.calendar-grid > .grid.mb-2 > div, /* MODIFIED: Made selector more specific for weekday headers */
 .week-view .grid > .grid > div,
 .day-view .day-header {
   border-top: none !important;
