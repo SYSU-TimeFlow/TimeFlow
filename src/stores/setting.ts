@@ -26,9 +26,6 @@ declare global {
 }
 
 export const useSettingStore = defineStore("setting", () => {
-  // 系统同步状态 - 将由加载的设置初始化
-  const synced = ref(true);
-
   // 设置项 - 将由加载的设置初始化
   const themeMode = ref("light");
   const fontSize = ref("medium");
@@ -52,7 +49,6 @@ export const useSettingStore = defineStore("setting", () => {
       showLunar: showLunar.value,
       weekStart: weekStart.value,
       language: language.value,
-      synced: synced.value,
     })
   );
 
@@ -106,8 +102,6 @@ export const useSettingStore = defineStore("setting", () => {
           typeof settings.showLunar === "boolean" ? settings.showLunar : false;
         weekStart.value = settings.weekStart || "0";
         language.value = settings.language || "zh-CN";
-        synced.value =
-          typeof settings.synced === "boolean" ? settings.synced : true;
 
         // 加载完设置后应用主题
         applyTheme(themeMode.value);
@@ -147,11 +141,6 @@ export const useSettingStore = defineStore("setting", () => {
 
   // =========================== END 主题管理代码 END ==============================
 
-  // 同步设置状态
-  async function toggleSync() {
-    synced.value = !synced.value;
-  }
-
   // 设置主题
   async function setThemeMode(newTheme: string) {
     themeMode.value = newTheme;
@@ -175,7 +164,6 @@ export const useSettingStore = defineStore("setting", () => {
     showLunar.value = false;
     weekStart.value = "0";
     language.value = "zh-CN";
-    synced.value = true; // 重置时 synced 也应为 true
 
     // 应用默认主题
     applyTheme("light");
@@ -524,7 +512,6 @@ export const useSettingStore = defineStore("setting", () => {
 
   return {
     // 状态变量
-    synced,
     themeMode,
     fontSize,
     iconStyle,
@@ -539,7 +526,6 @@ export const useSettingStore = defineStore("setting", () => {
     allSettings,
 
     // 设置操作方法
-    toggleSync,
     setThemeMode,
     setLanguage,
     setFontSize,

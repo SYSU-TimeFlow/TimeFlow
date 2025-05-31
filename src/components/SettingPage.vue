@@ -318,35 +318,6 @@
       </div>
       <!-- 空一行 -->
       <div class="text-gray-700"></div>
-      <!-- 其他小标题 -->
-      <div class="text-gray-500 text-sm font-semibold mb-2 mt-2">其他</div>
-      <!-- 系统同步 -->
-      <div class="mb-4 flex items-center justify-between">
-        <span class="flex items-center text-gray-700">
-          <svg
-            class="w-5 h-5 mr-2 text-teal-500"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            stroke-width="2"
-          >
-            <path
-              d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            />
-          </svg>
-          系统同步
-        </span>
-        <input
-          type="checkbox"
-          v-model="settingStore.synced"
-          class="toggle-checkbox accent-blue-600"
-        />
-      </div>
-
-      <!-- 空一行 -->
-      <div class="text-gray-700"></div>
       <!-- 联系我们小标题 -->
       <div class="text-gray-500 text-sm font-semibold mb-2 mt-2">联系我们</div>
       <!-- 关于 -->

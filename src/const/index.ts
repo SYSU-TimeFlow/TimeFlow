@@ -57,7 +57,6 @@ export interface Settings {
   showLunar: boolean;
   weekStart: string;
   language: string;
-  synced: boolean;
 }
 
 // 添加日期相关的接口定义
