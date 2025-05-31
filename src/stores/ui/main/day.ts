@@ -163,41 +163,27 @@ export const createDayModule = (storeContext: any) => {
           return;
         }
 
-        // 检查是否为待办类型事件
+        // 待办类型事件
         if (
           originalEvent.eventType === "both" &&
           new Date(originalEvent.start).getFullYear() <= 1970
         ) {
-          // 对于待办类型，修改截止日期(end)和时间
           const newEnd = new Date(day.date);
           newEnd.setHours(hour, minute, 0, 0);
 
           // 检查时间变化是否显著
           if (!isTimeChangeSignificant(new Date(originalEvent.end), newEnd)) {
-            event.preventDefault();
+            draggedEvent.value = null;
             return;
           }
 
-          // 检查是否与现有事件重叠（排除当前事件）
-          const hasOverlap = eventStore.events.some(
-            (e) =>
-              e.id !== originalEvent.id &&
-              e.eventType !== "both" && // 只检查与普通事件的重叠
-              ((newEnd >= new Date(e.start) && newEnd < new Date(e.end)) ||
-                (newEnd > new Date(e.start) && newEnd <= new Date(e.end)) ||
-                (newEnd <= new Date(e.start) && newEnd >= new Date(e.end)))
-          );
-
-          if (!hasOverlap) {
-            eventStore.events[eventIndex] = {
-              ...originalEvent,
-              end: newEnd,
-            };
-          } else {
-            event.preventDefault();
-          }
+          // 允许重叠，直接修改
+          eventStore.events[eventIndex] = {
+            ...originalEvent,
+            end: newEnd,
+          };
         } else {
-          // 普通事件的原有处理逻辑
+          // 普通事件
           const originalStart = new Date(originalEvent.start);
           const originalEnd = new Date(originalEvent.end);
           const duration = originalEnd.getTime() - originalStart.getTime();
@@ -208,30 +194,16 @@ export const createDayModule = (storeContext: any) => {
 
           // 检查时间变化是否显著
           if (!isTimeChangeSignificant(originalStart, newStart)) {
-            event.preventDefault();
+            draggedEvent.value = null;
             return;
           }
 
-          // 检查是否与现有事件重叠（排除当前事件）
-          const hasOverlap = eventStore.events.some(
-            (e) =>
-              e.id !== originalEvent.id &&
-              e.eventType !== "both" && // 只检查与普通事件的重叠
-              ((newStart >= new Date(e.start) && newStart < new Date(e.end)) ||
-                (newEnd > new Date(e.start) && newEnd <= new Date(e.end)) ||
-                (newStart <= new Date(e.start) && newEnd >= new Date(e.end)))
-          );
-
-          // 如果新位置与当前位置不同，则更新事件
-          if (!hasOverlap) {
-            eventStore.events[eventIndex] = {
-              ...originalEvent,
-              start: newStart,
-              end: newEnd,
-            };
-          } else {
-            event.preventDefault();
-          }
+          // 允许重叠，直接修改
+          eventStore.events[eventIndex] = {
+            ...originalEvent,
+            start: newStart,
+            end: newEnd,
+          };
         }
       }
     }
