@@ -62,20 +62,24 @@
               v-for="color in colorOptions"
               :key="color"
               :class="[
-                'color-option w-8 h-8 rounded-full border-2',
+                'color-option w-8 h-8 rounded-full border-2 relative flex items-center justify-center',
                 eventStore.currentCategory.color === color
                   ? 'border-gray-800'
                   : 'border-transparent',
                 eventStore.isColorUsed(color)
-                  ? 'opacity-40 cursor-not-allowed'
+                  ? 'opacity-60 cursor-not-allowed'
                   : 'cursor-pointer',
               ]"
               :style="{ backgroundColor: color }"
-              @click="eventStore.selectColor(color)"
+              @click="!eventStore.isColorUsed(color) && eventStore.selectColor(color)"
               :disabled="eventStore.isColorUsed(color)"
               :title="eventStore.isColorUsed(color) ? '此颜色已被使用' : ''"
               class="!rounded-button whitespace-nowrap"
-            ></button>
+            >
+              <span v-if="eventStore.isColorUsed(color)" class="absolute inset-0 flex items-center justify-center pointer-events-none">
+                <i class="fas fa-ban text-base text-gray-500"></i>
+              </span>
+            </button>
           </div>
         </div>
       </div>

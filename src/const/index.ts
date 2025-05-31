@@ -90,7 +90,7 @@ export const calendarViews = [
   { id: "month", label: "月", icon: "fa-calendar-alt" },
   { id: "week", label: "周", icon: "fa-calendar-week" },
   { id: "day", label: "日", icon: "fa-calendar-day" },
-  { id: "todo-list", label: "To-Do", icon: "fa-list-check" },
+  { id: "todo-list", label: "待办", icon: "fa-list-check" },
 ];
 
 // 农历数据表
