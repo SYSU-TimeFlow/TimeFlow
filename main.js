@@ -9,7 +9,6 @@ import isDev from "electron-is-dev";
 import WindowState from "electron-win-state";
 import Store from "electron-store"; // 新增：导入 electron-store
 import { initializeIpcHandlers } from "./ipcHandlers.js"; // 导入 IPC 处理模块（最大化最小化关闭、读取本地存储）
-import { log } from "console";
 
 // 获取当前文件的路径
 const __filename = fileURLToPath(import.meta.url);

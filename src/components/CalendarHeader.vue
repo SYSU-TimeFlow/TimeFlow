@@ -673,7 +673,6 @@ watch(isCogHovered, (hovered) => {
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis; /* 若空间不够，则截断超出的文字 */
-  transition: width 0.3s ease;
 }
 
 /* 当窗口宽度大于 1000px ，header-left 宽度就设为 40%，否则保持 30%。 */
