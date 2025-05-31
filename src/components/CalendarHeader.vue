@@ -235,26 +235,21 @@
             stroke-width="2"
           />
         </svg>
-        <!-- 暗模式：白色月亮，悬浮时轻微摇晃 -->
+        <!-- 暗模式：新的月亮图标 -->
         <svg
           v-else
           class="theme-moon"
-          :class="{ 'theme-moon-shake': themeBtnHover }"
-          width="22"
-          height="22"
-          viewBox="0 0 22 22"
+          width="19"
+          height="19"
+          viewBox="0 0 24 24"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
-          style="transform: translateY(1px)"
+          style="transform: translateX(5px)"
         >
-          <path
-            d="M17 15.5A7 7 0 0 1 8.5 5c0-.3 0-.6.1-.9A7 7 0 1 0 17 15.5Z"
-            fill="#fff"
-            stroke="#fff"
-            stroke-width="2"
-          />
-          <circle cx="15" cy="9" r="1" fill="#fff" />
-          <circle cx="13" cy="13" r="0.5" fill="#fff" />
+            <path
+            d="M19.5 17.5A9.5 9.5 0 0 1 10 3.26A9.503 9.503 0 0 0 10 22a9.5 9.5 0 0 0 9.5-4.5z"
+            fill="#ccc"
+            />
         </svg>
       </button>
       <!-- 设置按钮 -->
@@ -277,18 +272,21 @@
         <button
           class="header-icon-button p-1.5 rounded-l-md transition-colors"
           @click="electronAPI.minimize()"
+          title="最小化"
         >
           <i class="fas fa-window-minimize"></i>
         </button>
         <button
           class="header-icon-button p-1.5 transition-colors"
           @click="electronAPI.maximize()"
+          title="最大化/还原"
         >
           <i class="fas fa-window-maximize"></i>
         </button>
         <button
           class="header-icon-button p-1.5 rounded-r-md text-red-500 hover:text-red-700 transition-colors"
           @click="electronAPI.close()"
+          title="关闭应用"
         >
           <i class="fas fa-times"></i>
         </button>
@@ -1076,26 +1074,5 @@ button:has(.fa-times):hover {
   cursor: pointer;
   position: relative;
   overflow: hidden;
-}
-.theme-moon-shake {
-  animation: moon-shake 1.2s cubic-bezier(0.36, 0.07, 0.19, 0.97) infinite;
-}
-@keyframes moon-shake {
-  0%,
-  100% {
-    transform: rotate(0);
-  }
-  20% {
-    transform: rotate(-5deg);
-  }
-  40% {
-    transform: rotate(4deg);
-  }
-  60% {
-    transform: rotate(-3deg);
-  }
-  80% {
-    transform: rotate(2deg);
-  }
 }
 </style>
