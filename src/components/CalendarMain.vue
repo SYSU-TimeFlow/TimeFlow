@@ -472,7 +472,7 @@
                 v-for="hour in 24"
                 :key="hour"
                 class="time-slot h-16 relative"
-                @click="uiStore.handleHourClick(uiStore.currentDate, hour - 1)"
+                @click="uiStore.handleHourClick({ date: uiStore.currentDate }, hour - 1)"
                 @dragover.prevent
                 @drop="
                   uiStore.handleDayDrop($event, {
