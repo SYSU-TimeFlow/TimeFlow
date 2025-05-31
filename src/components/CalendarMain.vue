@@ -272,7 +272,7 @@
                   >
                     <!-- 添加可拖动的上边框 -->
                     <div
-                      v-if="!event.allDay && event.eventType !== 'both'"
+                      v-if="!event.allDay "
                       class="event-resize-handle top-handle"
                       @mousedown.stop="
                         uiStore.handleWeekEventResize($event, event, 'top')
@@ -281,7 +281,7 @@
                     ></div>
                     <!-- 添加可拖动的下边框 -->
                     <div
-                      v-if="!event.allDay && event.eventType !== 'both'"
+                      v-if="!event.allDay "
                       class="event-resize-handle bottom-handle"
                       @mousedown.stop="
                         uiStore.handleWeekEventResize($event, event, 'bottom')
@@ -458,7 +458,7 @@
                 >
                   <!-- 添加可拖动的上边框 -->
                   <div
-                    v-if="!event.allDay && event.eventType !== 'both'"
+                    v-if="!event.allDay"
                     class="event-resize-handle top-handle"
                     @mousedown.stop="
                       uiStore.handleDayEventResize($event, event, 'top')
@@ -467,7 +467,7 @@
                   ></div>
                   <!-- 添加可拖动的下边框 -->
                   <div
-                    v-if="!event.allDay && event.eventType !== 'both'"
+                    v-if="!event.allDay"
                     class="event-resize-handle bottom-handle"
                     @mousedown.stop="
                       uiStore.handleDayEventResize($event, event, 'bottom')
