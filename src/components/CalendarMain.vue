@@ -255,7 +255,7 @@
               :key="`week-line-${h_idx}`"
               class="absolute left-0 right-0"
               :style="{
-                top: `${(h_idx * 64) + 12}px`, // (hour_index * cell_height) + parent_padding_top (4px) + label_offset (8px)
+                top: `${((h_idx - 1) * 64) + 8}px`, // MODIFIED: Adjusted top calculation
                 height: '1px',
                 backgroundColor: 'var(--border-color)',
                 zIndex: 2 //确保线条在hour-cell背景之上，但在事件之下
