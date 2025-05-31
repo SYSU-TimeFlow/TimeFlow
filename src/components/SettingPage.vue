@@ -183,30 +183,6 @@
           class="toggle-checkbox accent-blue-600"
         />
       </div>
-      <!-- 声效开关 -->
-      <div class="mb-4 flex items-center justify-between">
-        <span class="flex items-center text-gray-700">
-          <svg
-            class="w-5 h-5 mr-2 text-indigo-500"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            viewBox="0 0 24 24"
-          >
-            <path
-              d="M9 19V6l-2 2H5a2 2 0 00-2 2v4a2 2 0 002 2h2l2 2zm7-2a4 4 0 000-8"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            />
-          </svg>
-          声效
-        </span>
-        <input
-          type="checkbox"
-          v-model="settingStore.soundEffect"
-          class="toggle-checkbox accent-blue-600"
-        />
-      </div>
       <!-- 空一行 -->
       <div class="text-gray-700"></div>
       <!-- 日期和时间小标题 -->
