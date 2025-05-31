@@ -399,8 +399,48 @@
           <!-- 日视图不再显示今天的时间和日期 -->
           <!-- <div class="text-2xl font-semibold">{{ uiStore.dayViewTitle }}</div> -->
         </div>
+        <!-- 新增：全天事件栏，sticky 固定，仅有全天事件时渲染 -->
+        <div
+          v-if="eventStore.getEventsForDay(new Date(uiStore.currentDate)).some(e => e.allDay)"
+          class="sticky top-0 z-30 bg-white border-b border-gray-100"
+          style="height:28px;min-height:28px;max-height:28px;"
+        >
+          <div class="flex items-center h-full">
+            <div class="flex items-center justify-center text-xs font-semibold text-gray-500 h-[28px] w-16 flex-shrink-0">全天</div>
+            <div class="flex-1 relative h-full overflow-hidden">
+              <template v-for="(group, groupIdx) in uiStore.getEventGroups(eventStore.getEventsForDay(new Date(uiStore.currentDate)).filter(e => e.allDay))" :key="'allday-group-' + groupIdx">
+                <div
+                  v-for="(event, eventIdx) in group"
+                  :key="event.id"
+                  class="allday-bar absolute rounded px-2 py-0 truncate cursor-pointer border-l-2"
+                  :style="{
+                    top: `${groupIdx * 24 + 6}px`,
+                    left: `calc(${(100 / group.length) * eventIdx}% + 2px)` ,
+                    width: `calc(${100 / group.length}% - 4px)` ,
+                    height: '20px',
+                    backgroundColor: event.categoryColor + '22',
+                    borderColor: event.categoryColor,
+                    color: getContrastColor(event.categoryColor),
+                    zIndex: 10 + groupIdx,
+                  }"
+                  @click.stop="event.eventType === 'both' ? uiStore.openEditTodoModal(event) : uiStore.openEventDetails(event)"
+                >
+                  <span
+                    class="event-title text-sm font-medium truncate"
+                    :style="{
+                      color: getContrastColor(event.categoryColor),
+                      textDecoration: event.eventType === 'both' && event.completed ? 'line-through' : 'none',
+                    }"
+                  >
+                    {{ event.title }}
+                  </span>
+                </div>
+              </template>
+            </div>
+          </div>
+        </div>
         <!-- 日视图主体内容，包含时间标签和事件列 -->
-        <div class="flex h-full">
+        <div class="flex h-full pt-[12px]">
           <!-- 左侧时间标签列 -->
           <div class="time-labels border-r border-gray-200 pr-4 w-20">
             <!-- 渲染24小时的时间标签 -->
@@ -446,22 +486,22 @@
             <div class="events absolute top-0 left-0 right-0">
               <template
                 v-for="(group, groupIdx) in uiStore.getEventGroups(
-                  eventStore.getEventsForDay(new Date(uiStore.currentDate))
+                  eventStore.getEventsForDay(new Date(uiStore.currentDate)).filter(e => !e.allDay)
                 )"
                 :key="groupIdx"
               >
                 <div
                   v-for="(event, idx) in group"
                   :key="event.id"
-                  :class="[
+                  :class=" [
                     'day-event absolute rounded-sm px-2 py-1 overflow-hidden cursor-pointer',
                     event.eventType === 'both' ? 'both-event-week' : '',
                   ]"
                   :style="{
-                    top: `${event.allDay ? 8 : calculateEventTop(event) + 8}px`,
-                    height: `${event.allDay ? 1536 : calculateEventHeight(event)}px`,
-                    left: `calc(${(100 / group.length) * idx}% + 4px)`,
-                    width: `calc(${100 / group.length}% - 8px)`,
+                    top: `${calculateEventTop(event) + 8}px`,
+                    height: `${calculateEventHeight(event)}px`,
+                    left: `calc(${(100 / group.length) * idx}% + 4px)` ,
+                    width: `calc(${100 / group.length}% - 8px)` ,
                     backgroundColor: event.categoryColor + '33',
                     borderLeft: `3px solid ${event.categoryColor}`,
                     zIndex: '10',
@@ -482,7 +522,7 @@
                 >
                   <!-- 添加可拖动的上边框 -->
                   <div
-                    v-if="!event.allDay && event.eventType !== 'both'"
+                    v-if="event.eventType !== 'both'"
                     class="event-resize-handle top-handle"
                     @mousedown.stop="
                       uiStore.handleDayEventResize($event, event, 'top')
@@ -491,7 +531,7 @@
                   ></div>
                   <!-- 添加可拖动的下边框 -->
                   <div
-                    v-if="!event.allDay && event.eventType !== 'both'"
+                    v-if="event.eventType !== 'both'"
                     class="event-resize-handle bottom-handle"
                     @mousedown.stop="
                       uiStore.handleDayEventResize($event, event, 'bottom')
@@ -526,9 +566,7 @@
                       }"
                     >
                       {{
-                        event.allDay
-                          ? "All day"
-                          : event.eventType === "both"
+                        event.eventType === "both"
                           ? formatTime(new Date(event.end), settingStore.hour24)
                           : formatEventTime(event, settingStore.hour24)
                       }}
