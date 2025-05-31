@@ -159,7 +159,7 @@
       class="week-view flex-1 overflow-visible p-4"
     >
       <!-- 周视图网格布局 -->
-      <div class="grid grid-cols-1 h-full border border-gray-200">
+      <div class="grid grid-cols-1 max-h-[1664px] border border-gray-200">
         <!-- sticky头部：日期栏+全天事件栏 -->
         <div class="sticky top-0 z-30 bg-white shadow-sm">
           <!-- 周视图头部，显示本周7天 -->
@@ -391,7 +391,7 @@
       class="day-view flex-1 overflow-visible p-4"
     >
       <!-- 日视图网格布局 -->
-      <div class="grid grid-cols-1 h-full border border-gray-200">
+      <div class="grid grid-cols-1 max-h-[1664px] border border-gray-200">
         <!-- 日视图头部，显示当前日期标题 -->
         <div
           class="day-header text-center p-4 border-b border-gray-200 bg-white"
