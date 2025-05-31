@@ -527,15 +527,6 @@
                     event.eventType === 'both' ? 'both-event-week' : '',
                   ]"
                   :style="{
-<<<<<<< HEAD
-<<<<<<< HEAD
-                    top: `${calculateEventTop(event) + 8}px`,
-                    height: `${calculateEventHeight(event)}px`,
-                    left: `calc(${(100 / group.length) * idx}% + 4px)` ,
-                    width: `calc(${100 / group.length}% - 8px)` ,
-=======
-=======
->>>>>>> cfe14058b04f979a7172942ee09cbfa7921c372d
                     // 对于待办事项，top始终为8px，height为截止时间到0点的高度
                     top: event.eventType === 'both' ? '8px' : `${event.allDay ? 8 : calculateEventTop(event) + 8}px`,
                     height: event.eventType === 'both'
@@ -543,7 +534,6 @@
                       : `${event.allDay ? 1536 : calculateEventHeight(event)}px`,
                     left: `calc(${(100 / group.length) * idx}% + 4px)`,
                     width: `calc(${100 / group.length}% - 8px)`,
->>>>>>> 1b7b81d (bugfix/修复视图排布显示)
                     backgroundColor: event.categoryColor + '33',
                     borderLeft: `3px solid ${event.categoryColor}`,
                     zIndex: '10',
@@ -564,15 +554,7 @@
                 >
                   <!-- 添加可拖动的上边框 -->
                   <div
-<<<<<<< HEAD
-<<<<<<< HEAD
-                    v-if="event.eventType !== 'both'"
-=======
                     v-if="!event.allDay"
->>>>>>> cfe1405 (bugfix/修复待办事项不能拖动的逻辑)
-=======
-                    v-if="!event.allDay"
->>>>>>> cfe14058b04f979a7172942ee09cbfa7921c372d
                     class="event-resize-handle top-handle"
                     @mousedown.stop="
                       uiStore.handleDayEventResize($event, event, 'top')
@@ -581,15 +563,7 @@
                   ></div>
                   <!-- 添加可拖动的下边框 -->
                   <div
-<<<<<<< HEAD
-<<<<<<< HEAD
-                    v-if="event.eventType !== 'both'"
-=======
                     v-if="!event.allDay"
->>>>>>> cfe1405 (bugfix/修复待办事项不能拖动的逻辑)
-=======
-                    v-if="!event.allDay"
->>>>>>> cfe14058b04f979a7172942ee09cbfa7921c372d
                     class="event-resize-handle bottom-handle"
                     @mousedown.stop="
                       uiStore.handleDayEventResize($event, event, 'bottom')
