@@ -196,17 +196,6 @@ export const useSettingStore = defineStore("setting", () => {
   // 设置周起始日
   async function setWeekStart(value: string) {
     weekStart.value = value;
-    // 立即应用周起始日变更
-    applyWeekStart(value);
-  }
-
-  /**
-   * 应用周起始日设置
-   * @param startDay 周起始日 ('0' 为周日, '1' 为周一)
-   */
-  function applyWeekStart(startDay: string) {
-    // 更新 UI 相关的周起始日设置
-    setWeekStart(startDay);
   }
 
   // 获取周起始日
