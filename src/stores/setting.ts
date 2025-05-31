@@ -35,7 +35,6 @@ export const useSettingStore = defineStore("setting", () => {
   const iconStyle = ref("default");
   const notifications = ref(true);
   const notificationSound = ref(false);
-  const soundEffect = ref(false);
   const hour24 = ref(false);
   const showLunar = ref(false);
   const weekStart = ref("0"); // 0 for Sunday, 1 for Monday
@@ -49,7 +48,6 @@ export const useSettingStore = defineStore("setting", () => {
       iconStyle: iconStyle.value,
       notifications: notifications.value,
       notificationSound: notificationSound.value,
-      soundEffect: soundEffect.value,
       hour24: hour24.value,
       showLunar: showLunar.value,
       weekStart: weekStart.value,
@@ -101,10 +99,6 @@ export const useSettingStore = defineStore("setting", () => {
         notificationSound.value =
           typeof settings.notificationSound === "boolean"
             ? settings.notificationSound
-            : false;
-        soundEffect.value =
-          typeof settings.soundEffect === "boolean"
-            ? settings.soundEffect
             : false;
         hour24.value =
           typeof settings.hour24 === "boolean" ? settings.hour24 : false;
@@ -177,7 +171,6 @@ export const useSettingStore = defineStore("setting", () => {
     iconStyle.value = "default";
     notifications.value = true;
     notificationSound.value = false;
-    soundEffect.value = false;
     hour24.value = false;
     showLunar.value = false;
     weekStart.value = "0";
@@ -212,11 +205,6 @@ export const useSettingStore = defineStore("setting", () => {
   // 设置通知声音
   async function setNotificationSound(value: boolean) {
     notificationSound.value = value;
-  }
-
-  // 设置音效
-  async function setSoundEffect(value: boolean) {
-    soundEffect.value = value;
   }
 
   // 设置24小时制
@@ -542,7 +530,6 @@ export const useSettingStore = defineStore("setting", () => {
     iconStyle,
     notifications,
     notificationSound,
-    soundEffect,
     hour24,
     showLunar,
     weekStart,
@@ -559,7 +546,6 @@ export const useSettingStore = defineStore("setting", () => {
     setIconStyle,
     setNotifications,
     setNotificationSound,
-    setSoundEffect,
     setHour24,
     setShowLunar,
     setWeekStart,

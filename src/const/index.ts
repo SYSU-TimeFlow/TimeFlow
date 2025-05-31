@@ -53,7 +53,6 @@ export interface Settings {
   iconStyle: string;
   notifications: boolean;
   notificationSound: boolean;
-  soundEffect: boolean;
   hour24: boolean;
   showLunar: boolean;
   weekStart: string;
