@@ -12,7 +12,7 @@
     class="app-header drag bg-white border-b border-gray-200 px-6 py-3 flex items-center"
   >
     <!-- 左侧区域：TimeFlow标题和日历标题 -->
-    <div class="header-left flex items-center flex-shrink-0 mr-6">
+    <div class="header-left flex items-center flex-shrink mr-6">
       <h1
         class="text-xl font-semibold text-gray-800 mr-6 no-drag cursor-pointer"
         @click="uiStore.toggleSidebar()"
@@ -671,11 +671,23 @@ watch(isCogHovered, (hovered) => {
 
 /* 区域布局控制 */
 .header-left {
-  width: 25%;
+  width: 30%;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis; /* 若空间不够，则截断超出的文字 */
+  transition: width 0.3s ease;
+}
+
+/* 当窗口宽度大于 1000px ，header-left 宽度就设为 40%，否则保持 30%。 */
+@media (min-width: 1000px) {
+  .header-left {
+    width: 40%;
+  }
 }
 
 .header-center {
-  width: 55%;
+  padding-left: 0;
+  width: 40%;
 }
 
 .header-right {

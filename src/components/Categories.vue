@@ -27,6 +27,7 @@
       <div
         v-for="category in eventStore.categories"
         :key="category.id"
+        :title="uiStore.sidebarCollapsed ? category.name : ''"
         :class="[
           'category-item flex items-center py-2 px-3 rounded-lg cursor-pointer hover:bg-gray-200',
           category.active ? '' : 'opacity-50', // 如果分类未激活，则降低其不透明度
