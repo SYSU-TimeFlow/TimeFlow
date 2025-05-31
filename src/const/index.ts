@@ -52,7 +52,6 @@ export interface Settings {
   fontSize: string;
   iconStyle: string;
   notifications: boolean;
-  notificationSound: boolean;
   hour24: boolean;
   showLunar: boolean;
   weekStart: string;

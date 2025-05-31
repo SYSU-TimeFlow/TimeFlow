@@ -156,33 +156,6 @@
           class="toggle-checkbox accent-blue-600"
         />
       </div>
-      <!-- 通知声音 -->
-      <div class="mb-4 flex items-center justify-between">
-        <span class="flex items-center text-gray-700">
-          <!-- 音符图标 -->
-          <svg
-            class="w-5 h-5 mr-2 text-blue-400"
-            fill="none"
-            viewBox="0 0 24 24"
-          >
-            <path
-              d="M9 18V5l12-2v13"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            />
-            <circle cx="6" cy="18" r="3" fill="currentColor" opacity="0.2" />
-            <circle cx="18" cy="16" r="3" fill="currentColor" opacity="0.2" />
-          </svg>
-          通知声音
-        </span>
-        <input
-          type="checkbox"
-          v-model="settingStore.notificationSound"
-          class="toggle-checkbox accent-blue-600"
-        />
-      </div>
       <!-- 空一行 -->
       <div class="text-gray-700"></div>
       <!-- 日期和时间小标题 -->
