@@ -217,116 +217,140 @@
               @dragover.prevent
               @drop="uiStore.handleWeekDrop($event, day)"
             >
-              <!-- 单个事件项 -->
-              <div
-                v-for="event in eventStore.getEventsForDay(new Date(day.date))"
-                :key="event.id"
-                :class="[
-                  'day-event absolute rounded-sm px-2 py-1 overflow-hidden cursor-pointer',
-                  event.eventType === 'both' ? 'both-event-week' : '',
-                ]"
-                :style="{
-                  top: `${event.allDay ? 8 : calculateEventTop(event) + 8}px`, // 全天事件固定在顶部
-                  height: `${
-                    event.allDay ? 1536 : calculateEventHeight(event)
-                  }px`, // 全天事件高度为24小时
-                  left: '4px',
-                  right: '4px',
-                  backgroundColor: event.categoryColor + '33',
-                  borderLeft: `3px solid ${event.categoryColor}`,
-                  zIndex: '10',
-                  transform:
-                    uiStore.draggedEvent?.id === event.id
-                      ? `translateY(${uiStore.calculateDragOffset(event)})`
-                      : 'none',
-                }"
-                @click.stop="
-                  event.eventType === 'both'
-                    ? uiStore.openEditTodoModal(event)
-                    : uiStore.openEventDetails(event)
-                "
-                draggable="true"
-                @dragstart="uiStore.handleDragStart($event, event)"
-              >
-                <!-- 添加可拖动的上边框 -->
-                <div
-                  v-if="!event.allDay && event.eventType !== 'both'"
-                  class="event-resize-handle top-handle"
-                  @mousedown.stop="
-                    uiStore.handleWeekEventResize($event, event, 'top')
-                  "
-                  @click.stop
-                ></div>
-                <!-- 添加可拖动的下边框 -->
-                <div
-                  v-if="!event.allDay && event.eventType !== 'both'"
-                  class="event-resize-handle bottom-handle"
-                  @mousedown.stop="
-                    uiStore.handleWeekEventResize($event, event, 'bottom')
-                  "
-                  @click.stop
-                ></div>
-                <div class="flex items-center w-full">
-                  <!-- 自定义圆形复选框，仅点击时切换完成状态 -->
+              <template v-for="(group, groupIdx) in getEventGroups(eventStore.getEventsForDay(new Date(day.date)))" :key="groupIdx">
+                <!-- 判断分组内是否有重叠（即分组内事件数大于1） -->
+                <template v-if="group.length > 1">
+                  <!-- 显示+N，样式与事件块一致，背景色取第一个事件 -->
                   <div
-                    v-if="event.eventType === 'both'"
-                    class="w-3 h-3 rounded-full border flex items-center justify-center cursor-pointer mr-1"
-                    :class="
-                      event.completed
-                        ? 'bg-indigo-500 border-indigo-600'
-                        : 'border-gray-300'
-                    "
-                    @click.stop="eventStore.toggleTodo(event.id)"
-                  >
-                    <i
-                      v-if="event.completed"
-                      class="fas fa-check text-white text-[9px]"
-                    ></i>
-                  </div>
-                  <div
-                    class="event-time text-xs font-medium"
+                    class="day-event absolute rounded-sm px-2 py-1 overflow-hidden cursor-pointer flex items-center justify-center"
                     :style="{
-                      color: event.categoryColor,
-                      textDecoration:
-                        event.eventType === 'both' && event.completed
-                          ? 'line-through'
+                      top: `${Math.min(...group.map(e => calculateEventTop(e))) + 8}px`,
+                      height: `${Math.max(...group.map(e => calculateEventTop(e) + calculateEventHeight(e))) - Math.min(...group.map(e => calculateEventTop(e))) || 64}px`,
+                      left: '4px',
+                      right: '4px',
+                      backgroundColor: group[0].categoryColor + '33',
+                      borderLeft: `3px solid ${group[0].categoryColor}`,
+                      zIndex: 20,
+                      fontSize: '2rem',
+                      color: group[0].categoryColor,
+                      fontWeight: 'bold',
+                    }"
+                    @click="uiStore.currentView = 'day'; uiStore.currentDate = day.date"
+                  >
+                    +{{ group.length }}
+                  </div>
+                </template>
+                <template v-else>
+                  <!-- 正常显示不重叠的事件 -->
+                  <div
+                    v-for="event in group"
+                    :key="event.id"
+                    :class="[
+                      'day-event absolute rounded-sm px-2 py-1 overflow-hidden cursor-pointer',
+                      event.eventType === 'both' ? 'both-event-week' : '',
+                    ]"
+                    :style="{
+                      top: `${event.allDay ? 8 : calculateEventTop(event) + 8}px`,
+                      height: `${event.allDay ? 1536 : calculateEventHeight(event)}px`,
+                      left: '4px',
+                      right: '4px',
+                      backgroundColor: event.categoryColor + '33',
+                      borderLeft: `3px solid ${event.categoryColor}`,
+                      zIndex: '10',
+                      transform:
+                        uiStore.draggedEvent?.id === event.id
+                          ? `translateY(${uiStore.calculateDragOffset(event)})`
                           : 'none',
                     }"
+                    @click.stop="
+                      event.eventType === 'both'
+                        ? uiStore.openEditTodoModal(event)
+                        : uiStore.openEventDetails(event)
+                    "
+                    draggable="true"
+                    @dragstart="uiStore.handleDragStart($event, event)"
                   >
-                    {{
-                      event.allDay
-                        ? "All day"
-                        : event.eventType === "both"
-                        ? formatTime(new Date(event.end), settingStore.hour24)
-                        : formatEventTime(event, settingStore.hour24)
-                    }}
+                    <!-- 添加可拖动的上边框 -->
+                    <div
+                      v-if="!event.allDay && event.eventType !== 'both'"
+                      class="event-resize-handle top-handle"
+                      @mousedown.stop="
+                        uiStore.handleWeekEventResize($event, event, 'top')
+                      "
+                      @click.stop
+                    ></div>
+                    <!-- 添加可拖动的下边框 -->
+                    <div
+                      v-if="!event.allDay && event.eventType !== 'both'"
+                      class="event-resize-handle bottom-handle"
+                      @mousedown.stop="
+                        uiStore.handleWeekEventResize($event, event, 'bottom')
+                      "
+                      @click.stop
+                    ></div>
+                    <div class="flex items-center w-full">
+                      <!-- 自定义圆形复选框，仅点击时切换完成状态 -->
+                      <div
+                        v-if="event.eventType === 'both'"
+                        class="w-3 h-3 rounded-full border flex items-center justify-center cursor-pointer mr-1"
+                        :class="
+                          event.completed
+                            ? 'bg-indigo-500 border-indigo-600'
+                            : 'border-gray-300'
+                        "
+                        @click.stop="eventStore.toggleTodo(event.id)"
+                      >
+                        <i
+                          v-if="event.completed"
+                          class="fas fa-check text-white text-[9px]"
+                        ></i>
+                      </div>
+                      <div
+                        class="event-time text-xs font-medium"
+                        :style="{
+                          color: event.categoryColor,
+                          textDecoration:
+                            event.eventType === 'both' && event.completed
+                              ? 'line-through'
+                              : 'none',
+                        }"
+                      >
+                        {{
+                          event.allDay
+                            ? "All day"
+                            : event.eventType === "both"
+                            ? formatTime(new Date(event.end), settingStore.hour24)
+                            : formatEventTime(event, settingStore.hour24)
+                        }}
+                      </div>
+                    </div>
+                    <div
+                      class="event-title text-sm font-medium truncate"
+                      :style="{
+                        color: getContrastColor(event.categoryColor),
+                        textDecoration:
+                          event.eventType === 'both' && event.completed
+                            ? 'line-through'
+                            : 'none',
+                      }"
+                    >
+                      {{ event.title }}
+                    </div>
+                    <div
+                      v-if="event.description"
+                      class="event-description text-xs truncate text-gray-600"
+                      :style="{
+                        textDecoration:
+                          event.eventType === 'both' && event.completed
+                            ? 'line-through'
+                            : 'none',
+                      }"
+                    >
+                      {{ event.description }}
+                    </div>
                   </div>
-                </div>
-                <div
-                  class="event-title text-sm font-medium truncate"
-                  :style="{
-                    color: getContrastColor(event.categoryColor),
-                    textDecoration:
-                      event.eventType === 'both' && event.completed
-                        ? 'line-through'
-                        : 'none',
-                  }"
-                >
-                  {{ event.title }}
-                </div>
-                <div
-                  v-if="event.description"
-                  class="event-description text-xs truncate text-gray-600"
-                  :style="{
-                    textDecoration:
-                      event.eventType === 'both' && event.completed
-                        ? 'line-through'
-                        : 'none',
-                  }"
-                >
-                  {{ event.description }}
-                </div>
-              </div>
+                </template>
+              </template>
             </div>
           </div>
         </div>
