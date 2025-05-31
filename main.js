@@ -15,8 +15,6 @@ import { log } from "console";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-console.log(app.name);
-
 if (process.platform === "win32") {
   // Windows 平台下设置通知标题为应用名称，即 TimeFlow
   app.setAppUserModelId(app.name);
