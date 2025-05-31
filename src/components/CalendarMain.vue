@@ -30,7 +30,7 @@
           v-for="(day, index) in getMonthDays"
           :key="index"
           :class="[
-            'calendar-day border border-gray-200 h-[180px] p-1 relative overflow-auto',
+            'calendar-day border border-gray-200 h-[180px] p-1 relative flex flex-col', // MODIFIED: Added flex flex-col
             day.isCurrentMonth ? 'bg-white' : 'bg-gray-200',
             day.isToday ? 'today' : '',
             day.isWeekend ? 'weekend' : '',
@@ -42,7 +42,7 @@
           <!-- 日期头部，包含日期数字和添加事件按钮 -->
           <div
             :class="[
-              'day-header flex justify-between items-center p-1 rounded-t sticky top-0 z-10 bg-inherit',
+              'day-header flex justify-between items-center p-1 rounded-t bg-inherit flex-shrink-0', 
               day.isToday ? 'bg-blue-50' : '',
             ]"
           >
@@ -74,7 +74,7 @@
             </span>
           </div>
           <!-- 当天事件列表容器 -->
-          <div class="day-events mt-1 space-y-1 pb-2 custom-scrollbar">
+          <div class="day-events mt-1 space-y-1 pb-2 custom-scrollbar flex-grow overflow-auto"> <!-- MODIFIED: Added flex-grow overflow-auto -->
             <!-- 单个事件项 -->
             <div
               v-for="event in eventStore.getEventsForDay(new Date(day.date))"
@@ -700,24 +700,13 @@ const getWeekViewDays = computed(() => {
   height: auto !important;
   min-height: 120px;
   max-height: 180px;
-  overflow: auto;
-  overflow-x: hidden; /* 只允许垂直滚动 */
   padding-bottom: 8px; /* 增加底部内边距，确保内容可完全滚动 */
 }
 
 /* 让日期头部固定在顶部，不随着滚动而消失 */
 .calendar-day .day-header {
-  position: sticky;
-  top: 0;
   background-color: inherit;
-  z-index: 10;
   margin-bottom: 4px; /* 增加标题和内容的间距 */
-}
-
-/* 确保事件列表能够正确展示 */
-.day-events {
-  height: auto;
-  overflow: visible; /* 移除内层滚动，让外层容器控制滚动 */
 }
 
 /* 确保最后一个事件也有足够的底部空间 */
