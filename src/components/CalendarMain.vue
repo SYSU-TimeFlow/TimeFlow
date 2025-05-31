@@ -236,7 +236,7 @@
                   borderLeft: `3px solid ${event.categoryColor}`,
                   zIndex: '10',
                   transform:
-                    uiStore.draggedEvent === event.id
+                    uiStore.draggedEvent?.id === event.id
                       ? `translateY(${uiStore.calculateDragOffset(event)})`
                       : 'none',
                 }"
@@ -393,7 +393,7 @@
             <!-- 事件渲染区域 -->
             <div class="events absolute top-0 left-0 right-0">
               <template
-                v-for="(group, groupIdx) in getEventGroups(
+                v-for="(group, groupIdx) in uiStore.getEventGroups(
                   eventStore.getEventsForDay(new Date(uiStore.currentDate))
                 )"
                 :key="groupIdx"

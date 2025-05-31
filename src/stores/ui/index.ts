@@ -11,7 +11,7 @@ import { createTodoModule } from "./main/todo";
 import { createViewModule } from "./sidebar/view";
 import { createCategoryModule } from "./sidebar/category";
 
-import { CalendarDay, WeekViewDay } from "../../const";
+import { CalendarDay, WeekViewDay, Event } from "../../const";
 
 export const useUiStore = defineStore("ui", () => {
   // 核心状态
@@ -19,7 +19,7 @@ export const useUiStore = defineStore("ui", () => {
   const currentDate = ref(new Date());
   const selectedDate = ref(new Date());
   const sidebarCollapsed = ref(false);
-  const draggedEvent = ref(null);
+  const draggedEvent = ref<Event | null>(null);
   const appMode = ref<"normal" | "command">("normal");
   const isSearchActive = ref(false);
 
