@@ -199,12 +199,24 @@
               <div
                 v-for="(day, idx) in getWeekViewDays"
                 :key="idx"
-                class="hour-cell h-16 border-b border-r border-gray-200 relative hover:!bg-gray-50 cursor-pointer select-none"
+                class="hour-cell h-16 border-r border-gray-200 relative hover:!bg-gray-50 cursor-pointer select-none" 
                 style="z-index: 1"
                 @click="uiStore.handleHourClick(day.date, hour - 1)"
                 @dragover.prevent
               ></div>
             </div>
+            <!-- 新增：周视图的每小时横线 -->
+            <div
+              v-for="h_idx in 24"
+              :key="`week-line-${h_idx}`"
+              class="absolute left-0 right-0"
+              :style="{
+                top: `${(h_idx * 64) + 12}px`, // (hour_index * cell_height) + parent_padding_top (4px) + label_offset (8px)
+                height: '1px',
+                backgroundColor: 'var(--border-color)',
+                zIndex: 2 //确保线条在hour-cell背景之上，但在事件之下
+              }"
+            ></div>
             <!-- 事件渲染区域 -->
             <div
               v-for="(day, idx) in getWeekViewDays"
@@ -1193,6 +1205,11 @@ const getWeekViewDays = computed(() => {
 .dark-mode .time-line {
   background-color: var(--border-color);
   opacity: 0.5;
+}
+
+/* 确保周视图的 hour-cell 没有底部边框 */
+.week-view .hour-cell {
+  border-bottom-width: 0 !important;
 }
 
 /* 确保事件在时间轴上方显示 */
