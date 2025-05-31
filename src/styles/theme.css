@@ -99,8 +99,8 @@
   --modal-input-text: #f0f6fc; /* 输入框文字更亮 */
   --modal-input-border: #30363d; /* 输入框边框 */
   --modal-button-text: #ffffff; /* 按钮文字纯白 */
-  --modal-button-bg: #238636; /* 绿色主按钮 */
-  --modal-button-hover: #2ea043; /* 绿色按钮悬停 */
+  --modal-button-bg: #58a6ff; /* 浅蓝色主按钮 */
+  --modal-button-hover: #79b8ff; /* 浅蓝色按钮悬停 */
   --modal-button-secondary: #21262d; /* 次要按钮背景 */
   --modal-button-secondary-hover: #30363d; /* 次要按钮悬停 */
   --modal-shadow: 0 16px 32px rgba(1, 4, 9, 0.85); /* 更明显的阴影 */
