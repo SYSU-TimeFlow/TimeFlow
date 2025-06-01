@@ -15,27 +15,6 @@ export const createHeaderModule = (storeContext: any) => {
 
   const eventStore = useEventStore();
 
-  // 计算属性
-  const weekDays = computed(() => [
-    "星期日",
-    "星期一",
-    "星期二",
-    "星期三",
-    "星期四",
-    "星期五",
-    "星期六",
-  ]);
-
-  const weekDaysShort = computed(() => [
-    "日",
-    "一",
-    "二",
-    "三",
-    "四",
-    "五",
-    "六",
-  ]);
-
   // 主日历标题
   const calendarTitle = computed(() => {
     const options: Intl.DateTimeFormatOptions = {
@@ -351,8 +330,6 @@ export const createHeaderModule = (storeContext: any) => {
 
   return {
     calendarViews,
-    weekDays,
-    weekDaysShort,
     calendarTitle,
     dayViewTitle,
     searchInputValue,
