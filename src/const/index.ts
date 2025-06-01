@@ -52,13 +52,10 @@ export interface Settings {
   fontSize: string;
   iconStyle: string;
   notifications: boolean;
-  notificationSound: boolean;
-  soundEffect: boolean;
   hour24: boolean;
   showLunar: boolean;
   weekStart: string;
   language: string;
-  synced: boolean;
 }
 
 // 添加日期相关的接口定义

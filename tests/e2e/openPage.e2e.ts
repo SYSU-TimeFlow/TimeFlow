@@ -51,9 +51,9 @@ test('openPages', async () => {
     await expect(page.getByRole('heading', { name: 'New Todo' })).toBeVisible();
     await page.getByRole('button', { name: '' }).nth(1).click();
     await page.getByRole('heading', { name: 'TimeFlow' }).click();
-    await expect(page.getByText('Add Event View 月周日待办Synced')).not.toBeVisible();
+    await expect(page.getByText('Add Event View 月周日待办')).not.toBeVisible();
     await page.getByRole('heading', { name: 'TimeFlow' }).click();
-    await expect(page.getByText('Add Event View 月周日待办Synced')).toBeVisible();
+    await expect(page.getByText('Add Event View 月周日待办')).toBeVisible();
 
     // 模拟按下？打开快捷键帮助页面
     await page.keyboard.press('?');

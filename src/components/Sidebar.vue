@@ -66,24 +66,6 @@
     <ViewSelector />
     <!-- 分类列表，它不会在 todo 视图显示 -->
     <Categories v-if="uiStore.currentView !== 'todo-list'" />
-    <!-- 同步状态指示器，固定在侧边栏底部 -->
-    <div class="sync-status mt-auto mx-4 my-3 flex items-center">
-      <!-- 同步状态小圆点 -->
-      <span
-        :class="[
-          'sync-indicator w-2 h-2 rounded-full',
-          settingStore.synced ? 'bg-green-500' : 'bg-yellow-500',
-        ]"
-      ></span>
-      <!-- 同步状态文本，仅在侧边栏展开时显示 -->
-      <span v-if="!uiStore.sidebarCollapsed" class="text-xs text-gray-500 ml-2">
-        {{
-          settingStore.synced
-            ? "Synced with system calendar"
-            : "Sync pending..."
-        }}
-      </span>
-    </div>
   </aside>
 </template>
 
@@ -114,11 +96,8 @@ const settingStore = useSettingStore();
   background-color: var(--bg-sidebar);
   border-color: var(--border-color);
   color: var(--text-primary);
-  transition:
-    width 0.1s cubic-bezier(0.4, 0, 0.2, 1),
-    background-color 0.2s,
-    border-color 0.2s,
-    color 0.2s;
+  transition: width 0.1s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.2s,
+    border-color 0.2s, color 0.2s;
 }
 
 .sidebar-nav-item {
