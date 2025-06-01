@@ -31,7 +31,7 @@
       ></i>
     </button>
     <!-- 添加新事件按钮 -->
-    <buttonui
+    <button
       v-if="uiStore.currentView !== 'todo-list'"
       @click="uiStore.openNewEventModal()"
       class="add-event-btn mx-4 my-3 py-2 px-4 bg-blue-600 text-white rounded-lg flex items-center justify-center hover:bg-blue-700 transition cursor-pointer !rounded-button whitespace-nowrap"
@@ -44,7 +44,7 @@
       ></i>
       <!-- 仅在侧边栏展开时显示文字 -->
       <span v-if="!uiStore.sidebarCollapsed">Add Event</span>
-    </buttonui>
+    </button>
     <!-- 仅在待办视图显示 Add Todo 按钮-->
     <button
       v-if="uiStore.currentView === 'todo-list'"
