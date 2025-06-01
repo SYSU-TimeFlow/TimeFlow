@@ -150,8 +150,13 @@ const uiStore = useUiStore();
  * 处理ESC键关闭设置模态框
  */
 function handleKeyDown(event) {
-  if (event.key === "Escape" && uiStore.showTodoModal) {
-    uiStore.closeTodoModal();
+  if (uiStore.showTodoModal) {
+    if(event.key === "Escape") {
+      uiStore.closeTodoModal();
+    }else if(event.key == "Enter") {
+      saveTodo();
+      uiStore.closeTodoModal();
+    }
   }
 }
 
