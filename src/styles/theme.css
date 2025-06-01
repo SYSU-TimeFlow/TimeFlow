@@ -224,6 +224,16 @@ html,
   border-color: var(--border-color) !important;
 }
 
+/* 深色模式下侧边栏Add Event按钮的字体颜色 */
+.dark-mode .add-event-btn {
+  background-color: var(--button-primary) !important;
+  color: var(--text-primary) !important;
+}
+
+.dark-mode .add-event-btn:hover {
+  background-color: var(--button-primary-hover) !important;
+}
+
 .dark-mode .time-label {
   color: var(--text-tertiary);
 }
@@ -240,11 +250,16 @@ html,
 
 .dark-mode .calendar-day:not(.is-current-month) .day-number {
   color: var(--text-tertiary);
-  opacity: 0.7;
+  opacity: 0.5;
 }
 
 .dark-mode .calendar-day.is-current-month {
   background-color: var(--calendar-day-bg);
+}
+
+.dark-mode .calendar-day.is-current-month .day-number {
+  color: var(--text-primary);
+  font-weight: 600;
 }
 
 .dark-mode .hour-cell:hover {
