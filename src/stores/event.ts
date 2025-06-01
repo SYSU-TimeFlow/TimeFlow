@@ -1,6 +1,5 @@
 import { defineStore } from "pinia";
 import { ref, computed, nextTick, watch } from "vue";
-import { pinyin } from "pinyin-pro";
 import { useUiStore } from "./ui";
 import { formatDateForInput } from "../utils";
 import { EventType, Event, FilterType, Category, colorOptions } from "../const";
@@ -19,6 +18,7 @@ declare global {
 }
 
 export const useEventStore = defineStore("event", () => {
+  const uiStore = useUiStore();
   // =======================BEGIN 事件管理本地存储相关代码 BEGIN========================
 
   // 修改：categories 初始化为空数组，将通过API加载
@@ -146,248 +146,6 @@ export const useEventStore = defineStore("event", () => {
   const isNewTodo = ref(true);
   const activeFilter = ref<FilterType>("all");
 
-  // ======================BEGIN 搜索功能相关状态和逻辑 BEGIN========================
-  const searchInputValue = ref(""); // 搜索输入框的实时值
-  const searchQuery = ref(""); // 防抖后的实际搜索查询词
-  const isSearchFocused = ref(false); // 搜索框是否获得焦点
-  const focusedResultIndex = ref(-1); // 当前高亮的搜索结果索引
-  const debounceTimer = ref<number | undefined>(undefined); // 防抖计时器ID
-  const scrollUiUpdateCallback = ref<(() => void) | null>(null); // 滚动更新UI的回调
-
-  // Action: 注册滚动UI更新的回调函数
-  function setScrollUiUpdateCallback(callback: () => void) {
-    scrollUiUpdateCallback.value = callback;
-  }
-
-  // Action: 清除滚动UI更新的回调函数
-  function clearScrollUiUpdateCallback() {
-    scrollUiUpdateCallback.value = null;
-  }
-
-  // Action: 更新搜索输入值并启动防抖
-  function updateSearchInputValue(value: string) {
-    searchInputValue.value = value;
-    clearTimeout(debounceTimer.value);
-    debounceTimer.value = window.setTimeout(() => {
-      searchQuery.value = value;
-      focusedResultIndex.value = -1; // 新搜索开始，重置高亮
-    }, 200); // 防抖延迟
-  }
-
-  // Computed: 根据 searchQuery 过滤事件
-  const searchResults = computed(() => {
-    if (!searchQuery.value.trim()) {
-      return [];
-    }
-    const queryLowercase = searchQuery.value.toLowerCase();
-    const queryTrimmed = searchQuery.value.trim();
-
-    return events.value.filter((event) => {
-      const eventStartDate = new Date(event.start);
-      const eventDay = eventStartDate.getDate();
-      const eventMonth = eventStartDate.getMonth() + 1;
-      const eventYear = eventStartDate.getFullYear();
-
-      // 1. Formatted Date Matching
-      if (queryTrimmed.includes("-")) {
-        const parts = queryTrimmed.split("-").map((part) => parseInt(part, 10));
-        if (parts.length === 2 && !parts.some(isNaN)) {
-          const [queryMonth, queryDay] = parts;
-          const currentYear = new Date().getFullYear();
-          if (
-            eventMonth === queryMonth &&
-            eventDay === queryDay &&
-            eventYear === currentYear
-          )
-            return true;
-        } else if (parts.length === 3 && !parts.some(isNaN)) {
-          const [queryYear, queryMonth, queryDay] = parts;
-          if (
-            eventYear === queryYear &&
-            eventMonth === queryMonth &&
-            eventDay === queryDay
-          )
-            return true;
-        }
-      }
-      // 2. Pure Numeric Matching
-      else if (/^\d+$/.test(queryTrimmed)) {
-        const numericQuery = parseInt(queryTrimmed, 10);
-        if (
-          eventDay === numericQuery ||
-          eventMonth === numericQuery ||
-          eventYear === numericQuery
-        )
-          return true;
-      }
-
-      // 3. Original Text Matching
-      const title = event.title.toLowerCase();
-      const description = event.description
-        ? event.description.toLowerCase()
-        : "";
-      if (
-        title.includes(queryLowercase) ||
-        description.includes(queryLowercase)
-      )
-        return true;
-
-      // 4. Pinyin Matching
-      const titlePinyin = pinyin(event.title, {
-        toneType: "none",
-      }).toLowerCase();
-      const titlePinyinInitials = pinyin(event.title, {
-        pattern: "initial",
-        toneType: "none",
-      }).toLowerCase();
-      if (
-        titlePinyin.includes(queryLowercase) ||
-        titlePinyinInitials.includes(queryLowercase)
-      )
-        return true;
-
-      if (event.description) {
-        const descPinyin = pinyin(event.description, {
-          toneType: "none",
-        }).toLowerCase();
-        const descPinyinInitials = pinyin(event.description, {
-          pattern: "initial",
-          toneType: "none",
-        }).toLowerCase();
-        if (
-          descPinyin.includes(queryLowercase) ||
-          descPinyinInitials.includes(queryLowercase)
-        )
-          return true;
-      }
-      return false;
-    });
-  });
-
-  // Computed: 控制搜索结果下拉框的显示
-  const showSearchDropdown = computed(() => {
-    return isSearchFocused.value && searchInputValue.value.trim() !== "";
-  });
-
-  // Function: 获取高亮显示的HTML (用于搜索结果)
-  function getHighlightedHTMLContent(
-    text: string,
-    queryToHighlight: string
-  ): string {
-    if (!queryToHighlight.trim() || !text) {
-      return text;
-    }
-    const lowerText = text.toLowerCase();
-    const lowerQuery = queryToHighlight.toLowerCase();
-    let startIndex = lowerText.indexOf(lowerQuery);
-    if (startIndex !== -1) {
-      const before = text.substring(0, startIndex);
-      const matched = text.substring(
-        startIndex,
-        startIndex + queryToHighlight.length
-      );
-      const after = text.substring(startIndex + queryToHighlight.length);
-      return `${before}<mark class="search-highlight">${matched}</mark>${after}`;
-    }
-    return text;
-  }
-
-  // Action: 清空搜索状态
-  function clearSearchAction() {
-    clearTimeout(debounceTimer.value);
-    searchInputValue.value = "";
-    searchQuery.value = "";
-    isSearchFocused.value = false;
-    focusedResultIndex.value = -1;
-  }
-
-  // Action: 处理搜索框获得焦点
-  function handleSearchFocusAction() {
-    isSearchFocused.value = true;
-  }
-
-  // Action: 处理搜索框失去焦点
-  function handleSearchBlurAction() {
-    setTimeout(() => {
-      if (isSearchFocused.value) {
-        // 确保不是因为点击结果项导致的失焦
-        clearSearchAction();
-      }
-    }, 200); // 延迟以允许结果项的 mousedown 事件优先触发
-  }
-
-  // Action: 处理键盘事件
-  function handleKeydownAction(event: KeyboardEvent) {
-    if (!showSearchDropdown.value || searchResults.value.length === 0) {
-      if (event.key === "Escape") {
-        clearSearchAction();
-      }
-      return;
-    }
-
-    const totalResults = searchResults.value.length;
-    let newIndex = focusedResultIndex.value;
-
-    switch (event.key) {
-      case "ArrowDown":
-      case "Tab": // Tab 也视为向下
-        event.preventDefault();
-        if (event.key === "Tab" && event.shiftKey) {
-          // Shift + Tab 向上
-          newIndex =
-            (focusedResultIndex.value - 1 + totalResults) % totalResults;
-        } else {
-          newIndex = (focusedResultIndex.value + 1) % totalResults;
-        }
-        break;
-      case "ArrowUp":
-        event.preventDefault();
-        newIndex = (focusedResultIndex.value - 1 + totalResults) % totalResults;
-        break;
-      case "Enter":
-        if (
-          focusedResultIndex.value > -1 &&
-          focusedResultIndex.value < totalResults
-        ) {
-          event.preventDefault();
-          selectSearchResultAction(
-            searchResults.value[focusedResultIndex.value]
-          );
-        }
-        return; // Enter后不应再触发滚动回调
-      case "Escape":
-        event.preventDefault();
-        clearSearchAction();
-        return; // Escape后不应再触发滚动回调
-      default:
-        return; // 其他按键不处理
-    }
-
-    if (newIndex !== focusedResultIndex.value) {
-      focusedResultIndex.value = newIndex;
-      if (scrollUiUpdateCallback.value) {
-        nextTick(() => {
-          scrollUiUpdateCallback.value!();
-        });
-      }
-    }
-  }
-
-  // Action: 选择一个搜索结果
-  function selectSearchResultAction(eventData: any) {
-    const uiStore = useUiStore();
-    // 如果是待办事项（TODO 或 BOTH），直接进入待办编辑页面
-    if (eventData.eventType === EventType.TODO || eventData.eventType === EventType.BOTH) {
-      uiStore.openEditTodoModal(eventData);
-    } else{
-      // 否则打开事件详情
-      uiStore.openEventDetails(eventData);
-    }
-    // @ts-ignore
-    clearSearchAction();
-  }
-
-  // ======================END 搜索功能相关状态和逻辑 END========================
   // 获取指定日期的所有日历事件
   function getEventsForDay(date: Date): Event[] {
     const activeCategoryIds = categories.value
@@ -499,7 +257,6 @@ export const useEventStore = defineStore("event", () => {
         events.value[index] = eventToSave as Event;
       }
     }
-    const uiStore = useUiStore();
     uiStore.closeEventModal();
   }
 
@@ -510,8 +267,6 @@ export const useEventStore = defineStore("event", () => {
     if (index !== -1) {
       events.value.splice(index, 1);
     }
-
-    const uiStore = useUiStore();
     uiStore.closeEventModal();
   }
 
@@ -674,8 +429,6 @@ export const useEventStore = defineStore("event", () => {
         events.value[index] = todoToSave as Event;
       }
     }
-
-    const uiStore = useUiStore();
     uiStore.closeTodoModal();
   };
 
@@ -736,8 +489,6 @@ export const useEventStore = defineStore("event", () => {
     });
   }
 
-  
-
   async function saveCategory() {
     if (!isCategoryFormValid()) return;
 
@@ -762,7 +513,6 @@ export const useEventStore = defineStore("event", () => {
         }
       }
     }
-    const uiStore = useUiStore();
     uiStore.closeCategoryModal();
   }
 
@@ -788,7 +538,6 @@ export const useEventStore = defineStore("event", () => {
           console.error(
             "No suitable default category found to reassign events to. This should not happen if there's more than one category."
           );
-          const uiStore = useUiStore();
           uiStore.closeCategoryModal();
           return;
         }
@@ -803,7 +552,6 @@ export const useEventStore = defineStore("event", () => {
         categories.value.splice(index, 1);
       }
     }
-    const uiStore = useUiStore();
     uiStore.closeCategoryModal();
   }
 
@@ -850,23 +598,6 @@ export const useEventStore = defineStore("event", () => {
     updateEventCategoryColor,
     saveCategory,
     deleteCategory,
-
-    // 搜索相关
-    searchInputValue,
-    searchQuery,
-    isSearchFocused,
-    focusedResultIndex,
-    searchResults,
-    showSearchDropdown,
-    updateSearchInputValue,
-    handleSearchFocusAction,
-    handleSearchBlurAction,
-    handleKeydownAction,
-    selectSearchResultAction,
-    getHighlightedHTMLContent,
-    clearSearchAction,
-    setScrollUiUpdateCallback,
-    clearScrollUiUpdateCallback,
 
     // 数据存储相关，仅供测试
     loadAppDataFromStore,

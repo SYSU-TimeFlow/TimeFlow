@@ -84,9 +84,9 @@
             'command-mode-input': uiStore.appMode === 'command',
             'search-mode-input': uiStore.appMode === 'normal',
           }"
-          :value="eventStore.searchInputValue"
+          :value="uiStore.searchInputValue"
           @input="handleInputChange"
-          @focus="eventStore.handleSearchFocusAction"
+          @focus="uiStore.handleSearchFocusAction"
           @blur="handleSearchBlur"
           @keydown="handleSearchKeydown"
         />
@@ -108,25 +108,25 @@
 
         <!-- 搜索结果列表 -->
         <div
-          v-if="eventStore.showSearchDropdown && uiStore.appMode === 'normal'"
+          v-if="uiStore.showSearchDropdown && uiStore.appMode === 'normal'"
           class="search-results absolute left-0 right-0 mt-1 bg-white border border-gray-300 rounded-md shadow-lg z-10 max-h-60 overflow-y-auto"
         >
           <ul ref="resultListRef">
             <li
-              v-for="(event, index) in eventStore.searchResults"
+              v-for="(event, index) in uiStore.searchResults"
               :key="event.id"
               class="px-4 py-2 hover:bg-gray-100 cursor-pointer text-sm"
               :class="{
                 'search-result-focused':
-                  index === eventStore.focusedResultIndex,
+                  index === uiStore.focusedResultIndex,
               }"
-              @mousedown="eventStore.selectSearchResultAction(event)"
+              @mousedown="uiStore.selectSearchResultAction(event)"
             >
               <span
                 v-html="
-                  eventStore.getHighlightedHTMLContent(
+                  uiStore.getHighlightedHTMLContent(
                     event.title,
-                    eventStore.searchQuery
+                    uiStore.searchQuery
                   )
                 "
               ></span>
@@ -141,8 +141,8 @@
             </li>
             <li
               v-if="
-                eventStore.searchQuery.trim() &&
-                eventStore.searchResults.length === 0
+                uiStore.searchQuery.trim() &&
+                uiStore.searchResults.length === 0
               "
               class="px-4 py-2 text-sm text-gray-500"
             >
@@ -415,12 +415,12 @@ const scrollToFocusedResult = () => {
   nextTick(() => {
     if (
       resultListRef.value &&
-      eventStore.focusedResultIndex > -1 &&
-      eventStore.searchResults.length > 0 &&
-      eventStore.focusedResultIndex < resultListRef.value.children.length // 确保索引有效
+      uiStore.focusedResultIndex > -1 &&
+      uiStore.searchResults.length > 0 &&
+      uiStore.focusedResultIndex < resultListRef.value.children.length // 确保索引有效
     ) {
       const focusedItem = resultListRef.value.children[
-        eventStore.focusedResultIndex
+        uiStore.focusedResultIndex
       ] as HTMLLIElement;
       if (focusedItem) {
         focusedItem.scrollIntoView({ block: "nearest", inline: "nearest" });
@@ -432,7 +432,7 @@ const scrollToFocusedResult = () => {
 let notifyTimer: number | undefined;
 
 onMounted(() => {
-  eventStore.setScrollUiUpdateCallback(scrollToFocusedResult);
+  uiStore.setScrollUiUpdateCallback(scrollToFocusedResult);
 
   // 注册全局键盘事件
   window.addEventListener("keydown", handleGlobalKeydown);
@@ -444,7 +444,7 @@ onMounted(() => {
 
 // 组件卸载时清除滚动回调
 onUnmounted(() => {
-  eventStore.clearScrollUiUpdateCallback();
+  uiStore.clearScrollUiUpdateCallback();
 
   // 清除全局键盘事件
   window.removeEventListener("keydown", handleGlobalKeydown);
@@ -464,7 +464,7 @@ const formatEventDate = (dateString: string | Date) => {
 const handleSearchBlur = () => {
   // 延迟处理，防止点击搜索结果时结果框消失过快
   setTimeout(() => {
-    eventStore.handleSearchBlurAction();
+    uiStore.handleSearchBlurAction();
     uiStore.toggleSearchActive(false);
     uiStore.setAppMode("normal");
   }, 100);
@@ -475,7 +475,7 @@ const handleSearchKeydown = (event: KeyboardEvent) => {
   if (event.key === "Escape") {
     uiStore.toggleSearchActive(false);
     uiStore.setAppMode("normal");
-    eventStore.updateSearchInputValue(""); // 清空搜索/命令内容
+    uiStore.updateSearchInputValue(""); // 清空搜索/命令内容
     // 阻止默认的ESC行为
     event.preventDefault();
   } else if (event.key === "Enter" && uiStore.appMode === "command") {
@@ -486,7 +486,7 @@ const handleSearchKeydown = (event: KeyboardEvent) => {
 
     if (commandSuccess) {
       // 命令执行成功后清空输入框并关闭搜索
-      eventStore.updateSearchInputValue("");
+      uiStore.updateSearchInputValue("");
       uiStore.toggleSearchActive(false);
       uiStore.setAppMode("normal");
     } else {
@@ -497,7 +497,7 @@ const handleSearchKeydown = (event: KeyboardEvent) => {
     event.preventDefault();
   } else {
     // 处理普通搜索逻辑
-    eventStore.handleKeydownAction(event);
+    uiStore.handleKeydownAction(event);
   }
 };
 
@@ -598,7 +598,7 @@ const handleGlobalKeydown = (event: KeyboardEvent) => {
 const handleInputChange = (event: Event) => {
   const input = event.target as HTMLInputElement;
   let value = input.value;
-  eventStore.updateSearchInputValue(value);
+  uiStore.updateSearchInputValue(value);
 };
 
 // 激活搜索框

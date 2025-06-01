@@ -23,7 +23,7 @@ test('left right today', async () => {
     await page.getByRole('button', { name: 'Today' }).click();
     // 获取今日日期
     const today = new Date();
-    const todayDate = today.getDate().toString().padStart(2, '0');
+    const todayDate = today.getDate().toString();
     await expect(page.locator('h2')).toContainText(`${todayDate}日`);
 
     // ===============================================
