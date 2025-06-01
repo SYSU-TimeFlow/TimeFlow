@@ -168,7 +168,7 @@
         <!-- sticky头部：日期栏+全天事件栏 -->
         <div class="sticky top-0 z-30 shadow-sm">
           <!-- 周视图头部，显示本周7天 -->
-          <div class="grid grid-cols-[80px_repeat(7,1fr)]">
+          <div class="grid grid-cols-[80px_repeat(7,1fr)] bg-white">
             <!-- 左侧空白，用于对齐时间轴 -->
             <div></div>
             <!-- 渲染每一天的表头（星期几和日期） -->
@@ -178,7 +178,7 @@
                 settingStore.weekStart
               )"
               :key="idx"
-              class="day-header flex flex-col items-center justify-center p-2"
+              class="day-header flex flex-col items-center justify-center p-2 bg-white"
             >
               <div class="text-sm font-medium">{{ day.dayName }}</div>
               <div
@@ -1179,7 +1179,7 @@ watch(currentTime, () => {
 
 /* 暗黑模式下修正周视图表头背景、文字和底线颜色 */
 .dark-mode .week-view .day-header {
-  background-color: var(--bg-secondary) !important;
+  background-color: var(--bg-primary) !important;
   border-bottom: 1px solid var(--border-color) !important;
 }
 
@@ -1207,7 +1207,7 @@ watch(currentTime, () => {
 
 /* 暗黑模式下的半小时格子样式 */
 .dark-mode .half-hour-cell:hover {
-  background-color: var(--calendar-day-hover-bg) !important;
+  background-color: var(--bg-primary) !important;
 }
 
 .dark-mode .half-hour-cell:hover::after {
@@ -1264,7 +1264,7 @@ watch(currentTime, () => {
 
 /* 暗黑模式下的时间轴样式 */
 .dark-mode .time-slot:hover::before {
-  background-color: var(--calendar-day-hover-bg);
+  background-color: var(--bg-primary);
 }
 
 .dark-mode .time-slot:hover::after {
