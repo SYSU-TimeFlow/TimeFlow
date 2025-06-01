@@ -266,14 +266,27 @@
             <!-- 渲染24小时的时间标签 -->
             <div
               v-for="hour in 24"
-              :key="hour"
+              :key="`hour-${hour}-${currentTime.getTime()}`"
               class="time-label h-16 text-xs text-gray-500 text-right -translate-y-3 flex items-start justify-end"
+              :class="{ 'opacity-0': uiStore.shouldHideHourLabel(hour - 1) }"
             >
               {{ formatHour(hour - 1, settingStore.hour24) }}
             </div>
           </div>
           <!-- 事件网格区：每一列代表一天 -->
           <div class="flex-1 grid grid-cols-7 relative">
+            <!-- 实时时间线 -->
+            <div
+              v-if="uiStore.currentView === 'week'"
+              class="current-time-line absolute left-0 right-0"
+              :style="{
+                top: `${uiStore.calculateCurrentTimeLine()}px`,
+              }"
+              :key="currentTime.getTime()"
+            >
+              <div class="time-text">{{ uiStore.getCurrentTimeText() }}</div>
+              <div class="time-line"></div>
+            </div>
             <!-- 小时格子背景 -->
             <div v-for="hour in 24" :key="hour" class="contents">
               <div
@@ -317,7 +330,9 @@
             >
               <template
                 v-for="(group, groupIdx) in getEventGroups(
-                  eventStore.getEventsForDay(new Date(day.date)).filter(e => !e.allDay)
+                  eventStore
+                    .getEventsForDay(new Date(day.date))
+                    .filter((e) => !e.allDay)
                 )"
                 :key="groupIdx"
               >
@@ -564,8 +579,9 @@
             <!-- 渲染24小时的时间标签 -->
             <div
               v-for="hour in 24"
-              :key="hour"
+              :key="`hour-${hour}-${currentTime.getTime()}`"
               class="time-label h-16 text-xs text-gray-500 text-right -translate-y-3 flex items-start justify-end"
+              :class="{ 'opacity-0': uiStore.shouldHideHourLabel(hour - 1) }"
             >
               {{ formatHour(hour - 1, settingStore.hour24) }}
             </div>
@@ -607,6 +623,18 @@
             </div>
             <!-- 事件渲染区域 -->
             <div class="events absolute top-0 left-0 right-0 z-10">
+              <!-- 实时时间线 -->
+              <div
+                v-if="uiStore.currentView === 'day'"
+                class="current-time-line absolute left-0 right-0"
+                :style="{
+                  top: `${uiStore.calculateCurrentTimeLine()}px`,
+                }"
+                :key="currentTime.getTime()"
+              >
+                <div class="time-text">{{ uiStore.getCurrentTimeText() }}</div>
+                <div class="time-line"></div>
+              </div>
               <!-- 日视图事件渲染区域 -->
               <div
                 v-for="(group, groupIdx) in getEventGroups(
@@ -771,13 +799,42 @@ import {
   getLunarDate,
   getMonthDays,
   getWeekDays,
-  getWeekDayNames
+  getWeekDayNames,
 } from "@/utils";
+import { ref, onMounted, onUnmounted, watch, nextTick } from "vue";
 
 // 使用 Pinia 仓库
 const uiStore = useUiStore();
 const eventStore = useEventStore();
 const settingStore = useSettingStore();
+
+// 用于强制更新时间线
+const currentTime = ref(new Date());
+
+// 设置定时器更新当前时间
+let timer: number;
+onMounted(() => {
+  // 立即更新一次
+  currentTime.value = new Date();
+
+  timer = window.setInterval(() => {
+    currentTime.value = new Date();
+  }, 30000); // 每30秒更新一次
+});
+
+onUnmounted(() => {
+  if (timer) {
+    clearInterval(timer);
+  }
+});
+
+// 监听currentTime的变化
+watch(currentTime, () => {
+  // 强制更新UI
+  nextTick(() => {
+    // 触发重新渲染
+  });
+});
 </script>
 
 <style scoped>
@@ -1237,5 +1294,45 @@ const settingStore = useSettingStore();
 }
 .event-resize-handle.bottom-handle {
   bottom: 0; /* 下边框 */
-} 
+}
+
+/* 实时时间线样式 */
+.current-time-line {
+  pointer-events: none;
+  z-index: 30;
+}
+
+.current-time-line .time-text {
+  position: absolute;
+  left: -75px;
+  top: -8px;
+  width: 60px;
+  text-align: right;
+  color: #388bfd;
+  font-size: calc(var(--small-text-font-size) * 0.9);
+  font-weight: 500;
+}
+
+.current-time-line .time-line {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background-color: #388bfd;
+  top: 0; /* 确保时间线在容器顶部 */
+}
+
+/* 暗黑模式下的时间线样式 */
+.dark-mode .current-time-line .time-text {
+  color: #58a6ff;
+}
+
+.dark-mode .current-time-line .time-line {
+  background-color: #58a6ff;
+}
+
+/* 时间标签过渡效果 */
+.time-label {
+  transition: opacity 0.3s ease;
+}
 </style>

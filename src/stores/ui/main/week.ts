@@ -1,7 +1,9 @@
 import { useEventStore } from "../../event";
+import { useSettingStore } from "../../setting";
 
 export const createWeekModule = (storeContext: any) => {
   const { openNewEventModal, draggedEvent } = storeContext;
+  const settingStore = useSettingStore();
 
   function handleHourClick(day: any, hour: number) {
     const date = new Date(day.date);
@@ -124,9 +126,57 @@ export const createWeekModule = (storeContext: any) => {
     draggedEvent.value = null;
   }
 
+  // 计算当前时间线位置
+  function calculateCurrentTimeLine() {
+    const now = new Date();
+    const hours = now.getHours();
+    const minutes = now.getMinutes();
+    // 每个小时64px，每分钟就是64/60px
+    return hours * 64 + (minutes * 64) / 60 + 8; // 8是顶部偏移量
+  }
+
+  // 获取当前时间的显示文本
+  function getCurrentTimeText() {
+    const now = new Date();
+    const hours = now.getHours();
+    const minutes = now.getMinutes();
+
+    if (settingStore.hour24) {
+      return `${hours.toString()}:${minutes.toString().padStart(2, "0")}`;
+    } else {
+      const period = hours >= 12 ? "PM" : "AM";
+      const hour12 = hours % 12 || 12;
+      return `${hour12.toString()}:${minutes
+        .toString()
+        .padStart(2, "0")} ${period}`;
+    }
+  }
+
+  // 检查是否需要隐藏整点时间
+  function shouldHideHourLabel(hour: number) {
+    const now = new Date();
+    const currentHour = now.getHours();
+    const minutes = now.getMinutes();
+
+    // 如果分钟数超过45，隐藏下一个整点时间
+    if (minutes > 45 && hour === currentHour + 1) {
+      return true;
+    }
+
+    // 如果分钟数小于15，隐藏上一个整点时间
+    if (minutes < 15 && hour === currentHour) {
+      return true;
+    }
+
+    return false;
+  }
+
   return {
     handleHourClick,
     handleWeekDrop,
     handleWeekEventResize,
+    calculateCurrentTimeLine,
+    getCurrentTimeText,
+    shouldHideHourLabel,
   };
 };
