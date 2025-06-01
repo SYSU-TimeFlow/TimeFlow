@@ -228,6 +228,11 @@ html,
   color: var(--text-tertiary);
 }
 
+/* 深色模式下月视图星期的字体颜色 */
+.dark-mode .calendar-grid .grid-cols-7 .text-sm {
+  color: var(--text-primary);
+}
+
 .dark-mode .day-number {
   color: var(--date-number-color);
   font-weight: 500;
@@ -306,7 +311,7 @@ html,
 
 .dark-mode .week-view .day-header .text-sm,
 .dark-mode .week-view .day-header .text-lg {
-  color: var(--text-tertiary) !important;
+  color: var(--text-primary) !important;
 }
 
 .dark-mode .time-slot:hover::before {
