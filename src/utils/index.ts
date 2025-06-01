@@ -1,3 +1,13 @@
+import {
+  lunarInfo,
+  monthNames,
+  dayNames,
+  CalendarDay,
+  WeekDay,
+  weekDays,
+  EventType,
+} from "./../const";
+
 /**
  * 获取一周的开始日期（周日）
  */
@@ -16,6 +26,260 @@ export function getEndOfWeek(date: Date): Date {
   const day = result.getDay();
   result.setDate(result.getDate() + (6 - day));
   return result;
+}
+
+/**
+ * 获取月视图的日期数组
+ * @param currentDate 当前日期
+ * @returns 月视图的日期数组
+ */
+export function getMonthDays(currentDate: Date, weekStart): CalendarDay[] {
+  const startDay = parseInt(weekStart);
+
+  // 获取当月第一天
+  const firstDay = new Date(
+    currentDate.getFullYear(),
+    currentDate.getMonth(),
+    1
+  );
+  // 获取当月最后一天
+  const lastDay = new Date(
+    currentDate.getFullYear(),
+    currentDate.getMonth() + 1,
+    0
+  );
+
+  // 计算当月第一天是星期几（0-6）
+  let firstDayOfWeek = firstDay.getDay();
+  // 根据周起始日调整
+  firstDayOfWeek = (firstDayOfWeek - startDay + 7) % 7;
+
+  // 计算需要显示的上个月的天数
+  const prevMonthDays = firstDayOfWeek;
+
+  // 计算当月总天数
+  const currentMonthDays = lastDay.getDate();
+
+  // 计算需要显示的总天数（确保是7的倍数）
+  const totalDays = Math.ceil((prevMonthDays + currentMonthDays) / 7) * 7;
+
+  // 计算需要显示的下个月的天数
+  const nextMonthDays = totalDays - prevMonthDays - currentMonthDays;
+
+  const days: CalendarDay[] = [];
+
+  // 添加上个月的日期
+  const prevMonth = new Date(
+    currentDate.getFullYear(),
+    currentDate.getMonth(),
+    0
+  );
+  for (let i = prevMonthDays - 1; i >= 0; i--) {
+    const date = new Date(
+      currentDate.getFullYear(),
+      currentDate.getMonth() - 1,
+      prevMonth.getDate() - i
+    );
+    days.push({
+      date,
+      dayNumber: date.getDate(),
+      isCurrentMonth: false,
+      isToday: false,
+      isWeekend: date.getDay() === 0 || date.getDay() === 6,
+    });
+  }
+
+  // 添加当月的日期
+  for (let i = 1; i <= currentMonthDays; i++) {
+    const date = new Date(currentDate.getFullYear(), currentDate.getMonth(), i);
+    days.push({
+      date,
+      dayNumber: i,
+      isCurrentMonth: true,
+      isToday: date.toDateString() === new Date().toDateString(),
+      isWeekend: date.getDay() === 0 || date.getDay() === 6,
+    });
+  }
+
+  // 添加下个月的日期
+  for (let i = 1; i <= nextMonthDays; i++) {
+    const date = new Date(
+      currentDate.getFullYear(),
+      currentDate.getMonth() + 1,
+      i
+    );
+    days.push({
+      date,
+      dayNumber: i,
+      isCurrentMonth: false,
+      isToday: false,
+      isWeekend: date.getDay() === 0 || date.getDay() === 6,
+    });
+  }
+
+  return days;
+}
+
+/**
+ * 获取周视图的日期数组
+ * @param currentDate 当前日期
+ * @returns 周视图的日期数组
+ */
+export function getWeekDays(currentDate: Date, weekStart): WeekDay[] {
+  const startDay = parseInt(weekStart);
+
+  // 获取当前日期是星期几（0-6）
+  let currentDayOfWeek = currentDate.getDay();
+  // 根据周起始日调整
+  currentDayOfWeek = (currentDayOfWeek - startDay + 7) % 7;
+
+  // 计算本周的第一天
+  const firstDayOfWeek = new Date(currentDate);
+  firstDayOfWeek.setDate(currentDate.getDate() - currentDayOfWeek);
+
+  // 生成一周的日期
+  const weekDays: WeekDay[] = [];
+  for (let i = 0; i < 7; i++) {
+    const date = new Date(firstDayOfWeek);
+    date.setDate(firstDayOfWeek.getDate() + i);
+
+    weekDays.push({
+      date,
+      dayNumber: date.getDate(),
+      dayName: [
+        "星期日",
+        "星期一",
+        "星期二",
+        "星期三",
+        "星期四",
+        "星期五",
+        "星期六",
+      ][date.getDay()],
+      isToday: date.toDateString() === new Date().toDateString(),
+    });
+  }
+
+  return weekDays;
+}
+
+/**
+ * 获取星期几显示顺序
+ * @returns 星期几显示顺序数组
+ */
+export function getWeekDayNames(weekStart) {
+  const startDay = parseInt(weekStart);
+  return [...weekDays.slice(startDay), ...weekDays.slice(0, startDay)];
+}
+
+/**
+ * 获取农历日期
+ * @param date 公历日期
+ * @returns 农历日期对象，包含日期和月份信息
+ */
+export function getLunarDate(date: Date): { day: string; month?: string } {
+  const year = date.getFullYear();
+  const month = date.getMonth() + 1;
+  const day = date.getDate();
+
+  // 计算与1900年1月31日相差的天数
+  let offset =
+    (Date.UTC(year, month - 1, day) - Date.UTC(1900, 0, 31)) / 86400000;
+
+  // 用offset减去每农历年的天数，计算当前农历年份
+  let lunarYear = 1900;
+  let temp = 0;
+  for (lunarYear = 1900; lunarYear < 2100 && offset > 0; lunarYear++) {
+    temp = getLunarYearDays(lunarYear);
+    offset -= temp;
+  }
+  if (offset < 0) {
+    offset += temp;
+    lunarYear--;
+  }
+
+  // 计算农历月份
+  let lunarMonth = 1;
+  let isLeap = false;
+  let leapMonth = getLeapMonth(lunarYear);
+  let monthDays = 0;
+
+  for (lunarMonth = 1; lunarMonth < 13 && offset > 0; lunarMonth++) {
+    // 闰月
+    if (leapMonth > 0 && lunarMonth === leapMonth + 1 && !isLeap) {
+      --lunarMonth;
+      isLeap = true;
+      monthDays = getLeapMonthDays(lunarYear);
+    } else {
+      monthDays = getLunarMonthDays(lunarYear, lunarMonth);
+    }
+
+    if (isLeap && lunarMonth === leapMonth + 1) {
+      isLeap = false;
+    }
+    offset -= monthDays;
+  }
+
+  if (offset === 0 && leapMonth > 0 && lunarMonth === leapMonth + 1) {
+    if (isLeap) {
+      isLeap = false;
+    } else {
+      isLeap = true;
+      --lunarMonth;
+    }
+  }
+  if (offset < 0) {
+    offset += monthDays;
+    --lunarMonth;
+  }
+
+  // 计算农历日期
+  let lunarDay = offset + 1;
+
+  const result: { day: string; month?: string } = {
+    day: dayNames[lunarDay - 1],
+  };
+
+  // 如果是初一，添加月份信息
+  if (lunarDay === 1) {
+    result.month = monthNames[lunarMonth - 1];
+  }
+
+  return result;
+}
+
+/**
+ * 获取农历年的总天数
+ */
+export function getLunarYearDays(year: number): number {
+  let total = 0;
+  for (let i = 0x8000; i > 0x8; i >>= 1) {
+    total += lunarInfo[year - 1900] & i ? 30 : 29;
+  }
+  return total + getLeapMonthDays(year);
+}
+
+/**
+ * 获取闰月的天数
+ */
+export function getLeapMonthDays(year: number): number {
+  if (getLeapMonth(year)) {
+    return lunarInfo[year - 1900] & 0x10000 ? 30 : 29;
+  }
+  return 0;
+}
+
+/**
+ * 获取闰月月份
+ */
+export function getLeapMonth(year: number): number {
+  return lunarInfo[year - 1900] & 0xf;
+}
+
+/**
+ * 获取农历某月的总天数
+ */
+export function getLunarMonthDays(year: number, month: number): number {
+  return lunarInfo[year - 1900] & (0x10000 >> month) ? 30 : 29;
 }
 
 /**
