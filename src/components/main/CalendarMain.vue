@@ -757,9 +757,9 @@
  * @file CalendarMain.vue
  * @description 主日历组件，负责展示月、周、日视图以及相关的事件
  */
-import { useUiStore } from "../stores/ui";
-import { useEventStore } from "../stores/event";
-import { useSettingStore } from "../stores/setting";
+import { useUiStore } from "@/stores/ui";
+import { useEventStore } from "@/stores/event";
+import { useSettingStore } from "@/stores/setting";
 import {
   formatHour,
   formatTime,
@@ -772,7 +772,7 @@ import {
   getMonthDays,
   getWeekDays,
   getWeekDayNames
-} from "../utils";
+} from "@/utils";
 
 // 使用 Pinia 仓库
 const uiStore = useUiStore();

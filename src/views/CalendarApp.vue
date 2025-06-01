@@ -37,15 +37,15 @@
 
 <script lang="ts" setup>
 import { onMounted } from "vue";
-import Sidebar from "../components/Sidebar.vue";
-import CalendarMain from "../components/CalendarMain.vue";
-import ToDoList from "../components/ToDoList.vue";
+import Sidebar from "../components/sidebar/Sidebar.vue";
+import CalendarMain from "../components/main/CalendarMain.vue";
+import ToDoList from "../components/main/ToDoList.vue";
 import CalendarHeader from "../components/CalendarHeader.vue";
-import EventPage from "../components/EventPage.vue"
-import ToDoPage from "../components/ToDoPage.vue"
-import CategoryPage from "../components/CategoryPage.vue"
-import SettingPage from "../components/SettingPage.vue"
-import HelpPage from "../components/HelpPage.vue"
+import EventPage from "../components/pages/EventPage.vue"
+import ToDoPage from "../components/pages/ToDoPage.vue"
+import CategoryPage from "../components/pages/CategoryPage.vue"
+import SettingPage from "../components/pages/SettingPage.vue"
+import HelpPage from "../components/pages/HelpPage.vue"
 import { useUiStore } from "../stores/ui";
 import { useSettingStore } from "../stores/setting";
 

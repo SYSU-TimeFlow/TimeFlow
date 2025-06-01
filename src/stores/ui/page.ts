@@ -1,8 +1,8 @@
 import { ref } from "vue";
 import { useEventStore } from "../event";
 import { useSettingStore } from "../setting";
-import { formatDateForInput } from "../../utils";
-import { Event, EventType, colorOptions } from "../../const";
+import { formatDateForInput } from "@/utils";
+import { Event, EventType, colorOptions } from "@/const";
 
 export const createPageModule = (storeContext: any) => {
   // 页面控制状态

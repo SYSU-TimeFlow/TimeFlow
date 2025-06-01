@@ -1,6 +1,6 @@
 import { computed, ref, nextTick } from "vue";
-import { getStartOfWeek, getEndOfWeek } from "../../utils";
-import { EventType, calendarViews } from "../../const";
+import { getStartOfWeek, getEndOfWeek } from "@/utils";
+import { EventType, calendarViews } from "@/const";
 import { pinyin } from "pinyin-pro";
 import { useEventStore } from "../event";
 

@@ -46,7 +46,7 @@
 </template>
 
 <script setup>
-import { useUiStore } from "../stores/ui";
+import { useUiStore } from "@/stores/ui";
 
 // 使用Pinia仓库
 const uiStore = useUiStore();

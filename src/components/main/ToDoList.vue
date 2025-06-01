@@ -150,10 +150,10 @@
 </template>
 
 <script setup lang="ts">
-import { useEventStore } from "../stores/event";
-import { useUiStore } from "../stores/ui";
-import { formatDateForDisplay } from "../utils";
-import { FilterType } from "../const";
+import { useEventStore } from "@/stores/event";
+import { useUiStore } from "@/stores/ui";
+import { formatDateForDisplay } from "@/utils";
+import { FilterType } from "@/const";
 
 const eventStore = useEventStore();
 const uiStore = useUiStore();

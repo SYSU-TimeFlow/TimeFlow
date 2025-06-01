@@ -1,7 +1,7 @@
 import { computed } from "vue";
 import { useEventStore } from "../../event";
-import { getStartOfWeek, getEndOfWeek } from "../../../utils";
-import { CalendarDay } from "../../../const";
+import { getStartOfWeek, getEndOfWeek } from "@/utils";
+import { CalendarDay } from "@/const";
 
 export const createMonthModule = (storeContext: any) => {
   const { currentDate, selectedDate, draggedEvent, openNewEventModal } =

@@ -1,6 +1,6 @@
 import { defineStore } from "pinia";
 import { ref, computed, watch } from "vue";
-import { Settings } from "../const";
+import { Settings } from "@/const";
 
 // 添加 electronAPI 的类型定义
 // 没有运行时效果，只是告诉 TypeScript 这些属性的存在，是合法的
