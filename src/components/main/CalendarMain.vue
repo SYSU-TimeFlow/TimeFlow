@@ -1180,7 +1180,7 @@ watch(currentTime, () => {
 /* 暗黑模式下修正周视图表头背景、文字和底线颜色 */
 .dark-mode .week-view .day-header {
   background-color: var(--bg-primary) !important;
-  border-bottom: 1px solid var(--border-color) !important;
+  border-bottom: none !important;
 }
 
 /* 添加半小时格子的样式 */
@@ -1349,5 +1349,21 @@ watch(currentTime, () => {
 /* 去除周视图表头阴影 */
 .week-view .sticky.top-0 {
   box-shadow: none !important;
+}
+
+/* 为白天模式添加底部边框线 */
+.week-view .grid.grid-cols-\[80px_repeat\(7\,1fr\)\] {
+  border-bottom: 1px solid var(--border-color);
+}
+
+/* 暗黑模式下修正周视图表头背景、文字和底线颜色 */
+.dark-mode .week-view .day-header {
+  background-color: var(--bg-primary) !important;
+  border-bottom: none !important;
+}
+
+/* 暗黑模式下移除表头底部边框 */
+.dark-mode .week-view .grid > div:first-child {
+  border-bottom: none !important;
 }
 </style>
