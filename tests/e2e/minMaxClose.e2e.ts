@@ -52,7 +52,7 @@ test('min & max & close', async () => {
     // 最小化
     await page.getByRole('button', { name: '' }).click();
     // 等待窗口最小化
-    await page.waitForTimeout(500); // 等待 1 秒钟以确保窗口最小化
+    await page.waitForTimeout(1000); // 等待 1 秒钟以确保窗口最小化
     // 是否最小化成功
 
     const isMinimized = await electronApp.evaluate(async ({ BrowserWindow }) => {
@@ -72,7 +72,7 @@ test('min & max & close', async () => {
     });
 
     // 等待窗口恢复
-    await page.waitForTimeout(500); // 等待 1 秒钟以确保窗口恢复
+    await page.waitForTimeout(1000); // 等待 1 秒钟以确保窗口恢复
 
     // 检查窗口是否恢复成功
     const isRestored = await page.evaluate(() => {
