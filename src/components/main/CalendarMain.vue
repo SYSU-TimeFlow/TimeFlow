@@ -297,7 +297,7 @@
                 :key="idx"
                 class="hour-cell relative cursor-pointer select-none"
                 style="transform: translateY(8px); z-index: 1"
-                @click="uiStore.handleHourClick(day.date, hour - 1)"
+                @click="uiStore.handleHourClick({date: day.date}, hour - 1)"
                 @dragover.prevent
                 @drop="uiStore.handleWeekDrop($event, {
                   date: day.date,
