@@ -275,6 +275,18 @@
           </div>
           <!-- 事件网格区：每一列代表一天 -->
           <div class="flex-1 grid grid-cols-7 relative">
+            <!-- 实时时间线 -->
+            <div
+              v-if="uiStore.currentView === 'week'"
+              class="current-time-line absolute left-0 right-0"
+              :style="{
+                top: `${uiStore.calculateCurrentTimeLine()}px`,
+              }"
+              :key="currentTime.getTime()"
+            >
+              <div class="time-text">{{ uiStore.getCurrentTimeText() }}</div>
+              <div class="time-line"></div>
+            </div>
             <!-- 小时格子背景 -->
             <div v-for="hour in 24" :key="hour" class="contents">
               <div
