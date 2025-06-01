@@ -669,16 +669,18 @@ watch(isCogHovered, (hovered) => {
 
 /* 区域布局控制 */
 .header-left {
-  width: 30%;
+  width: 25%;
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis; /* 若空间不够，则截断超出的文字 */
 }
 
-/* 当窗口宽度大于 1000px ，header-left 宽度就设为 40%，否则保持 30%。 */
-@media (min-width: 1000px) {
+/* 当窗口宽度大于 1150px ，超出部分不截断 */
+@media (min-width: 1150px) {
   .header-left {
-    width: 40%;
+    /* 超出部分不截断 */
+    overflow: visible;
+    text-overflow: clip;
   }
 }
 
