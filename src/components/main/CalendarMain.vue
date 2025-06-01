@@ -819,7 +819,7 @@ onMounted(() => {
 
   timer = window.setInterval(() => {
     currentTime.value = new Date();
-  }, 30000); // 每30秒更新一次
+  }, 10000); // 每10秒更新一次
 });
 
 onUnmounted(() => {
