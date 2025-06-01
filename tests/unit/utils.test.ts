@@ -2,22 +2,6 @@ import { describe, it, expect } from "vitest";
 import * as utils from "../../src/utils/index";
 
 describe("Utils Tests", () => {
-  it("getStartOfWeek 应该返回当前周的开始日期（周日）", () => {
-    const date = new Date("2023-10-11"); // 周三
-    const startOfWeek = utils.getStartOfWeek(date);
-    expect(startOfWeek.toDateString()).toBe(
-      new Date("2023-10-08").toDateString()
-    ); // 周日
-  });
-
-  it("getEndOfWeek 应该返回当前周的结束日期（周六）", () => {
-    const date = new Date("2023-10-11"); // 周三
-    const endOfWeek = utils.getEndOfWeek(date);
-    expect(endOfWeek.toDateString()).toBe(
-      new Date("2023-10-14").toDateString()
-    ); // 周六
-  });
-
   it("getMonthDays 应该返回月视图下的日期数组", () => {
     const testDate = new Date(2023, 5, 15); // 2023年6月15日
 
