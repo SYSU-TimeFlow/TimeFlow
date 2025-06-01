@@ -72,8 +72,8 @@
 <script setup>
 import ViewSelector from "./ViewSelector.vue";
 import Categories from "./Categories.vue";
-import { useUiStore } from "../stores/ui";
-import { useSettingStore } from "../stores/setting";
+import { useUiStore } from "@/stores/ui";
+import { useSettingStore } from "@/stores/setting";
 
 // 使用Pinia仓库
 const uiStore = useUiStore();

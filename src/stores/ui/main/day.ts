@@ -1,14 +1,7 @@
-import { computed } from "vue";
 import { useEventStore } from "../../event";
 
 export const createDayModule = (storeContext: any) => {
-  const { currentDate, openNewEventModal, draggedEvent } = storeContext;
-
-  // 获取日视图的事件数据
-  const dayViewEvents = computed(() => {
-    const eventStore = useEventStore();
-    return eventStore.getEventsForDay(currentDate.value);
-  });
+  const { openNewEventModal, draggedEvent } = storeContext;
 
   // 计算鼠标位置对应的时间
   function calculateTimeFromMousePosition(event: DragEvent, day: any) {
@@ -71,8 +64,6 @@ export const createDayModule = (storeContext: any) => {
     event.stopPropagation();
 
     const eventStore = useEventStore();
-    const eventElement = event.target as HTMLElement;
-    const eventRect = eventElement.getBoundingClientRect();
     const startY = event.clientY;
     const originalStart = new Date(calendarEvent.start);
     const originalEnd = new Date(calendarEvent.end);
@@ -208,56 +199,12 @@ export const createDayModule = (storeContext: any) => {
       }
     }
     draggedEvent.value = null;
-  };
-
-  function getEventGroups(events: any[]): any[][] {
-    const n = events.length;
-    const parent = Array(n)
-      .fill(0)
-      .map((_, i) => i);
-
-    function find(x: number): number {
-      if (parent[x] !== x) parent[x] = find(parent[x]);
-      return parent[x];
-    }
-    function union(x: number, y: number) {
-      parent[find(x)] = find(y);
-    }
-
-    // 判断是否重叠
-    function isOverlap(a: any, b: any) {
-      const aStart = new Date(a.start).getTime();
-      const aEnd = new Date(a.end).getTime();
-      const bStart = new Date(b.start).getTime();
-      const bEnd = new Date(b.end).getTime();
-      return !(aEnd <= bStart || aStart >= bEnd);
-    }
-
-    // 两两合并重叠的事件
-    for (let i = 0; i < n; ++i) {
-      for (let j = i + 1; j < n; ++j) {
-        if (isOverlap(events[i], events[j])) {
-          union(i, j);
-        }
-      }
-    }
-
-    // 分组
-    const groupMap: Record<number, any[]> = {};
-    for (let i = 0; i < n; ++i) {
-      const root = find(i);
-      if (!groupMap[root]) groupMap[root] = [];
-      groupMap[root].push(events[i]);
-    }
-    return Object.values(groupMap);
   }
 
   return {
-    dayViewEvents,
     handleHourClick,
     handleDayDrop,
     calculateDragOffset,
     handleDayEventResize,
-    getEventGroups,
   };
 };

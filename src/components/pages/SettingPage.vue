@@ -347,8 +347,8 @@
 
 <script setup>
 import { ref, onMounted, onUnmounted } from "vue";
-import { useSettingStore } from "../stores/setting";
-import { useUiStore } from "../stores/ui";
+import { useSettingStore } from "@/stores/setting";
+import { useUiStore } from "@/stores/ui";
 
 // 使用Pinia仓库
 const settingStore = useSettingStore();

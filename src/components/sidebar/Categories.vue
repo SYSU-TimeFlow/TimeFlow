@@ -65,8 +65,8 @@
 </template>
 
 <script setup>
-import { useEventStore } from "../stores/event";
-import { useUiStore } from "../stores/ui";
+import { useEventStore } from "@/stores/event";
+import { useUiStore } from "@/stores/ui";
 
 // 使用Pinia仓库
 const eventStore = useEventStore();

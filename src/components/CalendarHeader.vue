@@ -297,9 +297,9 @@
 
 <script setup lang="ts">
 import { ref, nextTick, onMounted, onUnmounted, watch } from "vue";
-import { useUiStore } from "../stores/ui";
-import { useSettingStore } from "../stores/setting";
-import { useEventStore } from "../stores/event";
+import { useUiStore } from "@/stores/ui";
+import { useSettingStore } from "@/stores/setting";
+import { useEventStore } from "@/stores/event";
 
 // 引入各个仓库
 const uiStore = useUiStore();

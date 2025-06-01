@@ -21,6 +21,7 @@
     "electron-store": "^10.0.1",
     "electron-win-state": "^1.1.22",
     "p-limit": "^6.2.0",
+    "path": "^0.12.7",
     "pinia": "^3.0.2",
     "pinyin-pro": "^3.26.0",
     "tailwindcss": "^4.1.7",

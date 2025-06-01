@@ -155,7 +155,7 @@
 
 <script setup>
 import { onMounted, onUnmounted } from "vue";
-import { useUiStore } from "../stores/ui";
+import { useUiStore } from "@/stores/ui";
 
 // 使用Pinia仓库
 const uiStore = useUiStore();

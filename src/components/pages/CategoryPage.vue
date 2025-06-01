@@ -115,9 +115,9 @@
 
 <script setup>
 import { onMounted, onUnmounted } from "vue";
-import { useEventStore } from "../stores/event";
-import { useUiStore } from "../stores/ui";
-import { colorOptions } from "../const";
+import { useEventStore } from "@/stores/event";
+import { useUiStore } from "@/stores/ui";
+import { colorOptions } from "@/const";
 
 // 使用Pinia仓库
 const eventStore = useEventStore();

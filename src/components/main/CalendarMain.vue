@@ -218,7 +218,7 @@
               class="relative h-full overflow-hidden"
             >
               <template
-                v-for="(group, groupIdx) in uiStore.getEventGroups(
+                v-for="(group, groupIdx) in getEventGroups(
                   eventStore
                     .getEventsForDay(new Date(day.date))
                     .filter((e) => e.allDay)
@@ -513,7 +513,7 @@
             </div>
             <div class="flex-1 relative h-full overflow-hidden">
               <template
-                v-for="(group, groupIdx) in uiStore.getEventGroups(
+                v-for="(group, groupIdx) in getEventGroups(
                   eventStore
                     .getEventsForDay(new Date(uiStore.currentDate))
                     .filter((e) => e.allDay)
@@ -609,7 +609,7 @@
             <div class="events absolute top-0 left-0 right-0 z-10">
               <!-- 日视图事件渲染区域 -->
               <div
-                v-for="(group, groupIdx) in uiStore.getEventGroups(
+                v-for="(group, groupIdx) in getEventGroups(
                   eventStore
                     .getEventsForDay(new Date(uiStore.currentDate))
                     .filter((e) => !e.allDay)
@@ -757,9 +757,9 @@
  * @file CalendarMain.vue
  * @description 主日历组件，负责展示月、周、日视图以及相关的事件
  */
-import { useUiStore } from "../stores/ui";
-import { useEventStore } from "../stores/event";
-import { useSettingStore } from "../stores/setting";
+import { useUiStore } from "@/stores/ui";
+import { useEventStore } from "@/stores/event";
+import { useSettingStore } from "@/stores/setting";
 import {
   formatHour,
   formatTime,
@@ -772,7 +772,7 @@ import {
   getMonthDays,
   getWeekDays,
   getWeekDayNames
-} from "../utils";
+} from "@/utils";
 
 // 使用 Pinia 仓库
 const uiStore = useUiStore();

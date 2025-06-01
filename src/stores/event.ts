@@ -1,7 +1,7 @@
 import { defineStore } from "pinia";
 import { ref, computed, nextTick, watch } from "vue";
 import { useUiStore } from "./ui";
-import { formatDateForInput } from "../utils";
+import { formatDateForInput } from "@/utils";
 import { EventType, Event, FilterType, Category, colorOptions } from "../const";
 
 declare global {

@@ -11,7 +11,7 @@ import { createTodoModule } from "./main/todo";
 import { createViewModule } from "./sidebar/view";
 import { createCategoryModule } from "./sidebar/category";
 
-import { CalendarDay, WeekViewDay, Event } from "../../const";
+import { CalendarDay, WeekViewDay, Event } from "@/const";
 
 export const useUiStore = defineStore("ui", () => {
   // 核心状态

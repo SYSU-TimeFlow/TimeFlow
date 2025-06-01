@@ -1,49 +1,8 @@
-import { computed } from "vue";
 import { useEventStore } from "../../event";
-import { getStartOfWeek, getEndOfWeek } from "../../../utils";
-import { CalendarDay } from "../../../const";
 
 export const createMonthModule = (storeContext: any) => {
   const { currentDate, selectedDate, draggedEvent, openNewEventModal } =
     storeContext;
-
-  // 月视图的日期格子数据
-  const calendarDays = computed(() => {
-    const days: CalendarDay[] = [];
-    const monthStart = new Date(
-      currentDate.value.getFullYear(),
-      currentDate.value.getMonth(),
-      1
-    );
-    const monthEnd = new Date(
-      currentDate.value.getFullYear(),
-      currentDate.value.getMonth() + 1,
-      0
-    );
-    const startDate = getStartOfWeek(monthStart);
-    const endDate = getEndOfWeek(monthEnd);
-
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    let currentDay = new Date(startDate);
-    while (currentDay <= endDate) {
-      const isCurrentMonth =
-        currentDay.getMonth() === currentDate.value.getMonth();
-      const isToday = currentDay.getTime() === today.getTime();
-      const isWeekend = currentDay.getDay() === 0 || currentDay.getDay() === 6;
-
-      days.push({
-        date: new Date(currentDay),
-        dayNumber: currentDay.getDate(),
-        isCurrentMonth,
-        isToday,
-        isWeekend,
-      });
-      currentDay.setDate(currentDay.getDate() + 1);
-    }
-    return days;
-  });
 
   function handleDayClick(day: any, isAddEvent = false) {
     if (day.isCurrentMonth) {
@@ -105,7 +64,6 @@ export const createMonthModule = (storeContext: any) => {
   }
 
   return {
-    calendarDays,
     handleDayClick,
     handleMonthDrop,
   };
