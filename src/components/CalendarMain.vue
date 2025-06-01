@@ -297,7 +297,7 @@
                 top: `${(h_idx - 1) * 64 + 8}px`, // MODIFIED: Adjusted top calculation
                 height: '1px',
                 backgroundColor: 'var(--border-color)',
-                zIndex: 0, //确保线条在hour-cell背景之上，但在事件之下
+                zIndex: 2, //确保线条在hour-cell背景之上，但在事件之下
               }"
             ></div>
             <!-- 事件渲染区域 -->
@@ -1226,4 +1226,10 @@ const settingStore = useSettingStore();
 .dark-mode .event-resize-handle:hover {
   background-color: rgba(74, 136, 229, 0.3);
 }
+.event-resize-handle.top-handle {
+  top: 0; /* 上边框 */
+}
+.event-resize-handle.bottom-handle {
+  bottom: 0; /* 下边框 */
+} 
 </style>
