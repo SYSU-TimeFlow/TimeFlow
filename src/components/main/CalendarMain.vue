@@ -1000,87 +1000,6 @@ watch(currentTime, () => {
   color: var(--text-tertiary);
 }
 
-/* 暗黑模式下的日期号优化 */
-.dark-mode .day-number {
-  color: var(--date-number-color);
-  font-weight: 500;
-}
-
-/* 当月日期和非当月日期的区分 */
-.dark-mode .calendar-day:not(.is-current-month) .day-number {
-  color: var(--text-tertiary);
-  opacity: 0.7;
-}
-
-/* 当前月份的日期格子 */
-.dark-mode .calendar-day.is-current-month {
-  background-color: var(--calendar-day-bg);
-}
-
-/* 暗黑模式下的小时格子悬停样式 */
-.dark-mode .hour-cell:hover {
-  background-color: var(
-    --calendar-day-hover-bg
-  ) !important; /* 使用变量控制颜色 */
-  border-color: #4a88e5 !important;
-}
-
-/* 暗黑模式下事件颜色调整 */
-.dark-mode .event-item,
-.dark-mode .day-event {
-  /* 增加不透明度以提高可见度 */
-  opacity: 0.9;
-  /* 添加微弱的发光效果增强可见性 */
-  box-shadow: 0 1px 5px rgba(255, 255, 255, 0.05);
-}
-
-.dark-mode .event-item:hover,
-.dark-mode .day-event:hover {
-  opacity: 1;
-  box-shadow: 0 2px 8px rgba(255, 255, 255, 0.1);
-}
-
-/* 事件时间文本在暗黑模式下的调整 */
-.dark-mode .event-time {
-  font-weight: 600; /* 加粗时间显示 */
-}
-
-/* 覆盖日历格子悬停效果 */
-.dark-mode .calendar-day:hover {
-  background-color: var(
-    --calendar-day-hover-bg
-  ) !important; /* 使用变量控制颜色 */
-  border-color: #4a88e5 !important; /* 使用深蓝色边框 */
-  box-shadow: 0 0 0 1px rgba(74, 136, 229, 0.3);
-}
-
-/* 高亮边框样式调整 */
-.dark-mode .hour-cell:hover::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  border: 1px solid #4a88e5;
-  pointer-events: none;
-  z-index: 2;
-}
-
-/* 暗黑模式下的事件文本颜色调整 */
-.dark-mode .event-title {
-  color: var(--event-title-color) !important; /* 使用新变量 */
-}
-
-.dark-mode .event-description {
-  color: var(--event-description-color) !important; /* 使用新变量 */
-}
-
-.dark-mode .event-time {
-  color: var(--event-time-color) !important; /* 使用新变量 */
-  font-weight: 500; /* 稍微减轻字体粗细 */
-}
-
 /* Both类型事件（待办任务）的特殊样式 */
 .both-event {
   display: flex;
@@ -1135,15 +1054,6 @@ watch(currentTime, () => {
   font-weight: 500;
 }
 
-/* 暗黑模式下的农历日期样式 */
-.dark-mode .lunar-date {
-  color: var(--text-tertiary);
-}
-
-.dark-mode .lunar-month {
-  color: #58a6ff !important; /* 暗黑模式下的蓝色 */
-}
-
 /* 修改字号相关的样式 */
 .day-number {
   font-size: var(--base-font-size);
@@ -1172,17 +1082,6 @@ watch(currentTime, () => {
   border: none !important;
 }
 
-.dark-mode .week-view .day-header .text-sm,
-.dark-mode .week-view .day-header .text-lg {
-  color: var(--text-tertiary) !important;
-}
-
-/* 暗黑模式下修正周视图表头背景、文字和底线颜色 */
-.dark-mode .week-view .day-header {
-  background-color: var(--bg-primary) !important;
-  border-bottom: none !important;
-}
-
 /* 添加半小时格子的样式 */
 .half-hour-cell {
   transition: background-color 0.15s ease;
@@ -1203,15 +1102,6 @@ watch(currentTime, () => {
   border: 1px solid #3b82f6;
   pointer-events: none;
   z-index: 2;
-}
-
-/* 暗黑模式下的半小时格子样式 */
-.dark-mode .half-hour-cell:hover {
-  background-color: var(--bg-primary) !important;
-}
-
-.dark-mode .half-hour-cell:hover::after {
-  border-color: #4a88e5;
 }
 
 .half-hour-cell {
@@ -1262,15 +1152,6 @@ watch(currentTime, () => {
   z-index: 2;
 }
 
-/* 暗黑模式下的时间轴样式 */
-.dark-mode .time-slot:hover::before {
-  background-color: var(--bg-primary);
-}
-
-.dark-mode .time-slot:hover::after {
-  border-color: #4a88e5;
-}
-
 /* 添加事件调整大小的手柄样式 */
 .event-resize-handle {
   position: absolute;
@@ -1285,10 +1166,6 @@ watch(currentTime, () => {
   background-color: rgba(59, 130, 246, 0.3);
 }
 
-/* 暗黑模式下的调整手柄样式 */
-.dark-mode .event-resize-handle:hover {
-  background-color: rgba(74, 136, 229, 0.3);
-}
 .event-resize-handle.top-handle {
   top: 0; /* 上边框 */
 }
@@ -1322,15 +1199,6 @@ watch(currentTime, () => {
   top: 0; /* 确保时间线在容器顶部 */
 }
 
-/* 暗黑模式下的时间线样式 */
-.dark-mode .current-time-line .time-text {
-  color: #58a6ff;
-}
-
-.dark-mode .current-time-line .time-line {
-  background-color: #58a6ff;
-}
-
 /* 时间标签过渡效果 */
 .time-label {
   transition: opacity 0.3s ease;
@@ -1354,16 +1222,5 @@ watch(currentTime, () => {
 /* 为白天模式添加底部边框线 */
 .week-view .grid.grid-cols-\[80px_repeat\(7\,1fr\)\] {
   border-bottom: 1px solid var(--border-color);
-}
-
-/* 暗黑模式下修正周视图表头背景、文字和底线颜色 */
-.dark-mode .week-view .day-header {
-  background-color: var(--bg-primary) !important;
-  border-bottom: none !important;
-}
-
-/* 暗黑模式下移除表头底部边框 */
-.dark-mode .week-view .grid > div:first-child {
-  border-bottom: none !important;
 }
 </style>
