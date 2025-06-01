@@ -11,7 +11,8 @@
 }
 
 /* 或者只对特定元素隐藏 */
-body, html {
+body,
+html {
   scrollbar-width: none;
   -ms-overflow-style: none;
 }
@@ -37,11 +38,21 @@ html::-webkit-scrollbar {
 }
 
 /* 去除所有可聚焦元素的默认焦点样式 */
-button, input, textarea, select, a, div[tabindex], [contenteditable] {
+button,
+input,
+textarea,
+select,
+a,
+div[tabindex],
+[contenteditable] {
   outline: none !important;
 }
 
-button:focus, input:focus, textarea:focus, select:focus, a:focus {
+button:focus,
+input:focus,
+textarea:focus,
+select:focus,
+a:focus {
   outline: none !important;
   box-shadow: none !important;
 }
