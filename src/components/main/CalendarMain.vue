@@ -1335,4 +1335,19 @@ watch(currentTime, () => {
 .time-label {
   transition: opacity 0.3s ease;
 }
+
+/* 去除周视图表头边框 */
+.week-view .day-header {
+  border: none !important;
+}
+
+/* 去除周视图表头底部边框 */
+.week-view .grid > div:first-child {
+  border-bottom: none !important;
+}
+
+/* 去除周视图表头阴影 */
+.week-view .sticky.top-0 {
+  box-shadow: none !important;
+}
 </style>
