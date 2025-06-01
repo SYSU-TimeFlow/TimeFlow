@@ -317,7 +317,7 @@
             >
               <template
                 v-for="(group, groupIdx) in getEventGroups(
-                  eventStore.getEventsForDay(new Date(day.date))
+                  eventStore.getEventsForDay(new Date(day.date)).filter(e => !e.allDay)
                 )"
                 :key="groupIdx"
               >
@@ -606,7 +606,7 @@
               ></div>
             </div>
             <!-- 事件渲染区域 -->
-            <div class="events absolute top-0 left-0 right-0">
+            <div class="events absolute top-0 left-0 right-0 z-10">
               <!-- 日视图事件渲染区域 -->
               <div
                 v-for="(group, groupIdx) in uiStore.getEventGroups(
@@ -1120,6 +1120,12 @@ const settingStore = useSettingStore();
   color: var(--text-tertiary) !important;
 }
 
+/* 暗黑模式下修正周视图表头背景、文字和底线颜色 */
+.dark-mode .week-view .day-header {
+  background-color: var(--bg-secondary) !important;
+  border-bottom: 1px solid var(--border-color) !important;
+}
+
 /* 添加半小时格子的样式 */
 .half-hour-cell {
   transition: background-color 0.15s ease;
@@ -1226,4 +1232,10 @@ const settingStore = useSettingStore();
 .dark-mode .event-resize-handle:hover {
   background-color: rgba(74, 136, 229, 0.3);
 }
+.event-resize-handle.top-handle {
+  top: 0; /* 上边框 */
+}
+.event-resize-handle.bottom-handle {
+  bottom: 0; /* 下边框 */
+} 
 </style>

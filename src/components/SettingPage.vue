@@ -156,57 +156,6 @@
           class="toggle-checkbox accent-blue-600"
         />
       </div>
-      <!-- 通知声音 -->
-      <div class="mb-4 flex items-center justify-between">
-        <span class="flex items-center text-gray-700">
-          <!-- 音符图标 -->
-          <svg
-            class="w-5 h-5 mr-2 text-blue-400"
-            fill="none"
-            viewBox="0 0 24 24"
-          >
-            <path
-              d="M9 18V5l12-2v13"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            />
-            <circle cx="6" cy="18" r="3" fill="currentColor" opacity="0.2" />
-            <circle cx="18" cy="16" r="3" fill="currentColor" opacity="0.2" />
-          </svg>
-          通知声音
-        </span>
-        <input
-          type="checkbox"
-          v-model="settingStore.notificationSound"
-          class="toggle-checkbox accent-blue-600"
-        />
-      </div>
-      <!-- 声效开关 -->
-      <div class="mb-4 flex items-center justify-between">
-        <span class="flex items-center text-gray-700">
-          <svg
-            class="w-5 h-5 mr-2 text-indigo-500"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            viewBox="0 0 24 24"
-          >
-            <path
-              d="M9 19V6l-2 2H5a2 2 0 00-2 2v4a2 2 0 002 2h2l2 2zm7-2a4 4 0 000-8"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            />
-          </svg>
-          声效
-        </span>
-        <input
-          type="checkbox"
-          v-model="settingStore.soundEffect"
-          class="toggle-checkbox accent-blue-600"
-        />
-      </div>
       <!-- 空一行 -->
       <div class="text-gray-700"></div>
       <!-- 日期和时间小标题 -->
@@ -342,35 +291,6 @@
       </div>
       <!-- 空一行 -->
       <div class="text-gray-700"></div>
-      <!-- 其他小标题 -->
-      <div class="text-gray-500 text-sm font-semibold mb-2 mt-2">其他</div>
-      <!-- 系统同步 -->
-      <div class="mb-4 flex items-center justify-between">
-        <span class="flex items-center text-gray-700">
-          <svg
-            class="w-5 h-5 mr-2 text-teal-500"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            stroke-width="2"
-          >
-            <path
-              d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            />
-          </svg>
-          系统同步
-        </span>
-        <input
-          type="checkbox"
-          v-model="settingStore.synced"
-          class="toggle-checkbox accent-blue-600"
-        />
-      </div>
-
-      <!-- 空一行 -->
-      <div class="text-gray-700"></div>
       <!-- 联系我们小标题 -->
       <div class="text-gray-500 text-sm font-semibold mb-2 mt-2">联系我们</div>
       <!-- 关于 -->
@@ -401,7 +321,7 @@
       <div class="mt-6 flex gap-3">
         <!-- 重置按钮 -->
         <button
-          class="w-3/3 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition cursor-pointer !rounded-button whitespace-nowrap font-medium"
+          class="w-3/3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition cursor-pointer !rounded-button whitespace-nowrap font-medium"
           @click="resetSettings"
         >
           重置默认

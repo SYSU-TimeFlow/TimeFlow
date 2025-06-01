@@ -18,16 +18,11 @@ declare global {
 }
 
 export const useSettingStore = defineStore("setting", () => {
-  // 系统同步状态 - 将由加载的设置初始化
-  const synced = ref(true);
-
   // 设置项 - 将由加载的设置初始化
   const themeMode = ref("light");
   const fontSize = ref("medium");
   const iconStyle = ref("default");
   const notifications = ref(true);
-  const notificationSound = ref(false);
-  const soundEffect = ref(false);
   const hour24 = ref(false);
   const showLunar = ref(false);
   const weekStart = ref("0"); // 0 for Sunday, 1 for Monday
@@ -40,13 +35,10 @@ export const useSettingStore = defineStore("setting", () => {
       fontSize: fontSize.value,
       iconStyle: iconStyle.value,
       notifications: notifications.value,
-      notificationSound: notificationSound.value,
-      soundEffect: soundEffect.value,
       hour24: hour24.value,
       showLunar: showLunar.value,
       weekStart: weekStart.value,
       language: language.value,
-      synced: synced.value,
     })
   );
 
@@ -90,22 +82,12 @@ export const useSettingStore = defineStore("setting", () => {
           typeof settings.notifications === "boolean"
             ? settings.notifications
             : true;
-        notificationSound.value =
-          typeof settings.notificationSound === "boolean"
-            ? settings.notificationSound
-            : false;
-        soundEffect.value =
-          typeof settings.soundEffect === "boolean"
-            ? settings.soundEffect
-            : false;
         hour24.value =
           typeof settings.hour24 === "boolean" ? settings.hour24 : false;
         showLunar.value =
           typeof settings.showLunar === "boolean" ? settings.showLunar : false;
         weekStart.value = settings.weekStart || "0";
         language.value = settings.language || "zh-CN";
-        synced.value =
-          typeof settings.synced === "boolean" ? settings.synced : true;
 
         // 加载完设置后应用主题
         applyTheme(themeMode.value);
@@ -145,11 +127,6 @@ export const useSettingStore = defineStore("setting", () => {
 
   // =========================== END 主题管理代码 END ==============================
 
-  // 同步设置状态
-  async function toggleSync() {
-    synced.value = !synced.value;
-  }
-
   // 设置主题
   async function setThemeMode(newTheme: string) {
     themeMode.value = newTheme;
@@ -168,13 +145,10 @@ export const useSettingStore = defineStore("setting", () => {
     fontSize.value = "medium";
     iconStyle.value = "default";
     notifications.value = true;
-    notificationSound.value = false;
-    soundEffect.value = false;
     hour24.value = false;
     showLunar.value = false;
     weekStart.value = "0";
     language.value = "zh-CN";
-    synced.value = true; // 重置时 synced 也应为 true
 
     // 应用默认主题
     applyTheme("light");
@@ -199,16 +173,6 @@ export const useSettingStore = defineStore("setting", () => {
   // 设置通知
   async function setNotifications(value: boolean) {
     notifications.value = value;
-  }
-
-  // 设置通知声音
-  async function setNotificationSound(value: boolean) {
-    notificationSound.value = value;
-  }
-
-  // 设置音效
-  async function setSoundEffect(value: boolean) {
-    soundEffect.value = value;
   }
 
   // 设置24小时制
@@ -258,13 +222,10 @@ export const useSettingStore = defineStore("setting", () => {
 
   return {
     // 状态变量
-    synced,
     themeMode,
     fontSize,
     iconStyle,
     notifications,
-    notificationSound,
-    soundEffect,
     hour24,
     showLunar,
     weekStart,
@@ -274,14 +235,11 @@ export const useSettingStore = defineStore("setting", () => {
     allSettings,
 
     // 设置操作方法
-    toggleSync,
     setThemeMode,
     setLanguage,
     setFontSize,
     setIconStyle,
     setNotifications,
-    setNotificationSound,
-    setSoundEffect,
     setHour24,
     setShowLunar,
     setWeekStart,
