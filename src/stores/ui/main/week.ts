@@ -79,42 +79,108 @@ export const createWeekModule = (storeContext: any) => {
     document.addEventListener("mouseup", handleMouseUp);
   }
 
+  // 计算鼠标位置对应的时间
+  function calculateTimeFromMousePosition(event: DragEvent, day: any) {
+    const rect = (event.target as HTMLElement).getBoundingClientRect();
+    const mouseY = event.clientY;
+    const relativeY = mouseY - rect.top;
+    const hourHeight = rect.height;
+
+    // 计算小时和分钟（只保留整点和半点）
+    const hour = day.hour;
+    const minute = relativeY > hourHeight * 0.5 ? 30 : 0;
+
+    return { hour, minute };
+  }
+
+  // 检查时间是否有效
+  function isValidTime(hour: number, minute: number) {
+    return hour >= 0 && hour < 24 && minute >= 0 && minute < 60 && minute % 5 === 0;
+  }
+
+  // 检查时间变化是否足够大
+  function isTimeChangeSignificant(originalTime: Date, newTime: Date): boolean {
+    const timeDiff = Math.abs(newTime.getTime() - originalTime.getTime());
+    // 如果时间差超过5分钟（300000毫秒），则认为变化显著
+    return timeDiff >= 300000;
+  }
+
   function handleWeekDrop(event: DragEvent, day: any) {
     const eventStore = useEventStore();
 
     if (draggedEvent.value && event.dataTransfer) {
       const eventId = parseInt(event.dataTransfer.getData("text/plain"));
       const eventIndex = eventStore.events.findIndex((e) => e.id === eventId);
+
       if (eventIndex !== -1) {
         const originalEvent = eventStore.events[eventIndex];
 
-        // 检查是否为待办类型事件（both类型且无实际开始时间）
+        // 如果是全天事件，保持全天状态并更新日期
+        if (originalEvent.allDay) {
+          const newStartForAllDay = new Date(day.date);
+          newStartForAllDay.setHours(0, 0, 0, 0);
+          const newEndForAllDay = new Date(day.date);
+          newEndForAllDay.setHours(23, 59, 59, 999);
+
+          eventStore.events[eventIndex] = {
+            ...originalEvent,
+            start: newStartForAllDay,
+            end: newEndForAllDay,
+          };
+          draggedEvent.value = null;
+          return;
+        }
+
+        // 计算新的时间
+        const { hour, minute } = calculateTimeFromMousePosition(event, day);
+
+        // 检查时间是否有效
+        if (!isValidTime(hour, minute)) {
+          // 如果时间无效，可以选择阻止默认行为或仅清理拖拽状态
+          // event.preventDefault(); // 通常在ondragover中处理以显示可拖放状态
+          draggedEvent.value = null; // 清理拖拽状态
+          return;
+        }
+
+        // 待办类型事件（both类型且无实际开始时间）
         if (
           originalEvent.eventType === "both" &&
           new Date(originalEvent.start).getFullYear() <= 1970
         ) {
-          // 对于待办类型，只修改截止日期(end)，保持相同的时间点
-          const originalEnd = new Date(originalEvent.end);
-          const newEnd = new Date(day.date);
-          newEnd.setHours(originalEnd.getHours(), originalEnd.getMinutes());
+          const newEnd = new Date(day.date); // 使用拖放目标日的日期
+          newEnd.setHours(hour, minute, 0, 0); // 设置计算出的新时间
+
+          // 检查时间变化是否显著
+          if (!isTimeChangeSignificant(new Date(originalEvent.end), newEnd)) {
+            draggedEvent.value = null;
+            return;
+          }
 
           eventStore.events[eventIndex] = {
             ...originalEvent,
             end: newEnd,
           };
         } else {
-          // 普通事件的原有处理逻辑
+          // 普通事件
           const originalStart = new Date(originalEvent.start);
           const originalEnd = new Date(originalEvent.end);
           const duration = originalEnd.getTime() - originalStart.getTime();
 
-          const newStart = new Date(day.date);
-          newStart.setHours(
-            originalStart.getHours(),
-            originalStart.getMinutes()
-          );
+          const newStart = new Date(day.date); // 使用拖放目标日的日期
+          newStart.setHours(hour, minute, 0, 0); // 设置计算出的新时间
           const newEnd = new Date(newStart.getTime() + duration);
 
+          // 检查时间变化是否显著 (比较日期和时间)
+          if (!isTimeChangeSignificant(originalStart, newStart)) {
+             // 如果仅日期变化但时间点未显著变化，也可能需要更新
+             // 此处逻辑可根据需求调整，若日期变化本身就视为显著，则可移除此判断或调整isTimeChangeSignificant
+             // 当前isTimeChangeSignificant只比较时间戳，所以日期变化也会触发
+            if (originalStart.toDateString() === newStart.toDateString()) {
+                draggedEvent.value = null;
+                return;
+            }
+          }
+          
           eventStore.events[eventIndex] = {
             ...originalEvent,
             start: newStart,

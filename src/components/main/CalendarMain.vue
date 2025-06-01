@@ -299,6 +299,10 @@
                 style="transform: translateY(8px); z-index: 1"
                 @click="uiStore.handleHourClick(day.date, hour - 1)"
                 @dragover.prevent
+                @drop="uiStore.handleWeekDrop($event, {
+                  date: day.date,
+                  hour: hour - 1,
+                })"
               ></div>
             </div>
             <!-- 新增：周视图的每小时横线 -->
@@ -325,8 +329,6 @@
                 width: `calc(100% / 7)`,
                 left: `calc(${(100 * idx) / 7}% )`,
               }"
-              @dragover.prevent
-              @drop="uiStore.handleWeekDrop($event, day)"
             >
               <template
                 v-for="(group, groupIdx) in getEventGroups(
