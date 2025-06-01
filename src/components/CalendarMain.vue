@@ -16,7 +16,7 @@
       <!-- 星期头部 -->
       <div class="grid grid-cols-7 mb-2">
         <div
-          v-for="day in getWeekDays"
+          v-for="day in getWeekDayNames(settingStore.weekStart)"
           :key="day"
           class="text-sm font-medium text-gray-500 pb-2 text-center"
         >
@@ -27,7 +27,10 @@
       <div class="grid grid-cols-7 grid-rows-6 gap-1 h-full">
         <!-- 单个日期格子 -->
         <div
-          v-for="(day, index) in getMonthDays"
+          v-for="(day, index) in getMonthDays(
+            new Date(uiStore.currentDate),
+            settingStore.weekStart
+          )"
           :key="index"
           :class="[
             'calendar-day border border-gray-200 h-[180px] p-1 relative flex flex-col', // MODIFIED: Added flex flex-col
@@ -63,13 +66,12 @@
               v-if="settingStore.showLunar"
               class="lunar-date text-xs"
               :class="{
-                'lunar-month': settingStore.getLunarDate(new Date(day.date))
-                  .month,
+                'lunar-month': getLunarDate(new Date(day.date)).month,
               }"
             >
               {{
-                settingStore.getLunarDate(new Date(day.date)).month ||
-                settingStore.getLunarDate(new Date(day.date)).day
+                getLunarDate(new Date(day.date)).month ||
+                getLunarDate(new Date(day.date)).day
               }}
             </span>
           </div>
@@ -171,7 +173,10 @@
             <div></div>
             <!-- 渲染每一天的表头（星期几和日期） -->
             <div
-              v-for="(day, idx) in getWeekViewDays"
+              v-for="(day, idx) in getWeekDays(
+                new Date(uiStore.currentDate),
+                settingStore.weekStart
+              )"
               :key="idx"
               class="day-header flex flex-col items-center justify-center p-2"
             >
@@ -187,7 +192,10 @@
           <!-- 全天事件栏，仅当有全天事件时渲染 -->
           <div
             v-if="
-              getWeekViewDays.some((day) =>
+              getWeekDays(
+                new Date(uiStore.currentDate),
+                settingStore.weekStart
+              ).some((day) =>
                 eventStore
                   .getEventsForDay(new Date(day.date))
                   .some((e) => e.allDay)
@@ -202,7 +210,10 @@
               全天
             </div>
             <div
-              v-for="(day, idx) in getWeekViewDays"
+              v-for="(day, idx) in getWeekDays(
+                new Date(uiStore.currentDate),
+                settingStore.weekStart
+              )"
               :key="'allday-' + idx"
               class="relative h-full overflow-hidden"
             >
@@ -266,7 +277,10 @@
             <!-- 小时格子背景 -->
             <div v-for="hour in 24" :key="hour" class="contents">
               <div
-                v-for="(day, idx) in getWeekViewDays"
+                v-for="(day, idx) in getWeekDays(
+                  new Date(uiStore.currentDate),
+                  settingStore.weekStart
+                )"
                 :key="idx"
                 class="hour-cell relative cursor-pointer select-none"
                 style="transform: translateY(8px); z-index: 1"
@@ -288,7 +302,10 @@
             ></div>
             <!-- 事件渲染区域 -->
             <div
-              v-for="(day, idx) in getWeekViewDays"
+              v-for="(day, idx) in getWeekDays(
+                new Date(uiStore.currentDate),
+                settingStore.weekStart
+              )"
               :key="idx"
               class="absolute left-0 top-0 h-full"
               :style="{
@@ -743,7 +760,6 @@
 import { useUiStore } from "../stores/ui";
 import { useEventStore } from "../stores/event";
 import { useSettingStore } from "../stores/setting";
-import { computed } from "vue";
 import {
   formatHour,
   formatTime,
@@ -751,28 +767,17 @@ import {
   calculateEventHeight,
   calculateEventTop,
   getContrastColor,
-  getEventGroups, // 新增
+  getEventGroups,
+  getLunarDate,
+  getMonthDays,
+  getWeekDays,
+  getWeekDayNames
 } from "../utils";
 
 // 使用 Pinia 仓库
 const uiStore = useUiStore();
 const eventStore = useEventStore();
 const settingStore = useSettingStore();
-
-// 计算属性：根据周起始日获取星期几显示顺序
-const getWeekDays = computed(() => {
-  return settingStore.getWeekDayNames();
-});
-
-// 计算属性：根据周起始日获取月视图的日期顺序
-const getMonthDays = computed(() => {
-  return settingStore.getMonthDays(new Date(uiStore.currentDate));
-});
-
-// 计算属性：根据周起始日获取周视图的日期顺序
-const getWeekViewDays = computed(() => {
-  return settingStore.getWeekDays(new Date(uiStore.currentDate));
-});
 </script>
 
 <style scoped>

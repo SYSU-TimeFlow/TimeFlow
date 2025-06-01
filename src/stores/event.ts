@@ -364,9 +364,7 @@ export const useEventStore = defineStore("event", () => {
   const eventShake = ref(false);
 
   // 保存待办事项（响应式状态实现）
-  const saveTodo = async (
-    hasDeadlineParam?: boolean
-  ) => {
+  const saveTodo = async (hasDeadlineParam?: boolean) => {
     // 标题校验
     if (!currentEvent.value.title || currentEvent.value.title.trim() === "") {
       todoError.value = "标题不能为空";
@@ -431,15 +429,6 @@ export const useEventStore = defineStore("event", () => {
     }
     uiStore.closeTodoModal();
   };
-
-  // 关闭待办事项模态框
-
-  // 设置时间为一天的末尾 (23:59:59)
-  function setTimeToEndOfDay(date: Date): Date {
-    const newDate = new Date(date);
-    newDate.setHours(23, 59, 59, 0);
-    return newDate;
-  }
 
   // 空状态消息（根据当前过滤器显示不同消息）
   const emptyStateMessage = computed(() => {
@@ -588,7 +577,6 @@ export const useEventStore = defineStore("event", () => {
 
     // 工具函数
     getEventsForDay,
-    setTimeToEndOfDay,
 
     // 分类相关方法
     toggleCategory,
