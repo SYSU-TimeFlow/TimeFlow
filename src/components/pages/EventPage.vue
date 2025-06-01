@@ -165,8 +165,13 @@ const modalRef = ref(null);
  * 处理ESC键关闭设置模态框
  */
 function handleKeyDown(event) {
-  if (event.key === "Escape" && uiStore.showEventModal) {
-    uiStore.closeEventModal();
+  if (uiStore.showEventModal) {
+    if(event.key === "Escape") {
+      uiStore.closeEventModal();
+    }else if(event.key == "Enter") {
+      eventStore.saveEvent();
+      uiStore.closeEventModal();
+    }
   }
 }
 
