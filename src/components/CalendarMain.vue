@@ -297,7 +297,7 @@
                 top: `${(h_idx - 1) * 64 + 8}px`, // MODIFIED: Adjusted top calculation
                 height: '1px',
                 backgroundColor: 'var(--border-color)',
-                zIndex: 2, //确保线条在hour-cell背景之上，但在事件之下
+                zIndex: 0, //确保线条在hour-cell背景之上，但在事件之下
               }"
             ></div>
             <!-- 事件渲染区域 -->
@@ -317,7 +317,7 @@
             >
               <template
                 v-for="(group, groupIdx) in getEventGroups(
-                  eventStore.getEventsForDay(new Date(day.date))
+                  eventStore.getEventsForDay(new Date(day.date)).filter(e => !e.allDay)
                 )"
                 :key="groupIdx"
               >
@@ -606,7 +606,7 @@
               ></div>
             </div>
             <!-- 事件渲染区域 -->
-            <div class="events absolute top-0 left-0 right-0">
+            <div class="events absolute top-0 left-0 right-0 z-10">
               <!-- 日视图事件渲染区域 -->
               <div
                 v-for="(group, groupIdx) in uiStore.getEventGroups(
@@ -1118,6 +1118,12 @@ const settingStore = useSettingStore();
 .dark-mode .week-view .day-header .text-sm,
 .dark-mode .week-view .day-header .text-lg {
   color: var(--text-tertiary) !important;
+}
+
+/* 暗黑模式下修正周视图表头背景、文字和底线颜色 */
+.dark-mode .week-view .day-header {
+  background-color: var(--bg-secondary) !important;
+  border-bottom: 1px solid var(--border-color) !important;
 }
 
 /* 添加半小时格子的样式 */
