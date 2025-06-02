@@ -3,5 +3,20 @@
   "files": ["main.js", "./dist", "preload.js", "ipcHandlers.js"],
   "directories": {
     "output": "./build"
+  },
+  "nsis": {
+    "oneClick": false,
+    "perMachine": true,
+    "allowElevation": true,
+    "installerIcon": "./assets/icon.ico",
+    "uninstallerIcon": "./assets/icon.ico",
+    "uninstallDisplayName": "TimeFlow",
+    "createDesktopShortcut": true,
+    "createStartMenuShortcut": true,
+    "shortcutName": "TimeFlow",
+    "allowToChangeInstallationDirectory": true
+  },
+  "win": {
+    "icon": "./assets/icon.ico"
   }
 }
