@@ -84,10 +84,10 @@
     <!-- 反馈问卷弹窗 -->
     <div
       v-if="showFeedbackModal"
-      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+      class="fixed inset-0 bg-transparent backdrop-blur-sm flex items-center justify-center z-50"
       @click="showFeedbackModal = false"
     >
-      <div class="bg-white rounded-lg w-[448px] h-[600px] relative" @click.stop>
+      <div class="bg-white rounded-lg w-[600px] h-[600px] relative" @click.stop>
         <!-- 关闭按钮 -->
         <button
           @click="showFeedbackModal = false"
@@ -97,7 +97,7 @@
         </button>
         <!-- 问卷iframe -->
         <iframe
-          src="https://www.wjx.cn/vm/wt4ZPHO.aspx"
+          src="https://www.wjx.cn/vm/QmIwc3u.aspx"
           class="w-full h-full rounded-lg"
           frameborder="0"
         ></iframe>
