@@ -66,6 +66,43 @@
     <ViewSelector />
     <!-- 分类列表，它不会在 todo 视图显示 -->
     <Categories v-if="uiStore.currentView !== 'todo-list'" />
+
+    <!-- 反馈按钮 -->
+    <button
+      class="feedback-btn mx-4 mt-auto mb-4 py-2 px-4 bg-gray-100 text-gray-700 rounded-lg flex items-center justify-center hover:bg-gray-200 transition cursor-pointer !rounded-button whitespace-nowrap"
+      @click="showFeedbackModal = true"
+    >
+      <i
+        :class="[
+          'fas fa-comment-alt',
+          !uiStore.sidebarCollapsed ? 'mr-2' : '', // 根据折叠状态设置边距
+        ]"
+      ></i>
+      <span v-if="!uiStore.sidebarCollapsed">我要反馈</span>
+    </button>
+
+    <!-- 反馈问卷弹窗 -->
+    <div
+      v-if="showFeedbackModal"
+      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+      @click="showFeedbackModal = false"
+    >
+      <div class="bg-white rounded-lg w-[448px] h-[600px] relative" @click.stop>
+        <!-- 关闭按钮 -->
+        <button
+          @click="showFeedbackModal = false"
+          class="absolute right-2 top-2 w-8 h-8 flex items-center justify-center text-gray-500 hover:text-gray-700"
+        >
+          <i class="fas fa-times text-xl"></i>
+        </button>
+        <!-- 问卷iframe -->
+        <iframe
+          src="https://www.wjx.cn/vm/wt4ZPHO.aspx"
+          class="w-full h-full rounded-lg"
+          frameborder="0"
+        ></iframe>
+      </div>
+    </div>
   </aside>
 </template>
 
@@ -74,10 +111,14 @@ import ViewSelector from "./ViewSelector.vue";
 import Categories from "./Categories.vue";
 import { useUiStore } from "@/stores/ui";
 import { useSettingStore } from "@/stores/setting";
+import { ref } from "vue";
 
 // 使用Pinia仓库
 const uiStore = useUiStore();
 const settingStore = useSettingStore();
+
+// 控制反馈弹窗显示
+const showFeedbackModal = ref(false);
 </script>
 
 <style scoped>
@@ -165,5 +206,21 @@ const settingStore = useSettingStore();
 
 .nav-item-icon {
   font-size: var(--base-font-size);
+}
+
+/* 反馈按钮样式 */
+.feedback-btn {
+  border: 1px solid var(--border-color);
+}
+
+.dark-mode .feedback-btn {
+  background-color: #2a3241;
+  color: var(--text-secondary);
+  border-color: var(--border-color);
+}
+
+.dark-mode .feedback-btn:hover {
+  background-color: #3a5277;
+  color: var(--text-primary);
 }
 </style>
