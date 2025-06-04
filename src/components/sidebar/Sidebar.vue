@@ -70,7 +70,7 @@
     <!-- 反馈按钮 -->
     <button
       class="feedback-btn mx-4 mt-auto mb-4 py-2 px-4 bg-gray-100 text-gray-700 rounded-lg flex items-center justify-center hover:bg-gray-200 transition cursor-pointer !rounded-button whitespace-nowrap"
-      @click="showFeedbackModal = true"
+      @click="uiStore.showFeedbackModal = true"
     >
       <i
         :class="[
@@ -81,44 +81,26 @@
       <span v-if="!uiStore.sidebarCollapsed">我要反馈</span>
     </button>
 
-    <!-- 反馈问卷弹窗 -->
-    <div
-      v-if="showFeedbackModal"
-      class="fixed inset-0 bg-transparent backdrop-blur-sm flex items-center justify-center z-50"
-      @click="showFeedbackModal = false"
-    >
-      <div class="bg-white rounded-lg w-[600px] h-[600px] relative" @click.stop>
-        <!-- 关闭按钮 -->
-        <button
-          @click="showFeedbackModal = false"
-          class="absolute right-2 top-2 w-8 h-8 flex items-center justify-center text-gray-500 hover:text-gray-700"
-        >
-          <i class="fas fa-times text-xl"></i>
-        </button>
-        <!-- 问卷iframe -->
-        <iframe
-          src="https://www.wjx.cn/vm/QmIwc3u.aspx"
-          class="w-full h-full rounded-lg"
-          frameborder="0"
-        ></iframe>
-      </div>
-    </div>
+    <!-- 反馈弹窗 -->
+    <FeedBackPage v-if="uiStore.showFeedbackModal" />
+
   </aside>
 </template>
 
 <script setup>
 import ViewSelector from "./ViewSelector.vue";
 import Categories from "./Categories.vue";
+import FeedBackPage from "../pages/FeedBackPage.vue";
 import { useUiStore } from "@/stores/ui";
-import { useSettingStore } from "@/stores/setting";
-import { ref } from "vue";
+// import { useSettingStore } from "@/stores/setting";
+// import { ref } from "vue";
 
 // 使用Pinia仓库
 const uiStore = useUiStore();
-const settingStore = useSettingStore();
+// const settingStore = useSettingStore();
 
 // 控制反馈弹窗显示
-const showFeedbackModal = ref(false);
+// const showFeedbackModal = ref(false);
 </script>
 
 <style scoped>

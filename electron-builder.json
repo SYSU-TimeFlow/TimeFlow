@@ -18,5 +18,9 @@
   },
   "win": {
     "icon": "./assets/icon.ico"
+  },
+  "mac": {
+    "icon": "./assets/icon.icns",
+    "category": "public.app-category.productivity"
   }
 }

@@ -11,6 +11,7 @@ export const createPageModule = (storeContext: any) => {
   const showCategoryModal = ref(false);
   const showEventModal = ref(false);
   const showTodoModal = ref(false);
+  const showFeedbackModal = ref(false);
 
   // 模态框控制
   function toggleHelpModal() {
@@ -276,6 +277,7 @@ export const createPageModule = (storeContext: any) => {
     showTodoModal,
     showToggleButton,
     showSettings,
+    showFeedbackModal,
     toggleSettings,
     closeSettings,
     openCategoryDetails,

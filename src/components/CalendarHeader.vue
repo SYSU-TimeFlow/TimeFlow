@@ -216,7 +216,7 @@
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
         >
-          <g stroke="#888" stroke-width="1.2">
+          <g stroke="#606060" stroke-width="1.2">
             <line x1="11" y1="1.5" x2="11" y2="4" />
             <line x1="11" y1="18" x2="11" y2="20.5" />
             <line x1="1.5" y1="11" x2="4" y2="11" />
@@ -231,7 +231,7 @@
             cy="11"
             r="5"
             fill="#fff"
-            stroke="#888"
+            stroke="#606060"
             stroke-width="2"
           />
         </svg>
@@ -239,12 +239,11 @@
         <svg
           v-else
           class="theme-moon"
-          width="19"
-          height="19"
+          width="22"
+          height="22"
           viewBox="0 0 24 24"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
-          style="transform: translateX(5px)"
         >
             <path
             d="M19.5 17.5A9.5 9.5 0 0 1 10 3.26A9.503 9.503 0 0 0 10 22a9.5 9.5 0 0 0 9.5-4.5z"
