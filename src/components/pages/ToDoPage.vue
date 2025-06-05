@@ -153,7 +153,7 @@ function handleKeyDown(event) {
   if (uiStore.showTodoModal) {
     if(event.key === "Escape") {
       uiStore.closeTodoModal();
-    }else if(event.key == "Enter") {
+    } else if(event.key === "Enter") {
       saveTodo();
       uiStore.closeTodoModal();
     }
