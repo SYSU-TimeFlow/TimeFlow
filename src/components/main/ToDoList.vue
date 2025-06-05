@@ -67,7 +67,7 @@
 
                   <!-- 标题 -->
                   <div
-                    class="font-medium text-base truncate max-w-[200px] sm:max-w-[300px]"
+                    class="font-medium truncate max-w-[200px] sm:max-w-[300px]"
                     :class="{ 'line-through text-gray-500': todo.completed }"
                   >
                     {{ todo.title }}
@@ -108,7 +108,7 @@
               <!-- 右侧操作区：截止时间单独渲染，删除按钮单独渲染 -->
               <div
                 v-if="todo.end && new Date(todo.end).getFullYear() > 1970"
-                class="text-sm flex items-center gap-1 mr-4"
+                class="flex items-center gap-1 mr-4"
               >
                 <i class="far fa-clock text-xs flex-shrink-0"></i>
                 <span
