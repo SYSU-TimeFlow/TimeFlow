@@ -51,12 +51,11 @@ jobs:
 
   build:
     needs: check-version
-    if: needs.check-version.outputs.should_build == 'true' || startsWith(github.ref, 'refs/tags/')  
-    # 如果需要构建或者是标签触发，则执行构建任务
+    if: needs.check-version.outputs.should_build == 'true' || startsWith(github.ref, 'refs/tags/')
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [macos-latest, windows-latest]
+        os: [macos-latest, windows-latest, ubuntu-latest]
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -78,11 +77,18 @@ jobs:
         id: find-files
         shell: bash
         run: |
-          # 查找安装包的路径
-          EXE_PATH=$(find build -name '*.exe' -not -path '*unpacked*' | head -1)
-          DMG_PATH=$(find build -name '*.dmg' | head -1)
-          echo "exe_path=$EXE_PATH" >> $GITHUB_OUTPUT
-          echo "dmg_path=$DMG_PATH" >> $GITHUB_OUTPUT
+          if [ "${{ matrix.os }}" == "macos-latest" ]; then
+            DMG_PATH=$(find build -name '*.dmg' | head -1)
+            echo "dmg_path=$DMG_PATH" >> $GITHUB_OUTPUT
+          elif [ "${{ matrix.os }}" == "windows-latest" ]; then
+            EXE_PATH=$(find build -name '*.exe' -not -path '*unpacked*' | head -1)
+            echo "exe_path=$EXE_PATH" >> $GITHUB_OUTPUT
+          elif [ "${{ matrix.os }}" == "ubuntu-latest" ]; then
+            APPIMAGE_PATH=$(find build -name '*.AppImage' | head -1)
+            TAR_GZ_PATH=$(find build -name '*.tar.gz' | head -1)
+            echo "appimage_path=$APPIMAGE_PATH" >> $GITHUB_OUTPUT
+            echo "tar_gz_path=$TAR_GZ_PATH" >> $GITHUB_OUTPUT
+          fi
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4  # 上传构建生成的安装文件作为工作流的工件
@@ -91,6 +97,8 @@ jobs:
           path: |
             ${{ steps.find-files.outputs.exe_path }}
             ${{ steps.find-files.outputs.dmg_path }}
+            ${{ steps.find-files.outputs.appimage_path }}
+            ${{ steps.find-files.outputs.tar_gz_path }}
 
   publish:
     needs: build
@@ -106,7 +114,6 @@ jobs:
       - name: Get current version
         id: current
         run: |
-          # 从 package.json 中获取当前版本号并输出
           CURRENT_VERSION=$(node -p "require('./package.json').version")
           echo "current_version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
 

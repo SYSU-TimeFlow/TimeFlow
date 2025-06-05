@@ -24,8 +24,8 @@
     "category": "public.app-category.productivity"
   },
   "linux": {
-    "target": ["AppImage", "tar.gz"], // Arch 用户常用格式
-    "icon": "./assets/icon.png",      // 必须提供 PNG 图标（至少 512x512）
-    "category": "Utility",            // 应用分类（如 Utility、Development 等）
+    "target": ["AppImage", "tar.gz"],
+    "icon": "./assets/icon.png",
+    "category": "Utility"
   }
 }
