@@ -30,7 +30,7 @@ test('openPages', async () => {
     await page.getByTitle('关闭', { exact: true }).click();
 
     // 打开分类页面
-    await page.getByRole('button', { name: '+' }).click();
+    await page.getByTitle('添加新分类', { exact: true }).click();
     await expect(page.getByRole('heading', { name: '添加分类' })).toBeVisible();
     await page.getByRole('button', { name: '' }).nth(1).click();
 
@@ -39,11 +39,11 @@ test('openPages', async () => {
     await expect(page.getByRole('heading', { name: 'New Event' })).toBeVisible();
     await page.getByRole('button', { name: '' }).nth(1).click();
     await page.getByRole('button', { name: ' 周' }).click();
-    await page.locator('buttonui').click();
+    await page.getByText('Add Event').click();
     await expect(page.getByRole('heading', { name: 'New Event' })).toBeVisible();
     await page.getByRole('button', { name: '' }).nth(1).click();
     await page.getByRole('button', { name: ' 日' }).click();
-    await page.locator('buttonui').click();
+    await page.getByText('Add Event').click();
     await expect(page.getByRole('heading', { name: 'New Event' })).toBeVisible();
     await page.getByRole('button', { name: '' }).nth(1).click();
     await page.getByRole('button', { name: ' 待办' }).click();
