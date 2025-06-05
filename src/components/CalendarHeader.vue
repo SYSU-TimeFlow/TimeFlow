@@ -392,15 +392,15 @@ function sendEventNotification(event: any, type: string) {
   if (targetTime && !isNaN(targetTime.getTime())) {
     const diff = Math.round((targetTime.getTime() - now.getTime()) / 60000);
     if (diff > 0) {
-      timeInfo = `（还有${diff}分钟）`;
+      timeInfo = `还有${diff}分钟`;
     }
   }
 
   let body = "";
   if (type === "即将开始") {
-    body = `日程${type}${event.title}：${timeInfo}开始`;
+    body = `${timeInfo}开始`;
   } else {
-    body = `日程${type}${event.title}：${timeInfo}结束`;
+    body = `${timeInfo}结束`;
   }
 
   // 通过 Electron API 发送通知
