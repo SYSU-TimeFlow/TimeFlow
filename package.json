@@ -1,11 +1,11 @@
 {
   "name": "TimeFlow",
   "private": true,
-  "version": "1.1.7",
+  "version": "1.1.8",
   "type": "module",
   "main": "./main.js",
   "config": {
-    "buildTrigger": 1
+    "buildTrigger": "0"
   },
   "scripts": {
     "dev": "vite",
