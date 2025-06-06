@@ -34,7 +34,7 @@
               v-for="todo in eventStore.filteredTodos"
               :key="todo.id"
               @click="uiStore.openEditTodoModal(todo)"
-              class="flex justify-between items-center p-3 bg-white rounded-2xl shadow-sm hover:shadow-md transition cursor-pointer border-l-4 group todo-item min-h-[3rem] h-[3rem]"
+              class="flex justify-between items-center p-3 bg-white rounded-[12px] shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 ease-in-out cursor-pointer border-l-4 group min-h-[3rem] h-[3rem]"
               :style="{
                 borderLeftColor:
                   eventStore.categories.find((c) => c.id === todo.categoryId)
@@ -51,7 +51,7 @@
                 <div class="flex items-center gap-2">
                   <!-- 完成状态指示器 -->
                   <div
-                    class="w-5 h-5 rounded-full border flex items-center justify-center cursor-pointer"
+                    class="w-5 h-5 rounded-full border flex items-center justify-center cursor-pointer relative z-10 transition-all duration-200 ease group-hover:border-indigo-400 hover:ring-2 hover:ring-indigo-300/20"
                     :class="
                       todo.completed
                         ? 'bg-indigo-500 border-indigo-600'
@@ -61,7 +61,7 @@
                   >
                     <i
                       v-if="todo.completed"
-                      class="fas fa-check text-white text-xs"
+                      class="fas fa-check text-white small-text"
                     ></i>
                   </div>
 
@@ -79,7 +79,7 @@
                         (c) => c.id === todo.categoryId
                       )
                     "
-                    class="text-xs px-2 py-0.5 rounded-full"
+                    class="small-text px-2 py-0.5 rounded-full"
                     :style="{
                       backgroundColor: `${
                         eventStore.categories.find(
@@ -100,7 +100,7 @@
                   <!-- 备注图标提示 -->
                   <i
                     v-if="todo.description"
-                    class="fas fa-sticky-note text-gray-400 text-xs ml-1 note-icon"
+                    class="fas fa-sticky-note text-gray-400 small-text ml-1 cursor-pointer relative transition-all duration-200 ease hover:text-indigo-500 hover:scale-110"
                     :title="todo.description"
                   ></i>
                 </div>
@@ -110,7 +110,7 @@
                 v-if="todo.end && new Date(todo.end).getFullYear() > 1970"
                 class="flex items-center gap-1 mr-4"
               >
-                <i class="far fa-clock text-xs flex-shrink-0"></i>
+                <i class="far fa-clock small-text flex-shrink-0"></i>
                 <span
                   :class="
                     isOverdue(todo.end) && !todo.completed
@@ -121,7 +121,7 @@
                   {{ formatDateForDisplay(todo.end) }}
                 </span>
               </div>
-              <div class="flex gap-1 todo-actions">
+              <div class="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200 relative z-10">
                 <!-- 删除按钮 -->
                 <button
                   @click.stop="eventStore.deleteEvent(todo.id)"
@@ -138,7 +138,7 @@
             v-if="eventStore.filteredTodos.length === 0"
             class="text-gray-400 text-center py-12"
           >
-            <i class="fas fa-inbox text-3xl mb-2"></i>
+            <i class="fas fa-inbox mb-2"></i>
             <div>{{ eventStore.emptyStateMessage }}</div>
           </div>
         </div>
@@ -191,101 +191,18 @@ function isOverdue(endDate: any): boolean {
 
 <style scoped>
 /* ============================
- * 1. 基础字体和尺寸设置
+ * 1. 基础样式与组件定义
  * ============================ */
-/* 待办事项列表项的基础字体大小 */
-.todo-item {
-  font-size: var(--base-font-size);
-}
-
-/* 防止备注文本溢出，确保长文本正确显示 */
-.truncate {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 80%;
-}
+/* 已用Tailwind的truncate和max-w类实现文本溢出，无需自定义CSS */
 
 /* ============================
- * 2. 列表项基础布局和结构
+ * 2. 交互和动画效果
  * ============================ */
-/* 待办事项列表项的基础布局，确保内容左右分布 */
-.todo-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  min-height: 3rem;
-}
+/* 已用Tailwind类实现todo-item的悬停、过渡、圆角、阴影、上移等效果，无需自定义CSS */
+/* 复选框、操作按钮、备注图标等交互效果也已用Tailwind类实现，无需自定义CSS */
 
 /* ============================
- * 3. 交互和动画效果
- * ============================ */
-/* 为列表项添加平滑过渡效果和圆角 */
-.todo-item {
-  transition: all 0.2s ease;
-  border-radius: 12px;
-}
-
-/* 悬停时轻微上移效果，增强交互感 */
-.todo-item:hover {
-  transform: translateY(-2px);
-}
-
-/* 复选框的过渡动画和层级控制 */
-.todo-item .w-5.h-5 {
-  transition: all 0.2s ease;
-  position: relative;
-  z-index: 10; /* 确保复选框在最上层，便于点击 */
-}
-
-/* 悬停时复选框边框颜色变化，增强可交互性提示 */
-.todo-item:hover .w-5.h-5:not(.bg-indigo-500) {
-  border-color: #818cf8;
-}
-
-/* 鼠标悬停在复选框上时添加发光效果，提升用户体验 */
-.todo-item .w-5.h-5:hover {
-  box-shadow: 0 0 0 2px rgba(129, 140, 248, 0.2);
-}
-
-/* 重复定义，应该合并：待办事项列表项的布局结构 */
-.todo-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  min-height: 3rem;
-}
-
-/* 悬停时显示操作按钮，提供清晰的操作提示 */
-.todo-item:hover .todo-actions {
-  opacity: 1;
-}
-
-/* 操作按钮的基本样式与隐藏/显示逻辑 */
-.todo-actions {
-  flex-shrink: 0;
-  position: relative;
-  z-index: 10;
-  visibility: visible; /* 使按钮始终可见 */
-  opacity: 0; /* 默认透明，悬停时才显示 */
-  transition: opacity 0.2s ease-in-out;
-}
-
-/* 备注图标的基础样式和交互行为 */
-.note-icon {
-  cursor: pointer;
-  position: relative;
-  transition: all 0.2s ease;
-}
-
-/* 备注图标悬停效果 */
-.note-icon:hover {
-  color: #6366f1 !important;
-  transform: scale(1.2);
-}
-
-/* ============================
- * 4. 暗模式适配
+ * 3. 暗模式适配
  * ============================ */
 /* 过滤按钮在暗模式下的活跃状态样式 */
 .dark-mode button[class*="bg-indigo-600"],
