@@ -193,19 +193,22 @@ function isOverdue(endDate: any): boolean {
 /* ============================
  * 1. 基础字体和尺寸设置
  * ============================ */
+/* 待办事项标题的字体大小 */
 .todo-title {
   font-size: var(--heading-font-size);
 }
 
+/* 待办事项列表项的基础字体大小 */
 .todo-item {
   font-size: var(--base-font-size);
 }
 
+/* 待办事项描述文本的字体大小 */
 .todo-description {
   font-size: var(--small-text-font-size);
 }
 
-/* 备注文本限制 */
+/* 防止备注文本溢出，确保长文本正确显示 */
 .truncate {
   white-space: nowrap;
   overflow: hidden;
@@ -216,7 +219,7 @@ function isOverdue(endDate: any): boolean {
 /* ============================
  * 2. 列表项基础布局和结构
  * ============================ */
- /* 确保备注不会影响操作按钮 */
+/* 待办事项列表项的基础布局，确保内容左右分布 */
 .todo-item {
   display: flex;
   justify-content: space-between;
@@ -227,33 +230,35 @@ function isOverdue(endDate: any): boolean {
 /* ============================
  * 3. 交互和动画效果
  * ============================ */
-/* 添加新的样式 */
+/* 为列表项添加平滑过渡效果和圆角 */
 .todo-item {
   transition: all 0.2s ease;
   border-radius: 12px;
 }
 
+/* 悬停时轻微上移效果，增强交互感 */
 .todo-item:hover {
   transform: translateY(-2px);
 }
 
-/* 完成状态指示器动画 */
+/* 复选框的过渡动画和层级控制 */
 .todo-item .w-5.h-5 {
   transition: all 0.2s ease;
   position: relative;
   z-index: 10; /* 确保复选框在最上层，便于点击 */
 }
 
+/* 悬停时复选框边框颜色变化，增强可交互性提示 */
 .todo-item:hover .w-5.h-5:not(.bg-indigo-500) {
   border-color: #818cf8;
 }
 
-/* 增强复选框悬停效果 */
+/* 鼠标悬停在复选框上时添加发光效果，提升用户体验 */
 .todo-item .w-5.h-5:hover {
   box-shadow: 0 0 0 2px rgba(129, 140, 248, 0.2);
 }
 
-/* 确保备注不会影响操作按钮 */
+/* 重复定义，应该合并：待办事项列表项的布局结构 */
 .todo-item {
   display: flex;
   justify-content: space-between;
@@ -261,28 +266,29 @@ function isOverdue(endDate: any): boolean {
   min-height: 3rem;
 }
 
-/* Todo项在悬停时显示按钮 */
+/* 悬停时显示操作按钮，提供清晰的操作提示 */
 .todo-item:hover .todo-actions {
   opacity: 1;
 }
 
-/* 操作按钮显示/隐藏效果 */
+/* 操作按钮的基本样式与隐藏/显示逻辑 */
 .todo-actions {
   flex-shrink: 0;
   position: relative;
   z-index: 10;
   visibility: visible; /* 使按钮始终可见 */
-  opacity: 0; /* 默认透明 */
+  opacity: 0; /* 默认透明，悬停时才显示 */
   transition: opacity 0.2s ease-in-out;
 }
 
-/* 备注图标悬停样式 */
+/* 备注图标的基础样式和交互行为 */
 .note-icon {
   cursor: pointer;
   position: relative;
   transition: all 0.2s ease;
 }
 
+/* 备注图标悬停效果 */
 .note-icon:hover {
   color: #6366f1 !important;
   transform: scale(1.2);
@@ -291,7 +297,7 @@ function isOverdue(endDate: any): boolean {
 /* ============================
  * 4. 暗模式适配
  * ============================ */
-/* Todo视图分类选项颜色调整 */
+/* 过滤按钮在暗模式下的活跃状态样式 */
 .dark-mode button[class*="bg-indigo-600"],
 .dark-mode button[class*="bg-blue-100"][class*="text-blue-700"] {
   background-color: var(--active-item-bg) !important; /* 使用更柔和的灰色 */
@@ -299,23 +305,26 @@ function isOverdue(endDate: any): boolean {
   border-left: 2px solid var(--active-item-border);
 }
 
+/* 过滤按钮在暗模式下的默认状态样式 */
 .dark-mode button[class*="bg-gray-100"] {
   background-color: var(--bg-tertiary) !important;
   color: var(--text-secondary) !important;
 }
 
+/* 过滤按钮在暗模式下的悬停状态样式 */
 .dark-mode button[class*="bg-gray-100"]:hover {
   background-color: var(--hover-bg) !important;
   color: var(--text-primary) !important;
 }
 
-/* 修复重复的过滤按钮样式 */
+/* 自定义过滤按钮在暗模式下的默认状态 */
 .dark-mode .filter-button {
   background-color: var(--bg-tertiary) !important;
   color: var(--text-secondary) !important;
   border: 1px solid var(--border-color);
 }
 
+/* 自定义过滤按钮在暗模式下的活跃状态 */
 .dark-mode .filter-button.active,
 .dark-mode .filter-button[class*="bg-blue-100"] {
   background-color: var(--active-item-bg) !important;
@@ -323,48 +332,51 @@ function isOverdue(endDate: any): boolean {
   border-left: 2px solid var(--active-item-border);
 }
 
-/* 修复底部添加按钮 */
+/* 添加按钮在暗模式下的样式（当前页面已移除此按钮，后续应删除） */
 .dark-mode button[class*="bg-indigo-600"].fixed {
   background-color: var(--button-primary) !important;
   color: var(--text-primary) !important;
 }
 
+/* 添加按钮在暗模式下的悬停效果（当前页面已移除此按钮，后续应删除） */
 .dark-mode button[class*="bg-indigo-600"].fixed:hover {
   background-color: var(--button-primary-hover) !important;
 }
 
-/* 修复标题颜色 */
+/* 修复暗模式下标题颜色 */
 .dark-mode .text-indigo-600 {
   color: var(--heading-color) !important;
 }
 
-/* 调整列表项样式 */
+/* 待办事项列表项在暗模式下的基础样式 */
 .dark-mode .todo-item {
   background-color: var(--bg-secondary) !important;
   box-shadow: 0 1px 3px var(--shadow-color) !important;
 }
 
+/* 待办事项列表项在暗模式下的悬停样式 */
 .dark-mode .todo-item:hover {
   background-color: var(--hover-bg) !important;
   box-shadow: 0 2px 6px var(--shadow-color) !important;
 }
 
-/* 调整待办项目文本颜色 - 修改为实际使用的类选择器 */
+/* 待办事项标题在暗模式下的文本颜色 */
 .dark-mode .todo-item .font-medium {
   color: var(--text-secondary) !important; /* 使用更亮的主文本颜色 */
 }
 
+/* 待办事项辅助文本在暗模式下的颜色 */
 .dark-mode .todo-item .text-gray-400,
 .dark-mode .todo-item .text-gray-500 {
   color: var(--text-secondary) !important; /* 使用次级文本颜色，更容易看清 */
 }
 
-/* 已完成项目的样式调整 */
+/* 已完成待办事项在暗模式下的文本样式 */
 .dark-mode .todo-item .line-through {
   color: var(--text-tertiary) !important; /* 已完成项目可以稍微暗一点 */
 }
 
-/* 暗模式下的额外样式 */
+/* 暗模式下提醒文本（如过期日期）的颜色 */
 .dark-mode .todo-item .text-red-500 {
   color: #ff6b6b !important;
 }
@@ -374,6 +386,7 @@ function isOverdue(endDate: any): boolean {
   background-color: rgba(59, 130, 246, 0.15) !important;
 }
 
+/* 暗模式下蓝色操作按钮的悬停背景效果 */
 .dark-mode .todo-actions button.text-red-500:hover {
   background-color: rgba(239, 68, 68, 0.15) !important;
 }
