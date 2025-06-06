@@ -11,7 +11,7 @@
   --hover-bg: #f3f4f6;
   --active-bg: #e5e7eb;
   --card-bg: #ffffff;
-  --modal-bg: #ffffff;
+  --modal-bg: #ffffff; /* 亮色模式下的模态框背景 */
   --header-bg: #f8fafc;
   --selected-bg: #dbeafe;
   --event-hover-shadow: rgba(0, 0, 0, 0.12);
@@ -42,7 +42,7 @@
 
   /* 卡片和模态框 */
   --card-bg: #161b22;
-  --modal-bg: #1c2128; /* 比背景色稍亮的深灰 */
+  --modal-bg: #1c2128; /* 暗黑模式下的模态框背景 (比背景色稍亮的深灰) */
   --header-bg: #0d1117;
 
   /* 选中状态 - 蓝色主题 */
@@ -93,6 +93,8 @@
   --modal-header-bg: #21262d; /* 模态框头部背景 */
   --modal-footer-bg: #21262d; /* 模态框底部背景 */
   --modal-border: #30363d; /* 模态框边框 */
+  --modal-text-primary-color: #e6edf3; 
+  --modal-text-secondary-color: #8d8d8d; /* 次亮的模态框文本颜色 */
   --modal-title-color: #f0f6fc; /* 最亮的模态框标题，用于重要文字 */
   --modal-label-color: #e6edf3; /* 次亮的模态框标签，用于普通文字 */
   --modal-input-bg: #0d1117; /* 输入框背景更深，增强对比 */
@@ -104,26 +106,31 @@
   --modal-button-secondary: #21262d; /* 次要按钮背景 */
   --modal-button-secondary-hover: #30363d; /* 次要按钮悬停 */
   --modal-shadow: 0 16px 32px rgba(1, 4, 9, 0.85); /* 更明显的阴影 */
-
-  /* 暗黑模式下的滚动条样式 */
-  ::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
-  }
-
-  ::-webkit-scrollbar-track {
-    background: #161b22;
-  }
-
-  ::-webkit-scrollbar-thumb {
-    background: #30363d;
-    border-radius: 4px;
-  }
-
-  ::-webkit-scrollbar-thumb:hover {
-    background: #3f444c;
-  }
 }
+
+/* ====================== pages ======================= */
+
+/*  设置基础样式 (亮色模式) */
+.event-modal, .settings-container {
+  background-color: var(--modal-bg); /* 在亮色模式下使用 :root 中定义的 --modal-bg */
+  color: var(--text-primary); /* 基础文字颜色 */
+  /* 其他基础样式，如圆角、阴影等已由Vue组件中的Tailwind类处理 */
+}
+
+/* 暗黑模式下的模态框样式  */
+.dark-mode .event-modal,
+.dark-mode .settings-container {
+  background-color: var(--modal-bg) !important; /* 使用 .dark-mode 中定义的 --modal-bg */
+  color: var(--modal-text-primary-color); /* 使用 .dark-mode 中定义的 --modal-text-primary-color */
+  border: 1px solid var(--modal-border);
+  box-shadow: var(--modal-shadow);
+}
+
+.dark-mode .settings-container .text-secondary {
+  color: var(--modal-text-secondary-color); /* 使用 .dark-mode 中定义的 --modal-text-secondary-color */
+}
+
+/* ====================== pages ======================= */
 
 /* 覆盖各种组件的默认样式 */
 .dark-mode .bg-blue-600 {
@@ -165,6 +172,15 @@ html,
   color: var(--modal-title-color);
 }
 
+/* 修改：确保 modal-header, modal-body, modal-footer 在暗黑模式下使用正确的背景 */
+.dark-mode .modal-header,
+.dark-mode .modal-body, /* 确保 modal-body 也应用暗黑模式背景 */
+.dark-mode .modal-footer {
+  border-color: var(--modal-border);
+  background-color: var(--modal-bg); /* 确保这些部分也使用暗黑模式的 --modal-bg */
+}
+
+
 .dark-mode .modal-body label {
   color: var(--modal-label-color);
 }
@@ -174,7 +190,15 @@ html,
   background-color: var(--modal-input-bg);
   color: var(--modal-input-text);
   border-color: var(--modal-input-border);
+  /* 确保暗黑模式下输入框焦点样式也由 theme.css 控制或与 Tailwind 协调 */
 }
+
+.dark-mode .modal-body input:focus,
+.dark-mode .modal-body textarea:focus {
+  border-color: #58a6ff !important; /* 来自原scoped CSS */
+  box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.3) !important; /* 来自原scoped CSS */
+}
+
 
 .dark-mode .modal-footer button {
   color: var(--modal-button-text);
@@ -188,246 +212,12 @@ html,
   background-color: var(--modal-button-hover);
 }
 
-/* 暗黑模式下的模态框背景增强 */
-.dark-mode .backdrop-blur-sm {
-  backdrop-filter: blur(8px) !important;
-  -webkit-backdrop-filter: blur(8px) !important;
-  background: rgba(0, 0, 0, 0.6) !important; /* 更深的背景遮罩 */
+/* 暗黑模式下的分类选择器样式 (已存在) */
+.dark-mode .category-option {
+  box-shadow: 0 0 0 2px var(--modal-border), 0 2px 4px rgba(0, 0, 0, 0.4);
 }
 
-/* 暗黑模式下的模态框容器增强 */
-.dark-mode .fixed.inset-0.flex.items-center.justify-center {
-  background: rgba(0, 0, 0, 0.75);
+.dark-mode .category-option.border-gray-800 { /* 当 category-option 同时有 border-gray-800 (亮色模式选中) */
+  box-shadow: 0 0 0 3px #58a6ff !important;
+  border-color: #58a6ff !important;
 }
-
-/* 设置按钮颜色随主题变化，且不受其它按钮 hover 影响 */
-.settings-cog-btn {
-  color: var(--text-secondary);
-}
-.settings-cog-btn:hover {
-  color: var(--text-primary);
-  background-color: var(--hover-bg);
-}
-
-/* 暗黑模式下 */
-.dark-mode .settings-cog-btn {
-  color: var(--icon-color);
-}
-.dark-mode .settings-cog-btn:hover {
-  color: var(--icon-color-hover);
-  background-color: var(--hover-bg);
-}
-
-/* 暗黑模式下的日历相关样式 */
-.dark-mode .calendar-day {
-  background-color: var(--bg-secondary);
-  border-color: var(--border-color) !important;
-}
-
-/* 深色模式下侧边栏Add Event按钮的字体颜色 */
-.dark-mode .add-event-btn {
-  background-color: var(--button-primary) !important;
-  color: var(--text-primary) !important;
-}
-
-.dark-mode .add-event-btn:hover {
-  background-color: var(--button-primary-hover) !important;
-}
-
-.dark-mode .time-label {
-  color: var(--text-tertiary);
-}
-
-/* 深色模式下月视图星期的字体颜色 */
-.dark-mode .calendar-grid .grid-cols-7 .text-sm {
-  color: var(--text-primary);
-}
-
-.dark-mode .day-number {
-  color: var(--date-number-color);
-  font-weight: 500;
-}
-
-.dark-mode .calendar-day:not(.is-current-month) .day-number {
-  color: var(--text-tertiary);
-  opacity: 0.5;
-}
-
-.dark-mode .calendar-day.is-current-month {
-  background-color: var(--calendar-day-bg);
-}
-
-.dark-mode .calendar-day.is-current-month .day-number {
-  color: var(--text-primary);
-  font-weight: 600;
-}
-
-.dark-mode .hour-cell:hover {
-  background-color: var(--calendar-day-hover-bg) !important;
-  border-color: #4a88e5 !important;
-}
-
-.dark-mode .event-item,
-.dark-mode .day-event {
-  opacity: 0.9;
-  box-shadow: 0 1px 5px rgba(255, 255, 255, 0.05);
-}
-
-.dark-mode .event-item:hover,
-.dark-mode .day-event:hover {
-  opacity: 1;
-  box-shadow: 0 2px 8px rgba(255, 255, 255, 0.1);
-}
-
-.dark-mode .event-time {
-  font-weight: 600;
-}
-
-.dark-mode .calendar-day:hover {
-  background-color: var(--calendar-day-hover-bg) !important;
-  border-color: #4a88e5 !important;
-  box-shadow: 0 0 0 1px rgba(74, 136, 229, 0.3);
-}
-
-.dark-mode .hour-cell:hover::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  border: 1px solid #4a88e5;
-  pointer-events: none;
-  z-index: 2;
-  border-color: #4a88e5;
-}
-
-.dark-mode .event-title {
-  color: var(--event-title-color) !important;
-}
-
-.dark-mode .event-description {
-  color: var(--event-description-color) !important;
-}
-
-.dark-mode .event-time {
-  color: var(--event-time-color) !important;
-  font-weight: 500;
-}
-
-.dark-mode .week-view .day-header {
-  background-color: var(--bg-primary) !important;
-  border-bottom: none !important;
-}
-
-.dark-mode .week-view .grid > div:first-child {
-  border-bottom: none !important;
-}
-
-.dark-mode .week-view .day-header .text-sm,
-.dark-mode .week-view .day-header .text-lg {
-  color: var(--text-primary) !important;
-}
-
-.dark-mode .time-slot:hover::before {
-  background-color: var(--bg-primary);
-}
-
-.dark-mode .time-slot:hover::after {
-  border-color: #4a88e5;
-}
-
-.dark-mode .half-hour-cell:hover {
-  background-color: var(--bg-primary) !important;
-}
-
-.dark-mode .half-hour-cell:hover::after {
-  border-color: #4a88e5;
-}
-
-.dark-mode .current-time-line .time-text {
-  color: #58a6ff;
-}
-
-.dark-mode .current-time-line .time-line {
-  background-color: #58a6ff;
-}
-
-.dark-mode .lunar-date {
-  color: var(--text-tertiary);
-}
-
-.dark-mode .lunar-month {
-  color: #58a6ff !important;
-}
-
-.dark-mode .event-resize-handle:hover {
-  background-color: rgba(74, 136, 229, 0.3);
-}
-
-/* ============================
- * ToDoList.vue 暗色模式样式开始
- * ============================ */
-
-/* 过滤按钮在暗模式下的激活/默认状态样式 */
-.dark-mode button[class*="bg-indigo-600"],
-.dark-mode button[class*="bg-blue-100"][class*="text-blue-700"] {
-  background-color: var(--active-item-bg) !important;
-  color: var(--heading-color) !important;
-  border-left: 2px solid var(--active-item-border);
-}
-
-/* 过滤按钮在暗模式下的默认状态样式 */
-.dark-mode button[class*="bg-gray-100"] {
-  background-color: var(--bg-tertiary) !important;
-  color: var(--text-secondary) !important;
-}
-
-/* 过滤按钮在暗模式下的悬停状态样式 */
-.dark-mode button[class*="bg-gray-100"]:hover {
-  background-color: var(--hover-bg) !important;
-  color: var(--text-primary) !important;
-}
-
-/* 待办事项列表项在暗模式下的基础样式 */
-.dark-mode .todo-item {
-  background-color: var(--bg-secondary) !important;
-  box-shadow: 0 1px 3px var(--shadow-color) !important;
-}
-
-/* 待办事项列表项在暗模式下的悬停样式 */
-.dark-mode .todo-item:hover {
-  background-color: var(--hover-bg) !important;
-  box-shadow: 0 2px 6px var(--shadow-color) !important;
-}
-
-/* 待办事项列表项在暗模式下的选中样式 */
-.dark-mode .todo-item .font-medium,
-.dark-mode .todo-item .text-gray-400,
-.dark-mode .todo-item .text-gray-500 {
-  color: var(--text-secondary) !important;
-}
-
-/* 已完成待办事项在暗模式下的文本样式 */
-.dark-mode .todo-item .line-through {
-  color: var(--text-tertiary) !important;
-}
-
-/* 暗模式下提醒文本（如过期日期）的颜色 */
-.dark-mode .todo-item .text-red-500 {
-  color: #ff6b6b !important;
-}
-
-/* 按钮 hover 效果 */
-.dark-mode .todo-actions button.text-blue-500:hover {
-  background-color: rgba(59, 130, 246, 0.15) !important;
-}
-
-/* 暗模式下蓝色操作按钮的悬停背景效果 */
-.dark-mode .todo-actions button.text-red-500:hover {
-  background-color: rgba(239, 68, 68, 0.15) !important;
-}
-
-/* ============================
- * ToDoList.vue 暗色模式样式结束
- * ============================ */

@@ -11,12 +11,12 @@
   <!-- 模态框容器，仅当 showSettings 为 true 时显示 -->
   <div
     v-if="uiStore.showSettings"
-    class="fixed inset-0 bg-transparent backdrop-blur-sm flex items-center justify-center z-50"
+    class="fixed inset-0 bg-black/10 backdrop-blur-sm flex items-center justify-center z-50" 
     @click="uiStore.closeSettings()"
   >
     <!-- 设置弹窗主容器，阻止点击事件冒泡 -->
     <div
-      class="settings-container bg-white rounded-lg shadow-lg w-[448px] max-w-[90vw] p-6 relative overflow-y-auto"
+      class="settings-container rounded-lg shadow-lg w-[448px] max-w-[90vw] p-6 relative overflow-y-auto transition-all duration-300" 
       style="max-height: 90vh"
       @click.stop
     >
@@ -33,12 +33,12 @@
       </div>
       <h2 class="text-2xl font-semibold mb-6">设置</h2>
       <!-- 空一行 -->
-      <div class="text-gray-700"></div>
+      <div class=""></div>
       <!-- 通用小标题 -->
-      <div class="text-gray-500 text-sm font-semibold mb-2 mt-2">通用</div>
+      <div class="text-secondary text-sm font-semibold mb-2 mt-2">通用</div>
       <!-- 主题切换（选择条，选项为亮/暗） -->
       <div class="mb-4 flex items-center justify-between">
-        <span class="flex items-center text-gray-700">
+        <span class="flex items-center ">
           <!-- 月亮图标 -->
           <svg
             class="w-5 h-5 mr-2 text-blue-500"
@@ -62,11 +62,11 @@
         >
           <option value="light">亮</option>
           <option value="dark">暗</option>
-        </select>
+        </select>             
       </div>
       <!-- 字号选择 -->
       <div class="mb-4 flex items-center justify-between">
-        <span class="flex items-center text-gray-700">
+        <span class="flex items-center ">
           <!-- 小A大A图标 -->
           <svg
             class="w-5 h-5 mr-2 text-green-500"
@@ -106,7 +106,7 @@
       </div>
       <!-- 通知开关 -->
       <div class="mb-4 flex items-center justify-between">
-        <span class="flex items-center text-gray-700">
+        <span class="flex items-center ">
           <svg
             class="w-5 h-5 mr-2 text-yellow-500"
             fill="none"
@@ -129,14 +129,14 @@
         />
       </div>
       <!-- 空一行 -->
-      <div class="text-gray-700"></div>
+      <div class=""></div>
       <!-- 日期和时间小标题 -->
-      <div class="text-gray-500 text-sm font-semibold mb-2 mt-2">
+      <div class="text-secondary text-sm font-semibold mb-2 mt-2">
         日期和时间
       </div>
       <!-- 每周起始日 -->
       <div class="mb-4 flex items-center justify-between">
-        <span class="flex items-center text-gray-700">
+        <span class="flex items-center ">
           <!-- 周历图标 -->
           <svg
             class="w-5 h-5 mr-2 text-purple-500"
@@ -183,7 +183,7 @@
       </div>
       <!-- 24小时制 -->
       <div class="mb-4 flex items-center justify-between">
-        <span class="flex items-center text-gray-700">
+        <span class="flex items-center ">
           <svg
             class="w-5 h-5 mr-2 text-orange-500"
             fill="none"
@@ -208,7 +208,7 @@
       </div>
       <!-- 农历开关 -->
       <div class="mb-4 flex items-center justify-between">
-        <span class="flex items-center text-gray-700">
+        <span class="flex items-center ">
           <!-- 日历图标 -->
           <svg
             class="w-5 h-5 mr-2 text-yellow-600"
@@ -262,12 +262,12 @@
         />
       </div>
       <!-- 空一行 -->
-      <div class="text-gray-700"></div>
+      <div class=""></div>
       <!-- 联系我们小标题 -->
-      <div class="text-gray-500 text-sm font-semibold mb-2 mt-2">联系我们</div>
+      <div class="text-secondary text-sm font-semibold mb-2 mt-2">联系我们</div>
       <!-- 关于 -->
       <div class="mb-4 flex items-center justify-between">
-        <span class="flex items-center text-gray-700">
+        <span class="flex items-center ">
           <svg
             class="w-5 h-5 mr-2 text-gray-400"
             fill="none"
@@ -284,7 +284,7 @@
           </svg>
           关于
         </span>
-        <span class="text-gray-500 text-sm"
+        <span class="text-secondary text-sm"
           >TimeFlow 日历 v1.0.0<br />作者：SYSU-TimeFlow</span
         >
       </div>
@@ -293,7 +293,7 @@
       <div class="mt-6 flex gap-3">
         <!-- 重置按钮 -->
         <button
-          class="w-3/3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition cursor-pointer !rounded-button whitespace-nowrap font-medium"
+          class="w-full py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition cursor-pointer whitespace-nowrap font-medium" 
           @click="resetSettings"
         >
           重置默认
@@ -305,7 +305,7 @@
         <div
           v-if="showToast"
           class="fixed left-1/2 top-20 -translate-x-1/2 px-6 py-2 rounded shadow-lg z-50"
-          :class="[
+          :class=" [
             toastType === 'success' ? 'bg-green-500' : 'bg-blue-500',
             'text-white',
           ]"
@@ -381,163 +381,21 @@ function applyFontSizeChange() {
 </script>
 
 <style scoped>
-/* 修改字号相关的样式 */
-.settings-title {
-  font-size: var(--heading-font-size);
-}
-
-.settings-section-title {
-  font-size: var(--subheading-font-size);
-}
-
-.settings-label {
-  font-size: var(--base-font-size);
-}
-
-.settings-description {
-  font-size: var(--small-text-font-size);
-}
-
-/* 组件样式，圆角、阴影、滚动条、动画等 */
+/* 
+  组件特定的基础样式和动画。
+  大部分主题化（包括暗黑模式）应由 theme.css 处理。
+*/
 .settings-container {
-  min-width: 320px;
-  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, /* Custom font stack, keep if specific and not global */
     Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
-  transition: all 0.3s;
-  animation: fadeIn 0.1s ease-out;
-  background-color: var(--modal-bg);
-  color: var(--text-primary);
-  border-color: var(--border-color);
-}
-
-/* 深色模式下的设置容器增强 */
-.dark-mode .settings-container {
-  background-color: var(--modal-bg) !important;
-  color: var(--text-primary) !important;
-  border: 1px solid var(--modal-border) !important;
-  box-shadow: var(--modal-shadow) !important;
-}
-
-/* 深色模式下的标题增强 */
-.dark-mode .settings-container h2 {
-  color: var(--modal-title-color) !important;
-  border-bottom: 1px solid var(--modal-border);
-  padding-bottom: 1rem;
-  margin-bottom: 1.5rem;
-}
-
-/* 深色模式下的标签 */
-.dark-mode .text-gray-700 {
-  color: var(--modal-label-color) !important;
-}
-
-.dark-mode .text-gray-500 {
-  color: var(--text-secondary) !important;
-}
-
-/* 深色模式下的 select 样式增强 */
-.dark-mode select {
-  background-color: var(--modal-input-bg) !important;
-  color: var(--modal-input-text) !important;
-  border: 1px solid var(--modal-input-border) !important;
-  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.3);
-}
-
-.dark-mode select:focus {
-  border-color: #58a6ff !important;
-  box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.3) !important;
-}
-
-.dark-mode select option {
-  background-color: var(--modal-input-bg) !important;
-  color: var(--modal-input-text) !important;
-}
-
-/* 深色模式下的按钮增强 */
-.dark-mode button {
-  border: 1px solid var(--modal-border);
-}
-
-.dark-mode button.bg-blue-600 {
-  background-color: var(--modal-button-bg) !important;
-  color: var(--modal-button-text) !important;
-  border-color: var(--modal-button-bg);
-}
-
-.dark-mode button.bg-blue-600:hover {
-  background-color: var(--modal-button-hover) !important;
-}
-
-.dark-mode button.bg-gray-200 {
-  background-color: var(--modal-button-secondary) !important;
-  color: var(--text-primary) !important;
-  border-color: var(--modal-border);
-}
-
-.dark-mode button.bg-gray-200:hover {
-  background-color: var(--modal-button-secondary-hover) !important;
-}
-
-/* 重置按钮在暗色模式下的绿色样式 */
-.dark-mode button.bg-gray-100 {
-  background-color: var(--modal-button-bg) !important; /* 使用绿色背景 */
-  color: var(--modal-button-text) !important; /* 白色文字 */
-  border: 1px solid var(--modal-button-bg) !important;
-}
-
-.dark-mode button.bg-gray-100:hover {
-  background-color: var(--modal-button-hover) !important; /* 悬停时的亮绿色 */
-  border-color: var(--modal-button-hover) !important;
-}
-
-/* 开关按钮增强 */
-.dark-mode .toggle-checkbox {
-  accent-color: #58a6ff;
-  filter: brightness(1.2);
-}
-
-/* 关闭按钮增强 */
-.dark-mode .text-red-500 {
-  color: #ff6b6b !important;
-}
-
-.dark-mode .text-red-500:hover {
-  color: #ff5252 !important;
-  background-color: rgba(255, 107, 107, 0.1);
-}
-
-/* 图标颜色增强 */
-.dark-mode .text-blue-500 {
-  color: #58a6ff !important;
-}
-
-.dark-mode .text-green-500 {
-  color: #56d364 !important;
-}
-
-.dark-mode .text-pink-500 {
-  color: #f47ac7 !important;
-}
-
-.dark-mode .text-yellow-500 {
-  color: #ffd33d !important;
-}
-
-.dark-mode .text-purple-500 {
-  color: #bc8cff !important;
-}
-
-.dark-mode .text-orange-500 {
-  color: #ff8c42 !important;
-}
-
-/* Toast 提示增强 */
-.dark-mode .bg-green-500 {
-  background-color: var(--modal-button-bg) !important;
-}
-
-.dark-mode .bg-blue-500 {
-  background-color: #58a6ff !important;
+  animation: fadeIn 0.1s ease-out; /* Animation applied directly */
+  /* 
+    Background, text color, border for .settings-container should be defined in theme.css 
+    for both light and dark modes. Example:
+    theme.css:
+    .settings-container { background-color: var(--modal-bg); color: var(--text-primary); }
+    .dark-mode .settings-container { background-color: var(--modal-bg); ... }
+  */
 }
 
 /* 定义淡入动画效果 */
@@ -548,12 +406,5 @@ function applyFontSizeChange() {
   to {
     opacity: 1; /* 动画结束时透明度为1 */
   }
-}
-
-/* 确保背景模糊效果兼容性 */
-.backdrop-blur-sm {
-  backdrop-filter: blur(4px); /* 轻微高斯模糊，数值可调整 */
-  -webkit-backdrop-filter: blur(4px); /* 兼容 Safari */
-  background: rgba(0, 0, 0, 0.1); /* 轻微透明黑色，增强模糊可见性 */
 }
 </style>
