@@ -18,9 +18,7 @@
       <!-- 侧边栏组件 -->
       <Sidebar class="flex-shrink-0" />
       <!-- 主日历区域组件 -->
-      <CalendarMain v-if="uiStore.currentView !== 'todo-list'" />
-      <!-- Todo List 组件 -->
-      <ToDoList v-else />
+      <CalendarMain />
     </div>
     <!-- 事件模态框组件 (用于创建/编辑事件) -->
     <EventPage />
@@ -39,7 +37,6 @@
 import { onMounted } from "vue";
 import Sidebar from "../components/sidebar/Sidebar.vue";
 import CalendarMain from "../components/main/CalendarMain.vue";
-import ToDoList from "../components/main/ToDoList.vue";
 import CalendarHeader from "../components/CalendarHeader.vue";
 import EventPage from "../components/pages/EventPage.vue"
 import ToDoPage from "../components/pages/ToDoPage.vue"
