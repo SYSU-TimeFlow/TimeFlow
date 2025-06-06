@@ -22,5 +22,10 @@
   "mac": {
     "icon": "./assets/icon.icns",
     "category": "public.app-category.productivity"
+  },
+  "linux": {
+    "target": ["AppImage", "tar.gz"],
+    "icon": "./assets/icon.png",
+    "category": "Utility"
   }
 }
