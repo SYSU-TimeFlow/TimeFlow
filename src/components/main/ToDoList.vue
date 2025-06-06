@@ -190,7 +190,9 @@ function isOverdue(endDate: any): boolean {
 </script>
 
 <style scoped>
-/* 修改字号相关的样式 */
+/* ============================
+ * 1. 基础字体和尺寸设置
+ * ============================ */
 .todo-title {
   font-size: var(--heading-font-size);
 }
@@ -203,8 +205,92 @@ function isOverdue(endDate: any): boolean {
   font-size: var(--small-text-font-size);
 }
 
-/* 原有样式保持不变 */
+/* 备注文本限制 */
+.truncate {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 80%;
+}
 
+/* ============================
+ * 2. 列表项基础布局和结构
+ * ============================ */
+ /* 确保备注不会影响操作按钮 */
+.todo-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  min-height: 3rem;
+}
+
+/* ============================
+ * 3. 交互和动画效果
+ * ============================ */
+/* 添加新的样式 */
+.todo-item {
+  transition: all 0.2s ease;
+  border-radius: 12px;
+}
+
+.todo-item:hover {
+  transform: translateY(-2px);
+}
+
+/* 完成状态指示器动画 */
+.todo-item .w-5.h-5 {
+  transition: all 0.2s ease;
+  position: relative;
+  z-index: 10; /* 确保复选框在最上层，便于点击 */
+}
+
+.todo-item:hover .w-5.h-5:not(.bg-indigo-500) {
+  border-color: #818cf8;
+}
+
+/* 增强复选框悬停效果 */
+.todo-item .w-5.h-5:hover {
+  box-shadow: 0 0 0 2px rgba(129, 140, 248, 0.2);
+}
+
+/* 确保备注不会影响操作按钮 */
+.todo-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  min-height: 3rem;
+}
+
+/* Todo项在悬停时显示按钮 */
+.todo-item:hover .todo-actions {
+  opacity: 1;
+}
+
+/* 操作按钮显示/隐藏效果 */
+.todo-actions {
+  flex-shrink: 0;
+  position: relative;
+  z-index: 10;
+  visibility: visible; /* 使按钮始终可见 */
+  opacity: 0; /* 默认透明 */
+  transition: opacity 0.2s ease-in-out;
+}
+
+/* 备注图标悬停样式 */
+.note-icon {
+  cursor: pointer;
+  position: relative;
+  transition: all 0.2s ease;
+}
+
+.note-icon:hover {
+  color: #6366f1 !important;
+  transform: scale(1.2);
+}
+
+/* ============================
+ * 4. 暗模式适配
+ * ============================ */
 /* Todo视图分类选项颜色调整 */
 .dark-mode button[class*="bg-indigo-600"],
 .dark-mode button[class*="bg-blue-100"][class*="text-blue-700"] {
@@ -278,66 +364,9 @@ function isOverdue(endDate: any): boolean {
   color: var(--text-tertiary) !important; /* 已完成项目可以稍微暗一点 */
 }
 
-/* 添加新的样式 */
-.todo-item {
-  transition: all 0.2s ease;
-  border-radius: 12px;
-}
-
-.todo-item:hover {
-  transform: translateY(-2px);
-}
-
 /* 暗模式下的额外样式 */
 .dark-mode .todo-item .text-red-500 {
   color: #ff6b6b !important;
-}
-
-/* 完成状态指示器动画 */
-.todo-item .w-5.h-5 {
-  transition: all 0.2s ease;
-  position: relative;
-  z-index: 10; /* 确保复选框在最上层，便于点击 */
-}
-
-.todo-item:hover .w-5.h-5:not(.bg-indigo-500) {
-  border-color: #818cf8;
-}
-
-/* 增强复选框悬停效果 */
-.todo-item .w-5.h-5:hover {
-  box-shadow: 0 0 0 2px rgba(129, 140, 248, 0.2);
-}
-
-/* 确保备注不会影响操作按钮 */
-.todo-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  min-height: 3rem;
-}
-
-/* 备注文本限制 */
-.truncate {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 80%;
-}
-
-/* 确保操作按钮可见性 - 使用新的交互方式 */
-.todo-actions {
-  flex-shrink: 0;
-  position: relative;
-  z-index: 10;
-  visibility: visible; /* 使按钮始终可见 */
-  opacity: 0; /* 默认透明 */
-  transition: opacity 0.2s ease-in-out;
-}
-
-/* Todo项在悬停时显示按钮 */
-.todo-item:hover .todo-actions {
-  opacity: 1;
 }
 
 /* 确保暗模式下按钮样式正确 */
@@ -349,15 +378,4 @@ function isOverdue(endDate: any): boolean {
   background-color: rgba(239, 68, 68, 0.15) !important;
 }
 
-/* 备注图标悬停样式 */
-.note-icon {
-  cursor: pointer;
-  position: relative;
-  transition: all 0.2s ease;
-}
-
-.note-icon:hover {
-  color: #6366f1 !important;
-  transform: scale(1.2);
-}
 </style>
