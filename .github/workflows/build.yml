@@ -133,9 +133,17 @@ jobs:
       - name: Reset build trigger flag
         if: ${{ github.ref != 'refs/heads/main' }}  # 仅在非main分支时重置
         run: |
-          npm run reset-build-trigger  # 调用脚本将 buildTrigger 设为 0 并提交
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+          
+          # 修改 package.json 中的 buildTrigger
+          npm pkg set config.buildTrigger=0
+          
+          git add package.json
+          git commit -m "ci: reset buildTrigger to 0 after release"
+          git push
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # 需要有推送权限
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Get current version
         id: current
