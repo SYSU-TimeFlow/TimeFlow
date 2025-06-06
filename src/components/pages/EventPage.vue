@@ -168,7 +168,7 @@ function handleKeyDown(event) {
   if (uiStore.showEventModal) {
     if(event.key === "Escape") {
       uiStore.closeEventModal();
-    }else if(event.key == "Enter") {
+    } else if(event.key === "Enter") {
       eventStore.saveEvent();
       uiStore.closeEventModal();
     }

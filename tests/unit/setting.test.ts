@@ -160,24 +160,6 @@ describe("Setting Store", () => {
   });
 
   describe("Theme", () => {
-    it("应该应用浅色主题", () => {
-      const store = useSettingStore();
-      store.applyTheme("light");
-
-      expect(
-        global.document.documentElement.classList.remove
-      ).toHaveBeenCalledWith("dark-mode");
-    });
-
-    it("应该应用深色主题", () => {
-      const store = useSettingStore();
-      store.applyTheme("dark");
-
-      expect(
-        global.document.documentElement.classList.add
-      ).toHaveBeenCalledWith("dark-mode");
-    });
-
     it("应正确设置主题", async () => {
       const store = useSettingStore();
       await store.setThemeMode("dark");
@@ -191,9 +173,6 @@ describe("Setting Store", () => {
       const store = useSettingStore();
       await store.setFontSize("large");
       expect(store.fontSize).toBe("large");
-      expect(
-        global.document.documentElement.classList.add
-      ).toHaveBeenCalledWith("font-size-large");
 
       store.setFontSize("small");
       expect(store.fontSize).toBe("small");

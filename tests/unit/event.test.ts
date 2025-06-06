@@ -62,6 +62,24 @@ beforeEach(() => {
       saveAppData: vi.fn(async () => {
         // console.log("\x1b[34m%s\x1b[0m", "Mock saveAppData called");
       }),
+      loadSettings: vi.fn(async () => {
+        // console.log("\x1b[34m%s\x1b[0m", "Mock loadSetting called");
+
+        return {
+          themeMode: "light",
+          fontSize: "medium",
+          iconStyle: "default",
+          notifications: true,
+          hour24: false,
+          showLunar: false,
+          weekStart: "0",
+          language: "zh-CN",
+        };
+      }),
+      // 模拟保存设置的saveSettings方法
+      saveSettings: vi.fn(async (setting: any) => {
+        // console.log("\x1b[34m%s\x1b[0m", "Mock saveSetting called");
+      }),
     },
   } as any;
 

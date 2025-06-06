@@ -130,7 +130,7 @@ function handleKeyDown(event) {
   if (uiStore.showCategoryModal) {
     if(event.key === "Escape") {
       uiStore.closeCategoryModal();
-    }else if(event.key == "Enter") {
+    } else if(event.key === "Enter") {
       eventStore.saveCategory();
       uiStore.closeCategoryModal();
     }

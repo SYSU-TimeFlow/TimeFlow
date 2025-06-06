@@ -104,34 +104,6 @@
           <option value="large">大</option>
         </select>
       </div>
-      <!-- 图标选择 -->
-      <div class="mb-4 flex items-center justify-between">
-        <span class="flex items-center text-gray-700">
-          <!-- 使用字号的图标，颜色保持 text-pink-500 -->
-          <svg
-            class="w-5 h-5 mr-2 text-pink-500"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            viewBox="0 0 24 24"
-          >
-            <path
-              d="M4 20h16M4 4h16M4 4v16M20 4v16"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            />
-          </svg>
-          图标
-        </span>
-        <select
-          v-model="settingStore.iconStyle"
-          class="border border-gray-300 rounded-md px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-        >
-          <option value="default">默认</option>
-          <option value="filled">填充</option>
-          <option value="outlined">线性</option>
-        </select>
-      </div>
       <!-- 通知开关 -->
       <div class="mb-4 flex items-center justify-between">
         <span class="flex items-center text-gray-700">

@@ -1,0 +1,158 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - main
+      - dev
+
+jobs:
+  check-version:
+    runs-on: ubuntu-latest
+    outputs:
+      should_build: ${{ steps.check.outputs.should_build }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4  # 检出代码仓库
+        with:
+          fetch-depth: 2  # 拉取最近两次提交记录
+    
+      - name: Get build trigger flag
+        id: build-trigger
+        run: |
+          BUILD_TRIGGER=$(node -p "require('./package.json').config.buildTrigger || 0")
+          echo "build_trigger=$BUILD_TRIGGER" >> $GITHUB_OUTPUT
+
+      - name: Get current version
+        id: current
+        run: |
+          # 从 package.json 中获取当前版本号
+          CURRENT_VERSION=$(node -p "require('./package.json').version")
+          echo "current_version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
+
+      - name: Compare versions
+        id: check
+        run: |
+          # 如果手动触发标志为1，强制构建
+          if [ "${{ steps.build-trigger.outputs.build_trigger }}" == "1" ]; then
+            echo "should_build=true" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          # 如果是main分支，总是构建
+          if [ "${{ github.ref }}" == "refs/heads/main" ]; then
+            echo "should_build=true" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          # 对于dev分支，检查次版本号变化
+          # 获取上一版本的版本号，如果不存在则默认为 0.0.0
+          PREV_VERSION=$(git show HEAD~1:package.json | jq -r .version || echo "0.0.0")
+          echo "prev_version=$PREV_VERSION" >> $GITHUB_OUTPUT
+
+          # 比较当前版本和上一版本的次版本号（第二位）
+          IFS='.' read -ra CURRENT <<< "${{ steps.current.outputs.current_version }}"
+          IFS='.' read -ra PREV <<< "$PREV_VERSION"
+
+          # 如果次版本号不同，则需要构建
+          if [ "${CURRENT[1]}" != "${PREV[1]}" ]; then
+            echo "should_build=true" >> $GITHUB_OUTPUT
+          else
+            echo "should_build=false" >> $GITHUB_OUTPUT
+          fi
+
+  build:
+    needs: check-version
+    if: needs.check-version.outputs.should_build == 'true' || startsWith(github.ref, 'refs/tags/')
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [macos-latest, windows-latest, ubuntu-latest]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Additional setup for Linux
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          # 安装构建AppImage所需的依赖
+          sudo apt-get update
+          sudo apt-get install -y libgtk-3-0 libnotify4 libnss3 libxss1 libxtst6 xdg-utils libatspi2.0-0 libuuid1 libappindicator3-1 libsecret-1-0
+
+      - name: Build
+        run: npm run electron:build
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Find installers
+        id: find-files
+        shell: bash
+        run: |
+          if [ "${{ matrix.os }}" == "macos-latest" ]; then
+            DMG_PATH=$(find build -name '*.dmg' | head -1)
+            echo "dmg_path=$DMG_PATH" >> $GITHUB_OUTPUT
+          elif [ "${{ matrix.os }}" == "windows-latest" ]; then
+            EXE_PATH=$(find build -name '*.exe' -not -path '*unpacked*' | head -1)
+            echo "exe_path=$EXE_PATH" >> $GITHUB_OUTPUT
+          elif [ "${{ matrix.os }}" == "ubuntu-latest" ]; then
+            APPIMAGE_PATH=$(find build -name '*.AppImage' | head -1)
+            TAR_GZ_PATH=$(find build -name '*.tar.gz' | head -1)
+            echo "appimage_path=$APPIMAGE_PATH" >> $GITHUB_OUTPUT
+            echo "tar_gz_path=$TAR_GZ_PATH" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4  # 上传构建生成的安装文件作为工作流的工件
+        with:
+          name: installers-${{ matrix.os }}
+          path: |
+            ${{ steps.find-files.outputs.exe_path }}
+            ${{ steps.find-files.outputs.dmg_path }}
+            ${{ steps.find-files.outputs.appimage_path }}
+            ${{ steps.find-files.outputs.tar_gz_path }}
+
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write  # 需要写入内容的权限
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Get current version
+        id: current
+        run: |
+          CURRENT_VERSION=$(node -p "require('./package.json').version")
+          echo "current_version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v4  # 下载之前构建任务上传的工件
+        with:
+          path: artifacts  # 下载到 artifacts 目录
+
+      - name: Debug artifacts structure
+        run: |
+          # 打印工件目录的结构以便调试
+          echo "Artifacts directory contents:"
+          ls -l -R artifacts/
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1  # 创建 GitHub Release，需要 contents:write 权限
+        with:
+          tag_name: "v${{ steps.current.outputs.current_version }}"  # 使用当前版本号作为标签
+          name: "Release v${{ steps.current.outputs.current_version }}"  # Release 名称
+          files: |
+            artifacts/**/*
+          draft: false  # 发布为正式版本
+          prerelease: false  # 不作为预发布版本
