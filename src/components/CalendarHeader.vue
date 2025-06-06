@@ -8,17 +8,18 @@
 
 <template>
   <!-- 应用程序头部 -->
-  <header class="app-header drag bg-white border-b border-gray-200 px-6 py-3 flex items-center">
+  <header class="app-header drag bg-white border-b border-gray-200 px-6 py-3 flex items-center dark:bg-[var(--header-bg)] dark:border-[var(--border-color)] dark:text-[var(--text-primary)]">
     <!-- 左侧区域：TimeFlow标题和日历标题 -->
     <div class="header-left flex items-center flex-shrink mr-6">
       <h1
-        class="text-xl font-semibold text-gray-800 mr-6 no-drag cursor-pointer"
+        class="text-xl font-semibold text-gray-800 mr-6 no-drag cursor-pointer transition-colors
+          dark:text-[var(--heading-color)] hover:dark:text-blue-400"
         @click="uiStore.toggleSidebar()"
         title="点击切换侧边栏"
       >
         TimeFlow
       </h1>
-      <h2 class="text-lg font-medium no-drag">{{ uiStore.calendarTitle }}</h2>
+      <h2 class="text-lg font-medium no-drag dark:text-[var(--heading-color)]">{{ uiStore.calendarTitle }}</h2>
     </div>
 
     <!-- 中间区域：搜索框和导航按钮 -->
@@ -27,13 +28,15 @@
       <div class="navigation-buttons flex no-drag">
         <button
           @click="uiStore.navigateCalendar('prev')"
-          class="nav-button px-2 py-2 rounded-l-md hover:bg-gray-100 cursor-pointer transition-colors"
+          class="nav-button px-2 py-2 rounded-l-md hover:bg-gray-100 cursor-pointer transition-colors
+            dark:text-[var(--text-secondary)] dark:hover:text-[var(--text-primary)] dark:hover:bg-[var(--hover-bg)]"
         >
           <i class="fas fa-chevron-left text-base"></i>
         </button>
         <button
           @click="uiStore.navigateCalendar('next')"
-          class="nav-button px-2 py-2 rounded-r-md hover:bg-gray-100 cursor-pointer transition-colors"
+          class="nav-button px-2 py-2 rounded-r-md hover:bg-gray-100 cursor-pointer transition-colors
+            dark:text-[var(--text-secondary)] dark:hover:text-[var(--text-primary)] dark:hover:bg-[var(--hover-bg)]"
         >
           <i class="fas fa-chevron-right text-base"></i>
         </button>
@@ -44,15 +47,17 @@
         <!-- 模式指示器 -->
         <div
           v-if="!uiStore.isSearchActive"
-          class="mode-indicator pl-8 pr-4 py-1 border border-gray-300 rounded-md text-sm w-64 h-[32px] flex items-center cursor-pointer"
+          class="mode-indicator pl-8 pr-4 py-1 border border-gray-300 rounded-md text-sm w-64 h-[32px] flex items-center cursor-pointer
+            bg-[#f9f9f9] hover:bg-[#f0f0f0]
+            dark:bg-[var(--search-bg)] dark:border-[var(--search-border)] dark:text-[var(--text-primary)]"
           :class="{ 'command-mode': uiStore.appMode === 'command' }"
           @click="activateSearch"
         >
-          <span v-if="uiStore.appMode === 'normal'" class="flex items-center w-full">
+          <span v-if="uiStore.appMode === 'normal'" class="flex items-center w-full dark:text-[var(--text-tertiary)]">
             <i class="fas fa-keyboard mr-2 text-gray-500"></i>
             <span class="text-sm text-gray-400 ml-2">Press / to search</span>
           </span>
-          <span v-else-if="uiStore.appMode === 'command'" class="flex items-center w-full">
+          <span v-else-if="uiStore.appMode === 'command'" class="flex items-center w-full dark:text-[var(--text-tertiary)]">
             <i class="fas fa-terminal mr-2 text-blue-500"></i>
             <span class="text-sm text-gray-400 ml-2">Enter command...</span>
           </span>
@@ -64,8 +69,9 @@
           ref="searchInputRef"
           type="text"
           :placeholder="uiStore.appMode === 'normal' ? 'Search events...' : 'Enter command...'"
-
-          class="pl-8 pr-4 py-1 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent w-64"
+          class="pl-8 pr-4 py-1 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent w-64
+            bg-white text-gray-900 placeholder-[#909090]
+            dark:bg-[var(--search-bg)] dark:border-[var(--search-border)] dark:text-[var(--text-primary)] dark:placeholder:text-[var(--text-tertiary)]"
           :class="{
             'command-mode-input': uiStore.appMode === 'command',
             'search-mode-input': uiStore.appMode === 'normal',
@@ -97,13 +103,14 @@
         <!-- 搜索结果列表 -->
         <div
           v-if="uiStore.showSearchDropdown && uiStore.appMode === 'normal'"
-          class="search-results absolute left-0 right-0 mt-1 bg-white border border-gray-300 rounded-md shadow-lg z-10 max-h-60 overflow-y-auto"
+          class="search-results absolute left-0 right-0 mt-1 bg-white border border-gray-300 rounded-md shadow-lg z-10 max-h-60 overflow-y-auto
+            dark:bg-[var(--bg-secondary)] dark:border-[var(--border-color)]"
         >
           <ul ref="resultListRef">
             <li
               v-for="(event, index) in uiStore.searchResults"
               :key="event.id"
-              class="px-4 py-2 hover:bg-gray-100 cursor-pointer text-sm"
+              class="px-4 py-2 hover:bg-gray-100 cursor-pointer text-sm dark:hover:bg-[var(--hover-bg)] dark:text-[var(--text-primary)]"
               :class="{ 'search-result-focused': index === uiStore.focusedResultIndex }"
               @mousedown="uiStore.selectSearchResultAction(event)"
             >
@@ -119,7 +126,7 @@
             </li>
             <li
               v-if="uiStore.searchQuery.trim() && uiStore.searchResults.length === 0"
-              class="px-4 py-2 text-sm text-gray-500"
+              class="px-4 py-2 text-sm text-gray-500 dark:text-[var(--text-tertiary)]"
             >
               No results found.
             </li>
@@ -129,7 +136,7 @@
       <!-- "今天"按钮 -->
       <button
         @click="uiStore.goToToday()"
-        class="nav-button py-1 px-4 rounded-md hover:bg-gray-100 cursor-pointer transition-colors ml-1 no-drag"
+        class="nav-button py-1 px-4 rounded-md hover:bg-gray-100 cursor-pointer transition-colors ml-1 no-drag dark:text-[var(--text-secondary)] dark:hover:text-[var(--text-primary)] dark:hover:bg-[var(--hover-bg)]"
       >
         Today
       </button>
@@ -776,7 +783,7 @@ button:has(.fa-times):hover {
 }
 
 /* ================= 暗黑模式 ================ */
-.dark-mode .search-box input {
+/* .dark-mode .search-box input {
   background-color: var(--bg-tertiary);
   border-color: var(--border-color);
   color: var(--text-primary);
@@ -808,7 +815,7 @@ button:has(.fa-times):hover {
 .dark-mode :deep(.search-highlight) {
   background-color: rgba(255, 255, 0, 0.3);
   color: var(--text-primary);
-}
+}*/
 .dark-mode .app-header h1,
 .dark-mode .app-header h2 {
   color: var(--heading-color);
@@ -816,8 +823,8 @@ button:has(.fa-times):hover {
 .dark-mode .mode-indicator {
   background-color: var(--search-bg);
   border-color: var(--search-border);
-}
-.dark-mode .search-box input {
+}/*
+/* .dark-mode .search-box input {
   background-color: var(--search-bg);
   border-color: var(--search-border);
   color: var(--text-primary);
@@ -836,7 +843,7 @@ button:has(.fa-times):hover {
 }
 .dark-mode .mode-indicator span {
   color: var(--text-tertiary);
-}
+} */ 
 
 /* ================= 铃铛动画与禁用 ================ */
 .bell-shake {
