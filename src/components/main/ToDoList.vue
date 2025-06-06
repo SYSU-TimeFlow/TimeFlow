@@ -193,19 +193,9 @@ function isOverdue(endDate: any): boolean {
 /* ============================
  * 1. 基础字体和尺寸设置
  * ============================ */
-/* 待办事项标题的字体大小 */
-.todo-title {
-  font-size: var(--heading-font-size);
-}
-
 /* 待办事项列表项的基础字体大小 */
 .todo-item {
   font-size: var(--base-font-size);
-}
-
-/* 待办事项描述文本的字体大小 */
-.todo-description {
-  font-size: var(--small-text-font-size);
 }
 
 /* 防止备注文本溢出，确保长文本正确显示 */
@@ -300,7 +290,7 @@ function isOverdue(endDate: any): boolean {
 /* 过滤按钮在暗模式下的活跃状态样式 */
 .dark-mode button[class*="bg-indigo-600"],
 .dark-mode button[class*="bg-blue-100"][class*="text-blue-700"] {
-  background-color: var(--active-item-bg) !important; /* 使用更柔和的灰色 */
+  background-color: var(--active-item-bg) !important;
   color: var(--heading-color) !important;
   border-left: 2px solid var(--active-item-border);
 }
@@ -315,32 +305,6 @@ function isOverdue(endDate: any): boolean {
 .dark-mode button[class*="bg-gray-100"]:hover {
   background-color: var(--hover-bg) !important;
   color: var(--text-primary) !important;
-}
-
-/* 自定义过滤按钮在暗模式下的默认状态 */
-.dark-mode .filter-button {
-  background-color: var(--bg-tertiary) !important;
-  color: var(--text-secondary) !important;
-  border: 1px solid var(--border-color);
-}
-
-/* 自定义过滤按钮在暗模式下的活跃状态 */
-.dark-mode .filter-button.active,
-.dark-mode .filter-button[class*="bg-blue-100"] {
-  background-color: var(--active-item-bg) !important;
-  color: var(--heading-color) !important;
-  border-left: 2px solid var(--active-item-border);
-}
-
-/* 添加按钮在暗模式下的样式（当前页面已移除此按钮，后续应删除） */
-.dark-mode button[class*="bg-indigo-600"].fixed {
-  background-color: var(--button-primary) !important;
-  color: var(--text-primary) !important;
-}
-
-/* 添加按钮在暗模式下的悬停效果（当前页面已移除此按钮，后续应删除） */
-.dark-mode button[class*="bg-indigo-600"].fixed:hover {
-  background-color: var(--button-primary-hover) !important;
 }
 
 /* 修复暗模式下标题颜色 */
