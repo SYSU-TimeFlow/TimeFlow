@@ -10,18 +10,6 @@
   display: none; /* Chrome, Safari, Opera */
 }
 
-/* 或者只对特定元素隐藏 */
-body,
-html {
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-}
-
-body::-webkit-scrollbar,
-html::-webkit-scrollbar {
-  display: none;
-}
-
 /* 全局去除焦点轮廓 */
 * {
   outline: none !important;

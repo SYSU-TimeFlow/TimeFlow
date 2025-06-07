@@ -18,7 +18,7 @@
     >
       <!-- 模态框头部 -->
       <div
-        class="modal-header p-4 border-b border-gray-200 flex justify-between items-center bg-blue-50"
+        class="modal-header p-4 border-b flex justify-between items-center"
       >
         <h3 class="text-lg font-semibold text-blue-800">
           <i class="fas fa-keyboard mr-2"></i> TimeFlow Keyboard Shortcuts
@@ -142,7 +142,7 @@
       </div>
 
       <!-- 模态框底部 -->
-      <div class="modal-footer p-4 border-t border-gray-200 flex justify-end">
+      <div class="modal-footer">
         <button
           @click="uiStore.closeHelpModal"
           class="modal-save-btn"

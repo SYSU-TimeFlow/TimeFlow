@@ -14,7 +14,7 @@
     >
       <!-- 模态框头部 -->
       <div
-        class="modal-header p-4 border-b border-gray-200 flex justify-between items-center"
+        class="modal-header p-4 border-b flex justify-between items-center"
         :style="{
           backgroundColor: eventStore.currentEvent.categoryColor + '33',
         }"
@@ -37,9 +37,7 @@
       <div class="modal-body p-4">
         <!-- 标题输入区域 -->
         <div class="form-group mb-4">
-          <label class="block text-sm font-medium  mb-1"
-            >Task Title</label
-          >
+          <label class="block text-sm font-medium mb-1">Task Title</label>
           <input
             v-model="eventStore.currentEvent.title"
             type="text"
@@ -54,9 +52,7 @@
         <!-- 截止时间设置区域 -->
         <div class="form-group mb-4">
           <div class="flex items-center justify-between mb-2">
-            <label class="block text-sm font-medium "
-              >Deadline</label
-            >
+            <label class="block text-sm font-medium">Deadline</label>
             <div class="flex items-center">
               <input
                 type="checkbox"
@@ -64,9 +60,7 @@
                 id="hasDeadline"
                 class="mr-2"
               />
-              <label for="hasDeadline" class="text-sm "
-                >Set deadline</label
-              >
+              <label for="hasDeadline" class="text-sm">Set deadline</label>
             </div>
           </div>
           <!-- 截止时间输入框 -->
@@ -87,9 +81,7 @@
 
         <!-- 事件分类选择区域 -->
         <div class="form-group mb-4">
-          <label class="block text-sm font-medium  mb-1"
-            >Category</label
-          >
+          <label class="block text-sm font-medium mb-1">Category</label>
           <div class="category-selector flex flex-wrap gap-2">
             <!-- 遍历分类列表并显示颜色按钮 -->
             <button
@@ -113,9 +105,7 @@
 
         <!-- 备注描述输入区域 -->
         <div class="form-group mb-4">
-          <label class="block text-sm font-medium  mb-1"
-            >Description</label
-          >
+          <label class="block text-sm font-medium mb-1">Description</label>
           <textarea
             v-model="eventStore.currentEvent.description"
             class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent h-24"
@@ -125,16 +115,9 @@
       </div>
 
       <!-- 模态框底部，包含操作按钮 -->
-      <div
-        class="modal-footer p-4 border-t border-gray-200 flex justify-end space-x-3"
-      >
+      <div class="modal-footer p-4 border-t flex justify-end space-x-3">
         <!-- 保存按钮 -->
-        <button
-          @click="saveTodo"
-          class="modal-save-btn"
-        >
-          Save
-        </button>
+        <button @click="saveTodo" class="modal-save-btn">Save</button>
       </div>
     </div>
   </div>

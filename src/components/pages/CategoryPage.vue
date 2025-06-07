@@ -19,7 +19,7 @@
     >
       <!-- 模态框头部 -->
       <div
-        class="modal-header p-4 border-b border-gray-200 flex justify-between items-center"
+        class="modal-header p-4 border-b  flex justify-between items-center"
         :style="{
           backgroundColor: eventStore.currentCategory.color + '33',
         }"
@@ -87,7 +87,7 @@
       </div>
       <!-- 模态框底部，包含操作按钮 -->
       <div
-        class="modal-footer p-4 border-t border-gray-200 flex justify-end space-x-3"
+        class="modal-footer p-4 border-t  flex justify-end space-x-3"
       >
         <!-- 删除按钮，仅在编辑分类时显示 -->
         <button
