@@ -34,7 +34,7 @@
               v-for="todo in eventStore.filteredTodos"
               :key="todo.id"
               @click="uiStore.openEditTodoModal(todo)"
-              class="flex justify-between items-center p-3 bg-white rounded-[12px] shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 ease-in-out cursor-pointer border-l-4 group min-h-[3rem] h-[3rem]"
+              class="flex justify-between items-center p-3 bg-white rounded-[12px] shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 ease-in-out cursor-pointer border-l-4 group todo-item min-h-[3rem] h-[3rem]"
               :style="{
                 borderLeftColor:
                   eventStore.categories.find((c) => c.id === todo.categoryId)
@@ -121,7 +121,7 @@
                   {{ formatDateForDisplay(todo.end) }}
                 </span>
               </div>
-              <div class="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200 relative z-10">
+              <div class="flex gap-1 todo-actions opacity-0 group-hover:opacity-100 transition-opacity duration-200 relative z-10">
                 <!-- 删除按钮 -->
                 <button
                   @click.stop="eventStore.deleteEvent(todo.id)"
@@ -188,88 +188,3 @@ function isOverdue(endDate: any): boolean {
   return end < new Date();
 }
 </script>
-
-<style scoped>
-/* ============================
- * 1. 基础样式与组件定义
- * ============================ */
-/* 已用Tailwind的truncate和max-w类实现文本溢出，无需自定义CSS */
-
-/* ============================
- * 2. 交互和动画效果
- * ============================ */
-/* 已用Tailwind类实现todo-item的悬停、过渡、圆角、阴影、上移等效果，无需自定义CSS */
-/* 复选框、操作按钮、备注图标等交互效果也已用Tailwind类实现，无需自定义CSS */
-
-/* ============================
- * 3. 暗模式适配
- * ============================ */
-/* 过滤按钮在暗模式下的活跃状态样式 */
-.dark-mode button[class*="bg-indigo-600"],
-.dark-mode button[class*="bg-blue-100"][class*="text-blue-700"] {
-  background-color: var(--active-item-bg) !important;
-  color: var(--heading-color) !important;
-  border-left: 2px solid var(--active-item-border);
-}
-
-/* 过滤按钮在暗模式下的默认状态样式 */
-.dark-mode button[class*="bg-gray-100"] {
-  background-color: var(--bg-tertiary) !important;
-  color: var(--text-secondary) !important;
-}
-
-/* 过滤按钮在暗模式下的悬停状态样式 */
-.dark-mode button[class*="bg-gray-100"]:hover {
-  background-color: var(--hover-bg) !important;
-  color: var(--text-primary) !important;
-}
-
-/* 修复暗模式下标题颜色 */
-.dark-mode .text-indigo-600 {
-  color: var(--heading-color) !important;
-}
-
-/* 待办事项列表项在暗模式下的基础样式 */
-.dark-mode .todo-item {
-  background-color: var(--bg-secondary) !important;
-  box-shadow: 0 1px 3px var(--shadow-color) !important;
-}
-
-/* 待办事项列表项在暗模式下的悬停样式 */
-.dark-mode .todo-item:hover {
-  background-color: var(--hover-bg) !important;
-  box-shadow: 0 2px 6px var(--shadow-color) !important;
-}
-
-/* 待办事项标题在暗模式下的文本颜色 */
-.dark-mode .todo-item .font-medium {
-  color: var(--text-secondary) !important; /* 使用更亮的主文本颜色 */
-}
-
-/* 待办事项辅助文本在暗模式下的颜色 */
-.dark-mode .todo-item .text-gray-400,
-.dark-mode .todo-item .text-gray-500 {
-  color: var(--text-secondary) !important; /* 使用次级文本颜色，更容易看清 */
-}
-
-/* 已完成待办事项在暗模式下的文本样式 */
-.dark-mode .todo-item .line-through {
-  color: var(--text-tertiary) !important; /* 已完成项目可以稍微暗一点 */
-}
-
-/* 暗模式下提醒文本（如过期日期）的颜色 */
-.dark-mode .todo-item .text-red-500 {
-  color: #ff6b6b !important;
-}
-
-/* 确保暗模式下按钮样式正确 */
-.dark-mode .todo-actions button.text-blue-500:hover {
-  background-color: rgba(59, 130, 246, 0.15) !important;
-}
-
-/* 暗模式下蓝色操作按钮的悬停背景效果 */
-.dark-mode .todo-actions button.text-red-500:hover {
-  background-color: rgba(239, 68, 68, 0.15) !important;
-}
-
-</style>
