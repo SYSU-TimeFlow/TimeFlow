@@ -171,7 +171,10 @@
       <!-- "今天"按钮 -->
       <button
         @click="uiStore.goToToday()"
-        class="nav-button py-1 px-4 rounded-md hover:bg-gray-100 cursor-pointer transition-colors ml-1 no-drag text-[#606060] text-base transition-all duration-200 hover:text-[#4a86e8] hover:bg-[rgba(74,134,232,0.1)]"
+        class="nav-button py-1 px-4 rounded-md hover:bg-gray-100 cursor-pointer transition-colors ml-1 no-drag
+          text-[var(--text-secondary)] text-base transition-all duration-200
+          hover:text-[#4a86e8] hover:bg-[rgba(74,134,232,0.1)]
+          dark:text-[var(--text-primary)]"
       >
         Today
       </button>
@@ -290,14 +293,14 @@
           @click="electronAPI.minimize()"
           title="最小化"
         >
-          <i class="fas fa-window-minimize text-[var(--icon-color)]"></i>
+          <i class="fas fa-window-minimize text-[var(--text-secondary)]"></i>
         </button>
         <button
           class="header-icon-button p-1.5 transition-colors m-0"
           @click="electronAPI.maximize()"
           title="最大化/还原"
         >
-          <i class="fas fa-window-maximize text-[var(--icon-color)]"></i>
+          <i class="fas fa-window-maximize text-[var(--text-secondary)]"></i>
         </button>
         <button
           class="header-icon-button p-1.5 rounded-r-md text-red-500 hover:text-red-700 transition-colors m-0"
