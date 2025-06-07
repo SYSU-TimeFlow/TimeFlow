@@ -9,14 +9,13 @@
 <template>
   <!-- 应用程序头部 -->
   <header
-    class="app-header drag border-b px-6 py-3 flex items-center bg-[var(--header-bg)] border-[var(--border-color)] text-[var(--text-primary)] h-12"
+    class="app-header drag px-6 py-3 flex items-center h-12"
   >
     <!-- 左侧区域：TimeFlow标题和日历标题 -->
-    <div class="header-left flex items-center flex-shrink mr-6 w-1/4 overflow-hidden whitespace-nowrap text-ellipsis sm:overflow-visible sm:text-clip">
+    <div class="header-left flex items-center flex-shrink mr-6 w-1/4 truncate">
       <h1
-        class="text-xl font-semibold mr-6 no-drag cursor-pointer transition-colors duration-200
-          hover:text-[#4a86e8]
-          text-[var(--heading-color)] dark:text-[var(--heading-color)]"
+        class="font-semibold mr-6 no-drag cursor-pointer transition-colors
+          text-[var(--heading-color)] hover:text-[#4a86e8]"
         @click="uiStore.toggleSidebar()"
         title="点击切换侧边栏"
       >
@@ -24,30 +23,29 @@
       </h1>
       <!-- 日历标题 -->
       <h2
-        class="text-lg font-medium no-drag max-w-[500px] whitespace-nowrap text-ellipsis
-          text-[var(--heading-color)] dark:text-[var(--heading-color)]"
+        class="font-medium no-drag truncate text-[var(--heading-color)]"
       >
         {{ uiStore.calendarTitle }}
       </h2>
     </div>
 
     <!-- 中间区域：搜索框和导航按钮 -->
-    <div class="header-center flex-1 flex justify-center items-center pl-0 w-2/5">
+    <div class="header-center flex-1 flex justify-center items-center w-2/5">
       <!-- 导航按钮组，移动到搜索框左侧 -->
       <div class="navigation-buttons flex no-drag">
         <!-- "上一个"导航按钮 -->
         <button
           @click="uiStore.navigateCalendar('prev')"
-          class="nav-button px-2 py-2 rounded-l-md hover:bg-gray-100 cursor-pointer transition-colors min-w-[40px] flex justify-center items-center m-0 text-[#606060] text-base transition-all duration-200 hover:text-[#4a86e8] hover:bg-[rgba(74,134,232,0.1)]"
+          class="header-icon-button px-2 py-2 rounded-l-md cursor-pointer min-w-[40px] transition-colors"
         >
-          <i class="fas fa-chevron-left text-base"></i>
+          <i class="fas fa-chevron-left"></i>
         </button>
         <!-- "下一个"导航按钮，移除边框 -->
         <button
           @click="uiStore.navigateCalendar('next')"
-          class="nav-button px-2 py-2 rounded-r-md hover:bg-gray-100 cursor-pointer transition-colors min-w-[40px] flex justify-center items-center m-0 text-[#606060] text-base transition-all duration-200 hover:text-[#4a86e8] hover:bg-[rgba(74,134,232,0.1)]"
+          class="header-icon-button px-2 py-2 rounded-r-md cursor-pointer min-w-[40px] transition-colors"
         >
-          <i class="fas fa-chevron-right text-base"></i>
+          <i class="fas fa-chevron-right"></i>
         </button>
       </div>
 
@@ -56,23 +54,20 @@
         <!-- 模式指示器，非搜索状态显示 -->
         <div
           v-if="!uiStore.isSearchActive"
-          class="mode-indicator pl-8 pr-4 py-1 border rounded-md text-sm w-64 h-[32px] flex items-center cursor-pointer
-            bg-[var(--bg-secondary)] border-[var(--border-color)]
-            hover:bg-[var(--hover-bg)]
-            dark:bg-[var(--bg-tertiary)] dark:border-[var(--border-color)] dark:hover:bg-[var(--hover-bg)]"
-          :class="{ 'command-mode': uiStore.appMode === 'command' }"
+          class="mode-indicator pl-8 pr-4 py-1 border rounded-md w-64 h-8 flex items-center cursor-pointer
+            hover:bg-[var(--hover-bg)]"
           @click="activateSearch"
         >
           <span
             v-if="uiStore.appMode === 'normal'"
-            class="flex items-center w-full leading-[1.5] text-[14px]"
+            class="flex items-center w-full leading-[1.5]"
           >
             <i class="fas fa-keyboard mr-2 text-gray-500 absolute left-3"></i>
             <span class="text-sm text-gray-400 ml-2">Press / to search</span>
           </span>
           <span
             v-else-if="uiStore.appMode === 'command'"
-            class="flex items-center w-full leading-[1.5] text-[14px]"
+            class="flex items-center w-full leading-[1.5]"
           >
             <i class="fas fa-terminal mr-2 text-blue-500 absolute left-3"></i>
             <span class="text-sm text-gray-400 ml-2">Enter command...</span>
@@ -89,14 +84,9 @@
               ? 'Search events...'
               : 'Enter command...'
           "
-          class="pl-8 pr-4 py-1 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent w-64 h-8
-            bg-[var(--bg-secondary)] border-[var(--border-color)] text-[var(--text-primary)]
-            placeholder-[#909090] placeholder:text-sm placeholder:font-normal
-            dark:bg-[var(--bg-tertiary)] dark:border-[var(--border-color)] dark:text-[var(--text-primary)]"
-          :class="{
-            'command-mode-input': uiStore.appMode === 'command',
-            'search-mode-input': uiStore.appMode === 'normal',
-          }"
+          class="pl-8 pr-4 py-1 border rounded-md text-sm focus:outline-none w-64 h-8
+            text-[var(--text-primary)]
+            placeholder-gray-400"
           :value="uiStore.searchInputValue"
           @input="handleInputChange"
           @focus="uiStore.handleSearchFocusAction"
@@ -106,36 +96,29 @@
 
         <i
           class="fas absolute left-3 top-1/2 transform -translate-y-1/2 text-sm pointer-events-none"
-          :class="
-            [
+          :class="[
               uiStore.isSearchActive && uiStore.appMode === 'normal'
                 ? 'fa-search text-gray-500'
                 : '',
               uiStore.isSearchActive && uiStore.appMode === 'command'
                 ? 'fa-terminal text-blue-600'
                 : '',
-              !uiStore.isSearchActive && uiStore.appMode === 'command'
-                ? 'fa-terminal text-blue-500'
-                : '',
-            ]
-          "
+          ]"
         ></i>
 
         <!-- 搜索结果列表 -->
         <div
           v-if="uiStore.showSearchDropdown && uiStore.appMode === 'normal'"
           class="search-results absolute left-0 right-0 mt-1 border rounded-md shadow-lg z-50 max-h-60 overflow-y-auto
-            bg-[var(--bg-secondary)] border-[var(--border-color)]
-            dark:bg-[var(--bg-tertiary)] dark:border-[var(--border-color)]"
+            "
         >
           <ul ref="resultListRef" class="list-none p-0 m-0">
             <li
               v-for="(event, index) in uiStore.searchResults"
               :key="event.id"
-              class="px-4 py-2 hover:bg-gray-100 cursor-pointer text-sm border-b border-[var(--border-color)] last:border-b-0
-                dark:hover:bg-[var(--hover-bg)]"
+              class="px-4 py-2 hover:bg-gray-100 cursor-pointer text-sm border-b border-[var(--border-color)] last:border-b-0"
               :class="{
-                'search-result-focused bg-[#e9ecef] dark:bg-[var(--selected-bg)]': index === uiStore.focusedResultIndex,
+                'bg-[var(--selected-bg)]': index === uiStore.focusedResultIndex,
               }"
               @mousedown="uiStore.selectSearchResultAction(event)"
             >
@@ -171,10 +154,7 @@
       <!-- "今天"按钮 -->
       <button
         @click="uiStore.goToToday()"
-        class="nav-button py-1 px-4 rounded-md hover:bg-gray-100 cursor-pointer transition-colors ml-1 no-drag
-          text-[var(--text-secondary)] text-base transition-all duration-200
-          hover:text-[#4a86e8] hover:bg-[rgba(74,134,232,0.1)]
-          dark:text-[var(--text-primary)]"
+        class="header-icon-button py-1 px-4 rounded-md cursor-pointer no-drag"
       >
         Today
       </button>
@@ -184,7 +164,7 @@
     <div class="header-right no-drag flex items-center flex-shrink-0 w-1/5 justify-end">
       <!-- 通知铃铛按钮 -->
       <button
-        class="header-icon-button p-2 rounded-md transition-colors relative text-[#606060] transition-all duration-200 hover:text-[#4a86e8] hover:bg-[rgba(74,134,232,0.1)]"
+        class="header-icon-button p-1.5 rounded-md relative"
         @click="toggleNotification"
         :title="settingStore.notifications ? '点击关闭通知' : '点击开启通知'"
       >
@@ -216,7 +196,7 @@
       </button>
       <!-- 主题切换按钮（放在铃铛和设置按钮之间） -->
       <button
-        class="header-icon-button p-2 rounded-md transition-colors relative overflow-hidden theme-toggle-btn text-[#606060] transition-all duration-200 hover:text-[#4a86e8] hover:bg-[rgba(74,134,232,0.1)]"
+        class="header-icon-button p-1.5 rounded-md relative transition-colors"
         :title="
           settingStore.themeMode === 'dark'
             ? '切换到亮色模式'
@@ -261,7 +241,7 @@
           class="theme-moon"
           width="22"
           height="22"
-          viewBox="0 0 24 24"
+          viewBox="0 0 22 22"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
         >
@@ -274,7 +254,7 @@
       <!-- 设置按钮 -->
       <button
         @click="uiStore.toggleSettings()"
-        class="header-icon-button p-2 rounded-md transition-colors settings-cog-btn text-[#606060] transition-all duration-200 hover:text-[#4a86e8] hover:bg-[rgba(74,134,232,0.1)]"
+        class="header-icon-button p-1.5 rounded-md settings-cog-btn transition-colors"
         title="打开设置"
         @mouseenter="isCogHovered = true"
         @mouseleave="isCogHovered = false"
@@ -293,17 +273,17 @@
           @click="electronAPI.minimize()"
           title="最小化"
         >
-          <i class="fas fa-window-minimize text-[var(--text-secondary)]"></i>
+          <i class="fas fa-window-minimize"></i>
         </button>
         <button
           class="header-icon-button p-1.5 transition-colors m-0"
           @click="electronAPI.maximize()"
           title="最大化/还原"
         >
-          <i class="fas fa-window-maximize text-[var(--text-secondary)]"></i>
+          <i class="fas fa-window-maximize"></i>
         </button>
         <button
-          class="header-icon-button p-1.5 rounded-r-md text-red-500 hover:text-red-700 transition-colors m-0"
+          class="p-1.5 rounded-r-md text-red-500 hover:bg-[rgba(213,121,130,0.25)] transition-colors m-0"
           @click="electronAPI.close()"
           title="关闭应用"
         >
@@ -639,7 +619,9 @@ watch(isCogHovered, (hovered) => {
 </script>
 
 <style scoped>
-/* 仅保留 Tailwind 无法覆盖的功能性样式 */
+.app-header {
+  background-color: var(--header-bg);
+}
 
 /* 可拖动区域 */
 .drag {
@@ -647,6 +629,14 @@ watch(isCogHovered, (hovered) => {
 }
 .no-drag {
   -webkit-app-region: no-drag;
+}
+
+/* 搜索框样式 */
+.search-box .mode-indicator,
+.search-box input,
+.search-box .search-results {
+  background-color: var(--bg-secondary);
+  border-color: var(--border-color);
 }
 
 /* 搜索结果高亮 */
@@ -698,28 +688,13 @@ watch(isCogHovered, (hovered) => {
   transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* 命令模式动画 */
-.command-icon {
-  animation: pulse 2s infinite;
-}
-@keyframes pulse {
-  0% { opacity: 0.7; }
-  50% { opacity: 1; }
-  100% { opacity: 0.7; }
+/* 头部区域按钮的统一颜色 */
+.header-icon-button {
+  color: var(--text-secondary);
 }
 
-/* 主题切换按钮布局 */
-.theme-toggle-btn {
-  width: 40px;
-  height: 40px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: transparent;
-  border: none;
-  outline: none;
-  cursor: pointer;
-  position: relative;
-  overflow: hidden;
+.header-icon-button:hover {
+  color: #4a86e8;
+  background-color: rgba(74, 134, 232, 0.1);
 }
 </style>
