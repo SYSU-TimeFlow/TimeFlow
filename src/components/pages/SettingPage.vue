@@ -381,24 +381,7 @@ function applyFontSizeChange() {
 </script>
 
 <style scoped>
-/* 修改字号相关的样式 */
-.settings-title {
-  font-size: var(--heading-font-size);
-}
-
-.settings-section-title {
-  font-size: var(--subheading-font-size);
-}
-
-.settings-label {
-  font-size: var(--base-font-size);
-}
-
-.settings-description {
-  font-size: var(--small-text-font-size);
-}
-
-/* 组件样式，圆角、阴影、滚动条、动画等 */
+/* ===== 基础样式 ===== */
 .settings-container {
   min-width: 320px;
   font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
@@ -410,150 +393,20 @@ function applyFontSizeChange() {
   border-color: var(--border-color);
 }
 
-/* 深色模式下的设置容器增强 */
-.dark-mode .settings-container {
-  background-color: var(--modal-bg) !important;
-  color: var(--text-primary) !important;
-  border: 1px solid var(--modal-border) !important;
-  box-shadow: var(--modal-shadow) !important;
-}
-
-/* 深色模式下的标题增强 */
-.dark-mode .settings-container h2 {
-  color: var(--modal-title-color) !important;
-  border-bottom: 1px solid var(--modal-border);
-  padding-bottom: 1rem;
-  margin-bottom: 1.5rem;
-}
-
-/* 深色模式下的标签 */
-.dark-mode .text-gray-700 {
-  color: var(--modal-label-color) !important;
-}
-
-.dark-mode .text-gray-500 {
-  color: var(--text-secondary) !important;
-}
-
-/* 深色模式下的 select 样式增强 */
-.dark-mode select {
-  background-color: var(--modal-input-bg) !important;
-  color: var(--modal-input-text) !important;
-  border: 1px solid var(--modal-input-border) !important;
-  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.3);
-}
-
-.dark-mode select:focus {
-  border-color: #58a6ff !important;
-  box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.3) !important;
-}
-
-.dark-mode select option {
-  background-color: var(--modal-input-bg) !important;
-  color: var(--modal-input-text) !important;
-}
-
-/* 深色模式下的按钮增强 */
-.dark-mode button {
-  border: 1px solid var(--modal-border);
-}
-
-.dark-mode button.bg-blue-600 {
-  background-color: var(--modal-button-bg) !important;
-  color: var(--modal-button-text) !important;
-  border-color: var(--modal-button-bg);
-}
-
-.dark-mode button.bg-blue-600:hover {
-  background-color: var(--modal-button-hover) !important;
-}
-
-.dark-mode button.bg-gray-200 {
-  background-color: var(--modal-button-secondary) !important;
-  color: var(--text-primary) !important;
-  border-color: var(--modal-border);
-}
-
-.dark-mode button.bg-gray-200:hover {
-  background-color: var(--modal-button-secondary-hover) !important;
-}
-
-/* 重置按钮在暗色模式下的绿色样式 */
-.dark-mode button.bg-gray-100 {
-  background-color: var(--modal-button-bg) !important; /* 使用绿色背景 */
-  color: var(--modal-button-text) !important; /* 白色文字 */
-  border: 1px solid var(--modal-button-bg) !important;
-}
-
-.dark-mode button.bg-gray-100:hover {
-  background-color: var(--modal-button-hover) !important; /* 悬停时的亮绿色 */
-  border-color: var(--modal-button-hover) !important;
-}
-
-/* 开关按钮增强 */
-.dark-mode .toggle-checkbox {
-  accent-color: #58a6ff;
-  filter: brightness(1.2);
-}
-
-/* 关闭按钮增强 */
-.dark-mode .text-red-500 {
-  color: #ff6b6b !important;
-}
-
-.dark-mode .text-red-500:hover {
-  color: #ff5252 !important;
-  background-color: rgba(255, 107, 107, 0.1);
-}
-
-/* 图标颜色增强 */
-.dark-mode .text-blue-500 {
-  color: #58a6ff !important;
-}
-
-.dark-mode .text-green-500 {
-  color: #56d364 !important;
-}
-
-.dark-mode .text-pink-500 {
-  color: #f47ac7 !important;
-}
-
-.dark-mode .text-yellow-500 {
-  color: #ffd33d !important;
-}
-
-.dark-mode .text-purple-500 {
-  color: #bc8cff !important;
-}
-
-.dark-mode .text-orange-500 {
-  color: #ff8c42 !important;
-}
-
-/* Toast 提示增强 */
-.dark-mode .bg-green-500 {
-  background-color: var(--modal-button-bg) !important;
-}
-
-.dark-mode .bg-blue-500 {
-  background-color: #58a6ff !important;
-}
-
-/* 定义淡入动画效果 */
+/* ===== 动画效果 ===== */
 @keyframes fadeIn {
   from {
-    opacity: 0; /* 动画开始时透明度为0 */
+    opacity: 0;
   }
   to {
-    opacity: 1; /* 动画结束时透明度为1 */
+    opacity: 1;
   }
 }
 
-/* 确保背景模糊效果兼容性 */
+/* ===== 背景模糊效果 ===== */
 .backdrop-blur-sm {
-  backdrop-filter: blur(4px); /* 轻微高斯模糊，数值可调整 */
-  -webkit-backdrop-filter: blur(4px); /* 兼容 Safari */
-  background: rgba(0, 0, 0, 0.1); /* 轻微透明黑色，增强模糊可见性 */
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  background: rgba(0, 0, 0, 0.1);
 }
 </style>
