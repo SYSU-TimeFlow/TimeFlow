@@ -16,7 +16,7 @@
       <h1
         class="text-xl font-semibold mr-6 no-drag cursor-pointer transition-colors duration-200
           hover:text-[#4a86e8]
-          text-[var(--heading-color)] dark:text-[var(--heading-color)]"
+          text-[var(--heading-color)]"
         @click="uiStore.toggleSidebar()"
         title="点击切换侧边栏"
       >
@@ -25,7 +25,7 @@
       <!-- 日历标题 -->
       <h2
         class="text-lg font-medium no-drag max-w-[500px] whitespace-nowrap text-ellipsis
-          text-[var(--heading-color)] dark:text-[var(--heading-color)]"
+          text-[var(--heading-color)]"
       >
         {{ uiStore.calendarTitle }}
       </h2>
@@ -38,14 +38,14 @@
         <!-- "上一个"导航按钮 -->
         <button
           @click="uiStore.navigateCalendar('prev')"
-          class="nav-button px-2 py-2 rounded-l-md hover:bg-gray-100 cursor-pointer transition-colors min-w-[40px] flex justify-center items-center m-0 text-[#606060] text-base transition-all duration-200 hover:text-[#4a86e8] hover:bg-[rgba(74,134,232,0.1)]"
+          class="nav-button px-2 py-2 rounded-l-md cursor-pointer min-w-[40px] flex justify-center items-center m-0 text-[#606060] text-base transition-all duration-200 hover:bg-[rgba(74,134,232,0.1)]"
         >
           <i class="fas fa-chevron-left text-base"></i>
         </button>
         <!-- "下一个"导航按钮，移除边框 -->
         <button
           @click="uiStore.navigateCalendar('next')"
-          class="nav-button px-2 py-2 rounded-r-md hover:bg-gray-100 cursor-pointer transition-colors min-w-[40px] flex justify-center items-center m-0 text-[#606060] text-base transition-all duration-200 hover:text-[#4a86e8] hover:bg-[rgba(74,134,232,0.1)]"
+          class="nav-button px-2 py-2 rounded-r-md cursor-pointer min-w-[40px] flex justify-center items-center m-0 text-[#606060] text-base transition-all duration-200 hover:bg-[rgba(74,134,232,0.1)]"
         >
           <i class="fas fa-chevron-right text-base"></i>
         </button>
@@ -58,8 +58,7 @@
           v-if="!uiStore.isSearchActive"
           class="mode-indicator pl-8 pr-4 py-1 border rounded-md text-sm w-64 h-[32px] flex items-center cursor-pointer
             bg-[var(--bg-secondary)] border-[var(--border-color)]
-            hover:bg-[var(--hover-bg)]
-            dark:bg-[var(--bg-tertiary)] dark:border-[var(--border-color)] dark:hover:bg-[var(--hover-bg)]"
+            hover:bg-[var(--hover-bg)]"
           :class="{ 'command-mode': uiStore.appMode === 'command' }"
           @click="activateSearch"
         >
@@ -91,8 +90,7 @@
           "
           class="pl-8 pr-4 py-1 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent w-64 h-8
             bg-[var(--bg-secondary)] border-[var(--border-color)] text-[var(--text-primary)]
-            placeholder-[#909090] placeholder:text-sm placeholder:font-normal
-            dark:bg-[var(--bg-tertiary)] dark:border-[var(--border-color)] dark:text-[var(--text-primary)]"
+            placeholder-[#909090] placeholder:text-sm placeholder:font-normal"
           :class="{
             'command-mode-input': uiStore.appMode === 'command',
             'search-mode-input': uiStore.appMode === 'normal',
@@ -126,16 +124,15 @@
           v-if="uiStore.showSearchDropdown && uiStore.appMode === 'normal'"
           class="search-results absolute left-0 right-0 mt-1 border rounded-md shadow-lg z-50 max-h-60 overflow-y-auto
             bg-[var(--bg-secondary)] border-[var(--border-color)]
-            dark:bg-[var(--bg-tertiary)] dark:border-[var(--border-color)]"
+            "
         >
           <ul ref="resultListRef" class="list-none p-0 m-0">
             <li
               v-for="(event, index) in uiStore.searchResults"
               :key="event.id"
-              class="px-4 py-2 hover:bg-gray-100 cursor-pointer text-sm border-b border-[var(--border-color)] last:border-b-0
-                dark:hover:bg-[var(--hover-bg)]"
+              class="px-4 py-2 hover:bg-gray-100 cursor-pointer text-sm border-b border-[var(--border-color)] last:border-b-0"
               :class="{
-                'search-result-focused bg-[#e9ecef] dark:bg-[var(--selected-bg)]': index === uiStore.focusedResultIndex,
+                'search-result-focused bg-[var(--selected-bg)]': index === uiStore.focusedResultIndex,
               }"
               @mousedown="uiStore.selectSearchResultAction(event)"
             >
@@ -171,10 +168,9 @@
       <!-- "今天"按钮 -->
       <button
         @click="uiStore.goToToday()"
-        class="nav-button py-1 px-4 rounded-md hover:bg-gray-100 cursor-pointer transition-colors ml-1 no-drag
-          text-[var(--text-secondary)] text-base transition-all duration-200
-          hover:text-[#4a86e8] hover:bg-[rgba(74,134,232,0.1)]
-          dark:text-[var(--text-primary)]"
+        class="nav-button py-1 px-4 rounded-md cursor-pointer ml-1 no-drag
+          text-[var(--text-primary)] text-base transition-all duration-200
+          hover:text-[#4a86e8] hover:bg-[rgba(74,134,232,0.1)]"
       >
         Today
       </button>
@@ -184,7 +180,7 @@
     <div class="header-right no-drag flex items-center flex-shrink-0 w-1/5 justify-end">
       <!-- 通知铃铛按钮 -->
       <button
-        class="header-icon-button p-2 rounded-md transition-colors relative text-[#606060] transition-all duration-200 hover:text-[#4a86e8] hover:bg-[rgba(74,134,232,0.1)]"
+        class="header-icon-button p-2 rounded-md relative text-[#606060] transition-all duration-200 hover:text-[#4a86e8] hover:bg-[rgba(74,134,232,0.1)]"
         @click="toggleNotification"
         :title="settingStore.notifications ? '点击关闭通知' : '点击开启通知'"
       >
@@ -216,7 +212,7 @@
       </button>
       <!-- 主题切换按钮（放在铃铛和设置按钮之间） -->
       <button
-        class="header-icon-button p-2 rounded-md transition-colors relative overflow-hidden theme-toggle-btn text-[#606060] transition-all duration-200 hover:text-[#4a86e8] hover:bg-[rgba(74,134,232,0.1)]"
+        class="header-icon-button p-2 rounded-md relative overflow-hidden theme-toggle-btn text-[#606060] transition-all duration-200 hover:text-[#4a86e8] hover:bg-[rgba(74,134,232,0.1)]"
         :title="
           settingStore.themeMode === 'dark'
             ? '切换到亮色模式'
@@ -274,7 +270,7 @@
       <!-- 设置按钮 -->
       <button
         @click="uiStore.toggleSettings()"
-        class="header-icon-button p-2 rounded-md transition-colors settings-cog-btn text-[#606060] transition-all duration-200 hover:text-[#4a86e8] hover:bg-[rgba(74,134,232,0.1)]"
+        class="header-icon-button p-2 rounded-md settings-cog-btn text-[#606060] transition-all duration-200 hover:text-[#4a86e8] hover:bg-[rgba(74,134,232,0.1)]"
         title="打开设置"
         @mouseenter="isCogHovered = true"
         @mouseleave="isCogHovered = false"
