@@ -14,14 +14,21 @@
     <!-- 左侧区域：TimeFlow标题和日历标题 -->
     <div class="header-left flex items-center flex-shrink mr-6 w-1/4 overflow-hidden whitespace-nowrap text-ellipsis sm:overflow-visible sm:text-clip">
       <h1
-        class="text-xl font-semibold mr-6 no-drag cursor-pointer transition-colors duration-200 hover:text-[#4a86e8]"
+        class="text-xl font-semibold mr-6 no-drag cursor-pointer transition-colors duration-200
+          hover:text-[#4a86e8]
+          text-[var(--heading-color)] dark:text-[var(--heading-color)]"
         @click="uiStore.toggleSidebar()"
         title="点击切换侧边栏"
       >
         TimeFlow
       </h1>
       <!-- 日历标题 -->
-      <h2 class="text-lg font-medium no-drag max-w-[500px] whitespace-nowrap text-ellipsis">{{ uiStore.calendarTitle }}</h2>
+      <h2
+        class="text-lg font-medium no-drag max-w-[500px] whitespace-nowrap text-ellipsis
+          text-[var(--heading-color)] dark:text-[var(--heading-color)]"
+      >
+        {{ uiStore.calendarTitle }}
+      </h2>
     </div>
 
     <!-- 中间区域：搜索框和导航按钮 -->
@@ -125,9 +132,10 @@
             <li
               v-for="(event, index) in uiStore.searchResults"
               :key="event.id"
-              class="px-4 py-2 hover:bg-gray-100 cursor-pointer text-sm border-b border-[#eee] last:border-b-0"
+              class="px-4 py-2 hover:bg-gray-100 cursor-pointer text-sm border-b border-[var(--border-color)] last:border-b-0
+                dark:hover:bg-[var(--hover-bg)]"
               :class="{
-                'search-result-focused bg-[#e9ecef]': index === uiStore.focusedResultIndex,
+                'search-result-focused bg-[#e9ecef] dark:bg-[var(--selected-bg)]': index === uiStore.focusedResultIndex,
               }"
               @mousedown="uiStore.selectSearchResultAction(event)"
             >
@@ -282,14 +290,14 @@
           @click="electronAPI.minimize()"
           title="最小化"
         >
-          <i class="fas fa-window-minimize" :class="'text-[var(--icon-color)] dark:text-[var(--icon-color)]'"></i>
+          <i class="fas fa-window-minimize text-[var(--icon-color)]"></i>
         </button>
         <button
           class="header-icon-button p-1.5 transition-colors m-0"
           @click="electronAPI.maximize()"
           title="最大化/还原"
         >
-          <i class="fas fa-window-maximize" :class="'text-[var(--icon-color)] dark:text-[var(--icon-color)]'"></i>
+          <i class="fas fa-window-maximize text-[var(--icon-color)]"></i>
         </button>
         <button
           class="header-icon-button p-1.5 rounded-r-md text-red-500 hover:text-red-700 transition-colors m-0"
