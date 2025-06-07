@@ -383,28 +383,21 @@ function applyFontSizeChange() {
 <style scoped>
 /* 
   组件特定的基础样式和动画。
-  大部分主题化（包括暗黑模式）应由 theme.css 处理。
+  大部分主题化（包括暗黑模式）现在由 theme.css 统一处理。
 */
 .settings-container {
-  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, /* Custom font stack, keep if specific and not global */
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
     Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
-  animation: fadeIn 0.1s ease-out; /* Animation applied directly */
-  /* 
-    Background, text color, border for .settings-container should be defined in theme.css 
-    for both light and dark modes. Example:
-    theme.css:
-    .settings-container { background-color: var(--modal-bg); color: var(--text-primary); }
-    .dark-mode .settings-container { background-color: var(--modal-bg); ... }
-  */
+  animation: fadeIn 0.1s ease-out;
 }
 
 /* 定义淡入动画效果 */
 @keyframes fadeIn {
   from {
-    opacity: 0; /* 动画开始时透明度为0 */
+    opacity: 0;
   }
   to {
-    opacity: 1; /* 动画结束时透明度为1 */
+    opacity: 1;
   }
 }
 </style>

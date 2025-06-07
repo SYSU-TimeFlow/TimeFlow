@@ -93,7 +93,7 @@
   --modal-header-bg: #21262d; /* 模态框头部背景 */
   --modal-footer-bg: #21262d; /* 模态框底部背景 */
   --modal-border: #30363d; /* 模态框边框 */
-  --modal-text-primary-color: #e6edf3; 
+  --modal-text-primary-color: #e6edf3;
   --modal-text-secondary-color: #8d8d8d; /* 次亮的模态框文本颜色 */
   --modal-title-color: #f0f6fc; /* 最亮的模态框标题，用于重要文字 */
   --modal-label-color: #e6edf3; /* 次亮的模态框标签，用于普通文字 */
@@ -111,8 +111,11 @@
 /* ====================== pages ======================= */
 
 /*  设置基础样式 (亮色模式) */
-.event-modal, .settings-container {
-  background-color: var(--modal-bg); /* 在亮色模式下使用 :root 中定义的 --modal-bg */
+.event-modal,
+.settings-container {
+  background-color: var(
+    --modal-bg
+  ); /* 在亮色模式下使用 :root 中定义的 --modal-bg */
   color: var(--text-primary); /* 基础文字颜色 */
   /* 其他基础样式，如圆角、阴影等已由Vue组件中的Tailwind类处理 */
 }
@@ -120,14 +123,20 @@
 /* 暗黑模式下的模态框样式  */
 .dark-mode .event-modal,
 .dark-mode .settings-container {
-  background-color: var(--modal-bg) !important; /* 使用 .dark-mode 中定义的 --modal-bg */
-  color: var(--modal-text-primary-color); /* 使用 .dark-mode 中定义的 --modal-text-primary-color */
+  background-color: var(
+    --modal-bg
+  ) !important; /* 使用 .dark-mode 中定义的 --modal-bg */
+  color: var(
+    --modal-text-primary-color
+  ); /* 使用 .dark-mode 中定义的 --modal-text-primary-color */
   border: 1px solid var(--modal-border);
   box-shadow: var(--modal-shadow);
 }
 
 .dark-mode .settings-container .text-secondary {
-  color: var(--modal-text-secondary-color); /* 使用 .dark-mode 中定义的 --modal-text-secondary-color */
+  color: var(
+    --modal-text-secondary-color
+  ); /* 使用 .dark-mode 中定义的 --modal-text-secondary-color */
 }
 
 /* ====================== pages ======================= */
@@ -140,11 +149,6 @@
 .dark-mode .bg-blue-700,
 .dark-mode .hover\:bg-blue-700:hover {
   background-color: var(--button-primary-hover) !important;
-}
-
-/* 覆盖ToDo视图中的白色背景 */
-.dark-mode .bg-white {
-  background-color: var(--bg-primary) !important;
 }
 
 /* 确保颜色过渡平滑 */
@@ -177,9 +181,10 @@ html,
 .dark-mode .modal-body, /* 确保 modal-body 也应用暗黑模式背景 */
 .dark-mode .modal-footer {
   border-color: var(--modal-border);
-  background-color: var(--modal-bg); /* 确保这些部分也使用暗黑模式的 --modal-bg */
+  background-color: var(
+    --modal-bg
+  ); /* 确保这些部分也使用暗黑模式的 --modal-bg */
 }
-
 
 .dark-mode .modal-body label {
   color: var(--modal-label-color);
@@ -199,7 +204,6 @@ html,
   box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.3) !important; /* 来自原scoped CSS */
 }
 
-
 .dark-mode .modal-footer button {
   color: var(--modal-button-text);
 }
@@ -212,12 +216,171 @@ html,
   background-color: var(--modal-button-hover);
 }
 
-/* 暗黑模式下的分类选择器样式 (已存在) */
+/* ====================== 统一模态框样式 ======================= */
+
+/* 模态框基础样式 (亮色模式) */
+.event-modal,
+.settings-container,
+.todo-modal,
+.help-modal,
+.category-modal,
+.feedback-modal {
+  background-color: var(--modal-bg);
+  color: var(--text-primary);
+}
+
+/* 暗黑模式下的统一模态框样式 */
+.dark-mode .event-modal,
+.dark-mode .settings-container,
+.dark-mode .todo-modal,
+.dark-mode .help-modal,
+.dark-mode .category-modal,
+.dark-mode .feedback-modal {
+  background-color: var(--modal-bg) !important;
+  color: var(--modal-text-primary-color);
+  border: 1px solid var(--modal-border);
+  box-shadow: var(--modal-shadow);
+}
+
+/* 统一模态框头部、主体、底部样式 */
+.dark-mode .modal-header,
+.dark-mode .modal-body,
+.dark-mode .modal-footer {
+  border-color: var(--modal-border);
+  background-color: var(--modal-bg);
+}
+
+/* 统一模态框标题样式 */
+.dark-mode .modal-header h3 {
+  color: var(--modal-title-color) !important;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
+  font-weight: 600;
+}
+
+/* 统一表单标签样式 */
+.dark-mode .modal-body label,
+.dark-mode .form-group label {
+  color: var(--modal-label-color) !important;
+  font-weight: 500;
+}
+
+/* 统一输入框和文本域样式 */
+.dark-mode .modal-body input,
+.dark-mode .modal-body textarea,
+.dark-mode .modal-body select,
+.dark-mode .form-group input,
+.dark-mode .form-group textarea,
+.dark-mode .form-group select {
+  background-color: var(--modal-input-bg) !important;
+  color: var(--modal-input-text) !important;
+  border: 1px solid var(--modal-input-border) !important;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+/* 统一输入框焦点样式 */
+.dark-mode .modal-body input:focus,
+.dark-mode .modal-body textarea:focus,
+.dark-mode .modal-body select:focus,
+.dark-mode .form-group input:focus,
+.dark-mode .form-group textarea:focus,
+.dark-mode .form-group select:focus {
+  border-color: #58a6ff !important;
+  box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.3) !important;
+}
+
+/* 统一占位符样式 */
+.dark-mode .modal-body input::placeholder,
+.dark-mode .modal-body textarea::placeholder,
+.dark-mode .form-group input::placeholder,
+.dark-mode .form-group textarea::placeholder {
+  color: var(--text-tertiary) !important;
+}
+
+/* 统一按钮样式 */
+.dark-mode .modal-footer button {
+  color: var(--modal-button-text);
+}
+
+.dark-mode .modal-footer button.bg-blue-600,
+.dark-mode .modal-footer .btn-primary {
+  background-color: var(--modal-button-bg) !important;
+  color: var(--modal-button-text) !important;
+  border: 1px solid var(--modal-button-bg);
+}
+
+.dark-mode .modal-footer button.bg-blue-600:hover,
+.dark-mode .modal-footer .btn-primary:hover {
+  background-color: var(--modal-button-hover) !important;
+}
+
+.dark-mode .modal-footer button.bg-red-600,
+.dark-mode .modal-footer .btn-danger {
+  background-color: #da3633 !important;
+  color: var(--modal-button-text) !important;
+  border: 1px solid #da3633;
+}
+
+.dark-mode .modal-footer button.bg-red-600:hover,
+.dark-mode .modal-footer .btn-danger:hover {
+  background-color: #f85149 !important;
+}
+
+.dark-mode .modal-footer button.bg-gray-300,
+.dark-mode .modal-footer .btn-secondary {
+  background-color: var(--modal-button-secondary) !important;
+  color: var(--text-primary) !important;
+  border: 1px solid var(--modal-border);
+}
+
+.dark-mode .modal-footer button.bg-gray-300:hover,
+.dark-mode .modal-footer .btn-secondary:hover {
+  background-color: var(--modal-button-secondary-hover) !important;
+}
+
+/* 统一关闭按钮样式 */
+.dark-mode .modal-header button {
+  color: var(--text-secondary) !important;
+}
+
+.dark-mode .modal-header button:hover {
+  color: #ff6b6b !important;
+  background-color: rgba(255, 107, 107, 0.1);
+}
+
+/* 统一分类选择器样式 */
 .dark-mode .category-option {
   box-shadow: 0 0 0 2px var(--modal-border), 0 2px 4px rgba(0, 0, 0, 0.4);
 }
 
-.dark-mode .category-option.border-gray-800 { /* 当 category-option 同时有 border-gray-800 (亮色模式选中) */
+.dark-mode .category-option.border-gray-800 {
   box-shadow: 0 0 0 3px #58a6ff !important;
   border-color: #58a6ff !important;
+}
+
+/* 统一复选框样式 */
+.dark-mode input[type="checkbox"] {
+  accent-color: #58a6ff;
+  filter: brightness(1.2);
+}
+
+/* 统一文本颜色覆盖 */
+.dark-mode .text-gray-700 {
+  color: var(--modal-label-color) !important;
+}
+
+.dark-mode .text-gray-500 {
+  color: var(--text-tertiary) !important;
+}
+
+.dark-mode .text-secondary {
+  color: var(--modal-text-secondary-color) !important;
+}
+
+/* 统一快捷键样式 */
+.dark-mode kbd {
+  background-color: var(--modal-input-bg) !important;
+  border: 1px solid var(--modal-input-border) !important;
+  color: var(--modal-title-color) !important;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.1),
+    inset 0 1px 2px rgba(0, 0, 0, 0.3);
 }

@@ -8,7 +8,7 @@
   >
     <!-- 待办事项模态框主体，阻止事件冒泡到父级 -->
     <div
-      class="todo-modal bg-white rounded-lg shadow-lg w-full max-w-md overflow-hidden"
+      class="todo-modal  rounded-lg shadow-lg w-full max-w-md overflow-hidden"
       @click.stop
       ref="modalRef"
     >
@@ -75,7 +75,7 @@
           />
           <div
             v-else
-            class="no-deadline w-full p-2 border rounded-md h-10 flex items-center text-base bg-white dark:bg-[var(--modal-input-bg)]"
+            class="no-deadline w-full p-2 border rounded-md h-10 flex items-center text-base  dark:bg-[var(--modal-input-bg)]"
             style="font-family: inherit"
           >
             <span class="w-full">无截止时间</span>
@@ -269,154 +269,18 @@ function saveTodo() {
   background: rgba(0, 0, 0, 0.1);
 }
 
-/* 暗黑模式适配 - 增强区分度，但保留动态头部颜色 */
-.dark-mode .todo-modal {
-  background-color: var(--modal-bg) !important;
-  color: var(--text-primary);
-  border: 1px solid var(--modal-border);
-  box-shadow: var(--modal-shadow);
+/* 无截止时间div的特殊样式 */
+.form-group .no-deadline {
+  border: 1px solid #d1d5db !important;
+  color: #111827 !important;
+  background: #fff !important;
 }
 
-/* 保留头部动态颜色，不覆盖背景 */
-.dark-mode .modal-header {
-  border-color: var(--modal-border);
-  /* 不覆盖 background-color，保持动态颜色 */
-}
-
-.dark-mode .modal-header h3 {
-  color: var(--modal-title-color) !important;
-  /* 确保文字在任何背景色上都清晰可见 */
-  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
-  font-weight: 600;
-}
-
-.dark-mode .modal-body {
-  color: var(--text-primary);
-  background-color: var(--modal-bg);
-}
-
-.dark-mode .modal-footer {
-  border-color: var(--modal-border);
-  background-color: var(--modal-footer-bg) !important;
-}
-
-/* 表单元素样式增强 */
-.dark-mode .form-group label {
-  color: var(--modal-label-color) !important;
-  font-weight: 500;
-}
-
-.dark-mode .form-group input,
-.dark-mode .form-group select,
-.dark-mode .form-group textarea {
-  background-color: var(--modal-input-bg) !important;
-  color: var(--modal-input-text) !important;
-  border: 1px solid var(--modal-input-border) !important;
-  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.3);
-}
-
-.dark-mode .form-group input:focus,
-.dark-mode .form-group textarea:focus {
-  border-color: #58a6ff !important;
-  box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.3) !important;
-}
-
-.dark-mode .form-group input::placeholder,
-.dark-mode .form-group textarea::placeholder {
-  color: var(--text-tertiary) !important;
-}
-
-/* 分类颜色选择器增强 */
-.dark-mode .category-option {
-  box-shadow: 0 0 0 2px var(--modal-border), 0 2px 4px rgba(0, 0, 0, 0.4);
-}
-
-.dark-mode .category-option.border-gray-800 {
-  box-shadow: 0 0 0 3px #58a6ff !important;
-  border-color: #58a6ff !important;
-}
-
-/* 按钮样式增强 */
-.dark-mode .modal-footer button.bg-blue-600 {
-  background-color: var(--modal-button-bg) !important;
-  color: var(--modal-button-text) !important;
-  border: 1px solid var(--modal-button-bg);
-}
-
-.dark-mode .modal-footer button.bg-blue-600:hover {
-  background-color: var(--modal-button-hover) !important;
-}
-
-.dark-mode .modal-footer button.bg-red-600 {
-  background-color: #da3633 !important;
-  color: var(--modal-button-text) !important;
-  border: 1px solid #da3633;
-}
-
-.dark-mode .modal-footer button.bg-red-600:hover {
-  background-color: #f85149 !important;
-}
-
-/* 关闭按钮增强 */
-.dark-mode .modal-header button {
-  color: var(--text-secondary) !important;
-}
-
-.dark-mode .modal-header button:hover {
-  color: #ff6b6b !important;
-  background-color: rgba(255, 107, 107, 0.1);
-}
-
-/* 截止时间提示区域 */
-.dark-mode .bg-gray-50 {
-  background-color: var(--modal-input-bg) !important;
-  color: var(--text-tertiary) !important;
-}
-
-/* 复选框样式增强 */
-.dark-mode input[type="checkbox"] {
-  accent-color: #58a6ff;
-  filter: brightness(1.2);
-}
-
-/* 统一文本颜色 */
-.dark-mode .text-gray-700 {
-  color: var(--modal-label-color) !important;
-}
-
-.dark-mode .text-gray-500 {
-  color: var(--text-tertiary) !important;
-}
-
-/* 统一字体大小 */
-.text-lg {
-  font-size: var(--font-size-lg, 1.125rem);
-}
-
-.text-sm {
-  font-size: var(--font-size-sm, 0.875rem);
-}
-
-input,
-textarea {
-  font-size: var(--font-size-base, 1rem);
-}
-
-button {
-  font-size: var(--font-size-base, 1rem);
-}
-
-/* 无截止时间div在暗色模式的样式 */
 .dark-mode .form-group .no-deadline {
   background-color: var(--modal-input-bg) !important;
   color: var(--modal-input-text) !important;
   border: 1px solid var(--modal-input-border) !important;
   box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.3);
-}
-.form-group .no-deadline {
-  border: 1px solid #d1d5db !important;
-  color: #111827 !important;
-  background: #fff !important;
 }
 
 /* 摇动动画 */
@@ -441,7 +305,6 @@ button {
   }
 }
 
-/* 添加抖动效果类 */
 .shake {
   animation: shake 0.3s;
 }

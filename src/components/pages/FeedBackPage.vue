@@ -13,7 +13,7 @@ const modalRef = ref(null);
     class="fixed inset-0 bg-transparent backdrop-blur-sm flex items-center justify-center z-50"
     @click="uiStore.showFeedbackModal = false"
   >
-    <div class="bg-white rounded-lg w-[600px] h-[600px] relative" @click.stop>
+    <div class="feedback-modal rounded-lg w-[600px] h-[600px] relative" @click.stop>
       <!-- 关闭按钮 -->
       <button
         @click="uiStore.showFeedbackModal = false"
@@ -31,4 +31,14 @@ const modalRef = ref(null);
   </div>
 </template>
 
-<style lang="css"></style>
+<style scoped>
+.backdrop-blur-sm {
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  background: rgba(0, 0, 0, 0.1);
+}
+
+.feedback-modal {
+  background-color: var(--modal-bg);
+}
+</style>

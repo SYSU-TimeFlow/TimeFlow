@@ -9,7 +9,7 @@
 <template>
   <!-- 主日历应用程序容器 - 改为固定屏幕大小 -->
   <div
-    class="calendar-app h-screen w-screen bg-white text-gray-800 flex flex-col overflow-hidden"
+    class="calendar-app h-screen w-screen  text-gray-800 flex flex-col overflow-hidden"
   >
     <!-- 应用程序头部 -->
     <CalendarHeader class="flex-shrink-0" />

@@ -14,7 +14,7 @@
   >
     <!-- 分类模态框主体，阻止事件冒泡到父级 -->
     <div
-      class="category-modal bg-white rounded-lg shadow-lg w-full max-w-md overflow-hidden"
+      class="category-modal  rounded-lg shadow-lg w-full max-w-md overflow-hidden"
       @click.stop
     >
       <!-- 模态框头部 -->
@@ -152,26 +152,26 @@ onUnmounted(() => {
 /* 定义淡入动画效果 */
 @keyframes fadeIn {
   from {
-    opacity: 0; /* 动画开始时透明度为0 */
+    opacity: 0;
   }
   to {
-    opacity: 1; /* 动画结束时透明度为1 */
+    opacity: 1;
   }
 }
 
 /* 分类模态框应用淡入动画 */
 .category-modal {
-  animation: fadeIn 0.1s ease-out; /* 动画名称、持续时间、缓动函数 */
+  animation: fadeIn 0.1s ease-out;
 }
 
 /* 确保背景模糊效果兼容性 */
 .backdrop-blur-sm {
-  backdrop-filter: blur(4px); /* 轻微高斯模糊，数值可调整 */
-  -webkit-backdrop-filter: blur(4px); /* 兼容 Safari */
-  background: rgba(0, 0, 0, 0.1); /* 轻微透明黑色，增强模糊可见性 */
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  background: rgba(0, 0, 0, 0.1);
 }
 
-/* 颜色选择器样式 */
+/* 颜色选择器布局 */
 .color-selector {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
@@ -179,7 +179,7 @@ onUnmounted(() => {
   justify-items: center;
 }
 
-/* 添加字体大小变量 */
+/* 字体大小变量 */
 .text-lg {
   font-size: var(--font-size-lg);
 }
@@ -202,108 +202,5 @@ button {
 
 .modal-footer button {
   font-size: var(--font-size-base);
-}
-
-/* 深色模式样式 */
-.dark-mode .category-modal {
-  background-color: var(--modal-bg) !important;
-  color: var(--text-primary);
-  border: 1px solid var(--modal-border);
-  box-shadow: var(--modal-shadow);
-}
-
-/* 保留头部动态颜色，不覆盖背景 */
-.dark-mode .modal-header {
-  border-color: var(--modal-border);
-  /* 不覆盖 background-color，保持动态颜色 */
-}
-
-.dark-mode .modal-header h3 {
-  color: var(--modal-title-color) !important;
-  /* 确保文字在任何背景色上都清晰可见 */
-  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
-  font-weight: 600;
-}
-
-.dark-mode .modal-body {
-  background-color: var(--modal-bg);
-}
-
-.dark-mode .modal-body label {
-  color: var(--modal-label-color) !important;
-  font-weight: 500;
-}
-
-.dark-mode .modal-body input {
-  background-color: var(--modal-input-bg) !important;
-  color: var(--modal-input-text) !important;
-  border: 1px solid var(--modal-input-border) !important;
-  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.3);
-}
-
-.dark-mode .modal-body input:focus {
-  border-color: #58a6ff !important;
-  box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.3) !important;
-}
-
-.dark-mode .modal-body input::placeholder {
-  color: var(--text-tertiary) !important;
-}
-
-.dark-mode .modal-footer {
-  border-color: var(--modal-border);
-  background-color: var(--modal-footer-bg) !important;
-}
-
-.dark-mode .modal-footer button {
-  color: var(--modal-button-text) !important;
-}
-
-.dark-mode .modal-footer button.bg-blue-600 {
-  background-color: var(--modal-button-bg) !important;
-  border: 1px solid var(--modal-button-bg);
-}
-
-.dark-mode .modal-footer button.bg-blue-600:hover {
-  background-color: var(--modal-button-hover) !important;
-}
-
-.dark-mode .modal-footer button.bg-gray-200 {
-  background-color: var(--modal-button-secondary) !important;
-  color: var(--text-primary) !important;
-  border: 1px solid var(--modal-border);
-}
-
-.dark-mode .modal-footer button.bg-gray-200:hover {
-  background-color: var(--modal-button-secondary-hover) !important;
-}
-
-.dark-mode .modal-footer button.bg-red-600 {
-  background-color: #da3633 !important;
-  color: var(--modal-button-text) !important;
-  border: 1px solid #da3633;
-}
-
-.dark-mode .modal-footer button.bg-red-600:hover {
-  background-color: #f85149 !important;
-}
-
-/* 颜色选择器增强 */
-.dark-mode .color-option {
-  box-shadow: 0 0 0 2px var(--modal-border), 0 2px 4px rgba(0, 0, 0, 0.4);
-}
-
-.dark-mode .color-option.border-gray-800 {
-  box-shadow: 0 0 0 3px #58a6ff !important;
-}
-
-/* 关闭按钮增强 */
-.dark-mode .modal-header button {
-  color: var(--text-secondary) !important;
-}
-
-.dark-mode .modal-header button:hover {
-  color: #ff6b6b !important;
-  background-color: rgba(255, 107, 107, 0.1);
 }
 </style>
