@@ -13,7 +13,7 @@
   >
     <!-- 帮助模态框主体，阻止事件冒泡到父级 -->
     <div
-      class="help-modal  rounded-lg shadow-lg w-full max-w-xl overflow-hidden"
+      class="help-modal rounded-lg shadow-lg w-full max-w-xl overflow-hidden"
       @click.stop
     >
       <!-- 模态框头部 -->
@@ -26,7 +26,8 @@
         <!-- 关闭按钮 -->
         <button
           @click="uiStore.closeHelpModal"
-          class="text-gray-500 hover:text-gray-700 cursor-pointer rounded-md p-1"
+          class="modal-close-btn"
+          title="关闭"
         >
           <i class="fas fa-times"></i>
         </button>
@@ -144,7 +145,7 @@
       <div class="modal-footer p-4 border-t border-gray-200 flex justify-end">
         <button
           @click="uiStore.closeHelpModal"
-          class="py-2 px-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 cursor-pointer"
+          class="modal-save-btn"
         >
           关闭
         </button>

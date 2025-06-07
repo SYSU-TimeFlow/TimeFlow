@@ -33,8 +33,9 @@
         <!-- 关闭按钮 -->
         <button
           @click="uiStore.closeEventModal()"
-          class="text-gray-500 hover: cursor-pointer rounded-full p-1 transition-colors whitespace-nowrap"
-        > 
+          class="modal-close-btn"
+          title="关闭"
+        >
           <i class="fas fa-times"></i>
         </button>
       </div>
@@ -42,41 +43,42 @@
       <div class="modal-body p-4">
         <!-- 标题输入区域 -->
         <div class="form-group mb-4">
-          <label class="block text-sm font-medium  mb-1"
-            >Title</label
-          >
+          <label class="block text-sm font-medium mb-1">Title</label>
           <input
             v-model="eventStore.currentEvent.title"
             type="text"
-            class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            class="w-full"
             placeholder="Event title"
           />
-          <div v-if="eventStore.eventTitleError" class="text-red-500 text-xs mt-1">{{ eventStore.eventTitleError }}</div>
+          <div
+            v-if="eventStore.eventTitleError"
+            class="text-red-500 text-xs mt-1"
+          >
+            {{ eventStore.eventTitleError }}
+          </div>
         </div>
         <!-- 开始和结束时间输入区域 -->
         <div class="form-row flex space-x-4 mb-4">
           <div class="form-group flex-1">
-            <label class="block text-sm font-medium  mb-1"
-              >Start</label
-            >
+            <label class="block text-sm font-medium mb-1">Start</label>
             <input
               v-model="eventStore.currentEvent.start"
               type="datetime-local"
-              class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              class="w-full"
             />
           </div>
           <div class="form-group flex-1">
-            <label class="block text-sm font-medium  mb-1"
-              >End</label
-            >
+            <label class="block text-sm font-medium mb-1">End</label>
             <input
               v-model="eventStore.currentEvent.end"
               type="datetime-local"
-              class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              class="w-full"
             />
           </div>
         </div>
-        <div v-if="eventStore.eventTimeError" class="text-red-500 text-xs mb-2">{{ eventStore.eventTimeError }}</div>
+        <div v-if="eventStore.eventTimeError" class="text-red-500 text-xs mb-2">
+          {{ eventStore.eventTimeError }}
+        </div>
         <!-- 全天事件选择区域 -->
         <div class="form-group mb-4">
           <div class="flex items-center mb-2">
@@ -86,16 +88,12 @@
               id="allDay"
               class="mr-2"
             />
-            <label for="allDay" class="text-sm "
-              >All day event</label
-            >
+            <label for="allDay" class="text-sm">All day</label>
           </div>
         </div>
         <!-- 事件分类选择区域 -->
         <div class="form-group mb-4">
-          <label class="block text-sm font-medium  mb-1"
-            >Category</label
-          >
+          <label class="block text-sm font-medium mb-1">Category</label>
           <div class="category-selector flex flex-wrap gap-2">
             <!-- 遍历分类列表并显示颜色按钮 -->
             <button
@@ -103,10 +101,10 @@
               :key="category.id"
               :class="[
                 'category-option w-8 h-8 rounded-full border-2 cursor-pointer whitespace-nowrap transition-all', // 基础类
-                eventStore.currentEvent.categoryId === category.id 
+                eventStore.currentEvent.categoryId === category.id
                   ? 'border-gray-800' // 亮色模式选中
                   : 'border-transparent', // 亮色模式未选中
-                ]"
+              ]"
               :style="{ backgroundColor: category.color }"
               @click="
                 eventStore.currentEvent.categoryId = category.id;
@@ -117,12 +115,10 @@
         </div>
         <!-- 事件描述输入区域 -->
         <div class="form-group mb-4">
-          <label class="block text-sm font-medium  mb-1"
-            >Description</label
-          >
+          <label class="block text-sm font-medium mb-1">Description</label>
           <textarea
             v-model="eventStore.currentEvent.description"
-            class="w-full p-2 border border-gray-300 rounded-md h-24 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            class="w-full h-24"
             placeholder="Event description"
           ></textarea>
         </div>
@@ -135,14 +131,14 @@
         <button
           v-if="!eventStore.isNewEvent"
           @click="eventStore.deleteEvent"
-          class="py-2 px-4 bg-red-600  rounded-lg hover:bg-red-700 cursor-pointer whitespace-nowrap transition-colors"
+          class="modal-del-btn"
         >
           Delete
         </button>
         <!-- 保存按钮 -->
         <button
           @click="eventStore.saveEvent"
-          class="py-2 px-4 bg-blue-600  rounded-lg hover:bg-blue-700 cursor-pointer whitespace-nowrap transition-colors"
+          class="modal-save-btn"
         >
           Save
         </button>
@@ -166,9 +162,9 @@ const modalRef = ref(null);
  */
 function handleKeyDown(event) {
   if (uiStore.showEventModal) {
-    if(event.key === "Escape") {
+    if (event.key === "Escape") {
       uiStore.closeEventModal();
-    } else if(event.key === "Enter") {
+    } else if (event.key === "Enter") {
       eventStore.saveEvent();
       uiStore.closeEventModal();
     }
@@ -234,12 +230,24 @@ watch(
 }
 
 @keyframes shake {
-  0% { transform: translateX(0); }
-  20% { transform: translateX(-8px); }
-  40% { transform: translateX(8px); }
-  60% { transform: translateX(-8px); }
-  80% { transform: translateX(8px); }
-  100% { transform: translateX(0); }
+  0% {
+    transform: translateX(0);
+  }
+  20% {
+    transform: translateX(-8px);
+  }
+  40% {
+    transform: translateX(8px);
+  }
+  60% {
+    transform: translateX(-8px);
+  }
+  80% {
+    transform: translateX(8px);
+  }
+  100% {
+    transform: translateX(0);
+  }
 }
 .animate-shake {
   animation: shake 0.3s;

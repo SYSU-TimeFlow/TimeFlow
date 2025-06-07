@@ -11,12 +11,12 @@
   <!-- 模态框容器，仅当 showSettings 为 true 时显示 -->
   <div
     v-if="uiStore.showSettings"
-    class="fixed inset-0 bg-black/10 backdrop-blur-sm flex items-center justify-center z-50" 
+    class="fixed inset-0 bg-black/10 backdrop-blur-sm flex items-center justify-center z-50"
     @click="uiStore.closeSettings()"
   >
     <!-- 设置弹窗主容器，阻止点击事件冒泡 -->
     <div
-      class="settings-container rounded-lg shadow-lg w-[448px] max-w-[90vw] p-6 relative overflow-y-auto transition-all duration-300" 
+      class="settings-container rounded-lg shadow-lg w-[448px] max-w-[90vw] p-6 relative overflow-y-auto transition-all duration-300"
       style="max-height: 90vh"
       @click.stop
     >
@@ -24,7 +24,7 @@
       <div class="absolute top-4 right-4 flex space-x-2 z-10">
         <!-- 关闭按钮 -->
         <button
-          class="text-red-500 hover:text-red-700 cursor-pointer text-xl transition"
+          class="modal-close-btn absolute-top-right"
           @click="uiStore.closeSettings"
           title="关闭"
         >
@@ -38,7 +38,7 @@
       <div class="text-secondary text-sm font-semibold mb-2 mt-2">通用</div>
       <!-- 主题切换（选择条，选项为亮/暗） -->
       <div class="mb-4 flex items-center justify-between">
-        <span class="flex items-center ">
+        <span class="flex items-center">
           <!-- 月亮图标 -->
           <svg
             class="w-5 h-5 mr-2 text-blue-500"
@@ -57,16 +57,16 @@
         </span>
         <select
           v-model="settingStore.themeMode"
-          class="border border-gray-300 rounded-md px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          class="border rounded-md px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           @change="applyThemeChange"
         >
           <option value="light">亮</option>
           <option value="dark">暗</option>
-        </select>             
+        </select>
       </div>
       <!-- 字号选择 -->
       <div class="mb-4 flex items-center justify-between">
-        <span class="flex items-center ">
+        <span class="flex items-center">
           <!-- 小A大A图标 -->
           <svg
             class="w-5 h-5 mr-2 text-green-500"
@@ -96,7 +96,7 @@
         </span>
         <select
           v-model="settingStore.fontSize"
-          class="border border-gray-300 rounded-md px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          class="border rounded-md px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           @change="applyFontSizeChange"
         >
           <option value="small">小</option>
@@ -106,7 +106,7 @@
       </div>
       <!-- 通知开关 -->
       <div class="mb-4 flex items-center justify-between">
-        <span class="flex items-center ">
+        <span class="flex items-center">
           <svg
             class="w-5 h-5 mr-2 text-yellow-500"
             fill="none"
@@ -136,7 +136,7 @@
       </div>
       <!-- 每周起始日 -->
       <div class="mb-4 flex items-center justify-between">
-        <span class="flex items-center ">
+        <span class="flex items-center">
           <!-- 周历图标 -->
           <svg
             class="w-5 h-5 mr-2 text-purple-500"
@@ -170,7 +170,7 @@
         </span>
         <select
           v-model="settingStore.weekStart"
-          class="border border-gray-300 rounded-md px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          class="border rounded-md px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
         >
           <option value="0">星期日</option>
           <option value="1">星期一</option>
@@ -183,7 +183,7 @@
       </div>
       <!-- 24小时制 -->
       <div class="mb-4 flex items-center justify-between">
-        <span class="flex items-center ">
+        <span class="flex items-center">
           <svg
             class="w-5 h-5 mr-2 text-orange-500"
             fill="none"
@@ -208,7 +208,7 @@
       </div>
       <!-- 农历开关 -->
       <div class="mb-4 flex items-center justify-between">
-        <span class="flex items-center ">
+        <span class="flex items-center">
           <!-- 日历图标 -->
           <svg
             class="w-5 h-5 mr-2 text-yellow-600"
@@ -267,7 +267,7 @@
       <div class="text-secondary text-sm font-semibold mb-2 mt-2">联系我们</div>
       <!-- 关于 -->
       <div class="mb-4 flex items-center justify-between">
-        <span class="flex items-center ">
+        <span class="flex items-center">
           <svg
             class="w-5 h-5 mr-2 text-gray-400"
             fill="none"
@@ -293,7 +293,7 @@
       <div class="mt-6 flex gap-3">
         <!-- 重置按钮 -->
         <button
-          class="w-full py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition cursor-pointer whitespace-nowrap font-medium" 
+          class="modal-save-btn w-full"
           @click="resetSettings"
         >
           重置默认
@@ -305,7 +305,7 @@
         <div
           v-if="showToast"
           class="fixed left-1/2 top-20 -translate-x-1/2 px-6 py-2 rounded shadow-lg z-50"
-          :class=" [
+          :class="[
             toastType === 'success' ? 'bg-green-500' : 'bg-blue-500',
             'text-white',
           ]"

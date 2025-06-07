@@ -14,7 +14,7 @@
   >
     <!-- 分类模态框主体，阻止事件冒泡到父级 -->
     <div
-      class="category-modal  rounded-lg shadow-lg w-full max-w-md overflow-hidden"
+      class="category-modal rounded-lg shadow-lg w-full max-w-md overflow-hidden"
       @click.stop
     >
       <!-- 模态框头部 -->
@@ -31,7 +31,8 @@
         <!-- 关闭按钮 -->
         <button
           @click="uiStore.closeCategoryModal()"
-          class="text-gray-500 hover:text-gray-700 cursor-pointer !rounded-button whitespace-nowrap"
+          class="modal-close-btn"
+          title="关闭"
         >
           <i class="fas fa-times"></i>
         </button>
@@ -40,9 +41,7 @@
       <div class="modal-body p-4">
         <!-- 分类名称输入区域 -->
         <div class="form-group mb-4">
-          <label class="block text-sm font-medium text-gray-700 mb-1"
-            >分类名称</label
-          >
+          <label class="block text-sm font-medium mb-1">分类名称</label>
           <input
             v-model="eventStore.currentCategory.name"
             type="text"
@@ -53,9 +52,7 @@
 
         <!-- 分类颜色选择区域 -->
         <div class="form-group mb-4">
-          <label class="block text-sm font-medium text-gray-700 mb-1"
-            >颜色</label
-          >
+          <label class="block text-sm font-medium mb-1">颜色</label>
           <!-- 预设颜色选项 -->
           <div class="color-selector flex flex-wrap gap-3 mb-2">
             <button
@@ -71,12 +68,17 @@
                   : 'cursor-pointer',
               ]"
               :style="{ backgroundColor: color }"
-              @click="!eventStore.isColorUsed(color) && eventStore.selectColor(color)"
+              @click="
+                !eventStore.isColorUsed(color) && eventStore.selectColor(color)
+              "
               :disabled="eventStore.isColorUsed(color)"
               :title="eventStore.isColorUsed(color) ? '此颜色已被使用' : ''"
               class="!rounded-button whitespace-nowrap"
             >
-              <span v-if="eventStore.isColorUsed(color)" class="absolute inset-0 flex items-center justify-center pointer-events-none">
+              <span
+                v-if="eventStore.isColorUsed(color)"
+                class="absolute inset-0 flex items-center justify-center pointer-events-none"
+              >
                 <i class="fas fa-ban text-base text-gray-500"></i>
               </span>
             </button>
@@ -91,7 +93,7 @@
         <button
           v-if="!eventStore.isNewCategory"
           @click="eventStore.deleteCategory"
-          class="py-2 px-4 bg-red-600 text-white rounded-lg hover:bg-red-700 cursor-pointer !rounded-button whitespace-nowrap"
+          class="modal-del-btn"
         >
           删除
         </button>
@@ -100,10 +102,8 @@
           @click="eventStore.saveCategory"
           :disabled="!eventStore.isCategoryFormValid"
           :class="[
-            'py-2 px-4 rounded-lg !rounded-button whitespace-nowrap',
-            eventStore.isCategoryFormValid
-              ? 'bg-blue-600 text-white hover:bg-blue-700 cursor-pointer'
-              : 'bg-gray-300 text-gray-500 cursor-not-allowed',
+            'modal-save-btn',
+            !eventStore.isCategoryFormValid && 'opacity-50 cursor-not-allowed'
           ]"
         >
           保存
@@ -128,9 +128,9 @@ const uiStore = useUiStore();
  */
 function handleKeyDown(event) {
   if (uiStore.showCategoryModal) {
-    if(event.key === "Escape") {
+    if (event.key === "Escape") {
       uiStore.closeCategoryModal();
-    } else if(event.key === "Enter") {
+    } else if (event.key === "Enter") {
       eventStore.saveCategory();
       uiStore.closeCategoryModal();
     }

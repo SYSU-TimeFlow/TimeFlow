@@ -108,38 +108,6 @@
   --modal-shadow: 0 16px 32px rgba(1, 4, 9, 0.85); /* 更明显的阴影 */
 }
 
-/* ====================== pages ======================= */
-
-/*  设置基础样式 (亮色模式) */
-.event-modal,
-.settings-container {
-  background-color: var(
-    --modal-bg
-  ); /* 在亮色模式下使用 :root 中定义的 --modal-bg */
-  color: var(--text-primary); /* 基础文字颜色 */
-  /* 其他基础样式，如圆角、阴影等已由Vue组件中的Tailwind类处理 */
-}
-
-/* 暗黑模式下的模态框样式  */
-.dark-mode .event-modal,
-.dark-mode .settings-container {
-  background-color: var(
-    --modal-bg
-  ) !important; /* 使用 .dark-mode 中定义的 --modal-bg */
-  color: var(
-    --modal-text-primary-color
-  ); /* 使用 .dark-mode 中定义的 --modal-text-primary-color */
-  border: 1px solid var(--modal-border);
-  box-shadow: var(--modal-shadow);
-}
-
-.dark-mode .settings-container .text-secondary {
-  color: var(
-    --modal-text-secondary-color
-  ); /* 使用 .dark-mode 中定义的 --modal-text-secondary-color */
-}
-
-/* ====================== pages ======================= */
 
 /* 覆盖各种组件的默认样式 */
 .dark-mode .bg-blue-600 {
@@ -171,50 +139,6 @@ html,
   color: var(--icon-color-active);
 }
 
-/* 暗黑模式下的模态框样式 */
-.dark-mode .modal-header h3 {
-  color: var(--modal-title-color);
-}
-
-/* 修改：确保 modal-header, modal-body, modal-footer 在暗黑模式下使用正确的背景 */
-.dark-mode .modal-header,
-.dark-mode .modal-body, /* 确保 modal-body 也应用暗黑模式背景 */
-.dark-mode .modal-footer {
-  border-color: var(--modal-border);
-  background-color: var(
-    --modal-bg
-  ); /* 确保这些部分也使用暗黑模式的 --modal-bg */
-}
-
-.dark-mode .modal-body label {
-  color: var(--modal-label-color);
-}
-
-.dark-mode .modal-body input,
-.dark-mode .modal-body textarea {
-  background-color: var(--modal-input-bg);
-  color: var(--modal-input-text);
-  border-color: var(--modal-input-border);
-  /* 确保暗黑模式下输入框焦点样式也由 theme.css 控制或与 Tailwind 协调 */
-}
-
-.dark-mode .modal-body input:focus,
-.dark-mode .modal-body textarea:focus {
-  border-color: #58a6ff !important; /* 来自原scoped CSS */
-  box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.3) !important; /* 来自原scoped CSS */
-}
-
-.dark-mode .modal-footer button {
-  color: var(--modal-button-text);
-}
-
-.dark-mode .modal-footer button.bg-blue-600 {
-  background-color: var(--modal-button-bg);
-}
-
-.dark-mode .modal-footer button.bg-blue-600:hover {
-  background-color: var(--modal-button-hover);
-}
 
 /* ====================== 统一模态框样式 ======================= */
 
@@ -225,8 +149,8 @@ html,
 .help-modal,
 .category-modal,
 .feedback-modal {
-  background-color: var(--modal-bg);
-  color: var(--text-primary);
+  background-color: var(--modal-bg); /* 使用亮色模式下的模态框背景色 */
+  color: var(--text-primary); /* 使用亮色模式下的主要文本颜色 */
 }
 
 /* 暗黑模式下的统一模态框样式 */
@@ -236,32 +160,56 @@ html,
 .dark-mode .help-modal,
 .dark-mode .category-modal,
 .dark-mode .feedback-modal {
-  background-color: var(--modal-bg) !important;
-  color: var(--modal-text-primary-color);
-  border: 1px solid var(--modal-border);
-  box-shadow: var(--modal-shadow);
+  background-color: var(--modal-bg) !important; /* 使用暗黑模式下的模态框背景色 */
+  color: var(--modal-text-primary-color); /* 使用暗黑模式下的主要文本颜色 */
+  border: 1px solid var(--modal-border); /* 添加边框以增强区分度 */
+  box-shadow: var(--modal-shadow); /* 添加阴影以提升视觉层次 */
 }
 
 /* 统一模态框头部、主体、底部样式 */
 .dark-mode .modal-header,
 .dark-mode .modal-body,
 .dark-mode .modal-footer {
-  border-color: var(--modal-border);
-  background-color: var(--modal-bg);
+  border-color: var(--modal-border); /* 使用暗黑模式下的边框颜色 */
+  background-color: var(--modal-bg); /* 使用暗黑模式下的背景色 */
 }
 
 /* 统一模态框标题样式 */
 .dark-mode .modal-header h3 {
-  color: var(--modal-title-color) !important;
-  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
-  font-weight: 600;
+  color: var(--modal-title-color) !important; /* 使用暗黑模式下的标题颜色 */
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7); /* 添加轻微的文字阴影以增强可读性 */
+  font-weight: 600; /* 加粗标题以突出显示 */
 }
 
 /* 统一表单标签样式 */
 .dark-mode .modal-body label,
 .dark-mode .form-group label {
-  color: var(--modal-label-color) !important;
-  font-weight: 500;
+  color: var(--modal-label-color) !important; /* 使用暗黑模式下的标签颜色 */
+  font-weight: 500; /* 适度加粗标签文字 */
+}
+
+/* 亮色模式下的输入框样式 */
+.modal-body input,
+.modal-body textarea,
+.modal-body select,
+.form-group input,
+.form-group textarea,
+.form-group select {
+  border: 1px solid #d1d5db !important; /* 使用亮色模式下的输入框边框颜色 */
+  padding: 0.5rem; /* 添加内边距 */
+  border-radius: 0.375rem; /* 圆角 */
+  outline: none; /* 移除默认的聚焦样式 */
+  transition: box-shadow 0.3s, border-color 0.3s; /* 平滑过渡效果 */
+}
+
+.modal-body input:focus,
+.modal-body textarea:focus,
+.modal-body select:focus,
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+  border-color: #388bfd !important; /* 聚焦时移除边框颜色 */
+  box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.3); /* 聚焦时的炫光效果 */
 }
 
 /* 统一输入框和文本域样式 */
@@ -271,10 +219,10 @@ html,
 .dark-mode .form-group input,
 .dark-mode .form-group textarea,
 .dark-mode .form-group select {
-  background-color: var(--modal-input-bg) !important;
-  color: var(--modal-input-text) !important;
-  border: 1px solid var(--modal-input-border) !important;
-  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.3);
+  background-color: var(--modal-input-bg) !important; /* 使用暗黑模式下的输入框背景色 */
+  color: var(--modal-input-text) !important; /* 使用暗黑模式下的输入框文字颜色 */
+  border: 1px solid var(--modal-input-border, #d1d5db) !important; /* 使用暗黑模式下的输入框边框颜色，默认值为 border-gray-300 */
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.3); /* 添加内阴影以增强视觉效果 */
 }
 
 /* 统一输入框焦点样式 */
@@ -284,8 +232,8 @@ html,
 .dark-mode .form-group input:focus,
 .dark-mode .form-group textarea:focus,
 .dark-mode .form-group select:focus {
-  border-color: #58a6ff !important;
-  box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.3) !important;
+  border-color: #58a6ff !important; /* 焦点状态下的边框颜色 */
+  box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.3) !important; /* 焦点状态下的外阴影 */
 }
 
 /* 统一占位符样式 */
@@ -293,94 +241,164 @@ html,
 .dark-mode .modal-body textarea::placeholder,
 .dark-mode .form-group input::placeholder,
 .dark-mode .form-group textarea::placeholder {
-  color: var(--text-tertiary) !important;
+  color: var(--text-tertiary) !important; /* 使用暗黑模式下的占位符颜色 */
 }
 
 /* 统一按钮样式 */
 .dark-mode .modal-footer button {
-  color: var(--modal-button-text);
+  color: var(--modal-button-text); /* 按钮文字颜色 */
 }
 
 .dark-mode .modal-footer button.bg-blue-600,
 .dark-mode .modal-footer .btn-primary {
-  background-color: var(--modal-button-bg) !important;
-  color: var(--modal-button-text) !important;
-  border: 1px solid var(--modal-button-bg);
+  background-color: var(--modal-button-bg) !important; /* 主按钮背景色 */
+  color: var(--modal-button-text) !important; /* 主按钮文字颜色 */
+  border: 1px solid var(--modal-button-bg); /* 主按钮边框颜色 */
 }
 
 .dark-mode .modal-footer button.bg-blue-600:hover,
 .dark-mode .modal-footer .btn-primary:hover {
-  background-color: var(--modal-button-hover) !important;
+  background-color: var(--modal-button-hover) !important; /* 主按钮悬停背景色 */
 }
 
 .dark-mode .modal-footer button.bg-red-600,
 .dark-mode .modal-footer .btn-danger {
-  background-color: #da3633 !important;
-  color: var(--modal-button-text) !important;
-  border: 1px solid #da3633;
+  background-color: #da3633 !important; /* 危险按钮背景色 */
+  color: var(--modal-button-text) !important; /* 危险按钮文字颜色 */
+  border: 1px solid #da3633; /* 危险按钮边框颜色 */
 }
 
 .dark-mode .modal-footer button.bg-red-600:hover,
 .dark-mode .modal-footer .btn-danger:hover {
-  background-color: #f85149 !important;
+  background-color: #f85149 !important; /* 危险按钮悬停背景色 */
 }
 
 .dark-mode .modal-footer button.bg-gray-300,
 .dark-mode .modal-footer .btn-secondary {
-  background-color: var(--modal-button-secondary) !important;
-  color: var(--text-primary) !important;
-  border: 1px solid var(--modal-border);
+  background-color: var(--modal-button-secondary) !important; /* 次要按钮背景色 */
+  color: var(--text-primary) !important; /* 次要按钮文字颜色 */
+  border: 1px solid var(--modal-border); /* 次要按钮边框颜色 */
 }
 
 .dark-mode .modal-footer button.bg-gray-300:hover,
 .dark-mode .modal-footer .btn-secondary:hover {
-  background-color: var(--modal-button-secondary-hover) !important;
+  background-color: var(--modal-button-secondary-hover) !important; /* 次要按钮悬停背景色 */
 }
-
 /* 统一关闭按钮样式 */
-.dark-mode .modal-header button {
-  color: var(--text-secondary) !important;
+.modal-close-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 0.375rem;
+  cursor: pointer;
+  border: none;
+  background: transparent;
+  color: #6b7280; /* 默认关闭按钮颜色 */
+  font-size: 1.125rem;
 }
 
-.dark-mode .modal-header button:hover {
-  color: #ff6b6b !important;
-  background-color: rgba(255, 107, 107, 0.1);
+.modal-close-btn:hover {
+  color: #ef4444; /* 悬停时关闭按钮颜色 */
+  background-color: rgba(239, 68, 68, 0.1); /* 悬停时关闭按钮背景色 */
 }
 
-/* 统一分类选择器样式 */
-.dark-mode .category-option {
-  box-shadow: 0 0 0 2px var(--modal-border), 0 2px 4px rgba(0, 0, 0, 0.4);
+.modal-close-btn:active {
+  background-color: rgba(239, 68, 68, 0.2); /* 点击时背景色 */
 }
 
-.dark-mode .category-option.border-gray-800 {
-  box-shadow: 0 0 0 3px #58a6ff !important;
-  border-color: #58a6ff !important;
+/* 暗黑模式下的关闭按钮样式 */
+.dark-mode .modal-close-btn {
+  color: var(--text-secondary); /* 暗黑模式下的关闭按钮颜色 */
 }
 
-/* 统一复选框样式 */
-.dark-mode input[type="checkbox"] {
-  accent-color: #58a6ff;
-  filter: brightness(1.2);
+.dark-mode .modal-close-btn:hover {
+  color: #bc2d2d; /* 暗黑模式下悬停时关闭按钮颜色 */
+  background-color: rgba(255, 107, 107, 0.1); /* 暗黑模式下悬停时关闭按钮背景色 */
 }
 
-/* 统一文本颜色覆盖 */
-.dark-mode .text-gray-700 {
-  color: var(--modal-label-color) !important;
+/* 统一模态框底部按钮样式 */
+.modal-save-btn {
+  padding: 0.5rem 1rem;
+  background-color: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.2s;
 }
 
-.dark-mode .text-gray-500 {
-  color: var(--text-tertiary) !important;
+.modal-save-btn:hover {
+  background-color: #2563eb;
 }
 
-.dark-mode .text-secondary {
-  color: var(--modal-text-secondary-color) !important;
+.modal-save-btn:disabled {
+  background-color: #d1d5db;
+  color: #9ca3af;
+  cursor: not-allowed;
+}
+
+.modal-del-btn {
+  padding: 0.5rem 1rem;
+  background-color: #ef4444;
+  color: white;
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+
+.modal-del-btn:hover {
+  background-color: #dc2626;
+}
+
+/* 暗黑模式下的统一按钮样式 */
+.dark-mode .modal-save-btn {
+  background-color: var(--modal-button-bg);
+  color: var(--modal-button-text);
+}
+
+.dark-mode .modal-save-btn:hover {
+  background-color: var(--modal-button-hover);
+}
+
+.dark-mode .modal-save-btn:disabled {
+  background-color: var(--modal-button-secondary);
+  color: var(--text-tertiary);
+}
+
+.dark-mode .modal-del-btn {
+  background-color: #da3633;
+  color: var(--modal-button-text);
+}
+
+.dark-mode .modal-del-btn:hover {
+  background-color: #f85149;
 }
 
 /* 统一快捷键样式 */
 .dark-mode kbd {
-  background-color: var(--modal-input-bg) !important;
-  border: 1px solid var(--modal-input-border) !important;
-  color: var(--modal-title-color) !important;
+  background-color: var(--modal-input-bg) !important; /* 快捷键背景色 */
+  border: 1px solid var(--modal-input-border) !important; /* 快捷键边框颜色 */
+  color: var(--modal-title-color) !important; /* 快捷键文字颜色 */
   box-shadow: 0 1px 0 rgba(255, 255, 255, 0.1),
-    inset 0 1px 2px rgba(0, 0, 0, 0.3);
+    inset 0 1px 2px rgba(0, 0, 0, 0.3); /* 快捷键阴影效果 */
 }
+
+/* ====================== 模态框规范 ======================= */
+
+/*
+模态框规范：
+1. 每个模态框应包含以下部分：
+   - modal-header: 用于显示模态框标题或关闭按钮。
+   - modal-body: 用于显示主要内容，如表单、文本或其他交互元素。
+   - modal-footer: 用于显示操作按钮，如“保存”、“取消”等。
+
+2.设计原因：
+   - 统一的结构和样式可以提高代码的可维护性和一致性。一次性地定义样式和结构，减少重复代码。
+   - 模态框的分区设计有助于快速定位和修改特定部分的样式或功能。
+   - 提供一致的交互体验，增强用户的熟悉感。
+*/

@@ -8,7 +8,7 @@
   >
     <!-- 待办事项模态框主体，阻止事件冒泡到父级 -->
     <div
-      class="todo-modal  rounded-lg shadow-lg w-full max-w-md overflow-hidden"
+      class="todo-modal rounded-lg shadow-lg w-full max-w-md overflow-hidden"
       @click.stop
       ref="modalRef"
     >
@@ -26,7 +26,8 @@
         <!-- 关闭按钮 -->
         <button
           @click="uiStore.closeTodoModal"
-          class="text-gray-500 hover:text-gray-700 cursor-pointer !rounded-button whitespace-nowrap"
+          class="modal-close-btn"
+          title="关闭"
         >
           <i class="fas fa-times"></i>
         </button>
@@ -36,22 +37,24 @@
       <div class="modal-body p-4">
         <!-- 标题输入区域 -->
         <div class="form-group mb-4">
-          <label class="block text-sm font-medium text-gray-700 mb-1"
+          <label class="block text-sm font-medium  mb-1"
             >Task Title</label
           >
           <input
             v-model="eventStore.currentEvent.title"
             type="text"
-            class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            class="w-full"
             placeholder="Enter task title"
           />
-          <div v-if="eventStore.todoError" class="text-red-500 text-xs mt-1">{{ eventStore.todoError }}</div>
+          <div v-if="eventStore.todoError" class="text-red-500 text-xs mt-1">
+            {{ eventStore.todoError }}
+          </div>
         </div>
 
         <!-- 截止时间设置区域 -->
         <div class="form-group mb-4">
           <div class="flex items-center justify-between mb-2">
-            <label class="block text-sm font-medium text-gray-700"
+            <label class="block text-sm font-medium "
               >Deadline</label
             >
             <div class="flex items-center">
@@ -61,7 +64,7 @@
                 id="hasDeadline"
                 class="mr-2"
               />
-              <label for="hasDeadline" class="text-sm text-gray-700"
+              <label for="hasDeadline" class="text-sm "
                 >Set deadline</label
               >
             </div>
@@ -71,11 +74,11 @@
             v-if="hasDeadline"
             v-model="eventStore.currentEvent.end"
             type="datetime-local"
-            class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent h-10"
+            class="w-full"
           />
           <div
             v-else
-            class="no-deadline w-full p-2 border rounded-md h-10 flex items-center text-base  dark:bg-[var(--modal-input-bg)]"
+            class="no-deadline w-full p-2 border rounded-md h-10 flex items-center text-base dark:bg-[var(--modal-input-bg)]"
             style="font-family: inherit"
           >
             <span class="w-full">无截止时间</span>
@@ -84,7 +87,7 @@
 
         <!-- 事件分类选择区域 -->
         <div class="form-group mb-4">
-          <label class="block text-sm font-medium text-gray-700 mb-1"
+          <label class="block text-sm font-medium  mb-1"
             >Category</label
           >
           <div class="category-selector flex flex-wrap gap-2">
@@ -110,7 +113,7 @@
 
         <!-- 备注描述输入区域 -->
         <div class="form-group mb-4">
-          <label class="block text-sm font-medium text-gray-700 mb-1"
+          <label class="block text-sm font-medium  mb-1"
             >Description</label
           >
           <textarea
@@ -128,7 +131,7 @@
         <!-- 保存按钮 -->
         <button
           @click="saveTodo"
-          class="py-2 px-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 cursor-pointer !rounded-button whitespace-nowrap"
+          class="modal-save-btn"
         >
           Save
         </button>
@@ -151,9 +154,9 @@ const uiStore = useUiStore();
  */
 function handleKeyDown(event) {
   if (uiStore.showTodoModal) {
-    if(event.key === "Escape") {
+    if (event.key === "Escape") {
       uiStore.closeTodoModal();
-    } else if(event.key === "Enter") {
+    } else if (event.key === "Enter") {
       saveTodo();
       uiStore.closeTodoModal();
     }
@@ -234,9 +237,12 @@ watch(hasDeadline, (newValue) => {
 });
 
 // 输入时清除错误提示
-watch(() => eventStore.currentEvent.title, () => {
-  if (eventStore.todoError) eventStore.todoError = "";
-});
+watch(
+  () => eventStore.currentEvent.title,
+  () => {
+    if (eventStore.todoError) eventStore.todoError = "";
+  }
+);
 
 // 保存待办事项
 function saveTodo() {
