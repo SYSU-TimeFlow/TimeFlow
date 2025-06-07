@@ -320,42 +320,38 @@ import { useUiStore } from "@/stores/ui";
 import { useSettingStore } from "@/stores/setting";
 import { useEventStore } from "@/stores/event";
 
-// 引入各个仓库
+// 仓库
 const uiStore = useUiStore();
 const settingStore = useSettingStore();
 const eventStore = useEventStore();
 
-// 引入preload中定义的electronAPI
+// Electron API
 const electronAPI = (window as any).electronAPI;
 
+// refs
 const resultListRef = ref<HTMLUListElement | null>(null);
 const searchInputRef = ref<HTMLInputElement | null>(null);
-
-const isBellShaking = ref(false); // 控制震动动画
+const isBellShaking = ref(false);
 const isCogHovered = ref(false);
 const cogRotation = ref(0);
+const themeBtnHover = ref(false);
 
-// 已通知事件唯一标识集合，防止重复通知（考虑时间变化）
+// 通知相关
 const notifiedEventKeys = ref<Set<string>>(new Set());
 
-// 生成唯一key
+// ---------- 事件通知相关 ----------
 function getEventNotifyKey(event: any) {
-  // 判断是否为待办事项（start为1970年）
   const start = event.start ? new Date(event.start).getTime() : 0;
   const end = event.end ? new Date(event.end).getTime() : 0;
   const isTodo =
     (!event.start || new Date(event.start).getFullYear() === 1970) &&
     (event.eventType === "todo" || event.eventType === "both");
-  // 对于待办事项，只用id和end，日历事件用id+start+end
   return isTodo ? `${event.id}|${end}` : `${event.id}|${start}|${end}`;
 }
 
-// 检查日程并发送通知 - 修改为使用settingStore.notifications
 const checkAndNotifyEvents = () => {
   if (!settingStore.notifications) return;
   const now = new Date();
-
-  // 合并所有事件，按id去重
   const allEvents = eventStore.events;
   const uniqueEventsMap = new Map<number, any>();
   allEvents.forEach((event) => {
@@ -369,7 +365,6 @@ const checkAndNotifyEvents = () => {
     const notifyKey = getEventNotifyKey(event);
     if (!event.id || notifiedEventKeys.value.has(notifyKey)) return;
 
-    // 解析开始和结束时间
     const start =
       event.start instanceof Date ? event.start : new Date(event.start);
     const end = event.end instanceof Date ? event.end : new Date(event.end);
@@ -377,16 +372,13 @@ const checkAndNotifyEvents = () => {
     const isStartValid = start.getFullYear() > 1970 && !isNaN(start.getTime());
     const isEndValid = end.getFullYear() > 1970 && !isNaN(end.getTime());
 
-    // 1. 有开始和截止时间，且距离开始时间<=15分钟
     if (isStartValid && isEndValid) {
       const diff = (start.getTime() - now.getTime()) / 60000;
       if (diff > 0 && diff <= 15) {
         sendEventNotification(event, "即将开始");
         notifiedEventKeys.value.add(notifyKey);
       }
-    }
-    // 2. 只有截止时间，且距离截止<=30分钟
-    else if (!isStartValid && isEndValid) {
+    } else if (!isStartValid && isEndValid) {
       const diff = (end.getTime() - now.getTime()) / 60000;
       if (diff > 0 && diff <= 30) {
         sendEventNotification(event, "即将结束");
@@ -396,7 +388,6 @@ const checkAndNotifyEvents = () => {
   });
 };
 
-// 发送系统通知
 function sendEventNotification(event: any, type: string) {
   let timeInfo = "";
   const now = new Date();
@@ -423,20 +414,19 @@ function sendEventNotification(event: any, type: string) {
     body = `${timeInfo}结束`;
   }
 
-  // 通过 Electron API 发送通知
   if (window.electronAPI && window.electronAPI.notify) {
     window.electronAPI.notify(`日程提醒：${event.title}`, body);
   }
 }
 
-// 滚动到当前聚焦的搜索结果项
+// ---------- 搜索相关 ----------
 const scrollToFocusedResult = () => {
   nextTick(() => {
     if (
       resultListRef.value &&
       uiStore.focusedResultIndex > -1 &&
       uiStore.searchResults.length > 0 &&
-      uiStore.focusedResultIndex < resultListRef.value.children.length // 确保索引有效
+      uiStore.focusedResultIndex < resultListRef.value.children.length
     ) {
       const focusedItem = resultListRef.value.children[
         uiStore.focusedResultIndex
@@ -448,29 +438,51 @@ const scrollToFocusedResult = () => {
   });
 };
 
-let notifyTimer: number | undefined;
+const handleInputChange = (event: Event) => {
+  const input = event.target as HTMLInputElement;
+  let value = input.value;
+  uiStore.updateSearchInputValue(value);
+};
 
-onMounted(() => {
-  uiStore.setScrollUiUpdateCallback(scrollToFocusedResult);
+const handleSearchBlur = () => {
+  setTimeout(() => {
+    uiStore.handleSearchBlurAction();
+    uiStore.toggleSearchActive(false);
+    uiStore.setAppMode("normal");
+  }, 100);
+};
 
-  // 注册全局键盘事件
-  window.addEventListener("keydown", handleGlobalKeydown);
-  if ("Notification" in window && Notification.permission === "default") {
-    Notification.requestPermission();
+const handleSearchKeydown = (event: KeyboardEvent) => {
+  if (event.key === "Escape") {
+    uiStore.toggleSearchActive(false);
+    uiStore.setAppMode("normal");
+    uiStore.updateSearchInputValue("");
+    event.preventDefault();
+  } else if (event.key === "Enter" && uiStore.appMode === "command") {
+    const input = event.target as HTMLInputElement;
+    const commandSuccess = uiStore.executeCommand(input.value);
+
+    if (commandSuccess) {
+      uiStore.updateSearchInputValue("");
+      uiStore.toggleSearchActive(false);
+      uiStore.setAppMode("normal");
+    } else {
+      showCommandError(`未知命令: ${input.value}`);
+    }
+    event.preventDefault();
+  } else {
+    uiStore.handleKeydownAction(event);
   }
-  notifyTimer = window.setInterval(checkAndNotifyEvents, 5000); //每隔5秒检查一次
-});
+};
 
-// 组件卸载时清除滚动回调
-onUnmounted(() => {
-  uiStore.clearScrollUiUpdateCallback();
+const activateSearch = () => {
+  uiStore.toggleSearchActive(true);
+  uiStore.setAppMode("normal");
+  nextTick(() => {
+    searchInputRef.value?.focus();
+  });
+};
 
-  // 清除全局键盘事件
-  window.removeEventListener("keydown", handleGlobalKeydown);
-  if (notifyTimer) clearInterval(notifyTimer);
-});
-
-// 格式化事件日期，用于在搜索结果中显示
 const formatEventDate = (dateString: string | Date) => {
   const date = new Date(dateString);
   return date.toLocaleDateString("zh-CN", {
@@ -479,57 +491,33 @@ const formatEventDate = (dateString: string | Date) => {
   });
 };
 
-// 处理搜索框失焦
-const handleSearchBlur = () => {
-  // 延迟处理，防止点击搜索结果时结果框消失过快
-  setTimeout(() => {
-    uiStore.handleSearchBlurAction();
-    uiStore.toggleSearchActive(false);
-    uiStore.setAppMode("normal");
-  }, 100);
-};
-
-// 处理搜索框键盘事件
-const handleSearchKeydown = (event: KeyboardEvent) => {
-  if (event.key === "Escape") {
-    uiStore.toggleSearchActive(false);
-    uiStore.setAppMode("normal");
-    uiStore.updateSearchInputValue(""); // 清空搜索/命令内容
-    // 阻止默认的ESC行为
-    event.preventDefault();
-  } else if (event.key === "Enter" && uiStore.appMode === "command") {
-    // 处理命令提交
-    const input = event.target as HTMLInputElement;
-    // 直接传入输入值，executeCommand内部会处理冒号前缀
-    const commandSuccess = uiStore.executeCommand(input.value);
-
-    if (commandSuccess) {
-      // 命令执行成功后清空输入框并关闭搜索
-      uiStore.updateSearchInputValue("");
-      uiStore.toggleSearchActive(false);
-      uiStore.setAppMode("normal");
-    } else {
-      // 命令无法识别时显示反馈
-      showCommandError(`未知命令: ${input.value}`);
-    }
-
-    event.preventDefault();
-  } else {
-    // 处理普通搜索逻辑
-    uiStore.handleKeydownAction(event);
-  }
-};
-
-// 显示命令错误的函数
 const showCommandError = (message: string) => {
-  // 这里可以添加UI反馈，比如一个短暂的通知或者在命令框下方显示错误信息
   console.error(message);
   // TODO: 实现更好的UI反馈
 };
 
-// 处理全局键盘事件
+// ---------- 主题与通知按钮相关 ----------
+const toggleNotification = () => {
+  settingStore.notifications = !settingStore.notifications;
+  isBellShaking.value = true;
+  setTimeout(() => {
+    isBellShaking.value = false;
+  }, 600);
+
+  if (!settingStore.notifications) {
+    notifiedEventKeys.value.clear();
+  }
+  settingStore.saveSettings();
+};
+
+const handleThemeToggle = () => {
+  settingStore.setThemeMode(
+    settingStore.themeMode === "dark" ? "light" : "dark"
+  );
+};
+
+// ---------- 全局快捷键 ----------
 const handleGlobalKeydown = (event: KeyboardEvent) => {
-  // 如果是在输入框、textarea等元素中则不拦截
   if (
     document.activeElement instanceof HTMLInputElement ||
     document.activeElement instanceof HTMLTextAreaElement ||
@@ -538,26 +526,25 @@ const handleGlobalKeydown = (event: KeyboardEvent) => {
     return;
   }
 
-  // Normal模式快捷键
   if (uiStore.appMode === "normal") {
     switch (event.key) {
       case "j":
-      case "ArrowDown": // 添加向下箭头键
+      case "ArrowDown":
         uiStore.scrollApp("down");
         event.preventDefault();
         break;
       case "k":
-      case "ArrowUp": // 添加向上箭头键
+      case "ArrowUp":
         uiStore.scrollApp("up");
         event.preventDefault();
         break;
       case "h":
-      case "ArrowLeft": // 添加向左箭头键
+      case "ArrowLeft":
         uiStore.navigateCalendar("prev");
         event.preventDefault();
         break;
       case "l":
-      case "ArrowRight": // 添加向右箭头键
+      case "ArrowRight":
         uiStore.navigateCalendar("next");
         event.preventDefault();
         break;
@@ -613,59 +600,35 @@ const handleGlobalKeydown = (event: KeyboardEvent) => {
   }
 };
 
-// 处理输入变化
-const handleInputChange = (event: Event) => {
-  const input = event.target as HTMLInputElement;
-  let value = input.value;
-  uiStore.updateSearchInputValue(value);
-};
+// ---------- 生命周期 ----------
+let notifyTimer: number | undefined;
 
-// 激活搜索框
-const activateSearch = () => {
-  uiStore.toggleSearchActive(true);
-  uiStore.setAppMode("normal");
-  nextTick(() => {
-    searchInputRef.value?.focus();
-  });
-};
+onMounted(() => {
+  uiStore.setScrollUiUpdateCallback(scrollToFocusedResult);
 
-// 通知开关切换 - 修改为使用settingStore.notifications
-const toggleNotification = () => {
-  settingStore.notifications = !settingStore.notifications;
-  isBellShaking.value = true;
-  setTimeout(() => {
-    isBellShaking.value = false;
-  }, 600);
-
-  // 关闭通知时清空，开启时不清空
-  if (!settingStore.notifications) {
-    notifiedEventKeys.value.clear();
+  window.addEventListener("keydown", handleGlobalKeydown);
+  if ("Notification" in window && Notification.permission === "default") {
+    Notification.requestPermission();
   }
+  notifyTimer = window.setInterval(checkAndNotifyEvents, 5000);
+});
 
-  // 保存设置更改
-  settingStore.saveSettings();
-};
+onUnmounted(() => {
+  uiStore.clearScrollUiUpdateCallback();
+  window.removeEventListener("keydown", handleGlobalKeydown);
+  if (notifyTimer) clearInterval(notifyTimer);
+});
 
-const themeBtnHover = ref(false);
-
-const handleThemeToggle = () => {
-  // 直接调用 settingStore 的 setThemeMode，保证与设置界面同步
-  settingStore.setThemeMode(
-    settingStore.themeMode === "dark" ? "light" : "dark"
-  );
-};
-
+// ---------- 监听 ----------
 watch(
   () => settingStore.notifications,
   (newVal) => {
     if (!newVal) {
-      // 如果通知被关闭，清空已通知的记录
       notifiedEventKeys.value.clear();
     }
   }
 );
 
-// 监听悬浮状态，控制旋转角度
 watch(isCogHovered, (hovered) => {
   if (hovered) {
     cogRotation.value += 90;
