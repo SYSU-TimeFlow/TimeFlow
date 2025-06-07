@@ -5,7 +5,7 @@
 -->
 <template>
   <!-- 修改主容器类，添加todo-list-container类 -->
-  <div class="w-full h-full bg-white p-6 overflow-auto todo-list-container">
+  <div class="w-full h-full  p-6 overflow-auto todo-list-container">
     <div class="todo-list max-w-3xl mx-auto">
       <!-- 待办事项列表其余部分保持不变 -->
       <div class="flex-1 overflow-auto p-6">
@@ -34,7 +34,7 @@
               v-for="todo in eventStore.filteredTodos"
               :key="todo.id"
               @click="uiStore.openEditTodoModal(todo)"
-              class="flex justify-between items-center p-3 bg-white rounded-[12px] shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 ease-in-out cursor-pointer border-l-4 group todo-item min-h-[3rem] h-[3rem]"
+              class="flex justify-between items-center p-3  rounded-[12px] shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 ease-in-out cursor-pointer border-l-4 group todo-item min-h-[3rem] h-[3rem]"
               :style="{
                 borderLeftColor:
                   eventStore.categories.find((c) => c.id === todo.categoryId)

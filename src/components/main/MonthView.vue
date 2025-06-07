@@ -22,7 +22,7 @@
         :key="index"
         :class="[
           'calendar-day border border-gray-200 h-auto min-h-[120px] max-h-[180px] p-1 pb-2 relative flex flex-col transition-all duration-200 ease-in-out hover:bg-gray-50 hover:border-blue-500 hover:shadow-lg hover:shadow-blue-500/30 hover:z-[5]',
-          day.isCurrentMonth ? 'bg-white' : 'bg-gray-200',
+          day.isCurrentMonth ? '' : 'bg-gray-200',
           day.isToday ? 'today relative after:absolute after:top-0 after:left-0 after:right-0 after:h-[3px] after:bg-blue-600' : '',
           day.isWeekend ? 'weekend' : '',
         ]"

@@ -2,17 +2,6 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { setActivePinia, createPinia } from "pinia";
 import { useSettingStore } from "../../src/stores/setting";
 
-// 模拟 electron-store 的行为
-vi.mock("electron-store", () => {
-  const mockStore = {
-    get: vi.fn(),
-    set: vi.fn(),
-  };
-  return {
-    default: vi.fn(() => mockStore),
-  };
-});
-
 // beforeEach 确保每个测试用例开始时都初始化环境
 beforeEach(() => {
   global.document = {
