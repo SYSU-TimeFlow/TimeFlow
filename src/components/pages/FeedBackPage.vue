@@ -13,22 +13,33 @@ const modalRef = ref(null);
     class="fixed inset-0 bg-transparent backdrop-blur-sm flex items-center justify-center z-50"
     @click="uiStore.showFeedbackModal = false"
   >
-    <div class="bg-white rounded-lg w-[600px] h-[600px] relative" @click.stop>
+    <div
+      class="feedback-modal w-[600px] h-[600px] relative"
+      @click.stop
+    >
       <!-- 关闭按钮 -->
       <button
         @click="uiStore.showFeedbackModal = false"
-        class="absolute right-2 top-2 w-8 h-8 flex items-center justify-center text-red-600 hover:text-red-800"
+        class="modal-close-btn absolute top-0 right-0 z-10"
+        title="关闭"
       >
-        <i class="fas fa-times text-xl"></i>
+        <i class="fas fa-times"></i>
       </button>
       <!-- 问卷iframe -->
       <iframe
         src="https://www.wjx.cn/vm/QmIwc3u.aspx"
-        class="w-full h-full rounded-lg"
+        class="w-full h-full"
         frameborder="0"
+        onload="this.contentWindow.document.body.style.backgroundColor = 'black';"
       ></iframe>
     </div>
   </div>
 </template>
 
-<style lang="css"></style>
+<style scoped>
+.backdrop-blur-sm {
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  background: rgba(0, 0, 0, 0.1);
+}
+</style>

@@ -6,7 +6,7 @@
       <!-- sticky头部：日期栏+全天事件栏 -->
       <div class="sticky top-0 z-30">
         <!-- 周视图头部，显示本周7天 -->
-        <div class="grid grid-cols-[80px_repeat(7,1fr)] bg-white border-b border-gray-200">
+        <div class="grid grid-cols-[80px_repeat(7,1fr)]  border-b border-gray-200">
           <!-- 左侧空白，用于对齐时间轴 -->
           <div></div>
           <!-- 渲染每一天的表头（星期几和日期） -->
@@ -16,7 +16,7 @@
               settingStore.weekStart
             )"
             :key="idx"
-            class="day-header flex flex-col items-center justify-center p-2 bg-white"
+            class="day-header flex flex-col items-center justify-center p-2 "
           >
             <div class="text-sm font-medium">{{ day.dayName }}</div>
             <div

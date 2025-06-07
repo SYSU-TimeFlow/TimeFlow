@@ -14,17 +14,6 @@ import { useEventStore } from "../../src/stores/event";
 import { Event, EventType } from "../../src/const";
 import { describe, it, expect, beforeEach, vi } from "vitest";
 
-// 模拟 electron-store 的行为
-vi.mock("electron-store", () => {
-  const mockStore = {
-    get: vi.fn(),
-    set: vi.fn(),
-  };
-  return {
-    default: vi.fn(() => mockStore),
-  };
-});
-
 // beforeEach 确保每个测试用例开始时，events 数组存储的内容相同
 beforeEach(() => {
   global.document = {

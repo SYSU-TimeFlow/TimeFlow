@@ -9,7 +9,7 @@
 <template>
   <!-- 应用程序头部 -->
   <header
-    class="app-header drag bg-white border-b border-gray-200 px-6 py-3 flex items-center"
+    class="app-header drag  border-b border-gray-200 px-6 py-3 flex items-center"
   >
     <!-- 左侧区域：TimeFlow标题和日历标题 -->
     <div class="header-left flex items-center flex-shrink mr-6">
@@ -109,7 +109,7 @@
         <!-- 搜索结果列表 -->
         <div
           v-if="uiStore.showSearchDropdown && uiStore.appMode === 'normal'"
-          class="search-results absolute left-0 right-0 mt-1 bg-white border border-gray-300 rounded-md shadow-lg z-10 max-h-60 overflow-y-auto"
+          class="search-results absolute left-0 right-0 mt-1  border border-gray-300 rounded-md shadow-lg z-10 max-h-60 overflow-y-auto"
         >
           <ul ref="resultListRef">
             <li

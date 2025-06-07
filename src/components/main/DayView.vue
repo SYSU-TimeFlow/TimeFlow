@@ -5,7 +5,7 @@
     <div class="grid grid-cols-1 max-h-[1664px] rounded-lg shadow-sm">
       <!-- 日视图头部 -->
       <div
-        class="day-header text-center p-4 bg-white"
+        class="day-header text-center p-4 "
       >
       </div>
       <!-- 全天事件栏 -->
@@ -15,7 +15,7 @@
             .getEventsForDay(new Date(uiStore.currentDate))
             .some((e) => e.allDay)
         "
-        class="sticky top-0 z-30 bg-white h-[28px] min-h-[28px] max-h-[28px]"
+        class="sticky top-0 z-30  h-[28px] min-h-[28px] max-h-[28px]"
       >
         <div class="flex items-center h-full">
           <div
