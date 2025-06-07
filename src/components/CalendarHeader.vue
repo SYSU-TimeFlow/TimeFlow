@@ -49,7 +49,10 @@
         <!-- 模式指示器，非搜索状态显示 -->
         <div
           v-if="!uiStore.isSearchActive"
-          class="mode-indicator pl-8 pr-4 py-1 border border-gray-300 rounded-md text-sm w-64 h-[32px] flex items-center cursor-pointer bg-[#f9f9f9] hover:bg-[#f0f0f0]"
+          class="mode-indicator pl-8 pr-4 py-1 border rounded-md text-sm w-64 h-[32px] flex items-center cursor-pointer
+            bg-[var(--bg-secondary)] border-[var(--border-color)]
+            hover:bg-[var(--hover-bg)]
+            dark:bg-[var(--bg-tertiary)] dark:border-[var(--border-color)] dark:hover:bg-[var(--hover-bg)]"
           :class="{ 'command-mode': uiStore.appMode === 'command' }"
           @click="activateSearch"
         >
@@ -279,14 +282,14 @@
           @click="electronAPI.minimize()"
           title="最小化"
         >
-          <i class="fas fa-window-minimize"></i>
+          <i class="fas fa-window-minimize" :class="'text-[var(--icon-color)] dark:text-[var(--icon-color)]'"></i>
         </button>
         <button
           class="header-icon-button p-1.5 transition-colors m-0"
           @click="electronAPI.maximize()"
           title="最大化/还原"
         >
-          <i class="fas fa-window-maximize"></i>
+          <i class="fas fa-window-maximize" :class="'text-[var(--icon-color)] dark:text-[var(--icon-color)]'"></i>
         </button>
         <button
           class="header-icon-button p-1.5 rounded-r-md text-red-500 hover:text-red-700 transition-colors m-0"
