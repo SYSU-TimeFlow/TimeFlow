@@ -624,45 +624,9 @@ onUnmounted(() => {
 }
 
 /* ================= 搜索框与模式指示器 ================ */
-.mode-indicator {
-  cursor: default;
-  background-color: #f9f9f9;
-  display: flex;
-  align-items: center;
-  padding-left: 2rem;
-}
-.mode-indicator:hover {
-  background-color: #f0f0f0;
-}
 .mode-indicator i {
   position: absolute;
   left: 12px;
-}
-.mode-indicator span {
-  line-height: 1.5;
-  font-size: 14px;
-}
-.search-mode-input {
-  border-color: #ced4da;
-  background-color: #ffffff;
-}
-.search-mode-input:focus {
-  border-color: #4a86e8;
-}
-.command-mode {
-  border-color: #4a86e8;
-  background-color: rgba(74, 134, 232, 0.05);
-  border-width: 1px;
-  border-style: solid;
-}
-.command-mode-input {
-  border-color: #4a86e8;
-  background-color: rgba(74, 134, 232, 0.05);
-  border-width: 2px;
-  border-style: solid;
-  font-family: "Consolas", "Monaco", monospace;
-  color: #1a56db;
-  font-weight: 500;
 }
 .command-icon {
   animation: pulse 2s infinite;
@@ -681,14 +645,6 @@ onUnmounted(() => {
   border-color: var(--border-color);
   color: var(--text-primary);
 }
-.search-box input::placeholder {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;
-  font-size: 14px !important;
-  font-weight: normal !important;
-  color: #909090 !important;
-  font-style: normal !important;
-  opacity: 1 !important;
-}
 .search-mode-input::placeholder,
 .command-mode-input::placeholder {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;
@@ -700,19 +656,8 @@ onUnmounted(() => {
 }
 
 /* ================= 搜索结果列表 ================ */
-.search-results {
-  z-index: 1000;
-}
-.search-results ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
 .search-results li {
   border-bottom: 1px solid #eee;
-}
-.search-results li:last-child {
-  border-bottom: none;
 }
 .search-results li.search-result-focused {
   background-color: #e9ecef;
@@ -730,12 +675,6 @@ onUnmounted(() => {
   max-width: 500px;
   white-space: nowrap;
   text-overflow: ellipsis;
-}
-.app-header h1 {
-  transition: color 0.2s;
-}
-.app-header h1:hover {
-  color: #4a86e8;
 }
 .nav-button {
   color: #606060;
@@ -761,35 +700,13 @@ button:has(.fa-times):hover {
   color: #c62828;
   background-color: rgba(198, 40, 40, 0.1);
 }
-.navigation-buttons .nav-button {
-  min-width: 40px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin: 0;
-}
-.window-actions button {
-  margin: 0;
-}
-.header-right button {
-  margin-left: -1px;
-}
-.header-right button:first-child {
-  margin-left: 0;
-}
-.fa-chevron-left,
-.fa-chevron-right {
-  font-size: 16px;
-}
+
 
 /* ================= 暗黑模式 ================ */
-/* .dark-mode .search-box input {
+.dark-mode .search-box input {
   background-color: var(--bg-tertiary);
   border-color: var(--border-color);
   color: var(--text-primary);
-}
-.dark-mode .search-box input::placeholder {
-  color: var(--text-tertiary);
 }
 .dark-mode .search-results {
   background-color: var(--bg-secondary);
@@ -801,10 +718,6 @@ button:has(.fa-times):hover {
 .dark-mode .search-results li:hover {
   background-color: var(--hover-bg);
 }
-.dark-mode .search-results li.search-result-focused {
-  background-color: var(--selected-bg);
-  color: var(--text-primary);
-}
 .dark-mode .nav-button {
   color: var(--text-secondary);
 }
@@ -815,7 +728,7 @@ button:has(.fa-times):hover {
 .dark-mode :deep(.search-highlight) {
   background-color: rgba(255, 255, 0, 0.3);
   color: var(--text-primary);
-}*/
+}
 .dark-mode .app-header h1,
 .dark-mode .app-header h2 {
   color: var(--heading-color);
@@ -823,27 +736,7 @@ button:has(.fa-times):hover {
 .dark-mode .mode-indicator {
   background-color: var(--search-bg);
   border-color: var(--search-border);
-}/*
-/* .dark-mode .search-box input {
-  background-color: var(--search-bg);
-  border-color: var(--search-border);
-  color: var(--text-primary);
 }
-.dark-mode .command-mode {
-  background-color: rgba(74, 136, 229, 0.1);
-  border-color: #4a88e5;
-}
-.dark-mode .command-mode-input:focus {
-  box-shadow: 0 0 0 2px rgba(74, 136, 229, 0.3);
-}
-.dark-mode .search-box input::placeholder,
-.dark-mode .search-mode-input::placeholder,
-.dark-mode .command-mode-input::placeholder {
-  color: var(--text-tertiary) !important;
-}
-.dark-mode .mode-indicator span {
-  color: var(--text-tertiary);
-} */ 
 
 /* ================= 铃铛动画与禁用 ================ */
 .bell-shake {
