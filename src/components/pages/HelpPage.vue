@@ -140,16 +140,6 @@
           </div>
         </div>
       </div>
-
-      <!-- 模态框底部 -->
-      <div class="modal-footer">
-        <button
-          @click="uiStore.closeHelpModal"
-          class="modal-save-btn"
-        >
-          关闭
-        </button>
-      </div>
     </div>
   </div>
 </template>
