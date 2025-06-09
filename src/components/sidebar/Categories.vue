@@ -74,60 +74,50 @@ const uiStore = useUiStore();
 </script>
 
 <style scoped>
-/* 修改字号相关的样式 */
-.category-title {
-  font-size: var(--heading-font-size);
+/* 基础样式 */
+.categories {
+  font-size: var(--font-size-base);
 }
 
-.category-item {
-  font-size: var(--base-font-size);
+.text-sm.font-medium {
+  font-size: var(--font-size-sm);
+  color: var(--sidebar-title-color);
 }
 
-.category-description {
-  font-size: var(--small-text-font-size);
-}
-
+/* 分类项样式 */
 .category-item {
   position: relative;
+  font-size: var(--font-size-base);
+  color: var(--text-secondary);
+  border: 1px solid transparent;
+  transition: all 0.2s ease;
+  margin-right: 4px; /* 添加右边距，为箭头留出空间 */
 }
 
-.category-item:hover .edit-button {
-  opacity: 1 !important;
-}
-
-.edit-button {
-  opacity: 0;
-  transition: opacity 0.2s ease;
-}
-
-/* 原有样式保持不变 */
-
-/* 暗黑模式下分类项悬停效果 */
-.dark-mode .category-item:hover {
-  background-color: var(
-    --hover-bg
-  ) !important; /* 使用与view-btn相同的悬停颜色 */
+.category-item:hover {
+  background-color: var(--hover-bg);
   color: var(--text-secondary);
   border-color: transparent;
 }
 
-/* 暗黑模式下激活的分类项 */
-.dark-mode .category-item.active {
-  background-color: var(--active-item-bg) !important;
+.category-item.active {
+  background-color: var(--active-item-bg);
   color: var(--heading-color);
 }
 
-/* 编辑按钮颜色调整 */
-.dark-mode .edit-button {
+/* 编辑按钮样式 */
+.edit-button {
+  opacity: 0;
   color: var(--text-tertiary);
+  transition: opacity 0.2s ease;
+  position: relative;
 }
 
-.dark-mode .edit-button:hover {
+.edit-button:hover {
   color: var(--heading-color);
 }
 
-/* 调整分类标题颜色 */
-.dark-mode .text-sm.font-medium {
-  color: var(--sidebar-title-color) !important;
+.category-item:hover .edit-button {
+  opacity: 1 !important;
 }
 </style>
