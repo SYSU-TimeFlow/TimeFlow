@@ -83,7 +83,6 @@
 
     <!-- 反馈弹窗 -->
     <FeedBackPage v-if="uiStore.showFeedbackModal" />
-
   </aside>
 </template>
 
@@ -104,17 +103,7 @@ const uiStore = useUiStore();
 </script>
 
 <style scoped>
-/* 确保按钮在侧边栏右边界处 */
-.sidebar-toggle {
-  transform: translateY(-50%); /* 垂直居中 */
-}
-
-/* 侧边栏悬停时显示按钮 */
-.sidebar:hover .sidebar-toggle {
-  opacity: 1;
-  transform: translateY(-50%) translateX(0);
-}
-
+/* 基础样式 */
 .sidebar {
   background-color: var(--bg-sidebar);
   border-color: var(--border-color);
@@ -132,77 +121,39 @@ const uiStore = useUiStore();
   background-color: var(--active-bg);
 }
 
-/* 添加暗黑模式下侧边栏标题颜色 */
-.dark-mode .sidebar .text-xl,
-.dark-mode .sidebar h1,
-.dark-mode .sidebar h2,
-.dark-mode .sidebar h3 {
-  color: var(--heading-color);
+/* 确保按钮在侧边栏右边界处 */
+.sidebar-toggle {
+  transform: translateY(-50%); /* 垂直居中 */
 }
 
-/* 调整侧边栏其他元素颜色 */
-.dark-mode .sidebar-nav-item {
-  color: var(--text-secondary);
-}
-
-.dark-mode .sidebar-nav-item.active {
-  color: var(--heading-color);
-  background-color: #2a3241; /* 更改为柔和的蓝灰色 */
-  border-left: 2px solid #4a88e5; /* 添加蓝色边框作为选中指示 */
-}
-
-.dark-mode .sidebar-toggle:hover {
-  color: var(--heading-color);
-}
-
-/* 暗黑模式下调整添加事件按钮颜色 */
-.dark-mode .add-event-btn {
-  background-color: #3a5277; /* 更柔和的蓝色 */
-  color: #e2e8f0;
-}
-
-.dark-mode .add-event-btn:hover {
-  background-color: #445c85; /* 悬停时略深一点 */
-}
-
-/* 调整同步状态文本颜色 */
-.dark-mode .sync-status span:last-child {
-  color: var(--text-secondary);
-}
-
-/* 调整侧边栏标题颜色为更亮的灰色 */
-.dark-mode .sidebar .text-sm.font-medium,
-.dark-mode .sidebar h3,
-.dark-mode .sidebar .text-gray-700 {
-  color: var(--sidebar-title-color) !important;
+/* 侧边栏悬停时显示按钮 */
+.sidebar:hover .sidebar-toggle {
+  opacity: 1;
+  transform: translateY(-50%) translateX(0);
 }
 
 /* 修改字号相关的样式 */
 .sidebar-title {
-  font-size: var(--heading-font-size);
+  font-size: var(--font-size-base);
 }
 
 .nav-item {
-  font-size: var(--base-font-size);
+  font-size: var(--font-size-base);
 }
 
 .nav-item-icon {
-  font-size: var(--base-font-size);
+  font-size: var(--font-size-base);
 }
 
 /* 反馈按钮样式 */
 .feedback-btn {
   border: 1px solid var(--border-color);
-}
-
-.dark-mode .feedback-btn {
-  background-color: #2a3241;
+  background-color: var(--bg-sidebar);
   color: var(--text-secondary);
-  border-color: var(--border-color);
 }
 
-.dark-mode .feedback-btn:hover {
-  background-color: #3a5277;
+.feedback-btn:hover {
+  background-color: var(--hover-bg);
   color: var(--text-primary);
 }
 </style>
