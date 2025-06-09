@@ -40,7 +40,7 @@
         >
           <i class="fas fa-chevron-left"></i>
         </button>
-        <!-- "下一个"导航按钮，移除边框 -->
+        <!-- "下一个"导航按钮 -->
         <button
           @click="uiStore.navigateCalendar('next')"
           class="header-icon-button px-2 py-2 rounded-r-md cursor-pointer min-w-[40px] transition-colors"
@@ -59,18 +59,10 @@
           @click="activateSearch"
         >
           <span
-            v-if="uiStore.appMode === 'normal'"
             class="flex items-center w-full leading-[1.5]"
           >
-            <i class="fas fa-keyboard mr-2 text-gray-500 absolute left-3"></i>
-            <span class="text-sm text-gray-400 ml-2">Press / to search</span>
-          </span>
-          <span
-            v-else-if="uiStore.appMode === 'command'"
-            class="flex items-center w-full leading-[1.5]"
-          >
-            <i class="fas fa-terminal mr-2 text-blue-500 absolute left-3"></i>
-            <span class="text-sm text-gray-400 ml-2">Enter command...</span>
+            <i class="fas fa-keyboard mr-2 absolute left-3"></i>
+            <span class="ml-2">Press / to search</span>
           </span>
         </div>
 
@@ -84,8 +76,7 @@
               ? 'Search events...'
               : 'Enter command...'
           "
-          class="pl-8 pr-4 py-1 border rounded-md text-sm focus:outline-none w-64 h-8
-            text-[var(--text-primary)]
+          class="pl-8 pr-4 py-1 border rounded-md focus:outline-none w-64 h-8
             placeholder-gray-400"
           :value="uiStore.searchInputValue"
           @input="handleInputChange"
@@ -95,10 +86,10 @@
         />
 
         <i
-          class="fas absolute left-3 top-1/2 transform -translate-y-1/2 text-sm pointer-events-none"
+          class="fas absolute left-3 top-1/2 transform -translate-y-1/2 pointer-events-none"
           :class="[
               uiStore.isSearchActive && uiStore.appMode === 'normal'
-                ? 'fa-search text-gray-500'
+                ? 'fa-search'
                 : '',
               uiStore.isSearchActive && uiStore.appMode === 'command'
                 ? 'fa-terminal text-blue-600'
@@ -116,7 +107,7 @@
             <li
               v-for="(event, index) in uiStore.searchResults"
               :key="event.id"
-              class="px-4 py-2 hover:bg-gray-100 cursor-pointer text-sm border-b border-[var(--border-color)] last:border-b-0"
+              class="px-4 py-2 hover:bg-gray-100 cursor-pointer border-b border-[var(--border-color)] last:border-b-0"
               :class="{
                 'bg-[var(--selected-bg)]': index === uiStore.focusedResultIndex,
               }"
@@ -131,11 +122,11 @@
                 "
               ></span>
               <span v-if="event.eventType === 'todo' || event.eventType === 'both'">
-                <span v-if="event.end && new Date(event.end).getFullYear() > 1970" class="text-xs text-gray-500 ml-2">
+                <span v-if="event.end && new Date(event.end).getFullYear() > 1970" class="text-xs ml-2">
                   {{ formatEventDate(event.end) }}
                 </span>
               </span>
-              <span v-else class="text-xs text-gray-500 ml-2">
+              <span v-else class="text-xs ml-2">
                 {{ formatEventDate(event.start) }}
               </span>
             </li>
@@ -144,7 +135,7 @@
                 uiStore.searchQuery.trim() &&
                 uiStore.searchResults.length === 0
               "
-              class="px-4 py-2 text-sm text-gray-500"
+              class="px-4 py-2"
             >
               No results found.
             </li>
@@ -300,38 +291,41 @@ import { useUiStore } from "@/stores/ui";
 import { useSettingStore } from "@/stores/setting";
 import { useEventStore } from "@/stores/event";
 
-// 仓库
 const uiStore = useUiStore();
 const settingStore = useSettingStore();
 const eventStore = useEventStore();
 
-// Electron API
 const electronAPI = (window as any).electronAPI;
 
-// refs
 const resultListRef = ref<HTMLUListElement | null>(null);
 const searchInputRef = ref<HTMLInputElement | null>(null);
-const isBellShaking = ref(false);
+const isBellShaking = ref(false); // 控制震动动画
 const isCogHovered = ref(false);
 const cogRotation = ref(0);
 const themeBtnHover = ref(false);
 
-// 通知相关
+// ==================== 事件通知功能 ====================
+// 已通知事件唯一标识集合，防止重复通知（考虑时间变化）
 const notifiedEventKeys = ref<Set<string>>(new Set());
 
-// ---------- 事件通知相关 ----------
+// 生成唯一key
 function getEventNotifyKey(event: any) {
+  // 判断是否为待办事项（start为1970年）
   const start = event.start ? new Date(event.start).getTime() : 0;
   const end = event.end ? new Date(event.end).getTime() : 0;
   const isTodo =
     (!event.start || new Date(event.start).getFullYear() === 1970) &&
     (event.eventType === "todo" || event.eventType === "both");
+  // 对于待办事项，只用id和end，日历事件用id+start+end
   return isTodo ? `${event.id}|${end}` : `${event.id}|${start}|${end}`;
 }
 
+// 检查日程并发送通知
 const checkAndNotifyEvents = () => {
   if (!settingStore.notifications) return;
   const now = new Date();
+
+  // 合并所有事件，按id去重
   const allEvents = eventStore.events;
   const uniqueEventsMap = new Map<number, any>();
   allEvents.forEach((event) => {
@@ -345,6 +339,7 @@ const checkAndNotifyEvents = () => {
     const notifyKey = getEventNotifyKey(event);
     if (!event.id || notifiedEventKeys.value.has(notifyKey)) return;
 
+    // 解析开始和结束时间
     const start =
       event.start instanceof Date ? event.start : new Date(event.start);
     const end = event.end instanceof Date ? event.end : new Date(event.end);
@@ -352,13 +347,16 @@ const checkAndNotifyEvents = () => {
     const isStartValid = start.getFullYear() > 1970 && !isNaN(start.getTime());
     const isEndValid = end.getFullYear() > 1970 && !isNaN(end.getTime());
 
+    // 1. 有开始和截止时间，且距离开始时间<=15分钟
     if (isStartValid && isEndValid) {
       const diff = (start.getTime() - now.getTime()) / 60000;
       if (diff > 0 && diff <= 15) {
         sendEventNotification(event, "即将开始");
         notifiedEventKeys.value.add(notifyKey);
       }
-    } else if (!isStartValid && isEndValid) {
+    }
+    // 2. 只有截止时间，且距离截止<=30分钟
+    else if (!isStartValid && isEndValid) {
       const diff = (end.getTime() - now.getTime()) / 60000;
       if (diff > 0 && diff <= 30) {
         sendEventNotification(event, "即将结束");
@@ -368,6 +366,7 @@ const checkAndNotifyEvents = () => {
   });
 };
 
+// 发送系统通知
 function sendEventNotification(event: any, type: string) {
   let timeInfo = "";
   const now = new Date();
@@ -399,14 +398,32 @@ function sendEventNotification(event: any, type: string) {
   }
 }
 
-// ---------- 搜索相关 ----------
+// 通知开关切换
+const toggleNotification = () => {
+  settingStore.notifications = !settingStore.notifications;
+  isBellShaking.value = true;
+  setTimeout(() => {
+    isBellShaking.value = false;
+  }, 600);
+
+  // 关闭通知时清空，开启时不清空
+  if (!settingStore.notifications) {
+    notifiedEventKeys.value.clear();
+  }
+
+  // 保存设置更改
+  settingStore.saveSettings();
+};
+
+// ==================== 事件搜索功能 ====================
+// 滚动到当前聚焦的搜索结果项
 const scrollToFocusedResult = () => {
   nextTick(() => {
     if (
       resultListRef.value &&
       uiStore.focusedResultIndex > -1 &&
       uiStore.searchResults.length > 0 &&
-      uiStore.focusedResultIndex < resultListRef.value.children.length
+      uiStore.focusedResultIndex < resultListRef.value.children.length // 确保索引有效
     ) {
       const focusedItem = resultListRef.value.children[
         uiStore.focusedResultIndex
@@ -418,13 +435,9 @@ const scrollToFocusedResult = () => {
   });
 };
 
-const handleInputChange = (event: Event) => {
-  const input = event.target as HTMLInputElement;
-  let value = input.value;
-  uiStore.updateSearchInputValue(value);
-};
-
+// 处理搜索框失焦
 const handleSearchBlur = () => {
+  // 延迟处理，防止点击搜索结果时结果框消失过快
   setTimeout(() => {
     uiStore.handleSearchBlurAction();
     uiStore.toggleSearchActive(false);
@@ -432,29 +445,45 @@ const handleSearchBlur = () => {
   }, 100);
 };
 
+// 处理搜索框键盘事件
 const handleSearchKeydown = (event: KeyboardEvent) => {
   if (event.key === "Escape") {
     uiStore.toggleSearchActive(false);
     uiStore.setAppMode("normal");
-    uiStore.updateSearchInputValue("");
+    uiStore.updateSearchInputValue(""); // 清空搜索/命令内容
+    // 阻止默认的ESC行为
     event.preventDefault();
   } else if (event.key === "Enter" && uiStore.appMode === "command") {
+    // 处理命令提交
     const input = event.target as HTMLInputElement;
+    // 直接传入输入值，executeCommand内部会处理冒号前缀
     const commandSuccess = uiStore.executeCommand(input.value);
 
     if (commandSuccess) {
+      // 命令执行成功后清空输入框并关闭搜索
       uiStore.updateSearchInputValue("");
       uiStore.toggleSearchActive(false);
       uiStore.setAppMode("normal");
     } else {
+      // 命令无法识别时显示反馈
       showCommandError(`未知命令: ${input.value}`);
     }
+
     event.preventDefault();
   } else {
+    // 处理普通搜索逻辑
     uiStore.handleKeydownAction(event);
   }
 };
 
+// 处理输入变化
+const handleInputChange = (event: Event) => {
+  const input = event.target as HTMLInputElement;
+  let value = input.value;
+  uiStore.updateSearchInputValue(value);
+};
+
+// 激活搜索框
 const activateSearch = () => {
   uiStore.toggleSearchActive(true);
   uiStore.setAppMode("normal");
@@ -463,6 +492,7 @@ const activateSearch = () => {
   });
 };
 
+// 格式化事件日期，用于在搜索结果中显示
 const formatEventDate = (dateString: string | Date) => {
   const date = new Date(dateString);
   return date.toLocaleDateString("zh-CN", {
@@ -471,33 +501,16 @@ const formatEventDate = (dateString: string | Date) => {
   });
 };
 
+// 显示命令错误的函数
 const showCommandError = (message: string) => {
+  // 这里可以添加UI反馈，比如一个短暂的通知或者在命令框下方显示错误信息
   console.error(message);
   // TODO: 实现更好的UI反馈
 };
 
-// ---------- 主题与通知按钮相关 ----------
-const toggleNotification = () => {
-  settingStore.notifications = !settingStore.notifications;
-  isBellShaking.value = true;
-  setTimeout(() => {
-    isBellShaking.value = false;
-  }, 600);
-
-  if (!settingStore.notifications) {
-    notifiedEventKeys.value.clear();
-  }
-  settingStore.saveSettings();
-};
-
-const handleThemeToggle = () => {
-  settingStore.setThemeMode(
-    settingStore.themeMode === "dark" ? "light" : "dark"
-  );
-};
-
-// ---------- 全局快捷键 ----------
+// ==================== 全局快捷键 ====================
 const handleGlobalKeydown = (event: KeyboardEvent) => {
+  // 如果是在输入框、textarea等元素中则不拦截
   if (
     document.activeElement instanceof HTMLInputElement ||
     document.activeElement instanceof HTMLTextAreaElement ||
@@ -506,6 +519,7 @@ const handleGlobalKeydown = (event: KeyboardEvent) => {
     return;
   }
 
+  // Normal模式快捷键
   if (uiStore.appMode === "normal") {
     switch (event.key) {
       case "j":
@@ -580,35 +594,48 @@ const handleGlobalKeydown = (event: KeyboardEvent) => {
   }
 };
 
-// ---------- 生命周期 ----------
+// ==================== 主题切换按钮 ====================
+const handleThemeToggle = () => {
+  // 直接调用 settingStore 的 setThemeMode，保证与设置界面同步
+  settingStore.setThemeMode(
+    settingStore.themeMode === "dark" ? "light" : "dark"
+  );
+};
+
+// ==================== 生命周期 ====================
 let notifyTimer: number | undefined;
 
 onMounted(() => {
   uiStore.setScrollUiUpdateCallback(scrollToFocusedResult);
 
+  // 注册全局键盘事件
   window.addEventListener("keydown", handleGlobalKeydown);
   if ("Notification" in window && Notification.permission === "default") {
     Notification.requestPermission();
   }
-  notifyTimer = window.setInterval(checkAndNotifyEvents, 5000);
+  notifyTimer = window.setInterval(checkAndNotifyEvents, 5000); //每隔5秒检查一次
 });
 
+// 组件卸载时清除滚动回调
 onUnmounted(() => {
   uiStore.clearScrollUiUpdateCallback();
+
+  // 清除全局键盘事件
   window.removeEventListener("keydown", handleGlobalKeydown);
   if (notifyTimer) clearInterval(notifyTimer);
 });
 
-// ---------- 监听 ----------
 watch(
   () => settingStore.notifications,
   (newVal) => {
     if (!newVal) {
+      // 如果通知被关闭，清空已通知的记录
       notifiedEventKeys.value.clear();
     }
   }
 );
 
+// 监听悬浮状态，控制旋转角度
 watch(isCogHovered, (hovered) => {
   if (hovered) {
     cogRotation.value += 90;
@@ -635,8 +662,18 @@ watch(isCogHovered, (hovered) => {
 .search-box .mode-indicator,
 .search-box input,
 .search-box .search-results {
+  font-size: var(--small-text-font-size);
   background-color: var(--bg-secondary);
   border-color: var(--border-color);
+}
+
+.search-box .mode-indicator,
+.search-box .search-results {
+  color: var(--text-tertiary);
+}
+
+.search-box input {
+  color: var(--text-primary);
 }
 
 /* 搜索结果高亮 */
