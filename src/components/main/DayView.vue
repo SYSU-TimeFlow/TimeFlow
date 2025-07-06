@@ -99,7 +99,7 @@
             <div
               v-for="hour in 24"
               :key="hour"
-              class="time-slot h-16 relative transition-colors duration-150 hover:before:content-[''] hover:before:absolute hover:before:inset-2 hover:before:bg-blue-50 hover:before:z-[1] hover:after:content-[''] hover:after:absolute hover:after:inset-2 hover:after:border hover:after:border-blue-500 hover:after:pointer-events-none hover:after:z-[2]"
+              class="time-slot h-16 relative transition-colors duration-150 hover:before:content-[''] hover:before:absolute hover:before:inset-2 hover:before:z-[1] hover:after:content-[''] hover:after:absolute hover:after:inset-2 hover:after:border hover:after:border-blue-500 hover:after:pointer-events-none hover:after:z-[2]"
               @click="
                 uiStore.handleHourClick(
                   { date: uiStore.currentDate },
@@ -317,5 +317,14 @@ const settingStore = useSettingStore();
 
 .time-axis .time-line {
   background-color: var(--border-color);
+}
+
+/* 修复暗黑模式下的hover效果 */
+.dark-mode .time-slot:hover::before {
+  background-color: var(--hour-cell-hover) !important;
+}
+
+.time-slot:hover::before {
+  background-color: rgb(239 246 255); /* blue-50 的RGB值 */
 }
 </style>
