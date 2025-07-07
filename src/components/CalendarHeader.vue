@@ -153,6 +153,22 @@
 
     <!-- 右侧区域：其他控制按钮 -->
     <div class="header-right no-drag flex items-center flex-shrink-0 w-1/5 justify-end">
+      <!-- 新增：导入课程表按钮 -->
+      <button
+        class="header-icon-button p-1.5 rounded-md relative"
+        @click="eventStore.importScheduleFromFile"
+        title="导入课程表"
+      >
+        <i class="fas fa-file-import"></i>
+      </button>
+      <!-- 新增：清除课程表按钮 -->
+      <button
+        class="header-icon-button p-1.5 rounded-md relative"
+        @click="eventStore.clearImportedSchedule"
+        title="清除导入的课程"
+      >
+        <i class="fas fa-eraser"></i>
+      </button>
       <!-- 通知铃铛按钮 -->
       <button
         class="header-icon-button p-1.5 rounded-md relative"

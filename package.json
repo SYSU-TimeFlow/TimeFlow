@@ -23,9 +23,14 @@
   "dependencies": {
     "@fortawesome/fontawesome-free": "^6.7.2",
     "@tailwindcss/vite": "^4.1.7",
+<<<<<<< HEAD
     "better-sqlite3": "^12.2.0",
+=======
+    "docx": "^9.5.1",
+>>>>>>> 31b9f38 (feat/添加导入文件课表的功能)
     "electron-is-dev": "^3.0.1",
     "electron-win-state": "^1.1.22",
+    "mammoth": "^1.9.1",
     "p-limit": "^6.2.0",
     "path": "^0.12.7",
     "pinia": "^3.0.2",

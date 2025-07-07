@@ -1,6 +1,9 @@
 import fs from "fs";
 import path from "path";
-import { Notification } from "electron";
+import { Notification, dialog } from "electron";
+// 修正：使用命名导入从 'docx' 库导入所需模块
+import { Document, Packer, Table } from "docx";
+import mammoth from "mammoth"; // 新增：导入 mammoth 库用于解析
 
 const mapJsonEventTypeToEnumString = (typeNumber) => {
   switch (typeNumber) {
@@ -201,5 +204,74 @@ export function initializeIpcHandlers(ipcMain, sqliteStore, mainDirname, Browser
       }
     });
     setTimeout(() => notification.close(), 5000); // 5秒后自动关闭
+  });
+
+  // 新增：处理课程表导入
+  ipcMain.handle('import-schedule', async () => {
+    const { canceled, filePaths } = await dialog.showOpenDialog({
+      properties: ['openFile'],
+      filters: [{ name: 'Word Documents', extensions: ['docx'] }],
+    });
+
+    if (canceled || filePaths.length === 0) {
+      return { success: false, message: '用户取消了文件选择' };
+    }
+
+    const filePath = filePaths[0];
+
+    try {
+      // 使用 mammoth 将 docx 转换为 HTML，以便解析表格
+      const { value: html } = await mammoth.convertToHtml({ path: filePath });
+
+      // 这是一个非常基础的HTML表格解析，可能需要根据实际的DOCX结构调整
+      // 它查找第一个<table>, 然后提取所有<tr>和<td>
+      const tableMatch = html.match(/<table.*?>([\s\S]*?)<\/table>/);
+      if (!tableMatch) {
+        return { success: false, message: '在文档中未找到表格' };
+      }
+
+      const tableHtml = tableMatch[1];
+      const rowsHtml = tableHtml.match(/<tr.*?>([\s\S]*?)<\/tr>/g) || [];
+      
+      const schedule = [];
+      const timeSlots = [
+        { start: '08:00', end: '09:40' }, // 第1-2节
+        { start: '10:00', end: '11:40' }, // 第3-4节
+        { start: '14:00', end: '15:40' }, // 第5-6节
+        { start: '16:00', end: '17:40' }, // 第7-8节
+        { start: '19:00', end: '20:40' }, // 第9-10节
+      ];
+
+      // 从第二行开始解析 (第一行为标题)
+      for (let i = 1; i < rowsHtml.length; i++) {
+        const timeSlot = timeSlots[i - 1];
+        if (!timeSlot) continue;
+
+        const cellsHtml = rowsHtml[i].match(/<td.*?>([\s\S]*?)<\/td>/g) || [];
+        
+        // 从第二列开始解析 (第一列为节次)
+        for (let j = 1; j < cellsHtml.length; j++) {
+          // 移除HTML标签并清理文本
+          const cellText = cellsHtml[j].replace(/<.*?>/g, '').trim();
+          if (cellText) {
+            schedule.push({
+              courseName: cellText,
+              dayOfWeek: j, // 1:周一, 2:周二, ..., 7:周日
+              startTime: timeSlot.start,
+              endTime: timeSlot.end,
+            });
+          }
+        }
+      }
+
+      if (schedule.length === 0) {
+        return { success: false, message: '表格为空或无法解析课程内容' };
+      }
+
+      return { success: true, schedule };
+    } catch (error) {
+      console.error('解析课程表文件失败:', error);
+      return { success: false, message: `解析失败: ${error.message}` };
+    }
   });
 }
