@@ -161,8 +161,10 @@ export const useEventStore = defineStore("event", () => {
     // 处理常规日历事件和BOTH类型的待办事项
     return events.value
       .filter((event) => {
-        // 排除纯TODO类型的待办事项
-        if (event.eventType === EventType.TODO) return false;
+        // 修正：确保课程表事件(SCHEDULE)被包含，只排除纯待办(TODO)
+        if (event.eventType === EventType.TODO) {
+          return false;
+        }
 
         let eventStart: Date;
         let eventEnd: Date;
@@ -562,58 +564,102 @@ export const useEventStore = defineStore("event", () => {
   // 从文件导入课程表
   async function importScheduleFromFile() {
     if (window.electronAPI) {
+      // 导入前提示用户将清除旧数据
+      if (events.value.some(e => e.eventType === EventType.SCHEDULE)) {
+        if (!confirm("导入新的课程表将会清除所有已导入的课程，要继续吗？")) {
+          return;
+        }
+      }
+
       const result = await window.electronAPI.importSchedule();
       if (result.success && result.schedule) {
         // 导入前先清除旧的课程表事件，防止重复
-        await clearImportedSchedule();
+        const initialLength = events.value.length;
+        events.value = events.value.filter(e => e.eventType !== EventType.SCHEDULE);
+        const removedCount = initialLength - events.value.length;
+        if (removedCount > 0) {
+          console.log(`清除了 ${removedCount} 个旧的课程表事件。`);
+        }
+
 
         const scheduleCategory = categories.value.find(c => c.name === "课程表") || 
                                  categories.value.find(c => c.name === "工作") || 
                                  categories.value[0];
 
         if (!scheduleCategory) {
-          console.error("无法找到用于课程表的分类。");
+          alert("错误：无法找到用于课程表的分类。请先创建一个分类。");
           return;
         }
 
-        const today = new Date();
-        const currentDay = today.getDay(); // 0 for Sunday, 1 for Monday, etc.
-        const firstDayOfWeek = new Date(today);
-        // 将日期调整到本周的星期一
-        firstDayOfWeek.setDate(today.getDate() - (currentDay === 0 ? 6 : currentDay - 1));
+        // ======================= 核心逻辑修改 =======================
+        // 1. 根据当前月份动态确定学期开始日期
+        const now = new Date();
+        const currentYear = now.getFullYear();
+        const currentMonth = now.getMonth(); // 0 = January, 11 = December
 
-        result.schedule.forEach(item => {
-          const eventDate = new Date(firstDayOfWeek);
-          eventDate.setDate(firstDayOfWeek.getDate() + item.dayOfWeek - 1);
+        let SEMESTER_START_DATE;
+        let semesterName = "";
 
-          const [startHour, startMinute] = item.startTime.split(':');
-          const [endHour, endMinute] = item.endTime.split(':');
+        // 规则：2月至7月期间导入，视为春季学期；8月至次年1月期间导入，视为秋季学期。
+        if (currentMonth >= 1 && currentMonth <= 6) { // Feb to July -> Spring Semester
+            SEMESTER_START_DATE = new Date(currentYear, 2, 1); // 春季学期，3月1日开始
+            semesterName = "春季学期";
+        } else { // Aug to Jan -> Autumn Semester
+            // 如果是1月份，则属于前一年的秋季学期
+            const semesterYear = (currentMonth === 0) ? currentYear - 1 : currentYear;
+            SEMESTER_START_DATE = new Date(semesterYear, 8, 8); // 秋季学期，9月8日开始
+            semesterName = "秋季学期";
+        }
 
-          const start = new Date(eventDate);
-          start.setHours(parseInt(startHour, 10), parseInt(startMinute, 10), 0, 0);
+        const SEMESTER_WEEKS = 18; 
 
-          const end = new Date(eventDate);
-          end.setHours(parseInt(endHour, 10), parseInt(endMinute, 10), 0, 0);
+        // 2. 确保开始日期是当天的零点，以避免时区计算问题
+        SEMESTER_START_DATE.setHours(0, 0, 0, 0);
 
-          const newEvent = new Event(
-            Date.now() + Math.random(), // 唯一ID
-            item.courseName,
-            start,
-            end,
-            `课程表导入 - ${item.courseName}`,
-            scheduleCategory.id,
-            scheduleCategory.color,
-            false,
-            EventType.SCHEDULE, // 使用一个特殊的类型来标识
-            false
-          );
-          events.value.push(newEvent);
-        });
-        console.log(`成功导入 ${result.schedule.length} 个课程。`);
-        // 你可以在这里添加一个UI通知
+        // 3. 计算学期第一周的周一。如果设定的开始日期不是周一，则自动调整。
+        const dayOfWeekOfStart = SEMESTER_START_DATE.getDay(); // 0=周日, 1=周一, ...
+        const firstSemesterMonday = new Date(SEMESTER_START_DATE);
+        const adjustment = dayOfWeekOfStart === 0 ? -6 : 1 - dayOfWeekOfStart; // 如果是周日，减6天；否则，减去与周一的差值
+        firstSemesterMonday.setDate(SEMESTER_START_DATE.getDate() + adjustment);
+
+        let createdEventsCount = 0;
+
+        // 4. 循环整个学期（18周），从学期第一周的周一为基准创建所有事件
+        for (let week = 0; week < SEMESTER_WEEKS; week++) {
+          result.schedule.forEach(item => {
+            const eventDate = new Date(firstSemesterMonday);
+            // 计算当前课程在学期中对应的具体日期
+            eventDate.setDate(firstSemesterMonday.getDate() + (week * 7) + (item.dayOfWeek - 1));
+
+            const [startHour, startMinute] = item.startTime.split(':');
+            const [endHour, endMinute] = item.endTime.split(':');
+
+            const start = new Date(eventDate);
+            start.setHours(parseInt(startHour, 10), parseInt(startMinute, 10), 0, 0);
+
+            const end = new Date(eventDate);
+            end.setHours(parseInt(endHour, 10), parseInt(endMinute, 10), 0, 0);
+
+            const newEvent = new Event(
+              Date.now() + Math.random() + createdEventsCount, // 确保ID在循环中唯一
+              item.courseName,
+              start,
+              end,
+              `课程表导入 - ${item.courseName}`,
+              scheduleCategory.id,
+              scheduleCategory.color,
+              false,
+              EventType.SCHEDULE, // 使用一个特殊的类型来标识
+              false
+            );
+            events.value.push(newEvent);
+            createdEventsCount++;
+          });
+        }
+        
+        alert(`成功为 ${semesterName}（从 ${firstSemesterMonday.toLocaleDateString()} 开始，共 ${SEMESTER_WEEKS} 周）创建了 ${createdEventsCount} 个课程！`);
       } else if (result.message) {
-        console.error("导入失败:", result.message);
-        // 你可以在这里添加一个UI错误通知
+        alert(`导入失败: ${result.message}`);
       }
     }
   }
