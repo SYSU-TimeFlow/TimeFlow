@@ -13,6 +13,7 @@ declare global {
       minimize?: () => void;
       maximize?: () => void;
       close?: () => void;
+      importSchedule: () => Promise<{ success: boolean; schedule?: any[]; message?: string }>; // 新增
     };
   }
 }
@@ -547,6 +548,78 @@ export const useEventStore = defineStore("event", () => {
   // 初始化时加载应用数据
   loadAppDataFromStore();
 
+  // =======================BEGIN 课程表导入功能 BEGIN========================
+
+  // 清除所有由课程表导入的事件
+  async function clearImportedSchedule() {
+    const initialLength = events.value.length;
+    events.value = events.value.filter(e => e.eventType !== EventType.SCHEDULE);
+    const removedCount = initialLength - events.value.length;
+    console.log(`清除了 ${removedCount} 个课程表事件。`);
+    // 你可以在这里添加一个UI通知告诉用户清除了多少事件
+  }
+
+  // 从文件导入课程表
+  async function importScheduleFromFile() {
+    if (window.electronAPI) {
+      const result = await window.electronAPI.importSchedule();
+      if (result.success && result.schedule) {
+        // 导入前先清除旧的课程表事件，防止重复
+        await clearImportedSchedule();
+
+        const scheduleCategory = categories.value.find(c => c.name === "课程表") || 
+                                 categories.value.find(c => c.name === "工作") || 
+                                 categories.value[0];
+
+        if (!scheduleCategory) {
+          console.error("无法找到用于课程表的分类。");
+          return;
+        }
+
+        const today = new Date();
+        const currentDay = today.getDay(); // 0 for Sunday, 1 for Monday, etc.
+        const firstDayOfWeek = new Date(today);
+        // 将日期调整到本周的星期一
+        firstDayOfWeek.setDate(today.getDate() - (currentDay === 0 ? 6 : currentDay - 1));
+
+        result.schedule.forEach(item => {
+          const eventDate = new Date(firstDayOfWeek);
+          eventDate.setDate(firstDayOfWeek.getDate() + item.dayOfWeek - 1);
+
+          const [startHour, startMinute] = item.startTime.split(':');
+          const [endHour, endMinute] = item.endTime.split(':');
+
+          const start = new Date(eventDate);
+          start.setHours(parseInt(startHour, 10), parseInt(startMinute, 10), 0, 0);
+
+          const end = new Date(eventDate);
+          end.setHours(parseInt(endHour, 10), parseInt(endMinute, 10), 0, 0);
+
+          const newEvent = new Event(
+            Date.now() + Math.random(), // 唯一ID
+            item.courseName,
+            start,
+            end,
+            `课程表导入 - ${item.courseName}`,
+            scheduleCategory.id,
+            scheduleCategory.color,
+            false,
+            EventType.SCHEDULE, // 使用一个特殊的类型来标识
+            false
+          );
+          events.value.push(newEvent);
+        });
+        console.log(`成功导入 ${result.schedule.length} 个课程。`);
+        // 你可以在这里添加一个UI通知
+      } else if (result.message) {
+        console.error("导入失败:", result.message);
+        // 你可以在这里添加一个UI错误通知
+      }
+    }
+  }
+  // =======================END 课程表导入功能 END========================
+
+
   // 添加一个通用的 watch 函数来监听 events 和 categories 的变化
 
   return {
@@ -586,6 +659,10 @@ export const useEventStore = defineStore("event", () => {
     updateEventCategoryColor,
     saveCategory,
     deleteCategory,
+
+    // 新增：课程表功能
+    importScheduleFromFile,
+    clearImportedSchedule,
 
     // 数据存储相关，仅供测试
     loadAppDataFromStore,
