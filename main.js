@@ -31,6 +31,7 @@ const createWindow = () => {
     ...winState.winOptions,
     minWidth: 900,
     minHeight: 700,
+    icon: path.join(__dirname, "./assets/icon.png"), 
     frame: false,
     autohideMenu: true,
     webPreferences: {

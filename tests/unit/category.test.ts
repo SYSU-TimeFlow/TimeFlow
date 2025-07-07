@@ -16,17 +16,6 @@ import { Event, EventType } from "../../src/const";
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { createPageModule } from "../../src/stores/ui/page";
 
-// 模拟 electron-store 的行为
-vi.mock("electron-store", () => {
-  const mockStore = {
-    get: vi.fn(),
-    set: vi.fn(),
-  };
-  return {
-    default: vi.fn(() => mockStore),
-  };
-});
-
 // beforeEach 确保每个测试用例开始时，events 数组存储的内容相同
 beforeEach(() => {
   global.document = {
@@ -63,6 +52,24 @@ beforeEach(() => {
       // 模拟保存应用数据的方法
       saveAppData: vi.fn(async () => {
         // console.log("\x1b[34m%s\x1b[0m", "Mock saveAppData called");
+      }),
+      loadSettings: vi.fn(async () => {
+        // console.log("\x1b[34m%s\x1b[0m", "Mock loadSetting called");
+
+        return {
+          themeMode: "light",
+          fontSize: "medium",
+          iconStyle: "default",
+          notifications: true,
+          hour24: false,
+          showLunar: false,
+          weekStart: "0",
+          language: "zh-CN",
+        };
+      }),
+      // 模拟保存设置的saveSettings方法
+      saveSettings: vi.fn(async (setting: any) => {
+        // console.log("\x1b[34m%s\x1b[0m", "Mock saveSetting called");
       }),
     },
   } as any;

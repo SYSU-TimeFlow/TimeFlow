@@ -49,44 +49,22 @@ export function initializeIpcHandlers(ipcMain, appDataStore, settingsConfigStore
 
     // 如果需要加载默认分类或默认事件
     if (needsDefaultCategories || needsDefaultEvents) {
-      try {
-        const defaultDataPath = path.join(mainDirname, 'src', 'stores', 'dev', 'event_data.json');
-        if (fs.existsSync(defaultDataPath)) {
-          const rawData = fs.readFileSync(defaultDataPath);
-          const defaultData = JSON.parse(rawData.toString());
+      if (needsDefaultCategories) {
+      categories = [
+        { id: 1, name: "工作", color: "#e63946", active: true },
+        { id: 2, name: "个人", color: "#f8961e", active: true },
+        { id: 3, name: "家庭", color: "#fcbf49", active: true },
+        { id: 4, name: "健康", color: "#2a9d8f", active: true },
+        { id: 5, name: "其他", color: "#43aa8b", active: true },
+      ];
+      appDataStore.set('appCategories', categories);
+      console.log("Loaded default categories (hardcoded).");
+      }
 
-          if (needsDefaultCategories) {
-            categories = Array.isArray(defaultData.appCategories) ? defaultData.appCategories : [];
-            appDataStore.set('appCategories', categories);
-            console.log("Loaded default categories from default_app_data.json");
-          }
-
-          if (needsDefaultEvents) {
-            const rawEvents = Array.isArray(defaultData.appEvents) ? defaultData.appEvents : [];
-            appEvents = rawEvents.map(item => ({
-              id: item.id,
-              title: item.title,
-              start: new Date(item.start).toISOString(),
-              end: new Date(item.end).toISOString(),
-              description: item.description || "",
-              categoryId: item.categoryId, // 修复：确保使用正确的分类 ID
-              categoryColor: item.categoryColor || "#43aa8b",
-              allDay: item.allDay || false,
-              eventType: mapJsonEventTypeToEnumString(item.type),
-              completed: item.completed || false,
-            }));
-            appDataStore.set('appEvents', appEvents);
-            console.log("Loaded default events from default_app_data.json");
-          }
-        } else {
-          console.warn("default_app_data.json not found. Initializing with empty data.");
-          if (needsDefaultCategories) categories = [];
-          if (needsDefaultEvents) appEvents = [];
-        }
-      } catch (error) {
-        console.error("Error loading default data from default_app_data.json:", error);
-        if (needsDefaultCategories) categories = [];
-        if (needsDefaultEvents) appEvents = [];
+      if (needsDefaultEvents) {
+      appEvents = []; // 默认事件为空数组
+      appDataStore.set('appEvents', appEvents);
+      console.log("Initialized default events as an empty array (hardcoded).");
       }
     }
 
@@ -147,25 +125,19 @@ export function initializeIpcHandlers(ipcMain, appDataStore, settingsConfigStore
 
     // 如果用户设置不存在或为空对象，则尝试加载默认设置
     if (!userSettings || Object.keys(userSettings).length === 0) {
-      try {
-        // 构建默认设置文件的路径
-        const defaultSettingsPath = path.join(mainDirname, 'src', 'stores', 'dev', 'settings_data.json');
-        // 检查默认设置文件是否存在
-        if (fs.existsSync(defaultSettingsPath)) {
-          const rawData = fs.readFileSync(defaultSettingsPath); // 读取原始数据
-          userSettings = JSON.parse(rawData.toString()); // 解析 JSON 数据
-          settingsConfigStore.set('userSettings', userSettings); // 将默认设置存入 electron-store
-          console.log("Loaded default settings from settings_data.json and saved to user config.");
-        } else {
-          // 如果默认设置文件不存在
-          console.warn("Default settings_data.json not found. User settings will be empty or default.");
-          userSettings = {}; // 初始化为空对象
-        }
-      } catch (error) {
-        // 处理加载默认设置时发生的错误
-        console.error("Error loading default settings from settings_data.json:", error);
-        userSettings = {}; // 发生错误时，初始化为空对象
-      }
+      // 写死默认设置
+      userSettings = {
+      themeMode: "light",
+      fontSize: "medium",
+      iconStyle: "default",
+      notifications: true,
+      hour24: false,
+      showLunar: false,
+      weekStart: "0",
+      language: "zh-CN"
+      };
+      settingsConfigStore.set('userSettings', userSettings); // 将默认设置存入 electron-store
+      console.log("Loaded default settings (hardcoded) and saved to user config.");
     }
     return userSettings; // 返回加载的设置
   });

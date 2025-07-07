@@ -53,28 +53,7 @@ const uiStore = useUiStore();
 </script>
 
 <style scoped>
-/* 原有样式保持不变 */
-
-/* 添加暗黑模式下的样式优化 */
-.dark-mode .view-btn:hover:not(.active) {
-  background-color: var(--hover-bg) !important; /* 使用更接近黑色的悬停颜色 */
-  color: var(--text-secondary);
-}
-
-/* 暗黑模式下选中的视图 */
-.dark-mode .view-btn.active,
-.dark-mode .view-btn[class*="bg-blue-100"] {
-  background-color: var(--active-item-bg) !important; /* 使用更柔和的背景色 */
-  color: var(--heading-color) !important;
-  border-left: 2px solid var(--active-item-border);
-}
-
-/* 调整视图选择器标题颜色 */
-.dark-mode .text-sm.font-medium {
-  color: var(--sidebar-title-color) !important;
-}
-
-/* 添加字体大小变量 */
+/* 基础样式 */
 .text-sm {
   font-size: var(--font-size-sm);
 }
@@ -85,5 +64,21 @@ const uiStore = useUiStore();
 
 .view-btn i {
   font-size: var(--font-size-base);
+}
+
+/* 暗黑模式样式 */
+.dark-mode .view-btn:hover:not(.active) {
+  background-color: var(--hover-bg) !important;
+  color: var(--text-secondary);
+}
+
+.dark-mode .view-btn.active,
+.dark-mode .view-btn[class*="bg-blue-100"] {
+  background-color: var(--active-item-bg) !important;
+  color: var(--heading-color) !important;
+}
+
+.dark-mode .text-sm.font-medium {
+  color: var(--sidebar-title-color) !important;
 }
 </style>

@@ -23,8 +23,11 @@ jobs:
         with:
           node-version: 22
 
-      - name: Bump package.json version
-        run: npm version patch --no-git-tag-version
+      - name: Bump version and reset build trigger
+        run: |
+          npm version patch --no-git-tag-version
+          # 修改 package.json 中的 buildTrigger
+          npm pkg set config.buildTrigger=0
 
       - name: Commit version bump
         run: |

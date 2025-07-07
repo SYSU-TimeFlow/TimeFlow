@@ -8,13 +8,13 @@
   >
     <!-- 待办事项模态框主体，阻止事件冒泡到父级 -->
     <div
-      class="todo-modal bg-white rounded-lg shadow-lg w-full max-w-md overflow-hidden"
+      class="todo-modal rounded-lg shadow-lg w-full max-w-md overflow-hidden"
       @click.stop
       ref="modalRef"
     >
       <!-- 模态框头部 -->
       <div
-        class="modal-header p-4 border-b border-gray-200 flex justify-between items-center"
+        class="modal-header p-4 border-b flex justify-between items-center"
         :style="{
           backgroundColor: eventStore.currentEvent.categoryColor + '33',
         }"
@@ -26,7 +26,8 @@
         <!-- 关闭按钮 -->
         <button
           @click="uiStore.closeTodoModal"
-          class="text-gray-500 hover:text-gray-700 cursor-pointer !rounded-button whitespace-nowrap"
+          class="modal-close-btn"
+          title="关闭"
         >
           <i class="fas fa-times"></i>
         </button>
@@ -36,24 +37,22 @@
       <div class="modal-body p-4">
         <!-- 标题输入区域 -->
         <div class="form-group mb-4">
-          <label class="block text-sm font-medium text-gray-700 mb-1"
-            >Task Title</label
-          >
+          <label class="block text-sm font-medium mb-1">Task Title</label>
           <input
             v-model="eventStore.currentEvent.title"
             type="text"
-            class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            class="w-full"
             placeholder="Enter task title"
           />
-          <div v-if="eventStore.todoError" class="text-red-500 text-xs mt-1">{{ eventStore.todoError }}</div>
+          <div v-if="eventStore.todoError" class="text-red-500 text-xs mt-1">
+            {{ eventStore.todoError }}
+          </div>
         </div>
 
         <!-- 截止时间设置区域 -->
         <div class="form-group mb-4">
           <div class="flex items-center justify-between mb-2">
-            <label class="block text-sm font-medium text-gray-700"
-              >Deadline</label
-            >
+            <label class="block text-sm font-medium">Deadline</label>
             <div class="flex items-center">
               <input
                 type="checkbox"
@@ -61,9 +60,7 @@
                 id="hasDeadline"
                 class="mr-2"
               />
-              <label for="hasDeadline" class="text-sm text-gray-700"
-                >Set deadline</label
-              >
+              <label for="hasDeadline" class="text-sm">Set deadline</label>
             </div>
           </div>
           <!-- 截止时间输入框 -->
@@ -71,11 +68,11 @@
             v-if="hasDeadline"
             v-model="eventStore.currentEvent.end"
             type="datetime-local"
-            class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent h-10"
+            class="w-full"
           />
           <div
             v-else
-            class="no-deadline w-full p-2 border rounded-md h-10 flex items-center text-base bg-white dark:bg-[var(--modal-input-bg)]"
+            class="no-deadline w-full p-2 border rounded-md h-10 flex items-center text-base dark:bg-[var(--modal-input-bg)]"
             style="font-family: inherit"
           >
             <span class="w-full">无截止时间</span>
@@ -84,9 +81,7 @@
 
         <!-- 事件分类选择区域 -->
         <div class="form-group mb-4">
-          <label class="block text-sm font-medium text-gray-700 mb-1"
-            >Category</label
-          >
+          <label class="block text-sm font-medium mb-1">Category</label>
           <div class="category-selector flex flex-wrap gap-2">
             <!-- 遍历分类列表并显示颜色按钮 -->
             <button
@@ -110,9 +105,7 @@
 
         <!-- 备注描述输入区域 -->
         <div class="form-group mb-4">
-          <label class="block text-sm font-medium text-gray-700 mb-1"
-            >Description</label
-          >
+          <label class="block text-sm font-medium mb-1">Description</label>
           <textarea
             v-model="eventStore.currentEvent.description"
             class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent h-24"
@@ -122,16 +115,9 @@
       </div>
 
       <!-- 模态框底部，包含操作按钮 -->
-      <div
-        class="modal-footer p-4 border-t border-gray-200 flex justify-end space-x-3"
-      >
+      <div class="modal-footer p-4 border-t flex justify-end space-x-3">
         <!-- 保存按钮 -->
-        <button
-          @click="saveTodo"
-          class="py-2 px-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 cursor-pointer !rounded-button whitespace-nowrap"
-        >
-          Save
-        </button>
+        <button @click="saveTodo" class="modal-save-btn">Save</button>
       </div>
     </div>
   </div>
@@ -151,9 +137,9 @@ const uiStore = useUiStore();
  */
 function handleKeyDown(event) {
   if (uiStore.showTodoModal) {
-    if(event.key === "Escape") {
+    if (event.key === "Escape") {
       uiStore.closeTodoModal();
-    }else if(event.key == "Enter") {
+    } else if (event.key === "Enter") {
       saveTodo();
       uiStore.closeTodoModal();
     }
@@ -234,9 +220,12 @@ watch(hasDeadline, (newValue) => {
 });
 
 // 输入时清除错误提示
-watch(() => eventStore.currentEvent.title, () => {
-  if (eventStore.todoError) eventStore.todoError = "";
-});
+watch(
+  () => eventStore.currentEvent.title,
+  () => {
+    if (eventStore.todoError) eventStore.todoError = "";
+  }
+);
 
 // 保存待办事项
 function saveTodo() {
@@ -269,154 +258,18 @@ function saveTodo() {
   background: rgba(0, 0, 0, 0.1);
 }
 
-/* 暗黑模式适配 - 增强区分度，但保留动态头部颜色 */
-.dark-mode .todo-modal {
-  background-color: var(--modal-bg) !important;
-  color: var(--text-primary);
-  border: 1px solid var(--modal-border);
-  box-shadow: var(--modal-shadow);
+/* 无截止时间div的特殊样式 */
+.form-group .no-deadline {
+  border: 1px solid #d1d5db !important;
+  color: #111827 !important;
+  background: #fff !important;
 }
 
-/* 保留头部动态颜色，不覆盖背景 */
-.dark-mode .modal-header {
-  border-color: var(--modal-border);
-  /* 不覆盖 background-color，保持动态颜色 */
-}
-
-.dark-mode .modal-header h3 {
-  color: var(--modal-title-color) !important;
-  /* 确保文字在任何背景色上都清晰可见 */
-  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
-  font-weight: 600;
-}
-
-.dark-mode .modal-body {
-  color: var(--text-primary);
-  background-color: var(--modal-bg);
-}
-
-.dark-mode .modal-footer {
-  border-color: var(--modal-border);
-  background-color: var(--modal-footer-bg) !important;
-}
-
-/* 表单元素样式增强 */
-.dark-mode .form-group label {
-  color: var(--modal-label-color) !important;
-  font-weight: 500;
-}
-
-.dark-mode .form-group input,
-.dark-mode .form-group select,
-.dark-mode .form-group textarea {
-  background-color: var(--modal-input-bg) !important;
-  color: var(--modal-input-text) !important;
-  border: 1px solid var(--modal-input-border) !important;
-  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.3);
-}
-
-.dark-mode .form-group input:focus,
-.dark-mode .form-group textarea:focus {
-  border-color: #58a6ff !important;
-  box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.3) !important;
-}
-
-.dark-mode .form-group input::placeholder,
-.dark-mode .form-group textarea::placeholder {
-  color: var(--text-tertiary) !important;
-}
-
-/* 分类颜色选择器增强 */
-.dark-mode .category-option {
-  box-shadow: 0 0 0 2px var(--modal-border), 0 2px 4px rgba(0, 0, 0, 0.4);
-}
-
-.dark-mode .category-option.border-gray-800 {
-  box-shadow: 0 0 0 3px #58a6ff !important;
-  border-color: #58a6ff !important;
-}
-
-/* 按钮样式增强 */
-.dark-mode .modal-footer button.bg-blue-600 {
-  background-color: var(--modal-button-bg) !important;
-  color: var(--modal-button-text) !important;
-  border: 1px solid var(--modal-button-bg);
-}
-
-.dark-mode .modal-footer button.bg-blue-600:hover {
-  background-color: var(--modal-button-hover) !important;
-}
-
-.dark-mode .modal-footer button.bg-red-600 {
-  background-color: #da3633 !important;
-  color: var(--modal-button-text) !important;
-  border: 1px solid #da3633;
-}
-
-.dark-mode .modal-footer button.bg-red-600:hover {
-  background-color: #f85149 !important;
-}
-
-/* 关闭按钮增强 */
-.dark-mode .modal-header button {
-  color: var(--text-secondary) !important;
-}
-
-.dark-mode .modal-header button:hover {
-  color: #ff6b6b !important;
-  background-color: rgba(255, 107, 107, 0.1);
-}
-
-/* 截止时间提示区域 */
-.dark-mode .bg-gray-50 {
-  background-color: var(--modal-input-bg) !important;
-  color: var(--text-tertiary) !important;
-}
-
-/* 复选框样式增强 */
-.dark-mode input[type="checkbox"] {
-  accent-color: #58a6ff;
-  filter: brightness(1.2);
-}
-
-/* 统一文本颜色 */
-.dark-mode .text-gray-700 {
-  color: var(--modal-label-color) !important;
-}
-
-.dark-mode .text-gray-500 {
-  color: var(--text-tertiary) !important;
-}
-
-/* 统一字体大小 */
-.text-lg {
-  font-size: var(--font-size-lg, 1.125rem);
-}
-
-.text-sm {
-  font-size: var(--font-size-sm, 0.875rem);
-}
-
-input,
-textarea {
-  font-size: var(--font-size-base, 1rem);
-}
-
-button {
-  font-size: var(--font-size-base, 1rem);
-}
-
-/* 无截止时间div在暗色模式的样式 */
 .dark-mode .form-group .no-deadline {
   background-color: var(--modal-input-bg) !important;
   color: var(--modal-input-text) !important;
   border: 1px solid var(--modal-input-border) !important;
   box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.3);
-}
-.form-group .no-deadline {
-  border: 1px solid #d1d5db !important;
-  color: #111827 !important;
-  background: #fff !important;
 }
 
 /* 摇动动画 */
@@ -441,7 +294,6 @@ button {
   }
 }
 
-/* 添加抖动效果类 */
 .shake {
   animation: shake 0.3s;
 }
