@@ -24,7 +24,7 @@
     />
 
     <!-- 代办视图 -->
-    <ToDoList v-if="uiStore.currentView === 'todo-list'" />
+    <ToDoView v-if="uiStore.currentView === 'todo'" />
   </main>
 </template>
 
@@ -38,7 +38,7 @@ import { ref, onMounted, onUnmounted, watch, nextTick } from "vue";
 import MonthView from "@/components/main/MonthView.vue";
 import WeekView from "@/components/main/WeekView.vue";
 import DayView from "@/components/main/DayView.vue";
-import ToDoList from "@/components/main/ToDoList.vue";
+import ToDoView from "@/components/main/ToDoView.vue";
 
 // 使用 Pinia 仓库
 const uiStore = useUiStore();

@@ -583,7 +583,7 @@ const handleGlobalKeydown = (event: KeyboardEvent) => {
         event.preventDefault();
         break;
       case "4":
-        uiStore.changeView("todo-list");
+        uiStore.changeView("todo");
         event.preventDefault();
         break;
       case "?":

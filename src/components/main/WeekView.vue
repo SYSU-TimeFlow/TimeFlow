@@ -130,7 +130,7 @@
                 settingStore.weekStart
               )"
               :key="idx"
-              class="hour-cell relative cursor-pointer select-none translate-y-2 z-[1] transition-colors duration-150 hover:bg-blue-50 hover:after:content-[''] hover:after:absolute hover:after:inset-0 hover:after:border hover:after:border-blue-500 hover:after:pointer-events-none hover:after:z-[2]"
+              class="hour-cell relative cursor-pointer select-none translate-y-2 z-[1] transition-colors duration-150 hover:after:content-[''] hover:after:absolute hover:after:inset-0 hover:after:border hover:after:border-blue-500 hover:after:pointer-events-none hover:after:z-[2]"
               @click="uiStore.handleHourClick({date: day.date}, hour - 1)"
               @dragover.prevent
               @drop="uiStore.handleWeekDrop($event, {
@@ -369,5 +369,14 @@ const settingStore = useSettingStore();
 
 .event-description {
   font-size: var(--small-text-font-size);
+}
+
+/* 修复暗黑模式下的hover效果 */
+.dark-mode .hour-cell:hover {
+  background-color: var(--hour-cell-hover);
+}
+
+.hour-cell:hover {
+  background-color: rgb(239 246 255); /* blue-50 的RGB值 */
 }
 </style>
