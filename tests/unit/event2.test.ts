@@ -33,6 +33,8 @@ const mockDocument = {
 beforeEach(() => {
   global.document = mockDocument as any;
   global.window = {
+    confirm: vi.fn(() => true),
+    alert: vi.fn(),
     electronAPI: mockElectronAPI,
   } as any;
 
