@@ -511,6 +511,19 @@ export const useEventStore = defineStore("event", () => {
 
   async function deleteCategory() {
     if (!isNewCategory.value) {
+      // 特殊处理：如果是“课程表”分类，则弹出警告
+      if (currentCategory.value.name === "课程表") {
+        const confirmed = confirm(
+          "警告：删除此分类将会清除所有已导入的课程表事件。确定要继续吗？"
+        );
+        if (!confirmed) {
+          uiStore.closeCategoryModal();
+          return; // 用户取消操作
+        }
+        // 如果用户确认，则执行清除操作
+        await clearImportedSchedule(); 
+      }
+
       if (categories.value.length <= 1) {
         console.warn("Cannot delete the last category."); // 可以添加用户提示
         return;
@@ -576,22 +589,20 @@ export const useEventStore = defineStore("event", () => {
       const result = await window.electronAPI.importSchedule();
       if (result.success && result.schedule) {
         // 导入前先清除旧的课程表事件，防止重复
-        const initialLength = events.value.length;
-        events.value = events.value.filter(e => !e.isSchedule);
-        const removedCount = initialLength - events.value.length;
-        if (removedCount > 0) {
-          console.log(`清除了 ${removedCount} 个旧的课程表事件。`);
-        }
+        await clearImportedSchedule();
 
-
-        const scheduleCategory = categories.value.find(c => c.name === "课程表") || 
-                                 categories.value.find(c => c.name === "工作") || 
-                                 categories.value[0];
-
+        // 自动创建或查找“课程表”分类
+        let scheduleCategory = categories.value.find(c => c.name === "课程表");
         if (!scheduleCategory) {
-          alert("错误：无法找到用于课程表的分类。请先创建一个分类。");
-          return;
+          scheduleCategory = {
+            id: Date.now(),
+            name: "课程表",
+            color: "#7209b7", // 紫色
+            active: true,
+          };
+          categories.value.push(scheduleCategory);
         }
+
 
         // ======================= 核心逻辑修改 =======================
         // 1. 根据当前月份动态确定学期开始日期
