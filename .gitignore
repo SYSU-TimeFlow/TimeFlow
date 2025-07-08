@@ -19,6 +19,7 @@ build
 
 # test
 tests/test-results/
+coverage/
 
 # Editor directories and files
 .vscode/*
