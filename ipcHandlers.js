@@ -221,11 +221,8 @@ export function initializeIpcHandlers(ipcMain, appDataStore, settingsConfigStore
     const filePath = filePaths[0];
 
     try {
-      // 使用 mammoth 将 docx 转换为 HTML，以便解析表格
       const { value: html } = await mammoth.convertToHtml({ path: filePath });
 
-      // 这是一个非常基础的HTML表格解析，可能需要根据实际的DOCX结构调整
-      // 它查找第一个<table>, 然后提取所有<tr>和<td>
       const tableMatch = html.match(/<table.*?>([\s\S]*?)<\/table>/);
       if (!tableMatch) {
         return { success: false, message: '在文档中未找到表格' };
@@ -233,33 +230,82 @@ export function initializeIpcHandlers(ipcMain, appDataStore, settingsConfigStore
 
       const tableHtml = tableMatch[1];
       const rowsHtml = tableHtml.match(/<tr.*?>([\s\S]*?)<\/tr>/g) || [];
-      
+      if (rowsHtml.length < 2) {
+        return { success: false, message: '表格内容过少，无法解析' };
+      }
+
+      const grid = [];
+      const timeSlotsInfo = []; // 存储每行的时间信息 { start, end }
+      const dayHeaders = []; // 存储表头的星期信息
+
+      // 1. 构建表格网格并解析时间/星期信息
+      rowsHtml.forEach((rowHtml, rowIndex) => {
+        if (!grid[rowIndex]) grid[rowIndex] = [];
+        const cellsHtml = rowHtml.match(/<td.*?>(?:<p>)?([\s\S]*?)(?:<\/p>)?<\/td>/g) || [];
+        let gridColIndex = 0;
+
+        cellsHtml.forEach((cellHtml) => {
+          while (grid[rowIndex][gridColIndex]) {
+            gridColIndex++;
+          }
+
+          const rowspan = parseInt((cellHtml.match(/rowspan="(\d+)"/) || [])[1] || '1', 10);
+          const colspan = parseInt((cellHtml.match(/colspan="(\d+)"/) || [])[1] || '1', 10);
+          const cellText = cellHtml.replace(/<.*?>/g, ' ').replace(/\s+/g, ' ').trim();
+
+          for (let r = 0; r < rowspan; r++) {
+            for (let c = 0; c < colspan; c++) {
+              if (!grid[rowIndex + r]) grid[rowIndex + r] = [];
+              grid[rowIndex + r][gridColIndex + c] = { text: cellText, isPlaceholder: r > 0 || c > 0 };
+            }
+          }
+          gridColIndex += colspan;
+
+          // 解析第一列的时间段
+          if (gridColIndex === 1 && rowIndex > 0) {
+            const timeMatch = cellText.match(/(\d{2}:\d{2}).*?(\d{2}:\d{2})/);
+            if (timeMatch) {
+              timeSlotsInfo[rowIndex] = { start: timeMatch[1], end: timeMatch[2] };
+            } else {
+              timeSlotsInfo[rowIndex] = null; // 无效时间格式
+            }
+          }
+          // 解析第一行的星期
+          if (rowIndex === 0 && gridColIndex > 1) {
+            dayHeaders[gridColIndex - 1] = cellText;
+          }
+        });
+      });
+
+      // 2. 从网格中提取课程
       const schedule = [];
-      const timeSlots = [
-        { start: '08:00', end: '09:40' }, // 第1-2节
-        { start: '10:00', end: '11:40' }, // 第3-4节
-        { start: '14:00', end: '15:40' }, // 第5-6节
-        { start: '16:00', end: '17:40' }, // 第7-8节
-        { start: '19:00', end: '20:40' }, // 第9-10节
-      ];
+      const processedCells = new Set();
 
-      // 从第二行开始解析 (第一行为标题)
-      for (let i = 1; i < rowsHtml.length; i++) {
-        const timeSlot = timeSlots[i - 1];
-        if (!timeSlot) continue;
+      for (let r = 1; r < grid.length; r++) {
+        for (let c = 1; c < (grid[r] || []).length; c++) {
+          const cellKey = `${r},${c}`;
+          if (!grid[r][c] || grid[r][c].isPlaceholder || processedCells.has(cellKey) || !grid[r][c].text) {
+            continue;
+          }
+          processedCells.add(cellKey);
 
-        const cellsHtml = rowsHtml[i].match(/<td.*?>([\s\S]*?)<\/td>/g) || [];
-        
-        // 从第二列开始解析 (第一列为节次)
-        for (let j = 1; j < cellsHtml.length; j++) {
-          // 移除HTML标签并清理文本
-          const cellText = cellsHtml[j].replace(/<.*?>/g, '').trim();
-          if (cellText) {
+          // 确定课程跨越的行数
+          let rowSpanCount = 1;
+          while (r + rowSpanCount < grid.length && grid[r + rowSpanCount][c] && grid[r + rowSpanCount][c].isPlaceholder) {
+            processedCells.add(`${r + rowSpanCount},${c}`);
+            rowSpanCount++;
+          }
+
+          const startTimeInfo = timeSlotsInfo[r];
+          const endTimeInfo = timeSlotsInfo[r + rowSpanCount - 1];
+          const dayOfWeek = c; // 列索引直接对应星期几 (1=周一, 2=周二...)
+
+          if (startTimeInfo && endTimeInfo) {
             schedule.push({
-              courseName: cellText,
-              dayOfWeek: j, // 1:周一, 2:周二, ..., 7:周日
-              startTime: timeSlot.start,
-              endTime: timeSlot.end,
+              courseName: grid[r][c].text,
+              dayOfWeek: dayOfWeek,
+              startTime: startTimeInfo.start,
+              endTime: endTimeInfo.end,
             });
           }
         }
