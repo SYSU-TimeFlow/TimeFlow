@@ -7,7 +7,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 import isDev from "electron-is-dev";
 import WindowState from "electron-win-state";
-import Store from "electron-store"; // 新增：导入 electron-store
+import SQLiteStore from "./database.js"; // 替换：导入 SQLite 存储
 import { initializeIpcHandlers } from "./ipcHandlers.js"; // 导入 IPC 处理模块（最大化最小化关闭、读取本地存储）
 
 // 获取当前文件的路径
@@ -55,16 +55,13 @@ const createWindow = () => {
   }
 };
 
-// 修改：初始化 electron-store 用于应用数据（分类和事件）
-const appDataStore = new Store({ name: "events_data" });
-// 新增：初始化 electron-store 用于设置数据
-const settingsConfigStore = new Store({ name: "settings_data" });
+// 修改：初始化 SQLite 存储
+const sqliteStore = new SQLiteStore();
 
 // 新增：初始化 IPC 数据处理器
 initializeIpcHandlers(
   ipcMain,
-  appDataStore,
-  settingsConfigStore,
+  sqliteStore,
   __dirname,
   BrowserWindow
 );
