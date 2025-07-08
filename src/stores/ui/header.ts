@@ -37,7 +37,7 @@ export const createHeaderModule = (storeContext: any) => {
         day: "numeric",
         year: "numeric",
       }).format(currentDate.value);
-    } else if (currentView.value === "todo-list") {
+    } else if (currentView.value === "todo") {
       return "";
     }
     return new Intl.DateTimeFormat("zh-CN", options).format(currentDate.value);

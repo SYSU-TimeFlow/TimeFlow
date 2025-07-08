@@ -32,7 +32,7 @@
     </button>
     <!-- 添加新事件按钮 -->
     <button
-      v-if="uiStore.currentView !== 'todo-list'"
+      v-if="uiStore.currentView !== 'todo'"
       @click="uiStore.openNewEventModal()"
       class="add-event-btn mx-4 my-3 py-2 px-4 bg-blue-600 text-white rounded-lg flex items-center justify-center hover:bg-blue-700 transition cursor-pointer !rounded-button whitespace-nowrap"
     >
@@ -47,7 +47,7 @@
     </button>
     <!-- 仅在待办视图显示 Add Todo 按钮-->
     <button
-      v-if="uiStore.currentView === 'todo-list'"
+      v-if="uiStore.currentView === 'todo'"
       @click="uiStore.openNewTodoModal()"
       class="add-event-btn mx-4 my-3 py-2 px-4 bg-blue-600 text-white rounded-lg flex items-center justify-center hover:bg-blue-700 transition cursor-pointer !rounded-button whitespace-nowrap"
     >
@@ -65,7 +65,7 @@
     <!-- 视图选择器组件 -->
     <ViewSelector />
     <!-- 分类列表，它不会在 todo 视图显示 -->
-    <Categories v-if="uiStore.currentView !== 'todo-list'" />
+    <Categories v-if="uiStore.currentView !== 'todo'" />
 
     <!-- 反馈按钮 -->
     <button
