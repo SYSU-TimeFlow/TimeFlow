@@ -280,6 +280,7 @@ export function initializeIpcHandlers(ipcMain, appDataStore, settingsConfigStore
       // 2. 从网格中提取课程
       const schedule = [];
       const processedCells = new Set();
+      const occupiedSlots = new Set(); // 新增：用于跟踪已被占用的时间段
 
       for (let r = 1; r < grid.length; r++) {
         for (let c = 1; c < (grid[r] || []).length; c++) {
@@ -298,9 +299,34 @@ export function initializeIpcHandlers(ipcMain, appDataStore, settingsConfigStore
 
           const startTimeInfo = timeSlotsInfo[r];
           const endTimeInfo = timeSlotsInfo[r + rowSpanCount - 1];
-          const dayOfWeek = c; // 列索引直接对应星期几 (1=周一, 2=周二...)
+          
+          // 修正：通过查找第一行的表头来确定星期几
+          const dayHeaderCell = grid[0][c];
+          const dayHeaderText = dayHeaderCell ? dayHeaderCell.text : '';
+          const dayMap = { '一': 1, '二': 2, '三': 3, '四': 4, '五': 5, '六': 6, '日': 7, '天': 7 };
+          let dayOfWeek = -1;
+          for (const key in dayMap) {
+            if (dayHeaderText.includes(key)) {
+              dayOfWeek = dayMap[key];
+              break;
+            }
+          }
+
+          // 如果无法从表头解析出星期，则跳过此课程
+          if (dayOfWeek === -1) {
+            continue;
+          }
 
           if (startTimeInfo && endTimeInfo) {
+            const slotKey = `${dayOfWeek}-${startTimeInfo.start}-${endTimeInfo.end}`; // 创建时间段的唯一标识
+
+            // 检查此时间段是否已被占用
+            if (occupiedSlots.has(slotKey)) {
+              continue; // 如果已占用，则跳过此课程，只保留第一个
+            }
+
+            // 标记时间段为已占用并添加课程
+            occupiedSlots.add(slotKey);
             schedule.push({
               courseName: grid[r][c].text,
               dayOfWeek: dayOfWeek,
