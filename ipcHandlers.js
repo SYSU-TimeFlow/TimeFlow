@@ -1,6 +1,9 @@
 import fs from "fs";
 import path from "path";
-import { Notification } from "electron";
+import { Notification, dialog } from "electron";
+// 修正：使用命名导入从 'docx' 库导入所需模块
+import { Document, Packer, Table } from "docx";
+import mammoth from "mammoth"; // 新增：导入 mammoth 库用于解析
 
 const mapJsonEventTypeToEnumString = (typeNumber) => {
   switch (typeNumber) {
@@ -201,5 +204,164 @@ export function initializeIpcHandlers(ipcMain, sqliteStore, mainDirname, Browser
       }
     });
     setTimeout(() => notification.close(), 5000); // 5秒后自动关闭
+  });
+
+  // 新增：处理课程表导入
+  ipcMain.handle('import-schedule', async () => {
+    const { canceled, filePaths } = await dialog.showOpenDialog({
+      properties: ['openFile'],
+      filters: [{ name: 'Word Documents', extensions: ['docx'] }],
+    });
+
+    if (canceled || filePaths.length === 0) {
+      return { success: false, message: '用户取消了文件选择' };
+    }
+
+    const filePath = filePaths[0];
+
+    try {
+      const { value: html } = await mammoth.convertToHtml({ path: filePath });
+
+      const tableMatch = html.match(/<table.*?>([\s\S]*?)<\/table>/);
+      if (!tableMatch) {
+        return { success: false, message: '在文档中未找到表格' };
+      }
+
+      const tableHtml = tableMatch[1];
+      const rowsHtml = tableHtml.match(/<tr.*?>([\s\S]*?)<\/tr>/g) || [];
+      if (rowsHtml.length < 2) {
+        return { success: false, message: '表格内容过少，无法解析' };
+      }
+
+      const grid = [];
+      const timeSlotsInfo = []; // 存储每行的时间信息 { start, end }
+      const dayHeaders = []; // 存储表头的星期信息
+
+      // 1. 构建表格网格并解析时间/星期信息
+      rowsHtml.forEach((rowHtml, rowIndex) => {
+        if (!grid[rowIndex]) grid[rowIndex] = [];
+        const cellsHtml = rowHtml.match(/<td.*?>(?:<p>)?([\s\S]*?)(?:<\/p>)?<\/td>/g) || [];
+        let gridColIndex = 0;
+
+        cellsHtml.forEach((cellHtml) => {
+          while (grid[rowIndex][gridColIndex]) {
+            gridColIndex++;
+          }
+
+          const rowspan = parseInt((cellHtml.match(/rowspan="(\d+)"/) || [])[1] || '1', 10);
+          const colspan = parseInt((cellHtml.match(/colspan="(\d+)"/) || [])[1] || '1', 10);
+          const cellText = cellHtml.replace(/<.*?>/g, ' ').replace(/\s+/g, ' ').trim();
+
+          for (let rLoop = 0; rLoop < rowspan; rLoop++) {
+            for (let cLoop = 0; cLoop < colspan; cLoop++) {
+              if (!grid[rowIndex + rLoop]) grid[rowIndex + rLoop] = [];
+              // 修正：在网格中存储原始的 rowspan 信息
+              grid[rowIndex + rLoop][gridColIndex + cLoop] = { 
+                text: cellText, 
+                isPlaceholder: rLoop > 0 || cLoop > 0,
+                // 新增：存储原始的 rowspan
+                rowspan: rLoop === 0 && cLoop === 0 ? rowspan : 0 
+              };
+            }
+          }
+          gridColIndex += colspan;
+
+          // 解析第一列的时间段
+          if (gridColIndex === 1 && rowIndex > 0) {
+            const timeMatch = cellText.match(/(\d{2}:\d{2}).*?(\d{2}:\d{2})/);
+            if (timeMatch) {
+              timeSlotsInfo[rowIndex] = { start: timeMatch[1], end: timeMatch[2] };
+            } else {
+              timeSlotsInfo[rowIndex] = null; // 无效时间格式
+            }
+          }
+          // 解析第一行的星期
+          if (rowIndex === 0 && gridColIndex > 1) {
+            dayHeaders[gridColIndex - 1] = cellText;
+          }
+        });
+      });
+
+      // 2. 从网格中提取课程
+      const schedule = [];
+      const processedCells = new Set();
+      // const occupiedSlots = new Set(); // 已移除：不再需要跟踪占用的时间段
+
+      for (let r = 1; r < grid.length; r++) {
+        for (let c = 1; c < (grid[r] || []).length; c++) {
+          const cellKey = `${r},${c}`;
+          const currentCell = grid[r][c];
+          if (!currentCell || currentCell.isPlaceholder || processedCells.has(cellKey) || !currentCell.text) {
+            continue;
+          }
+          
+          // 修正：直接使用存储的 rowspan，不再手动计算
+          const rowSpanCount = currentCell.rowspan || 1;
+
+          // 标记所有被占用的单元格
+          for (let i = 0; i < rowSpanCount; i++) {
+            processedCells.add(`${r + i},${c}`);
+          }
+
+          const startTimeInfo = timeSlotsInfo[r];
+          const endTimeInfo = timeSlotsInfo[r + rowSpanCount - 1];
+          
+          // 修正：通过查找第一行的表头来确定星期几
+          const dayHeaderCell = grid[0][c];
+          const dayHeaderText = dayHeaderCell ? dayHeaderCell.text : '';
+          const dayMap = { '一': 1, '二': 2, '三': 3, '四': 4, '五': 5, '六': 6, '日': 7, '天': 7 };
+          let dayOfWeek = -1;
+          for (const key in dayMap) {
+            if (dayHeaderText.includes(key)) {
+              dayOfWeek = dayMap[key];
+              break;
+            }
+          }
+
+          // 如果无法从表头解析出星期，则跳过此课程
+          if (dayOfWeek === -1) {
+            continue;
+          }
+
+          if (startTimeInfo && endTimeInfo) {
+            // 新增：解析课程名称中的周数范围
+            let courseText = grid[r][c].text;
+            let startWeek = 1; // 默认开始周
+            let endWeek = 18; // 默认结束周 (与渲染器逻辑一致)
+
+            // 匹配 "1-8周", "1-8每周", "(1-8周)" 等格式
+            const weekRangeMatch = courseText.match(/\(?(\d+)-(\d+)\s*(周|每周)\)?/);
+            if (weekRangeMatch) {
+              startWeek = parseInt(weekRangeMatch[1], 10);
+              endWeek = parseInt(weekRangeMatch[2], 10);
+              // 清理课程名称，移除周数信息
+              courseText = courseText.replace(weekRangeMatch[0], '').trim();
+            }
+
+            // 修正：清理课程名称，移除开头和结尾可能存在的斜杠和多余的空格
+            courseText = courseText.replace(/^\s*\/|\/\s*$/g, "").trim();
+
+            // 已移除防止重复的逻辑，以允许同一时间段有多个课程
+            schedule.push({
+              courseName: courseText,
+              dayOfWeek: dayOfWeek,
+              startTime: startTimeInfo.start,
+              endTime: endTimeInfo.end,
+              startWeek: startWeek, // 新增：传递开始周
+              endWeek: endWeek,     // 新增：传递结束周
+            });
+          }
+        }
+      }
+
+      if (schedule.length === 0) {
+        return { success: false, message: '表格为空或无法解析课程内容' };
+      }
+
+      return { success: true, schedule };
+    } catch (error) {
+      console.error('解析课程表文件失败:', error);
+      return { success: false, message: `解析失败: ${error.message}` };
+    }
   });
 }

@@ -225,6 +225,42 @@
   background-color: #f85149;
 }
 
+/* ==================== 导入按钮 (基于Save按钮样式进行修改) ==================== */
+
+.modal-import-btn {
+  padding: 0.5rem 1rem;
+  /* 使用Save按钮的颜色作为文字和边框色，背景透明 */
+  background-color: transparent;
+  color: #3b82f6; /* Save按钮的背景色 */
+  border: 1px solid #3b82f6; /* Save按钮的背景色 */
+  border-radius: 0.5rem;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.2s, border-color 0.2s, color 0.2s;
+}
+
+.modal-import-btn:hover {
+  /* 悬停时，使用Save按钮的悬停色，并添加极淡的蓝色背景 */
+  background-color: #eff6ff; /* 对应 Tailwind 的 blue-50 */
+  color: #2563eb; /* Save按钮的悬停色 */
+  border-color: #2563eb; /* Save按钮的悬停色 */
+}
+
+.dark-mode .modal-import-btn {
+  /* 暗黑模式下，同样使用Save按钮的颜色变量 */
+  background-color: transparent;
+  color: var(--modal-button-bg); /* Save按钮的背景色变量 */
+  border: 1px solid var(--modal-button-bg); /* Save按钮的背景色变量 */
+}
+
+.dark-mode .modal-import-btn:hover {
+  /* 暗黑模式悬停时，使用Save按钮的悬停色，并添加半透明背景 */
+  background-color: rgba(88, 166, 255, 0.15); /* 半透明浅蓝 */
+  color: var(--modal-button-hover); /* Save按钮的悬停色变量 */
+  border-color: var(--modal-button-hover); /* Save按钮的悬停色变量 */
+}
+
+
 /* ==================== 快捷键 ==================== */
 
 /* 统一快捷键样式 */

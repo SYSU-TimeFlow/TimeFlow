@@ -125,23 +125,35 @@
       </div>
       <!-- 模态框底部，包含操作按钮 -->
       <div
-        class="modal-footer p-4 border-t flex justify-end space-x-3"
+        class="modal-footer p-4 border-t flex justify-between items-center"
       >
-        <!-- 删除按钮，仅在编辑事件时显示 (isNewEvent 为 false) -->
+        <!-- 导入课表按钮（左下角） -->
         <button
-          v-if="!eventStore.isNewEvent"
-          @click="eventStore.deleteEvent"
-          class="modal-del-btn"
+          @click="eventStore.importScheduleFromFile()"
+          class="modal-import-btn"
+          title="从文件导入课程表"
         >
-          Delete
+          导入课表
         </button>
-        <!-- 保存按钮 -->
-        <button
-          @click="eventStore.saveEvent"
-          class="modal-save-btn"
-        >
-          Save
-        </button>
+
+        <!-- 右侧按钮组 -->
+        <div class="flex space-x-3">
+          <!-- 删除按钮，仅在编辑事件时显示 (isNewEvent 为 false) -->
+          <button
+            v-if="!eventStore.isNewEvent"
+            @click="eventStore.deleteEvent"
+            class="modal-del-btn"
+          >
+            Delete
+          </button>
+          <!-- 保存按钮 -->
+          <button
+            @click="eventStore.saveEvent"
+            class="modal-save-btn"
+          >
+            Save
+          </button>
+        </div>
       </div>
     </div>
   </div>

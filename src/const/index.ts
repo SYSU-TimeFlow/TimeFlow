@@ -1,8 +1,8 @@
 // 事件类型枚举
 export enum EventType {
-  CALENDAR = "calendar",
   TODO = "todo",
-  BOTH = "both", // 同时作为日历事件和待办事项
+  CALENDAR = "calendar",
+  BOTH = "both",
 }
 
 // 统一的事件类
