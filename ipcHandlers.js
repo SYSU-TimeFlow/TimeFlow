@@ -285,7 +285,7 @@ export function initializeIpcHandlers(ipcMain, sqliteStore, mainDirname, Browser
       // 2. 从网格中提取课程
       const schedule = [];
       const processedCells = new Set();
-      const occupiedSlots = new Set(); // 新增：用于跟踪已被占用的时间段
+      // const occupiedSlots = new Set(); // 已移除：不再需要跟踪占用的时间段
 
       for (let r = 1; r < grid.length; r++) {
         for (let c = 1; c < (grid[r] || []).length; c++) {
@@ -324,19 +324,10 @@ export function initializeIpcHandlers(ipcMain, sqliteStore, mainDirname, Browser
           }
 
           if (startTimeInfo && endTimeInfo) {
-            const slotKey = `${dayOfWeek}-${startTimeInfo.start}-${endTimeInfo.end}`; // 创建时间段的唯一标识
-
-            // 检查此时间段是否已被占用
-            if (occupiedSlots.has(slotKey)) {
-              continue; // 如果已占用，则跳过此课程，只保留第一个
-            }
-
-            // 标记时间段为已占用并添加课程
-            occupiedSlots.add(slotKey);
+            // 已移除防止重复的逻辑，以允许同一时间段有多个课程
             schedule.push({
               courseName: grid[r][c].text,
               dayOfWeek: dayOfWeek,
-              // 修正：使用第一个时间段的开始时间和最后一个时间段的结束时间
               startTime: startTimeInfo.start,
               endTime: endTimeInfo.end,
             });
