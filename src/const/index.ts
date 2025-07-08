@@ -3,7 +3,6 @@ export enum EventType {
   TODO = "todo",
   CALENDAR = "calendar",
   BOTH = "both",
-  SCHEDULE = "schedule", // 新增课程表类型
 }
 
 // 统一的事件类
@@ -18,7 +17,8 @@ export class Event {
     public categoryColor: string = "#43aa8b",
     public allDay: boolean = false,
     public eventType: EventType = EventType.CALENDAR,
-    public completed: boolean = false
+    public completed: boolean = false,
+    public isSchedule?: boolean // 新增：用于标记课程表事件
   ) {}
 }
 

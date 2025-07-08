@@ -90,7 +90,8 @@ export const useEventStore = defineStore("event", () => {
                 eventData.categoryColor,
                 eventData.allDay,
                 eventData.eventType,
-                eventData.completed
+                eventData.completed,
+                eventData.isSchedule // 新增：加载 isSchedule 标志
               )
           );
         } else {
@@ -555,7 +556,8 @@ export const useEventStore = defineStore("event", () => {
   // 清除所有由课程表导入的事件
   async function clearImportedSchedule() {
     const initialLength = events.value.length;
-    events.value = events.value.filter(e => e.eventType !== EventType.SCHEDULE);
+    // 根据 isSchedule 标志来过滤和删除事件
+    events.value = events.value.filter(e => !e.isSchedule);
     const removedCount = initialLength - events.value.length;
     console.log(`清除了 ${removedCount} 个课程表事件。`);
     // 你可以在这里添加一个UI通知告诉用户清除了多少事件
@@ -565,7 +567,7 @@ export const useEventStore = defineStore("event", () => {
   async function importScheduleFromFile() {
     if (window.electronAPI) {
       // 导入前提示用户将清除旧数据
-      if (events.value.some(e => e.eventType === EventType.SCHEDULE)) {
+      if (events.value.some(e => e.isSchedule)) {
         if (!confirm("导入新的课程表将会清除所有已导入的课程，要继续吗？")) {
           return;
         }
@@ -575,7 +577,7 @@ export const useEventStore = defineStore("event", () => {
       if (result.success && result.schedule) {
         // 导入前先清除旧的课程表事件，防止重复
         const initialLength = events.value.length;
-        events.value = events.value.filter(e => e.eventType !== EventType.SCHEDULE);
+        events.value = events.value.filter(e => !e.isSchedule);
         const removedCount = initialLength - events.value.length;
         if (removedCount > 0) {
           console.log(`清除了 ${removedCount} 个旧的课程表事件。`);
@@ -641,16 +643,18 @@ export const useEventStore = defineStore("event", () => {
             end.setHours(parseInt(endHour, 10), parseInt(endMinute, 10), 0, 0);
 
             const newEvent = new Event(
-              Date.now() + Math.random() + createdEventsCount, // 确保ID在循环中唯一
+              // 修正：使用时间戳和计数器生成唯一的整数ID，避免使用浮点数
+              new Date().getTime() + createdEventsCount,
               item.courseName,
               start,
               end,
-              `课程表导入 - ${item.courseName}`,
+              `课程表导入 - ${item.courseName} (第${week + 1}周)`,
               scheduleCategory.id,
               scheduleCategory.color,
               false,
-              EventType.SCHEDULE, // 使用一个特殊的类型来标识
-              false
+              EventType.CALENDAR, // 使用 CALENDAR 类型
+              false,
+              true // 标记为课程表事件
             );
             events.value.push(newEvent);
             createdEventsCount++;
