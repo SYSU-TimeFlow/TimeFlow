@@ -324,12 +324,31 @@ export function initializeIpcHandlers(ipcMain, sqliteStore, mainDirname, Browser
           }
 
           if (startTimeInfo && endTimeInfo) {
+            // 新增：解析课程名称中的周数范围
+            let courseText = grid[r][c].text;
+            let startWeek = 1; // 默认开始周
+            let endWeek = 18; // 默认结束周 (与渲染器逻辑一致)
+
+            // 匹配 "1-8周", "1-8每周", "(1-8周)" 等格式
+            const weekRangeMatch = courseText.match(/\(?(\d+)-(\d+)\s*(周|每周)\)?/);
+            if (weekRangeMatch) {
+              startWeek = parseInt(weekRangeMatch[1], 10);
+              endWeek = parseInt(weekRangeMatch[2], 10);
+              // 清理课程名称，移除周数信息
+              courseText = courseText.replace(weekRangeMatch[0], '').trim();
+            }
+
+            // 修正：清理课程名称，移除开头和结尾可能存在的斜杠和多余的空格
+            courseText = courseText.replace(/^\s*\/|\/\s*$/g, "").trim();
+
             // 已移除防止重复的逻辑，以允许同一时间段有多个课程
             schedule.push({
-              courseName: grid[r][c].text,
+              courseName: courseText,
               dayOfWeek: dayOfWeek,
               startTime: startTimeInfo.start,
               endTime: endTimeInfo.end,
+              startWeek: startWeek, // 新增：传递开始周
+              endWeek: endWeek,     // 新增：传递结束周
             });
           }
         }
