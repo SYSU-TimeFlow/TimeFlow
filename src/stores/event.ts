@@ -515,19 +515,13 @@ export const useEventStore = defineStore("event", () => {
     }
 
     // 弹出确认对话框
-    const confirmed = confirm(
+    const confirmed = window.confirm(
       `确定要删除“${currentCategory.value.name}”分类吗？这将同时删除此分类下的所有事件。此操作无法撤销。`
     );
 
     if (!confirmed) {
       uiStore.closeCategoryModal();
       return; // 用户取消操作
-    }
-
-    if (categories.value.length <= 1) {
-      alert("无法删除最后一个分类。"); // 添加用户提示
-      uiStore.closeCategoryModal();
-      return;
     }
 
     const categoryToDeleteId = currentCategory.value.id;

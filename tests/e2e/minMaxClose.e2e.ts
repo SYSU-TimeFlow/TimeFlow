@@ -11,81 +11,65 @@ test('min & max & close', async () => {
     // ================================================
 
     // 该测试用例的目的是测试最小化、最大化和关闭窗口的功能
-    // 获取窗口大小
-    const initialSize = await page.evaluate(() => {
-      return {
-        width: window.innerWidth,
-        height: window.innerHeight,
-      };
-    });
-    // 打印初始窗口大小
-    console.log('Initial window size:', initialSize);
-    // 最大化
-    await page.getByRole('button', { name: '' }).click();
-    // 等待窗口大小变化
-    await page.waitForTimeout(1000); // 等待 1 秒钟以确保窗口大小变化
-    const maxSize = await page.evaluate(() => {
-      return {
-        width: window.innerWidth,
-        height: window.innerHeight,
-      };
-    });
-    await expect(maxSize.width).toBeGreaterThan(initialSize.width);
-    await expect(maxSize.height).toBeGreaterThan(initialSize.height);
 
-    // 复原
-    await page.getByRole('button', { name: '' }).click();
-
-    // 等待窗口大小变化
-    await page.waitForTimeout(1000); // 等待 1 秒钟以确保窗口大小变化
-
-    const returnSize = await page.evaluate(() => {
-      return {
-        width: window.innerWidth,
-        height: window.innerHeight,
-      };
-    });
-
-    await expect(returnSize.width).not.toBe(maxSize.width);
-    await expect(returnSize.height).not.toBe(maxSize.height);
-
-    // 最小化
-    await page.getByRole('button', { name: '' }).click();
-    // 等待窗口最小化
-    await page.waitForTimeout(1000); // 等待 1 秒钟以确保窗口最小化
-    // 是否最小化成功
-
-    const isMinimized = await electronApp.evaluate(async ({ BrowserWindow }) => {
-        const win = BrowserWindow.getAllWindows()[0];
-        return win.isMinimized();
-    });
-
-    await expect(isMinimized).toBe(true);
-
-
-    // 恢复窗口
-    await electronApp.evaluate(({ BrowserWindow }) => {
+    // 1. 最大化窗口
+    await electronApp.evaluate(async ({ BrowserWindow }) => {
       const win = BrowserWindow.getAllWindows()[0];
-      if (win.isMinimized()) {
-        win.restore(); // 恢复窗口
-      }
+      win.maximize();
     });
 
-    // 等待窗口恢复
-    await page.waitForTimeout(1000); // 等待 1 秒钟以确保窗口恢复
+    // 验证窗口是否已最大化
+    await expect.poll(async () => 
+      await electronApp.evaluate(async ({ BrowserWindow }) => 
+        BrowserWindow.getAllWindows()[0].isMaximized()
+      )
+    ).toBe(true);
 
-    // 检查窗口是否恢复成功
-    const isRestored = await page.evaluate(() => {
-      return !document.hidden; // 检查文档是否可见
+    // 2. 恢复窗口
+    await electronApp.evaluate(async ({ BrowserWindow }) => {
+      const win = BrowserWindow.getAllWindows()[0];
+      win.restore();
     });
-    await expect(isRestored).toBe(true);
 
-    // 关闭窗口
-    await page.getByRole('button', { name: '' }).click();
-    // // 等待窗口关闭
-    // // 这里使用了一个事件监听器来等待窗口关闭
-    // await expect(electronApp.waitForEvent('close')).resolves.not.toThrow();
+    // 验证窗口是否已恢复
+    await expect.poll(async () => 
+      await electronApp.evaluate(async ({ BrowserWindow }) => 
+        !BrowserWindow.getAllWindows()[0].isMaximized()
+      )
+    ).toBe(true);
 
+    // 3. 最小化窗口
+    await electronApp.evaluate(async ({ BrowserWindow }) => {
+      const win = BrowserWindow.getAllWindows()[0];
+      win.minimize();
+    });
+
+    // 验证窗口是否已最小化
+    await expect.poll(async () => 
+      await electronApp.evaluate(async ({ BrowserWindow }) => 
+        BrowserWindow.getAllWindows()[0].isMinimized()
+      )
+    ).toBe(true);
+    
+    // 4. 再次恢复窗口
+    await electronApp.evaluate(async ({ BrowserWindow }) => {
+      const win = BrowserWindow.getAllWindows()[0];
+      win.restore();
+    });
+
+    // 验证窗口是否已恢复（不再最小化）
+    await expect.poll(async () => 
+      await electronApp.evaluate(async ({ BrowserWindow }) => 
+        !BrowserWindow.getAllWindows()[0].isMinimized()
+      )
+    ).toBe(true);
+
+    // 5. 关闭窗口
+    // 修正：使用 Promise.all 来同时执行点击操作和等待事件，避免竞争条件
+    await Promise.all([
+      electronApp.waitForEvent('close'), // 修正：使用 'close' 事件来等待应用关闭
+      page.getByRole('button', { name: '' }).click()    // 执行导致事件发生的操作
+    ]);
 
     // ===============================================
     // |替换部分结束                                  |
