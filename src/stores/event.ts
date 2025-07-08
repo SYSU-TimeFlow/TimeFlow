@@ -642,34 +642,37 @@ export const useEventStore = defineStore("event", () => {
         // 4. 循环整个学期（18周），从学期第一周的周一为基准创建所有事件
         for (let week = 0; week < SEMESTER_WEEKS; week++) {
           result.schedule.forEach(item => {
-            const eventDate = new Date(firstSemesterMonday);
-            // 计算当前课程在学期中对应的具体日期
-            eventDate.setDate(firstSemesterMonday.getDate() + (week * 7) + (item.dayOfWeek - 1));
+            // 核心修正：检查当前周是否在课程指定的周数范围内
+            if (week + 1 >= item.startWeek && week + 1 <= item.endWeek) {
+              const eventDate = new Date(firstSemesterMonday);
+              // 计算当前课程在学期中对应的具体日期
+              eventDate.setDate(firstSemesterMonday.getDate() + (week * 7) + (item.dayOfWeek - 1));
 
-            const [startHour, startMinute] = item.startTime.split(':');
-            const [endHour, endMinute] = item.endTime.split(':');
+              const [startHour, startMinute] = item.startTime.split(':');
+              const [endHour, endMinute] = item.endTime.split(':');
 
-            const start = new Date(eventDate);
-            start.setHours(parseInt(startHour, 10), parseInt(startMinute, 10), 0, 0);
+              const start = new Date(eventDate);
+              start.setHours(parseInt(startHour, 10), parseInt(startMinute, 10), 0, 0);
 
-            const end = new Date(eventDate);
-            end.setHours(parseInt(endHour, 10), parseInt(endMinute, 10), 0, 0);
+              const end = new Date(eventDate);
+              end.setHours(parseInt(endHour, 10), parseInt(endMinute, 10), 0, 0);
 
-            const newEvent = new Event(
-              // 修正：使用时间戳和计数器生成唯一的整数ID，避免使用浮点数
-              new Date().getTime() + createdEventsCount,
-              item.courseName,
-              start,
-              end,
-              `课程表导入 - ${item.courseName} (第${week + 1}周)`,
-              scheduleCategory.id,
-              scheduleCategory.color,
-              false,
-              EventType.CALENDAR, // 使用 CALENDAR 类型
-              false
-            );
-            events.value.push(newEvent);
-            createdEventsCount++;
+              const newEvent = new Event(
+                // 修正：使用时间戳和计数器生成唯一的整数ID，避免使用浮点数
+                new Date().getTime() + createdEventsCount,
+                item.courseName,
+                start,
+                end,
+                `课程表导入 - ${item.courseName} (第${week + 1}周)`,
+                scheduleCategory.id,
+                scheduleCategory.color,
+                false,
+                EventType.CALENDAR, // 使用 CALENDAR 类型
+                false
+              );
+              events.value.push(newEvent);
+              createdEventsCount++;
+            }
           });
         }
         
