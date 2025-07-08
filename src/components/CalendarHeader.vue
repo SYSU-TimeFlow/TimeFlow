@@ -161,14 +161,6 @@
       >
         <i class="fas fa-file-import"></i>
       </button>
-      <!-- 新增：清除课程表按钮 -->
-      <button
-        class="header-icon-button p-1.5 rounded-md relative"
-        @click="eventStore.clearImportedSchedule"
-        title="清除导入的课程"
-      >
-        <i class="fas fa-eraser"></i>
-      </button>
       <!-- 通知铃铛按钮 -->
       <button
         class="header-icon-button p-1.5 rounded-md relative"

@@ -551,22 +551,6 @@ export const useEventStore = defineStore("event", () => {
 
   // =======================BEGIN 课程表导入功能 BEGIN========================
 
-  // 清除所有由课程表导入的事件
-  async function clearImportedSchedule() {
-    // 查找“课程表”分类
-    const scheduleCategory = categories.value.find(c => c.name === "课程表");
-    if (!scheduleCategory) {
-      console.log("未找到“课程表”分类，无需清除。");
-      return;
-    }
-    
-    const initialLength = events.value.length;
-    // 根据分类ID来过滤和删除事件
-    events.value = events.value.filter(e => e.categoryId !== scheduleCategory.id);
-    const removedCount = initialLength - events.value.length;
-    console.log(`清除了 ${removedCount} 个课程表事件。`);
-  }
-
   // 从文件导入课程表
   async function importScheduleFromFile() {
     if (window.electronAPI) {
@@ -580,23 +564,27 @@ export const useEventStore = defineStore("event", () => {
 
       const result = await window.electronAPI.importSchedule();
       if (result.success && result.schedule) {
-        // 导入前先清除旧的课程表事件，防止重复
-        await clearImportedSchedule();
+        // 查找“课程表”分类
+        const scheduleCategory = categories.value.find(c => c.name === "课程表");
+        if (scheduleCategory) {
+            // 根据分类ID来过滤和删除事件
+            events.value = events.value.filter(e => e.categoryId !== scheduleCategory.id);
+        }
 
         // 自动创建或查找“课程表”分类
-        let scheduleCategory = categories.value.find(c => c.name === "课程表");
-        if (!scheduleCategory) {
-          scheduleCategory = {
+        let scheduleCategoryRef = categories.value.find(c => c.name === "课程表");
+        if (!scheduleCategoryRef) {
+          scheduleCategoryRef = {
             id: Date.now(),
             name: "课程表",
             color: "#7209b7", // 深紫色
             active: true,
           };
-          categories.value.push(scheduleCategory);
+          categories.value.push(scheduleCategoryRef);
         } else {
           // 如果分类已存在，确保它是激活状态并使用正确的颜色
-          scheduleCategory.active = true;
-          scheduleCategory.color = "#7209b7";
+          scheduleCategoryRef.active = true;
+          scheduleCategoryRef.color = "#7209b7";
         }
 
 
@@ -658,8 +646,8 @@ export const useEventStore = defineStore("event", () => {
                 start,
                 end,
                 `课程表导入 - ${item.courseName} (第${week + 1}周)`,
-                scheduleCategory.id,
-                scheduleCategory.color,
+                scheduleCategoryRef.id,
+                scheduleCategoryRef.color,
                 false,
                 EventType.CALENDAR, // 使用 CALENDAR 类型
                 false
@@ -721,7 +709,6 @@ export const useEventStore = defineStore("event", () => {
 
     // 新增：课程表功能
     importScheduleFromFile,
-    clearImportedSchedule,
 
     // 数据存储相关，仅供测试
     loadAppDataFromStore,
