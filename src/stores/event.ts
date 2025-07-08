@@ -90,8 +90,7 @@ export const useEventStore = defineStore("event", () => {
                 eventData.categoryColor,
                 eventData.allDay,
                 eventData.eventType,
-                eventData.completed,
-                eventData.isSchedule // 新增：加载 isSchedule 标志
+                eventData.completed
               )
           );
         } else {
@@ -510,54 +509,46 @@ export const useEventStore = defineStore("event", () => {
   }
 
   async function deleteCategory() {
-    if (!isNewCategory.value) {
-      // 特殊处理：如果是“课程表”分类，则弹出警告
-      if (currentCategory.value.name === "课程表") {
-        const confirmed = confirm(
-          "警告：删除此分类将会清除所有已导入的课程表事件。确定要继续吗？"
-        );
-        if (!confirmed) {
-          uiStore.closeCategoryModal();
-          return; // 用户取消操作
-        }
-        // 如果用户确认，则执行清除操作
-        await clearImportedSchedule(); 
-      }
-
-      if (categories.value.length <= 1) {
-        console.warn("Cannot delete the last category."); // 可以添加用户提示
-        return;
-      }
-
-      const index = categories.value.findIndex(
-        (c) => c.id === currentCategory.value.id
-      );
-      if (index !== -1) {
-        const categoryToDeleteId = currentCategory.value.id;
-        // 查找一个默认分类来重新分配事件，优先选择“其他”，否则选择第一个不是正在删除的分类
-        const defaultCategory =
-          categories.value.find(
-            (c) => c.id === 5 && c.id !== categoryToDeleteId
-          ) || categories.value.find((c) => c.id !== categoryToDeleteId);
-
-        if (!defaultCategory) {
-          console.error(
-            "No suitable default category found to reassign events to. This should not happen if there's more than one category."
-          );
-          uiStore.closeCategoryModal();
-          return;
-        }
-
-        events.value.forEach((event) => {
-          if (event.categoryId === categoryToDeleteId) {
-            event.categoryId = defaultCategory.id;
-            event.categoryColor = defaultCategory.color;
-          }
-        });
-
-        categories.value.splice(index, 1);
-      }
+    if (isNewCategory.value) {
+      uiStore.closeCategoryModal();
+      return;
     }
+
+    // 弹出确认对话框
+    const confirmed = confirm(
+      `确定要删除“${currentCategory.value.name}”分类吗？这将同时删除此分类下的所有事件。此操作无法撤销。`
+    );
+
+    if (!confirmed) {
+      uiStore.closeCategoryModal();
+      return; // 用户取消操作
+    }
+
+    if (categories.value.length <= 1) {
+      alert("无法删除最后一个分类。"); // 添加用户提示
+      uiStore.closeCategoryModal();
+      return;
+    }
+
+    const categoryToDeleteId = currentCategory.value.id;
+    const initialEventCount = events.value.length;
+
+    // 过滤掉所有属于该分类的事件
+    events.value = events.value.filter(
+      (event) => event.categoryId !== categoryToDeleteId
+    );
+
+    const removedEventsCount = initialEventCount - events.value.length;
+    console.log(`删除了 ${removedEventsCount} 个关联事件。`);
+
+    // 删除分类本身
+    const index = categories.value.findIndex(
+      (c) => c.id === categoryToDeleteId
+    );
+    if (index !== -1) {
+      categories.value.splice(index, 1);
+    }
+
     uiStore.closeCategoryModal();
   }
 
@@ -568,19 +559,26 @@ export const useEventStore = defineStore("event", () => {
 
   // 清除所有由课程表导入的事件
   async function clearImportedSchedule() {
+    // 查找“课程表”分类
+    const scheduleCategory = categories.value.find(c => c.name === "课程表");
+    if (!scheduleCategory) {
+      console.log("未找到“课程表”分类，无需清除。");
+      return;
+    }
+    
     const initialLength = events.value.length;
-    // 根据 isSchedule 标志来过滤和删除事件
-    events.value = events.value.filter(e => !e.isSchedule);
+    // 根据分类ID来过滤和删除事件
+    events.value = events.value.filter(e => e.categoryId !== scheduleCategory.id);
     const removedCount = initialLength - events.value.length;
     console.log(`清除了 ${removedCount} 个课程表事件。`);
-    // 你可以在这里添加一个UI通知告诉用户清除了多少事件
   }
 
   // 从文件导入课程表
   async function importScheduleFromFile() {
     if (window.electronAPI) {
       // 导入前提示用户将清除旧数据
-      if (events.value.some(e => e.isSchedule)) {
+      const scheduleCategoryExists = categories.value.some(c => c.name === "课程表");
+      if (scheduleCategoryExists) {
         if (!confirm("导入新的课程表将会清除所有已导入的课程，要继续吗？")) {
           return;
         }
@@ -597,10 +595,14 @@ export const useEventStore = defineStore("event", () => {
           scheduleCategory = {
             id: Date.now(),
             name: "课程表",
-            color: "#7209b7", // 紫色
+            color: "#7209b7", // 深紫色
             active: true,
           };
           categories.value.push(scheduleCategory);
+        } else {
+          // 如果分类已存在，确保它是激活状态并使用正确的颜色
+          scheduleCategory.active = true;
+          scheduleCategory.color = "#7209b7";
         }
 
 
@@ -664,8 +666,7 @@ export const useEventStore = defineStore("event", () => {
               scheduleCategory.color,
               false,
               EventType.CALENDAR, // 使用 CALENDAR 类型
-              false,
-              true // 标记为课程表事件
+              false
             );
             events.value.push(newEvent);
             createdEventsCount++;
