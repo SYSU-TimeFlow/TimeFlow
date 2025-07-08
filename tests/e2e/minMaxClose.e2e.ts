@@ -28,7 +28,7 @@ test('min & max & close', async () => {
     // 2. 恢复窗口
     await electronApp.evaluate(async ({ BrowserWindow }) => {
       const win = BrowserWindow.getAllWindows()[0];
-      win.restore();
+      win.unmaximize();
     });
 
     // 验证窗口是否已恢复
