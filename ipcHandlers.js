@@ -252,10 +252,16 @@ export function initializeIpcHandlers(ipcMain, sqliteStore, mainDirname, Browser
           const colspan = parseInt((cellHtml.match(/colspan="(\d+)"/) || [])[1] || '1', 10);
           const cellText = cellHtml.replace(/<.*?>/g, ' ').replace(/\s+/g, ' ').trim();
 
-          for (let r = 0; r < rowspan; r++) {
-            for (let c = 0; c < colspan; c++) {
-              if (!grid[rowIndex + r]) grid[rowIndex + r] = [];
-              grid[rowIndex + r][gridColIndex + c] = { text: cellText, isPlaceholder: r > 0 || c > 0 };
+          for (let rLoop = 0; rLoop < rowspan; rLoop++) {
+            for (let cLoop = 0; cLoop < colspan; cLoop++) {
+              if (!grid[rowIndex + rLoop]) grid[rowIndex + rLoop] = [];
+              // 修正：在网格中存储原始的 rowspan 信息
+              grid[rowIndex + rLoop][gridColIndex + cLoop] = { 
+                text: cellText, 
+                isPlaceholder: rLoop > 0 || cLoop > 0,
+                // 新增：存储原始的 rowspan
+                rowspan: rLoop === 0 && cLoop === 0 ? rowspan : 0 
+              };
             }
           }
           gridColIndex += colspan;
@@ -284,16 +290,17 @@ export function initializeIpcHandlers(ipcMain, sqliteStore, mainDirname, Browser
       for (let r = 1; r < grid.length; r++) {
         for (let c = 1; c < (grid[r] || []).length; c++) {
           const cellKey = `${r},${c}`;
-          if (!grid[r][c] || grid[r][c].isPlaceholder || processedCells.has(cellKey) || !grid[r][c].text) {
+          const currentCell = grid[r][c];
+          if (!currentCell || currentCell.isPlaceholder || processedCells.has(cellKey) || !currentCell.text) {
             continue;
           }
-          processedCells.add(cellKey);
+          
+          // 修正：直接使用存储的 rowspan，不再手动计算
+          const rowSpanCount = currentCell.rowspan || 1;
 
-          // 确定课程跨越的行数
-          let rowSpanCount = 1;
-          while (r + rowSpanCount < grid.length && grid[r + rowSpanCount][c] && grid[r + rowSpanCount][c].isPlaceholder) {
-            processedCells.add(`${r + rowSpanCount},${c}`);
-            rowSpanCount++;
+          // 标记所有被占用的单元格
+          for (let i = 0; i < rowSpanCount; i++) {
+            processedCells.add(`${r + i},${c}`);
           }
 
           const startTimeInfo = timeSlotsInfo[r];
@@ -329,6 +336,7 @@ export function initializeIpcHandlers(ipcMain, sqliteStore, mainDirname, Browser
             schedule.push({
               courseName: grid[r][c].text,
               dayOfWeek: dayOfWeek,
+              // 修正：使用第一个时间段的开始时间和最后一个时间段的结束时间
               startTime: startTimeInfo.start,
               endTime: endTimeInfo.end,
             });
