@@ -3,21 +3,21 @@
   "private": true,
   "version": "1.1.13",
   "type": "module",
-  "main": "./main.js",
+  "main": "./src/main/main.js",
   "config": {
     "buildTrigger": "0"
   },
   "scripts": {
-    "dev": "vite",
+    "dev": "vite --config config/vite.config.js",
     "codegen": "cd ./tests/e2e && node ./codegen.js",
-    "build": "vite build",
-    "preview": "vite preview",
+    "build": "vite build --config config/vite.config.js",
+    "preview": "vite preview --config config/vite.config.js",
     "test": "vitest run && playwright test",
     "test:unit": "vitest run",
     "test:coverage": "vitest run --coverage",
     "test:e2e": "playwright test",
     "start": "nodemon --exec electron . --watch ./ --ext .js, .html, .css, .vue, .json, .ts",
-    "electron:build": "vite build & electron-builder build --config electron-builder.json",
+    "electron:build": "vite build --config config/vite.config.js & electron-builder build --config electron-builder.json",
     "postinstall": "electron-rebuild"
   },
   "dependencies": {
