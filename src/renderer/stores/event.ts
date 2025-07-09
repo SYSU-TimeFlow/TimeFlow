@@ -13,6 +13,11 @@ declare global {
       minimize?: () => void;
       maximize?: () => void;
       close?: () => void;
+      importSchedule: () => Promise<{
+        success: boolean;
+        schedule?: any[];
+        message?: string;
+      }>;
     };
   }
 }
@@ -506,48 +511,186 @@ export const useEventStore = defineStore("event", () => {
   }
 
   async function deleteCategory() {
-    if (!isNewCategory.value) {
-      if (categories.value.length <= 1) {
-        console.warn("Cannot delete the last category."); // 可以添加用户提示
-        return;
-      }
-
-      const index = categories.value.findIndex(
-        (c) => c.id === currentCategory.value.id
-      );
-      if (index !== -1) {
-        const categoryToDeleteId = currentCategory.value.id;
-        // 查找一个默认分类来重新分配事件，优先选择“其他”，否则选择第一个不是正在删除的分类
-        const defaultCategory =
-          categories.value.find(
-            (c) => c.id === 5 && c.id !== categoryToDeleteId
-          ) || categories.value.find((c) => c.id !== categoryToDeleteId);
-
-        if (!defaultCategory) {
-          console.error(
-            "No suitable default category found to reassign events to. This should not happen if there's more than one category."
-          );
-          uiStore.closeCategoryModal();
-          return;
-        }
-
-        events.value.forEach((event) => {
-          if (event.categoryId === categoryToDeleteId) {
-            event.categoryId = defaultCategory.id;
-            event.categoryColor = defaultCategory.color;
-          }
-        });
-
-        categories.value.splice(index, 1);
-      }
+    if (isNewCategory.value) {
+      uiStore.closeCategoryModal();
+      return;
     }
+
+    // 弹出确认对话框
+    const confirmed = window.confirm(
+      `确定要删除“${currentCategory.value.name}”分类吗？这将同时删除此分类下的所有事件。此操作无法撤销。`
+    );
+
+    if (!confirmed) {
+      uiStore.closeCategoryModal();
+      return; // 用户取消操作
+    }
+
+    const categoryToDeleteId = currentCategory.value.id;
+    const initialEventCount = events.value.length;
+
+    // 过滤掉所有属于该分类的事件
+    events.value = events.value.filter(
+      (event) => event.categoryId !== categoryToDeleteId
+    );
+
+    const removedEventsCount = initialEventCount - events.value.length;
+    console.log(`删除了 ${removedEventsCount} 个关联事件。`);
+
+    // 删除分类本身
+    const index = categories.value.findIndex(
+      (c) => c.id === categoryToDeleteId
+    );
+    if (index !== -1) {
+      categories.value.splice(index, 1);
+    }
+
     uiStore.closeCategoryModal();
   }
 
   // 初始化时加载应用数据
   loadAppDataFromStore();
 
-  // 添加一个通用的 watch 函数来监听 events 和 categories 的变化
+  // =======================BEGIN 课程导入功能 BEGIN========================
+
+  // 从文件导入课程
+  async function importScheduleFromFile() {
+    if (window.electronAPI) {
+      // 导入前提示用户将清除旧数据
+      const scheduleCategoryExists = categories.value.some(
+        (c) => c.name === "课程"
+      );
+      if (scheduleCategoryExists) {
+        if (!confirm("导入新的课程将会清除所有已导入的课程，要继续吗？")) {
+          return;
+        }
+      }
+
+      const result = await window.electronAPI.importSchedule();
+      if (result.success && result.schedule) {
+        // 查找“课程”分类
+        const scheduleCategory = categories.value.find(
+          (c) => c.name === "课程"
+        );
+        if (scheduleCategory) {
+          // 根据分类ID来过滤和删除事件
+          events.value = events.value.filter(
+            (e) => e.categoryId !== scheduleCategory.id
+          );
+        }
+
+        // 自动创建或查找“课程”分类
+        let scheduleCategoryRef = categories.value.find(
+          (c) => c.name === "课程"
+        );
+        if (!scheduleCategoryRef) {
+          scheduleCategoryRef = {
+            id: Date.now(),
+            name: "课程",
+            color: "#7209b7", // 深紫色
+            active: true,
+          };
+          categories.value.push(scheduleCategoryRef);
+        } else {
+          // 如果分类已存在，确保它是激活状态并使用正确的颜色
+          scheduleCategoryRef.active = true;
+          scheduleCategoryRef.color = "#7209b7";
+        }
+
+        // ======================= 核心逻辑修改 =======================
+        // 1. 根据当前月份动态确定学期开始日期
+        const now = new Date();
+        const currentYear = now.getFullYear();
+        const currentMonth = now.getMonth(); // 0 = January, 11 = December
+
+        let SEMESTER_START_DATE;
+        let semesterName = "";
+
+        // 规则：2月至7月期间导入，视为春季学期；8月至次年1月期间导入，视为秋季学期。
+        if (currentMonth >= 1 && currentMonth <= 6) {
+          // Feb to July -> Spring Semester
+          SEMESTER_START_DATE = new Date(currentYear, 2, 1); // 春季学期，3月1日开始
+          semesterName = "春季学期";
+        } else {
+          // Aug to Jan -> Autumn Semester
+          // 如果是1月份，则属于前一年的秋季学期
+          const semesterYear =
+            currentMonth === 0 ? currentYear - 1 : currentYear;
+          SEMESTER_START_DATE = new Date(semesterYear, 8, 8); // 秋季学期，9月8日开始
+          semesterName = "秋季学期";
+        }
+
+        const SEMESTER_WEEKS = 18;
+
+        // 2. 确保开始日期是当天的零点，以避免时区计算问题
+        SEMESTER_START_DATE.setHours(0, 0, 0, 0);
+
+        // 3. 计算学期第一周的周一。如果设定的开始日期不是周一，则自动调整。
+        const dayOfWeekOfStart = SEMESTER_START_DATE.getDay(); // 0=周日, 1=周一, ...
+        const firstSemesterMonday = new Date(SEMESTER_START_DATE);
+        const adjustment = dayOfWeekOfStart === 0 ? -6 : 1 - dayOfWeekOfStart; // 如果是周日，减6天；否则，减去与周一的差值
+        firstSemesterMonday.setDate(SEMESTER_START_DATE.getDate() + adjustment);
+
+        let createdEventsCount = 0;
+
+        // 4. 循环整个学期（18周），从学期第一周的周一为基准创建所有事件
+        for (let week = 0; week < SEMESTER_WEEKS; week++) {
+          result.schedule.forEach((item) => {
+            // 核心修正：检查当前周是否在课程指定的周数范围内
+            if (week + 1 >= item.startWeek && week + 1 <= item.endWeek) {
+              const eventDate = new Date(firstSemesterMonday);
+              // 计算当前课程在学期中对应的具体日期
+              eventDate.setDate(
+                firstSemesterMonday.getDate() + week * 7 + (item.dayOfWeek - 1)
+              );
+
+              const [startHour, startMinute] = item.startTime.split(":");
+              const [endHour, endMinute] = item.endTime.split(":");
+
+              const start = new Date(eventDate);
+              start.setHours(
+                parseInt(startHour, 10),
+                parseInt(startMinute, 10),
+                0,
+                0
+              );
+
+              const end = new Date(eventDate);
+              end.setHours(
+                parseInt(endHour, 10),
+                parseInt(endMinute, 10),
+                0,
+                0
+              );
+
+              const newEvent = new Event(
+                // 修正：使用时间戳和计数器生成唯一的整数ID，避免使用浮点数
+                new Date().getTime() + createdEventsCount,
+                item.courseName,
+                start,
+                end,
+                `课程导入 - ${item.courseName} (第${week + 1}周)`,
+                scheduleCategoryRef.id,
+                scheduleCategoryRef.color,
+                false,
+                EventType.CALENDAR, // 使用 CALENDAR 类型
+                false
+              );
+              events.value.push(newEvent);
+              createdEventsCount++;
+            }
+          });
+        }
+
+        alert(
+          `成功为 ${semesterName}（从 ${firstSemesterMonday.toLocaleDateString()} 开始，共 ${SEMESTER_WEEKS} 周）创建了 ${createdEventsCount} 个课程！`
+        );
+      } else if (result.message) {
+        alert(`导入失败: ${result.message}`);
+      }
+    }
+  }
+  // =======================END 课程导入功能 END========================
 
   return {
     // 状态
@@ -586,6 +729,9 @@ export const useEventStore = defineStore("event", () => {
     updateEventCategoryColor,
     saveCategory,
     deleteCategory,
+
+    // 课程功能
+    importScheduleFromFile,
 
     // 数据存储相关，仅供测试
     loadAppDataFromStore,

@@ -16,6 +16,6 @@ contextBridge.exposeInMainWorld('electronAPI', {
   saveSettings: (settings) => ipcRenderer.invoke('save-settings', settings),
   // 新增：通知API
   notify: (title, body) => ipcRenderer.invoke('notify', { title, body }),
-  // 新增：课程表导入API
+  // 新增：课程导入API
   importSchedule: () => ipcRenderer.invoke('import-schedule'),
 });

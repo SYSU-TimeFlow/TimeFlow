@@ -1,5 +1,5 @@
-import { Notification, dialog } from "electron";
-import mammoth from "mammoth"; // 新增：导入 mammoth 库用于解析
+import { Notification, dialog, shell } from "electron";
+import mammoth from "mammoth"; // 导入 mammoth 库用于解析
 
 /**
  * 初始化应用的 IPC (Inter-Process Communication) 处理程序。
@@ -194,18 +194,34 @@ export function initializeIpcHandlers(ipcMain, sqliteStore, mainDirname, Browser
     setTimeout(() => notification.close(), 5000); // 5秒后自动关闭
   });
 
-  // 新增：处理课程表导入
+  // 新增：处理课程导入
   ipcMain.handle('import-schedule', async () => {
     const { canceled, filePaths } = await dialog.showOpenDialog({
       properties: ['openFile'],
-      filters: [{ name: 'Word Documents', extensions: ['docx'] }],
+      filters: [
+        { name: 'All Files', extensions: ['*'] }
+      ],
     });
 
-    if (canceled || filePaths.length === 0) {
-      return { success: false, message: '用户取消了文件选择' };
-    }
-
     const filePath = filePaths[0];
+    
+    // 检查文件扩展名
+    const fileExtension = filePath.split('.').pop().toLowerCase();
+    if (fileExtension !== 'docx') {
+      // 如果不是docx格式，打开浏览器跳转到转换网站
+      try {
+        await shell.openExternal('https://cloudconvert.com/');
+        return { 
+          success: false, 
+          message: '只支持.docx格式的文件。已为您打开CloudConvert网站，您可以在此将其他格式转换为.docx格式。' 
+        };
+      } catch (error) {
+        return { 
+          success: false, 
+          message: '只支持.docx格式的文件。请将文件转换为.docx格式后重试。您可以访问 https://cloudconvert.com/ 进行格式转换。' 
+        };
+      }
+    }
 
     try {
       const { value: html } = await mammoth.convertToHtml({ path: filePath });
@@ -348,7 +364,7 @@ export function initializeIpcHandlers(ipcMain, sqliteStore, mainDirname, Browser
 
       return { success: true, schedule };
     } catch (error) {
-      console.error('解析课程表文件失败:', error);
+      console.error('解析课程文件失败:', error);
       return { success: false, message: `解析失败: ${error.message}` };
     }
   });
