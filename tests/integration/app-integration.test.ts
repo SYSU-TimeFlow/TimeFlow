@@ -9,9 +9,9 @@
 
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { setActivePinia, createPinia } from "pinia";
-import { useEventStore } from "../../src/stores/event";
-import { useSettingStore } from "../../src/stores/setting";
-import { Event, EventType } from "../../src/const";
+import { useEventStore } from "../../src/renderer/stores/event";
+import { useSettingStore } from "../../src/renderer/stores/setting";
+import { Event, EventType } from "../../src/renderer/const";
 
 // Mock electron API
 const mockElectronAPI = {

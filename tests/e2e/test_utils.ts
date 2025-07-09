@@ -36,7 +36,7 @@ export const startVite = async (): Promise<ReturnType<typeof spawn>> => {
 
 export const launchElectron = async (): Promise<ElectronApplication> => {
   const app = await electron.launch({
-    args: [path.join(projectRoot, 'main.js')],
+    args: [path.join(projectRoot, 'src/main/main.js')],
     env: {
       ...process.env,
       NODE_ENV: 'test',

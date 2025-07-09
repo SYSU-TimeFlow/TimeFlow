@@ -7,7 +7,7 @@
  */
 
 import { describe, it, expect, beforeEach, vi, afterEach } from "vitest";
-import { initializeIpcHandlers } from "../../ipcHandlers.js";
+import { initializeIpcHandlers } from "../../src/main/ipcHandlers.js";
 
 // Mock dependencies
 const mockIpcMain = {

@@ -4,7 +4,7 @@
  */
 
 import { describe, it, expect, beforeEach, afterEach, beforeAll, afterAll, vi } from 'vitest';
-import SQLiteStore from '../../database.js';
+import SQLiteStore from '../../src/main/database.js';
 import * as fs from 'fs';
 import * as path from 'path';
 import { app } from 'electron';

@@ -10,8 +10,8 @@
  *          具体操作：Ctrl+H，替换 `// console.log` 为 `console.log`。
  */
 import { setActivePinia, createPinia } from "pinia";
-import { useEventStore } from "../../src/stores/event";
-import { Event, EventType } from "../../src/const";
+import { useEventStore } from "../../src/renderer/stores/event";
+import { Event, EventType } from "../../src/renderer/const";
 import { describe, it, expect, beforeEach, vi } from "vitest";
 
 // beforeEach 确保每个测试用例开始时，events 数组存储的内容相同

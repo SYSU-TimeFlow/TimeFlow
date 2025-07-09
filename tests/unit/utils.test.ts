@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import * as utils from "../../src/utils/index";
+import * as utils from "../../src/renderer/utils/index";
 
 describe("Utils Tests", () => {
   it("getMonthDays 应该返回月视图下的日期数组", () => {

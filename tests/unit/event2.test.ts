@@ -8,8 +8,8 @@
 
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { setActivePinia, createPinia } from "pinia";
-import { useEventStore } from "../../src/stores/event";
-import { Event, EventType } from "../../src/const";
+import { useEventStore } from "../../src/renderer/stores/event";
+import { Event, EventType } from "../../src/renderer/const";
 
 // Mock electron API
 const mockElectronAPI = {
