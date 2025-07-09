@@ -117,10 +117,42 @@ class SQLiteStore {
         END
       `);
 
+      // 初始化默认分类数据
+      this.initializeDefaultCategories();
+
       console.log('Database tables initialized successfully');
     } catch (error) {
       console.error('Failed to initialize database tables:', error);
       throw error;
+    }
+  }
+
+  /**
+   * 初始化默认分类数据
+   * 在第一次创建数据库时添加默认分类
+   */
+  initializeDefaultCategories() {
+    try {
+      // 检查分类表是否为空
+      const categoryCount = this.db.prepare('SELECT COUNT(*) as count FROM categories').get().count;
+      if (categoryCount === 0) {
+        
+        const defaultCategories = [
+          { name: '其他', color: '#e63946', active: true }
+        ];
+        
+        const insertStmt = this.db.prepare(`
+          INSERT INTO categories (name, color, active)
+          VALUES (?, ?, ?)
+        `);
+        
+        for (const category of defaultCategories) {
+          insertStmt.run(category.name, category.color, category.active ? 1 : 0);
+        }
+        
+      }
+    } catch (error) {
+      console.error('Failed to initialize default categories:', error);
     }
   }
 
