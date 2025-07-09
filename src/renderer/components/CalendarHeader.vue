@@ -342,46 +342,63 @@ let finalTranscript = '';
 
 const handleSpeechRecognition = async () => {
   // 检查 electronAPI 是否可用
-  if (!electronAPI || !electronAPI.recognizeSpeech) {
-    speechStatus.value = "错误：无法访问主进程语音识别功能。";
+  if (!electronAPI || !electronAPI.processNaturalLanguage) {
+    speechStatus.value = "错误：自然语言处理功能不可用。";
     isSpeechModalVisible.value = true;
     return;
   }
 
   isSpeechModalVisible.value = true;
-  speechStatus.value = "正在连接语音服务，请稍候...";
+  speechStatus.value = "请输入事件描述，例如“明天下午3点开会”";
   finalTranscript = ''; // 重置之前的记录
-  if (transcriptDivRef.value) {
-    transcriptDivRef.value.innerHTML = ''; // 清空显示区域
-  }
-
-  try {
-    // 调用主进程的语音识别 API
-    const result = await electronAPI.recognizeSpeech();
-    
-    if (result && result.success) {
-      finalTranscript = result.text;
-      speechStatus.value = "识别完成。您可以编辑后点击“完成”。";
-      if (transcriptDivRef.value) {
-        transcriptDivRef.value.innerText = finalTranscript;
-      }
-    } else {
-      speechStatus.value = `识别失败: ${result?.text || '未知错误'}`;
+  
+  nextTick(() => {
+    if (transcriptDivRef.value) {
+      transcriptDivRef.value.innerHTML = ''; // 清空显示区域
+      transcriptDivRef.value.focus();
     }
-  } catch (error: any) {
-    speechStatus.value = `识别出错: ${error.message}`;
-  }
+  });
 };
 
 // 用户点击“完成”按钮
-const handleSpeechDone = () => {
-  // 获取 div 中的最终文本（允许用户手动修改）
-  const resultText = transcriptDivRef.value?.innerText || finalTranscript;
-  if (resultText.trim()) {
-    uiStore.updateSearchInputValue(resultText.trim());
-    activateSearch(); // 激活搜索框并填入内容
+const handleSpeechDone = async () => {
+  if (!transcriptDivRef.value || !transcriptDivRef.value.innerText.trim()) {
+    // @ts-ignore
+    window.electronAPI.notify('提示', '输入内容不能为空。');
+    return;
   }
-  isSpeechModalVisible.value = false;
+
+  const text = transcriptDivRef.value.innerText.trim();
+  speechStatus.value = "正在处理...";
+
+  try {
+    // 调用主进程的自然语言处理 API
+    const result = await electronAPI.processNaturalLanguage(text);
+
+    if (result && result.success) {
+      // 如果成功，调用 eventStore 创建事件
+      eventStore.createEventFromNLP(result.event);
+      isSpeechModalVisible.value = false; // 关闭弹窗
+    } else {
+      // 处理失败，给用户一个提示
+      speechStatus.value = `处理失败: ${result.message || '未知错误'}`;
+      console.error("NLP Error:", result ? result.message : "Unknown error");
+      // @ts-ignore
+      if (window.electronAPI && window.electronAPI.notify) {
+        // @ts-ignore
+        window.electronAPI.notify('创建事件失败', result.message || '无法解析您的输入，请检查内容和格式。');
+      }
+    }
+  } catch (error) {
+    console.error("Error processing natural language:", error);
+    const errorMessage = error instanceof Error ? error.message : '发生未知错误';
+    speechStatus.value = `处理出错: ${errorMessage}`;
+    // @ts-ignore
+    if (window.electronAPI && window.electronAPI.notify) {
+      // @ts-ignore
+      window.electronAPI.notify('创建事件失败', '处理您的请求时发生了一个内部错误。');
+    }
+  }
 };
 
 // 用户点击“取消”按钮

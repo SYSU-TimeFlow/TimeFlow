@@ -1,5 +1,6 @@
-import { Notification, dialog, shell } from "electron";
-import mammoth from "mammoth"; // 导入 mammoth 库用于解析
+import { Notification, dialog } from "electron";
+import mammoth from "mammoth"; // 新增：导入 mammoth 库用于解析
+import * as chrono from 'chrono-node'; // 新增：导入 chrono-node 用于自然语言日期解析
 
 /**
  * 初始化应用的 IPC (Inter-Process Communication) 处理程序。
@@ -366,6 +367,40 @@ export function initializeIpcHandlers(ipcMain, sqliteStore, mainDirname, Browser
     } catch (error) {
       console.error('解析课程文件失败:', error);
       return { success: false, message: `解析失败: ${error.message}` };
+    }
+  });
+
+  // 新增：处理自然语言文本
+  ipcMain.handle('process-natural-language', async (event, text) => {
+    try {
+      // 修改：使用 chrono.zh.parse 来支持中文日期解析
+      const results = chrono.zh.parse(text);
+
+      if (results.length === 0) {
+        return { success: false, message: '无法识别出有效的日期和时间。' };
+      }
+
+      // 使用第一个解析结果
+      const result = results[0];
+      
+      // 提取标题：从原始文本中移除日期部分
+      const title = text.replace(result.text, '').trim().replace(/[:：]$/, '').trim();
+
+      if (!title) {
+        return { success: false, message: '无法识别出事件标题。' };
+      }
+
+      const eventData = {
+        title: title,
+        start: result.start.date(),
+        // 如果 chrono-node 提供了结束日期，则使用它，否则默认为开始时间后一小时
+        end: result.end ? result.end.date() : new Date(result.start.date().getTime() + 60 * 60 * 1000),
+      };
+
+      return { success: true, event: eventData };
+    } catch (error) {
+      console.error('NLP processing failed:', error);
+      return { success: false, message: '处理文本时发生内部错误。' };
     }
   });
 
