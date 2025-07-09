@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { setActivePinia, createPinia } from "pinia";
-import { useSettingStore } from "../../src/stores/setting";
+import { useSettingStore } from "../../src/renderer/stores/setting";
 
 // beforeEach 确保每个测试用例开始时都初始化环境
 beforeEach(() => {

@@ -7,7 +7,7 @@
  */
 
 import { describe, it, expect, beforeEach } from "vitest";
-import * as utils from "../../src/utils/index";
+import * as utils from "../../src/renderer/utils/index";
 
 describe("Utils - Extended Tests", () => {
   describe("Date Utilities", () => {
