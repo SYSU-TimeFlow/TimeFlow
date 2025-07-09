@@ -24,6 +24,8 @@
     "@fortawesome/fontawesome-free": "^6.7.2",
     "@tailwindcss/vite": "^4.1.7",
     "better-sqlite3": "^12.2.0",
+    "chrono-node": "^2.8.2",
+    "docx": "^9.5.1",
     "electron-is-dev": "^3.0.1",
     "electron-win-state": "^1.1.22",
     "mammoth": "^1.9.1",

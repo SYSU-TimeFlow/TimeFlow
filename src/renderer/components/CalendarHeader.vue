@@ -36,14 +36,14 @@
         <!-- "上一个"导航按钮 -->
         <button
           @click="uiStore.navigateCalendar('prev')"
-          class="header-icon-button px-2 py-2 rounded-l-md cursor-pointer min-w-[40px] transition-colors"
+          class="header-icon-button px-2 py-2 rounded-l-md cursor-pointer min-w-[40px] transition-colors border-y border-l border-r-0 border-[var(--border-color)]"
         >
           <i class="fas fa-chevron-left"></i>
         </button>
         <!-- "下一个"导航按钮 -->
         <button
           @click="uiStore.navigateCalendar('next')"
-          class="header-icon-button px-2 py-2 rounded-r-md cursor-pointer min-w-[40px] transition-colors"
+          class="header-icon-button px-2 py-2 rounded-r-md cursor-pointer min-w-[40px] transition-colors border-y border-r border-[var(--border-color)]"
         >
           <i class="fas fa-chevron-right"></i>
         </button>
@@ -54,15 +54,17 @@
         <!-- 模式指示器，非搜索状态显示 -->
         <div
           v-if="!uiStore.isSearchActive"
-          class="mode-indicator pl-8 pr-4 py-1 border rounded-md w-64 h-8 flex items-center cursor-pointer
-            hover:bg-[var(--hover-bg)]"
+          class="mode-indicator pl-3 pr-4 py-1 border rounded-md w-64 h-8 flex items-center cursor-pointer hover:bg-[var(--hover-bg)]"
           @click="activateSearch"
         >
-          <span
-            class="flex items-center w-full leading-[1.5]"
-          >
-            <i class="fas fa-keyboard mr-2 absolute left-3"></i>
-            <span class="ml-2">Press / to search</span>
+          <i class="fas fa-keyboard text-gray-400"></i>
+          <span class="flex items-center w-full leading-[1.5] relative overflow-hidden h-full ml-2">
+            <span
+              :key="placeholderText"
+              class="placeholder-anim"
+            >
+              {{ placeholderText }}
+            </span>
           </span>
         </div>
 
@@ -74,7 +76,9 @@
           :placeholder="
             uiStore.appMode === 'normal'
               ? 'Search events...'
-              : 'Enter command...'
+              : uiStore.appMode === 'command'
+              ? 'Enter command...'
+              : 'Describe event and press Enter...'
           "
           class="pl-8 pr-4 py-1 border rounded-md focus:outline-none w-64 h-8
             placeholder-gray-400"
@@ -87,14 +91,19 @@
 
         <i
           class="fas absolute left-3 top-1/2 transform -translate-y-1/2 pointer-events-none"
-          :class="[
+          :class="
+            [
               uiStore.isSearchActive && uiStore.appMode === 'normal'
                 ? 'fa-search'
                 : '',
               uiStore.isSearchActive && uiStore.appMode === 'command'
                 ? 'fa-terminal text-blue-600'
                 : '',
-          ]"
+              uiStore.isSearchActive && uiStore.appMode === 'nlp'
+                ? 'fa-comment-dots text-purple-500'
+                : '',
+            ]
+          "
         ></i>
 
         <!-- 搜索结果列表 -->
@@ -145,9 +154,17 @@
       <!-- "今天"按钮 -->
       <button
         @click="uiStore.goToToday()"
-        class="header-icon-button py-1 px-4 rounded-md cursor-pointer no-drag"
+        class="header-icon-button py-1 px-4 cursor-pointer no-drag border border-[var(--border-color)] rounded-md ml-2"
       >
         Today
+      </button>
+      <!-- 新增：文本导入按钮 -->
+      <button
+        @click="handleSpeechRecognition"
+        class="header-icon-button p-1.5 rounded-md cursor-pointer no-drag ml-2"
+        title="通过文本描述创建事件"
+      >
+        <i class="fas fa-comment-dots"></i>
       </button>
     </div>
 
@@ -291,6 +308,19 @@
       </div>
     </div>
   </header>
+
+  <!-- 新增：文本识别弹窗 -->
+  <div v-if="isSpeechModalVisible" class="speech-modal-overlay">
+    <div class="speech-modal-content no-drag">
+      <h3 class="speech-modal-title">文本识别</h3>
+      <p class="speech-status">{{ speechStatus }}</p>
+      <div ref="transcriptDivRef" class="speech-transcript" contenteditable="true"></div>
+      <div class="speech-modal-actions">
+        <button @click="handleSpeechCancel" class="speech-btn-cancel">取消</button>
+        <button @click="handleSpeechDone" class="speech-btn-done">完成</button>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -311,6 +341,101 @@ const isBellShaking = ref(false); // 控制震动动画
 const isCogHovered = ref(false);
 const cogRotation = ref(0);
 const themeBtnHover = ref(false);
+
+// ==================== 动态占位符 ====================
+const placeholders = ['Press / to search', 'Press . to edit'];
+const placeholderIndex = ref(0);
+const placeholderText = ref(placeholders[0]);
+let placeholderInterval: number | undefined;
+
+// ==================== 文本识别功能 (新实现) ====================
+const isSpeechModalVisible = ref(false);
+const speechStatus = ref("点击“完成”或“取消”");
+const transcriptDivRef = ref<HTMLDivElement | null>(null);
+let recognition: any = null; // SpeechRecognition 实例
+let finalTranscript = '';
+
+// 新增：封装核心NLP处理逻辑
+const processTextWithNLP = async (text: string) => {
+  if (!electronAPI || !electronAPI.processNaturalLanguage) {
+    console.error("NLP API is not available.");
+    if (window.electronAPI && window.electronAPI.notify) {
+      window.electronAPI.notify('错误', '自然语言处理功能不可用。');
+    }
+    return { success: false, message: 'NLP API not available' };
+  }
+
+  try {
+    const result = await electronAPI.processNaturalLanguage(text);
+    if (result && result.success) {
+      eventStore.createEventFromNLP(result.event);
+      if (window.electronAPI && window.electronAPI.notify) {
+        window.electronAPI.notify('成功', `事件 "${result.event.title}" 已创建。`);
+      }
+      return { success: true };
+    } else {
+      console.error("NLP Error:", result ? result.message : "Unknown error");
+      if (window.electronAPI && window.electronAPI.notify) {
+        window.electronAPI.notify('创建事件失败', result.message || '无法解析您的输入，请检查内容和格式。');
+      }
+      return { success: false, message: result.message || 'Unknown error' };
+    }
+  } catch (error) {
+    console.error("Error processing natural language:", error);
+    const errorMessage = error instanceof Error ? error.message : '发生未知错误';
+    if (window.electronAPI && window.electronAPI.notify) {
+      window.electronAPI.notify('创建事件失败', '处理您的请求时发生了一个内部错误。');
+    }
+    return { success: false, message: errorMessage };
+  }
+};
+
+
+const handleSpeechRecognition = async () => {
+  // 检查 electronAPI 是否可用
+  if (!electronAPI || !electronAPI.processNaturalLanguage) {
+    speechStatus.value = "错误：自然语言处理功能不可用。";
+    isSpeechModalVisible.value = true;
+    return;
+  }
+
+  isSpeechModalVisible.value = true;
+  speechStatus.value = "请输入事件描述，例如“明天下午3点开会”";
+  finalTranscript = ''; // 重置之前的记录
+  
+  nextTick(() => {
+    if (transcriptDivRef.value) {
+      transcriptDivRef.value.innerHTML = ''; // 清空显示区域
+      transcriptDivRef.value.focus();
+    }
+  });
+};
+
+// 用户点击“完成”按钮
+const handleSpeechDone = async () => {
+  if (!transcriptDivRef.value || !transcriptDivRef.value.innerText.trim()) {
+    // @ts-ignore
+    window.electronAPI.notify('提示', '输入内容不能为空。');
+    return;
+  }
+
+  const text = transcriptDivRef.value.innerText.trim();
+  speechStatus.value = "正在处理...";
+
+  const result = await processTextWithNLP(text);
+  if (result.success) {
+    isSpeechModalVisible.value = false; // 关闭弹窗
+  } else {
+    speechStatus.value = `处理失败: ${result.message || '未知错误'}`;
+  }
+};
+
+// 用户点击“取消”按钮
+const handleSpeechCancel = () => {
+  // 由于逻辑在主进程，前端只需关闭弹窗
+  isSpeechModalVisible.value = false;
+};
+
 
 // ==================== 事件通知功能 ====================
 // 已通知事件唯一标识集合，防止重复通知（考虑时间变化）
@@ -478,6 +603,23 @@ const handleSearchKeydown = (event: KeyboardEvent) => {
     }
 
     event.preventDefault();
+  } else if (event.key === 'Enter' && uiStore.appMode === 'nlp') {
+    // 新增：处理NLP模式下的回车事件
+    const input = event.target as HTMLInputElement;
+    const text = input.value.trim();
+    if (text) {
+      // 复用核心NLP处理逻辑
+      processTextWithNLP(text).then(result => {
+        if (result.success) {
+          // 成功后清空并退出搜索模式
+          uiStore.updateSearchInputValue("");
+          uiStore.toggleSearchActive(false);
+          uiStore.setAppMode("normal");
+        }
+        // 如果失败，保留输入框内容供用户修改
+      });
+    }
+    event.preventDefault();
   } else {
     // 处理普通搜索逻辑
     uiStore.handleKeydownAction(event);
@@ -574,6 +716,14 @@ const handleGlobalKeydown = (event: KeyboardEvent) => {
         });
         event.preventDefault();
         break;
+      case ".":
+        uiStore.toggleSearchActive(true);
+        uiStore.setAppMode("nlp"); // 设置为新的NLP模式
+        nextTick(() => {
+          searchInputRef.value?.focus();
+        });
+        event.preventDefault();
+        break;
       case " ":
         uiStore.toggleSidebar();
         event.preventDefault();
@@ -622,6 +772,12 @@ onMounted(() => {
     Notification.requestPermission();
   }
   notifyTimer = window.setInterval(checkAndNotifyEvents, 5000); //每隔5秒检查一次
+
+  // 启动占位符切换动画
+  placeholderInterval = window.setInterval(() => {
+    placeholderIndex.value = (placeholderIndex.value + 1) % placeholders.length;
+    placeholderText.value = placeholders[placeholderIndex.value];
+  }, 3000);
 });
 
 // 组件卸载时清除滚动回调
@@ -631,6 +787,7 @@ onUnmounted(() => {
   // 清除全局键盘事件
   window.removeEventListener("keydown", handleGlobalKeydown);
   if (notifyTimer) clearInterval(notifyTimer);
+  if (placeholderInterval) clearInterval(placeholderInterval); // 清除占位符定时器
 });
 
 watch(
@@ -656,6 +813,24 @@ watch(isCogHovered, (hovered) => {
 <style scoped>
 .app-header {
   background-color: var(--header-bg);
+}
+
+/* 占位符动画 */
+.placeholder-anim {
+  position: absolute;
+  width: 100%;
+  animation: flip-in 0.5s ease-out forwards;
+}
+
+@keyframes flip-in {
+  from {
+    transform: translateY(100%) rotateX(-90deg);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0) rotateX(0);
+    opacity: 1;
+  }
 }
 
 /* 可拖动区域 */
@@ -732,5 +907,97 @@ watch(isCogHovered, (hovered) => {
 .header-icon-button:hover {
   color: #4a86e8;
   background-color: rgba(74, 134, 232, 0.1);
+}
+
+/* 新增：语音识别弹窗样式 */
+.speech-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.speech-modal-content {
+  background-color: var(--bg-primary);
+  padding: 24px;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 500px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--border-color);
+}
+
+.speech-modal-title {
+  margin: 0 0 8px 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.speech-status {
+  margin: 0 0 16px 0;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  min-height: 1.2em;
+}
+
+.speech-transcript {
+  width: 100%;
+  min-height: 100px;
+  padding: 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+  font-size: 1rem;
+  margin-bottom: 20px;
+  box-sizing: border-box;
+  resize: vertical;
+  overflow-y: auto;
+}
+.speech-transcript:focus {
+  outline: none;
+  border-color: #4a86e8;
+}
+
+.speech-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.speech-modal-actions button {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.speech-btn-cancel {
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+}
+.speech-btn-cancel:hover {
+  background-color: var(--hover-bg);
+}
+
+.speech-btn-done {
+  background-color: #4a86e8;
+  color: white;
+}
+.speech-btn-done:hover {
+  background-color: #3c78d8;
 }
 </style>
