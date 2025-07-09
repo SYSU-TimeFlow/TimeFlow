@@ -1,0 +1,31 @@
+{
+  "productName": "TimeFlow",
+  "files": ["../src/main/main.js", "../src/main/preload.js", "../src/main/ipcHandlers.js", "../src/main/database.js", "../dist"],
+  "directories": {
+    "output": "../build"
+  },
+  "nsis": {
+    "oneClick": false,
+    "perMachine": true,
+    "allowElevation": true,
+    "installerIcon": "../public/icon.ico",
+    "uninstallerIcon": "../public/icon.ico",
+    "uninstallDisplayName": "TimeFlow",
+    "createDesktopShortcut": true,
+    "createStartMenuShortcut": true,
+    "shortcutName": "TimeFlow",
+    "allowToChangeInstallationDirectory": true
+  },
+  "win": {
+    "icon": "../public/icon.ico"
+  },
+  "mac": {
+    "icon": "../public/icon.icns",
+    "category": "public.app-category.productivity"
+  },
+  "linux": {
+    "target": ["AppImage", "tar.gz"],
+    "icon": "../public/icon.png",
+    "category": "Utility"
+  }
+}
