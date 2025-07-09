@@ -299,6 +299,19 @@
       </div>
     </div>
   </header>
+
+  <!-- 新增：语音识别弹窗 -->
+  <div v-if="isSpeechModalVisible" class="speech-modal-overlay">
+    <div class="speech-modal-content no-drag">
+      <h3 class="speech-modal-title">语音输入</h3>
+      <p class="speech-status">{{ speechStatus }}</p>
+      <div ref="transcriptDivRef" class="speech-transcript" contenteditable="true"></div>
+      <div class="speech-modal-actions">
+        <button @click="handleSpeechCancel" class="speech-btn-cancel">取消</button>
+        <button @click="handleSpeechDone" class="speech-btn-done">完成</button>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -320,28 +333,84 @@ const isCogHovered = ref(false);
 const cogRotation = ref(0);
 const themeBtnHover = ref(false);
 
-// ==================== 语音识别功能 ====================
-const handleSpeechRecognition = async () => {
-  console.log("尝试调用语音识别...");
-  if (electronAPI && electronAPI.recognizeSpeech) {
-    try {
-      const result = await electronAPI.recognizeSpeech();
-      if (result.success) {
-        console.log("语音识别结果:", result.text);
-        // 可以在这里将识别的文本填充到搜索框或事件标题中
-        uiStore.updateSearchInputValue(result.text);
-        // 激活搜索框并聚焦
-        activateSearch();
-      } else {
-        console.error("语音识别失败:", result.text);
-      }
-    } catch (error) {
-      console.error("调用语音识别API时出错:", error);
-    }
-  } else {
-    console.warn("语音识别API不可用。");
+// ==================== 语音识别功能 (新实现) ====================
+const isSpeechModalVisible = ref(false);
+const speechStatus = ref("点击“完成”或“取消”");
+const transcriptDivRef = ref<HTMLDivElement | null>(null);
+let recognition: any = null; // SpeechRecognition 实例
+let finalTranscript = '';
+
+const handleSpeechRecognition = () => {
+  // Web Speech API 只能在渲染进程中使用
+  const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+  if (!SpeechRecognition) {
+    speechStatus.value = "错误：您的浏览器不支持语音识别。";
+    isSpeechModalVisible.value = true; // 显示弹窗并提示错误
+    return;
   }
+
+  isSpeechModalVisible.value = true;
+  finalTranscript = ''; // 重置之前的记录
+
+  // 初始化识别实例
+  recognition = new SpeechRecognition();
+  recognition.lang = 'zh-CN'; // 设置语言为中文
+  recognition.interimResults = true; // 显示临时结果
+  recognition.continuous = true; // 持续识别
+
+  recognition.onstart = () => {
+    speechStatus.value = "正在聆听，请开始说话...";
+  };
+
+  recognition.onresult = (event: any) => {
+    let interimTranscript = '';
+    finalTranscript = ''; // 每次结果更新时都重新计算最终结果
+    for (let i = 0; i < event.results.length; ++i) {
+      if (event.results[i].isFinal) {
+        finalTranscript += event.results[i][0].transcript;
+      } else {
+        interimTranscript += event.results[i][0].transcript;
+      }
+    }
+    // 更新弹窗中的文本内容
+    if (transcriptDivRef.value) {
+      transcriptDivRef.value.innerHTML = finalTranscript + `<span style="color: #999;">${interimTranscript}</span>`;
+    }
+  };
+
+  recognition.onerror = (event: any) => {
+    speechStatus.value = `识别出错: ${event.error}`;
+  };
+
+  recognition.onend = () => {
+    speechStatus.value = "识别结束。点击“完成”保存。";
+  };
+  
+  recognition.start();
 };
+
+// 用户点击“完成”按钮
+const handleSpeechDone = () => {
+  if (recognition) {
+    recognition.stop();
+  }
+  // 获取 div 中的最终文本（允许用户手动修改）
+  const resultText = transcriptDivRef.value?.innerText || finalTranscript;
+  if (resultText.trim()) {
+    uiStore.updateSearchInputValue(resultText.trim());
+    activateSearch(); // 激活搜索框并填入内容
+  }
+  isSpeechModalVisible.value = false;
+};
+
+// 用户点击“取消”按钮
+const handleSpeechCancel = () => {
+  if (recognition) {
+    recognition.stop();
+  }
+  isSpeechModalVisible.value = false;
+};
+
 
 // ==================== 事件通知功能 ====================
 // 已通知事件唯一标识集合，防止重复通知（考虑时间变化）
@@ -763,5 +832,97 @@ watch(isCogHovered, (hovered) => {
 .header-icon-button:hover {
   color: #4a86e8;
   background-color: rgba(74, 134, 232, 0.1);
+}
+
+/* 新增：语音识别弹窗样式 */
+.speech-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.speech-modal-content {
+  background-color: var(--bg-primary);
+  padding: 24px;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 500px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--border-color);
+}
+
+.speech-modal-title {
+  margin: 0 0 8px 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.speech-status {
+  margin: 0 0 16px 0;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  min-height: 1.2em;
+}
+
+.speech-transcript {
+  width: 100%;
+  min-height: 100px;
+  padding: 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+  font-size: 1rem;
+  margin-bottom: 20px;
+  box-sizing: border-box;
+  resize: vertical;
+  overflow-y: auto;
+}
+.speech-transcript:focus {
+  outline: none;
+  border-color: #4a86e8;
+}
+
+.speech-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.speech-modal-actions button {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.speech-btn-cancel {
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+}
+.speech-btn-cancel:hover {
+  background-color: var(--hover-bg);
+}
+
+.speech-btn-done {
+  background-color: #4a86e8;
+  color: white;
+}
+.speech-btn-done:hover {
+  background-color: #3c78d8;
 }
 </style>
