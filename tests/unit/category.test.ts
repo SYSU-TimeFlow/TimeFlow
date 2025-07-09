@@ -187,31 +187,22 @@ describe("deleteCategory", () => {
     };
     eventStore.isNewCategory = false;
 
+    // 添加一个事件，分类 ID 2
+    eventStore.events.push(new Event(
+      2,
+      "测试事件",
+      new Date("2025-05-18T10:00:00.000Z"),
+      new Date("2025-05-18T11:00:00.000Z"),
+      "Description",
+      2,
+      "#2a9d8f",
+      false,
+      EventType.CALENDAR,
+      false
+    ));
+
     // 模拟用户确认
     vi.spyOn(window, "confirm").mockReturnValueOnce(true);
-
-    // 确保有一个与当前分类关联的事件
-    const eventWithCategory = eventStore.events.find(e => e.categoryId === 2);
-    if (!eventWithCategory) {
-      // 如果没有，则修改现有事件或添加一个新事件
-      if (eventStore.events.length > 0) {
-        eventStore.events[0].categoryId = 2;
-        eventStore.events[0].categoryColor = "#2a9d8f";
-      } else {
-        eventStore.events.push(new Event(
-          2,
-          "测试事件",
-          new Date("2025-05-18T10:00:00.000Z"),
-          new Date("2025-05-18T11:00:00.000Z"),
-          "Description",
-          2,
-          "#2a9d8f",
-          false,
-          EventType.CALENDAR,
-          false
-        ));
-      }
-    }
 
     eventStore.deleteCategory();
 

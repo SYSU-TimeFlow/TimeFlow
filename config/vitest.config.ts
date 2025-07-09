@@ -13,18 +13,20 @@ export default defineConfig({
       provider: 'v8',
       reporter: ['text', 'json', 'html'],
       exclude: [
-        '../node_modules/',
-        '../tests/',
+        'node_modules/',
+        'tests/',
         '**/*.d.ts',
         '**/*.config.*',
         '**/build/**',
         '**/dist/**',
         '**/coverage/**',
-        '**/src/components/**',
-        '**/src/views/**',
-        '**/src/App.vue',
-        '**/src/main.ts',
-        '**/src/router/index.ts',
+        '**/src/main/main.js',
+        '**/src/main/preload.js',
+        '**/src/renderer/components/**',
+        '**/src/renderer/views/**',
+        '**/src/renderer/App.vue',
+        '**/src/renderer/main.ts',
+        '**/src/renderer/router/index.ts',
       ],
       thresholds: {
         global: {
@@ -36,12 +38,12 @@ export default defineConfig({
       }
     },
     include: [
-      '../tests/unit/**/*.test.ts',
-      '../tests/integration/**/*.test.ts'
+      'tests/unit/**/*.test.ts',
+      'tests/integration/**/*.test.ts'
     ],
     exclude: [
-      '../tests/e2e/**/*',
-      '../node_modules/**/*'
+      'tests/e2e/**/*',
+      'node_modules/**/*'
     ],
     testTimeout: 10000,
     pool: 'threads',
