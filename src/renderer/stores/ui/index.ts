@@ -20,7 +20,7 @@ export const useUiStore = defineStore("ui", () => {
   const selectedDate = ref(new Date());
   const sidebarCollapsed = ref(false);
   const draggedEvent = ref<Event | null>(null);
-  const appMode = ref<"normal" | "command">("normal");
+  const appMode = ref<"normal" | "command" | "nlp">("normal");
   const isSearchActive = ref(false);
 
   // 创建共享上下文
@@ -62,7 +62,7 @@ export const useUiStore = defineStore("ui", () => {
     sidebarCollapsed.value = !sidebarCollapsed.value;
   }
 
-  function setAppMode(mode: "normal" | "command") {
+  function setAppMode(mode: "normal" | "command" | "nlp") {
     appMode.value = mode;
   }
 

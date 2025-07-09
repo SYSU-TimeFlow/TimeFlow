@@ -54,15 +54,17 @@
         <!-- 模式指示器，非搜索状态显示 -->
         <div
           v-if="!uiStore.isSearchActive"
-          class="mode-indicator pl-8 pr-4 py-1 border rounded-md w-64 h-8 flex items-center cursor-pointer
-            hover:bg-[var(--hover-bg)]"
+          class="mode-indicator pl-3 pr-4 py-1 border rounded-md w-64 h-8 flex items-center cursor-pointer hover:bg-[var(--hover-bg)]"
           @click="activateSearch"
         >
-          <span
-            class="flex items-center w-full leading-[1.5]"
-          >
-            <i class="fas fa-keyboard mr-2 absolute left-3"></i>
-            <span class="ml-2">Press / to search</span>
+          <i class="fas fa-keyboard text-gray-400"></i>
+          <span class="flex items-center w-full leading-[1.5] relative overflow-hidden h-full ml-2">
+            <span
+              :key="placeholderText"
+              class="placeholder-anim"
+            >
+              {{ placeholderText }}
+            </span>
           </span>
         </div>
 
@@ -74,7 +76,9 @@
           :placeholder="
             uiStore.appMode === 'normal'
               ? 'Search events...'
-              : 'Enter command...'
+              : uiStore.appMode === 'command'
+              ? 'Enter command...'
+              : 'Describe event and press Enter...'
           "
           class="pl-8 pr-4 py-1 border rounded-md focus:outline-none w-64 h-8
             placeholder-gray-400"
@@ -87,14 +91,19 @@
 
         <i
           class="fas absolute left-3 top-1/2 transform -translate-y-1/2 pointer-events-none"
-          :class="[
+          :class="
+            [
               uiStore.isSearchActive && uiStore.appMode === 'normal'
                 ? 'fa-search'
                 : '',
               uiStore.isSearchActive && uiStore.appMode === 'command'
                 ? 'fa-terminal text-blue-600'
                 : '',
-          ]"
+              uiStore.isSearchActive && uiStore.appMode === 'nlp'
+                ? 'fa-comment-dots text-purple-500'
+                : '',
+            ]
+          "
         ></i>
 
         <!-- 搜索结果列表 -->
@@ -155,7 +164,7 @@
         class="header-icon-button p-1.5 rounded-md cursor-pointer no-drag ml-2"
         title="通过文本描述创建事件"
       >
-        <i class="fas fa-wand-magic-sparkles"></i>
+        <i class="fas fa-comment-dots"></i>
       </button>
     </div>
 
@@ -333,12 +342,54 @@ const isCogHovered = ref(false);
 const cogRotation = ref(0);
 const themeBtnHover = ref(false);
 
-// ==================== 语音识别功能 (新实现) ====================
+// ==================== 动态占位符 ====================
+const placeholders = ['Press / to search', 'Press . to edit'];
+const placeholderIndex = ref(0);
+const placeholderText = ref(placeholders[0]);
+let placeholderInterval: number | undefined;
+
+// ==================== 文本识别功能 (新实现) ====================
 const isSpeechModalVisible = ref(false);
 const speechStatus = ref("点击“完成”或“取消”");
 const transcriptDivRef = ref<HTMLDivElement | null>(null);
 let recognition: any = null; // SpeechRecognition 实例
 let finalTranscript = '';
+
+// 新增：封装核心NLP处理逻辑
+const processTextWithNLP = async (text: string) => {
+  if (!electronAPI || !electronAPI.processNaturalLanguage) {
+    console.error("NLP API is not available.");
+    if (window.electronAPI && window.electronAPI.notify) {
+      window.electronAPI.notify('错误', '自然语言处理功能不可用。');
+    }
+    return { success: false, message: 'NLP API not available' };
+  }
+
+  try {
+    const result = await electronAPI.processNaturalLanguage(text);
+    if (result && result.success) {
+      eventStore.createEventFromNLP(result.event);
+      if (window.electronAPI && window.electronAPI.notify) {
+        window.electronAPI.notify('成功', `事件 "${result.event.title}" 已创建。`);
+      }
+      return { success: true };
+    } else {
+      console.error("NLP Error:", result ? result.message : "Unknown error");
+      if (window.electronAPI && window.electronAPI.notify) {
+        window.electronAPI.notify('创建事件失败', result.message || '无法解析您的输入，请检查内容和格式。');
+      }
+      return { success: false, message: result.message || 'Unknown error' };
+    }
+  } catch (error) {
+    console.error("Error processing natural language:", error);
+    const errorMessage = error instanceof Error ? error.message : '发生未知错误';
+    if (window.electronAPI && window.electronAPI.notify) {
+      window.electronAPI.notify('创建事件失败', '处理您的请求时发生了一个内部错误。');
+    }
+    return { success: false, message: errorMessage };
+  }
+};
+
 
 const handleSpeechRecognition = async () => {
   // 检查 electronAPI 是否可用
@@ -371,33 +422,11 @@ const handleSpeechDone = async () => {
   const text = transcriptDivRef.value.innerText.trim();
   speechStatus.value = "正在处理...";
 
-  try {
-    // 调用主进程的自然语言处理 API
-    const result = await electronAPI.processNaturalLanguage(text);
-
-    if (result && result.success) {
-      // 如果成功，调用 eventStore 创建事件
-      eventStore.createEventFromNLP(result.event);
-      isSpeechModalVisible.value = false; // 关闭弹窗
-    } else {
-      // 处理失败，给用户一个提示
-      speechStatus.value = `处理失败: ${result.message || '未知错误'}`;
-      console.error("NLP Error:", result ? result.message : "Unknown error");
-      // @ts-ignore
-      if (window.electronAPI && window.electronAPI.notify) {
-        // @ts-ignore
-        window.electronAPI.notify('创建事件失败', result.message || '无法解析您的输入，请检查内容和格式。');
-      }
-    }
-  } catch (error) {
-    console.error("Error processing natural language:", error);
-    const errorMessage = error instanceof Error ? error.message : '发生未知错误';
-    speechStatus.value = `处理出错: ${errorMessage}`;
-    // @ts-ignore
-    if (window.electronAPI && window.electronAPI.notify) {
-      // @ts-ignore
-      window.electronAPI.notify('创建事件失败', '处理您的请求时发生了一个内部错误。');
-    }
+  const result = await processTextWithNLP(text);
+  if (result.success) {
+    isSpeechModalVisible.value = false; // 关闭弹窗
+  } else {
+    speechStatus.value = `处理失败: ${result.message || '未知错误'}`;
   }
 };
 
@@ -574,6 +603,23 @@ const handleSearchKeydown = (event: KeyboardEvent) => {
     }
 
     event.preventDefault();
+  } else if (event.key === 'Enter' && uiStore.appMode === 'nlp') {
+    // 新增：处理NLP模式下的回车事件
+    const input = event.target as HTMLInputElement;
+    const text = input.value.trim();
+    if (text) {
+      // 复用核心NLP处理逻辑
+      processTextWithNLP(text).then(result => {
+        if (result.success) {
+          // 成功后清空并退出搜索模式
+          uiStore.updateSearchInputValue("");
+          uiStore.toggleSearchActive(false);
+          uiStore.setAppMode("normal");
+        }
+        // 如果失败，保留输入框内容供用户修改
+      });
+    }
+    event.preventDefault();
   } else {
     // 处理普通搜索逻辑
     uiStore.handleKeydownAction(event);
@@ -670,6 +716,14 @@ const handleGlobalKeydown = (event: KeyboardEvent) => {
         });
         event.preventDefault();
         break;
+      case ".":
+        uiStore.toggleSearchActive(true);
+        uiStore.setAppMode("nlp"); // 设置为新的NLP模式
+        nextTick(() => {
+          searchInputRef.value?.focus();
+        });
+        event.preventDefault();
+        break;
       case " ":
         uiStore.toggleSidebar();
         event.preventDefault();
@@ -718,6 +772,12 @@ onMounted(() => {
     Notification.requestPermission();
   }
   notifyTimer = window.setInterval(checkAndNotifyEvents, 5000); //每隔5秒检查一次
+
+  // 启动占位符切换动画
+  placeholderInterval = window.setInterval(() => {
+    placeholderIndex.value = (placeholderIndex.value + 1) % placeholders.length;
+    placeholderText.value = placeholders[placeholderIndex.value];
+  }, 3000);
 });
 
 // 组件卸载时清除滚动回调
@@ -727,6 +787,7 @@ onUnmounted(() => {
   // 清除全局键盘事件
   window.removeEventListener("keydown", handleGlobalKeydown);
   if (notifyTimer) clearInterval(notifyTimer);
+  if (placeholderInterval) clearInterval(placeholderInterval); // 清除占位符定时器
 });
 
 watch(
@@ -752,6 +813,24 @@ watch(isCogHovered, (hovered) => {
 <style scoped>
 .app-header {
   background-color: var(--header-bg);
+}
+
+/* 占位符动画 */
+.placeholder-anim {
+  position: absolute;
+  width: 100%;
+  animation: flip-in 0.5s ease-out forwards;
+}
+
+@keyframes flip-in {
+  from {
+    transform: translateY(100%) rotateX(-90deg);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0) rotateX(0);
+    opacity: 1;
+  }
 }
 
 /* 可拖动区域 */
