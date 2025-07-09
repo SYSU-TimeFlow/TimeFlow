@@ -36,21 +36,14 @@
         <!-- "上一个"导航按钮 -->
         <button
           @click="uiStore.navigateCalendar('prev')"
-          class="header-icon-button px-2 py-2 rounded-l-md cursor-pointer min-w-[40px] transition-colors"
+          class="header-icon-button px-2 py-2 rounded-l-md cursor-pointer min-w-[40px] transition-colors border-y border-l border-r-0 border-[var(--border-color)]"
         >
           <i class="fas fa-chevron-left"></i>
-        </button>
-        <!-- "今天"按钮 -->
-        <button
-          @click="uiStore.goToToday()"
-          class="header-icon-button py-1 px-4 cursor-pointer no-drag border-y border-x-0 border-[var(--border-color)]"
-        >
-          Today
         </button>
         <!-- "下一个"导航按钮 -->
         <button
           @click="uiStore.navigateCalendar('next')"
-          class="header-icon-button px-2 py-2 rounded-r-md cursor-pointer min-w-[40px] transition-colors"
+          class="header-icon-button px-2 py-2 rounded-r-md cursor-pointer min-w-[40px] transition-colors border-y border-r border-[var(--border-color)]"
         >
           <i class="fas fa-chevron-right"></i>
         </button>
@@ -149,13 +142,20 @@
           </ul>
         </div>
       </div>
-      <!-- 新增：麦克风按钮 -->
+      <!-- "今天"按钮 -->
+      <button
+        @click="uiStore.goToToday()"
+        class="header-icon-button py-1 px-4 cursor-pointer no-drag border border-[var(--border-color)] rounded-md ml-2"
+      >
+        Today
+      </button>
+      <!-- 新增：文本导入按钮 -->
       <button
         @click="handleSpeechRecognition"
-        class="header-icon-button py-1 px-3 rounded-md cursor-pointer no-drag ml-2"
-        title="语音输入"
+        class="header-icon-button p-1.5 rounded-md cursor-pointer no-drag ml-2"
+        title="通过文本描述创建事件"
       >
-        <i class="fas fa-microphone"></i>
+        <i class="fas fa-wand-magic-sparkles"></i>
       </button>
     </div>
 
@@ -300,10 +300,10 @@
     </div>
   </header>
 
-  <!-- 新增：语音识别弹窗 -->
+  <!-- 新增：文本识别弹窗 -->
   <div v-if="isSpeechModalVisible" class="speech-modal-overlay">
     <div class="speech-modal-content no-drag">
-      <h3 class="speech-modal-title">语音输入</h3>
+      <h3 class="speech-modal-title">文本识别</h3>
       <p class="speech-status">{{ speechStatus }}</p>
       <div ref="transcriptDivRef" class="speech-transcript" contenteditable="true"></div>
       <div class="speech-modal-actions">
