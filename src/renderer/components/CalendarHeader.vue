@@ -340,60 +340,41 @@ const transcriptDivRef = ref<HTMLDivElement | null>(null);
 let recognition: any = null; // SpeechRecognition 实例
 let finalTranscript = '';
 
-const handleSpeechRecognition = () => {
-  // Web Speech API 只能在渲染进程中使用
-  const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-  if (!SpeechRecognition) {
-    speechStatus.value = "错误：您的浏览器不支持语音识别。";
-    isSpeechModalVisible.value = true; // 显示弹窗并提示错误
+const handleSpeechRecognition = async () => {
+  // 检查 electronAPI 是否可用
+  if (!electronAPI || !electronAPI.recognizeSpeech) {
+    speechStatus.value = "错误：无法访问主进程语音识别功能。";
+    isSpeechModalVisible.value = true;
     return;
   }
 
   isSpeechModalVisible.value = true;
+  speechStatus.value = "正在连接语音服务，请稍候...";
   finalTranscript = ''; // 重置之前的记录
+  if (transcriptDivRef.value) {
+    transcriptDivRef.value.innerHTML = ''; // 清空显示区域
+  }
 
-  // 初始化识别实例
-  recognition = new SpeechRecognition();
-  recognition.lang = 'zh-CN'; // 设置语言为中文
-  recognition.interimResults = true; // 显示临时结果
-  recognition.continuous = true; // 持续识别
-
-  recognition.onstart = () => {
-    speechStatus.value = "正在聆听，请开始说话...";
-  };
-
-  recognition.onresult = (event: any) => {
-    let interimTranscript = '';
-    finalTranscript = ''; // 每次结果更新时都重新计算最终结果
-    for (let i = 0; i < event.results.length; ++i) {
-      if (event.results[i].isFinal) {
-        finalTranscript += event.results[i][0].transcript;
-      } else {
-        interimTranscript += event.results[i][0].transcript;
+  try {
+    // 调用主进程的语音识别 API
+    const result = await electronAPI.recognizeSpeech();
+    
+    if (result && result.success) {
+      finalTranscript = result.text;
+      speechStatus.value = "识别完成。您可以编辑后点击“完成”。";
+      if (transcriptDivRef.value) {
+        transcriptDivRef.value.innerText = finalTranscript;
       }
+    } else {
+      speechStatus.value = `识别失败: ${result?.text || '未知错误'}`;
     }
-    // 更新弹窗中的文本内容
-    if (transcriptDivRef.value) {
-      transcriptDivRef.value.innerHTML = finalTranscript + `<span style="color: #999;">${interimTranscript}</span>`;
-    }
-  };
-
-  recognition.onerror = (event: any) => {
-    speechStatus.value = `识别出错: ${event.error}`;
-  };
-
-  recognition.onend = () => {
-    speechStatus.value = "识别结束。点击“完成”保存。";
-  };
-  
-  recognition.start();
+  } catch (error: any) {
+    speechStatus.value = `识别出错: ${error.message}`;
+  }
 };
 
 // 用户点击“完成”按钮
 const handleSpeechDone = () => {
-  if (recognition) {
-    recognition.stop();
-  }
   // 获取 div 中的最终文本（允许用户手动修改）
   const resultText = transcriptDivRef.value?.innerText || finalTranscript;
   if (resultText.trim()) {
@@ -405,9 +386,7 @@ const handleSpeechDone = () => {
 
 // 用户点击“取消”按钮
 const handleSpeechCancel = () => {
-  if (recognition) {
-    recognition.stop();
-  }
+  // 由于逻辑在主进程，前端只需关闭弹窗
   isSpeechModalVisible.value = false;
 };
 
