@@ -40,6 +40,13 @@
         >
           <i class="fas fa-chevron-left"></i>
         </button>
+        <!-- "今天"按钮 -->
+        <button
+          @click="uiStore.goToToday()"
+          class="header-icon-button py-1 px-4 cursor-pointer no-drag border-y border-x-0 border-[var(--border-color)]"
+        >
+          Today
+        </button>
         <!-- "下一个"导航按钮 -->
         <button
           @click="uiStore.navigateCalendar('next')"
@@ -142,12 +149,13 @@
           </ul>
         </div>
       </div>
-      <!-- "今天"按钮 -->
+      <!-- 新增：麦克风按钮 -->
       <button
-        @click="uiStore.goToToday()"
-        class="header-icon-button py-1 px-4 rounded-md cursor-pointer no-drag"
+        @click="handleSpeechRecognition"
+        class="header-icon-button py-1 px-3 rounded-md cursor-pointer no-drag ml-2"
+        title="语音输入"
       >
-        Today
+        <i class="fas fa-microphone"></i>
       </button>
     </div>
 
@@ -311,6 +319,29 @@ const isBellShaking = ref(false); // 控制震动动画
 const isCogHovered = ref(false);
 const cogRotation = ref(0);
 const themeBtnHover = ref(false);
+
+// ==================== 语音识别功能 ====================
+const handleSpeechRecognition = async () => {
+  console.log("尝试调用语音识别...");
+  if (electronAPI && electronAPI.recognizeSpeech) {
+    try {
+      const result = await electronAPI.recognizeSpeech();
+      if (result.success) {
+        console.log("语音识别结果:", result.text);
+        // 可以在这里将识别的文本填充到搜索框或事件标题中
+        uiStore.updateSearchInputValue(result.text);
+        // 激活搜索框并聚焦
+        activateSearch();
+      } else {
+        console.error("语音识别失败:", result.text);
+      }
+    } catch (error) {
+      console.error("调用语音识别API时出错:", error);
+    }
+  } else {
+    console.warn("语音识别API不可用。");
+  }
+};
 
 // ==================== 事件通知功能 ====================
 // 已通知事件唯一标识集合，防止重复通知（考虑时间变化）

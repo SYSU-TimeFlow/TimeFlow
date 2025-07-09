@@ -18,4 +18,6 @@ contextBridge.exposeInMainWorld('electronAPI', {
   notify: (title, body) => ipcRenderer.invoke('notify', { title, body }),
   // 新增：课程导入API
   importSchedule: () => ipcRenderer.invoke('import-schedule'),
+  // 新增：语音识别API
+  recognizeSpeech: () => ipcRenderer.invoke('recognize-speech'),
 });

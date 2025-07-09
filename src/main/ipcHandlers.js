@@ -368,4 +368,21 @@ export function initializeIpcHandlers(ipcMain, sqliteStore, mainDirname, Browser
       return { success: false, message: `解析失败: ${error.message}` };
     }
   });
+
+  // 新增：处理语音识别请求
+  ipcMain.handle('recognize-speech', async () => {
+    // 注意：Electron 主进程本身没有内置的语音识别 API。
+    // 实现此功能通常需要：
+    // 1. 在渲染器进程中使用 Web Speech API (推荐)。
+    // 2. 在主进程中使用第三方语音识别服务（如 Google Cloud Speech-to-Text, Azure 等）的 SDK。
+    // 3. 集成离线的语音识别库（如 Vosk, DeepSpeech），但这可能很复杂。
+    //
+    // 此处返回一个模拟的成功消息和占位文本。
+    // 您可以将来的实现逻辑放在这里。
+    console.log('收到语音识别请求，但主进程中未实现。');
+    return {
+      success: true,
+      text: '这是一个来自主进程的模拟语音识别结果。',
+    };
+  });
 }
