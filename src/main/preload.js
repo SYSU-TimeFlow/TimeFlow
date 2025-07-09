@@ -14,8 +14,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
   // 保留旧的设置API（如果将来需要） -> 这些将用于新的设置加载/保存逻辑
   loadSettings: () => ipcRenderer.invoke('load-settings'),
   saveSettings: (settings) => ipcRenderer.invoke('save-settings', settings),
-  // 新增：通知API
+  // 通知API
   notify: (title, body) => ipcRenderer.invoke('notify', { title, body }),
-  // 新增：课程导入API
+  // 课程导入API
   importSchedule: () => ipcRenderer.invoke('import-schedule'),
 });
