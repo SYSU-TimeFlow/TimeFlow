@@ -31,7 +31,7 @@ const createWindow = () => {
     ...winState.winOptions,
     minWidth: 900,
     minHeight: 700,
-    icon: path.join(__dirname, "./public/icon.png"), 
+    icon: path.join(__dirname, "../../public/icon.png"), 
     frame: false,
     autohideMenu: true,
     webPreferences: {
@@ -51,7 +51,7 @@ const createWindow = () => {
     // win.webContents.openDevTools();
   } else {
     // 在生产模式下加载vite打包后的文件
-    win.loadFile(path.join(__dirname, "dist/index.html"));
+    win.loadFile(path.join(__dirname, "../../dist/index.html"));
   }
 };
 

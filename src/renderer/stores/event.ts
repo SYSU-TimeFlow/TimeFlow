@@ -700,7 +700,7 @@ export const useEventStore = defineStore("event", () => {
                 item.courseName,
                 start,
                 end,
-                `课程导入 - ${item.courseName} (第${week + 1}周)`,
+                `${item.courseCategory} ${item.teacher} ${week + 1}周`,
                 scheduleCategoryRef.id,
                 scheduleCategoryRef.color,
                 false,

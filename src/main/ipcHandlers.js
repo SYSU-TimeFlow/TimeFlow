@@ -343,12 +343,29 @@ export function initializeIpcHandlers(ipcMain, sqliteStore, mainDirname, Browser
               courseText = courseText.replace(weekRangeMatch[0], '').trim();
             }
 
-            // 修正：清理课程名称，移除开头和结尾可能存在的斜杠和多余的空格
-            courseText = courseText.replace(/^\s*\/|\/\s*$/g, "").trim();
+            // 解析课程信息：格式为 "学历(课程类别)课程名称/老师/校园地点-教学楼号-教室号(座位数)/人数"
+            let finalCourseName = courseText;
+            let courseCategory = "";
+            let teacher = "";
+            
+            // 提取课程类别、课程名称、老师和教室号
+            const courseMatch = courseText.match(/本\(([^)]+)\)([^\/]+)\/([^\/]+)\/[^-]*-[^-]*-([^(]+)/);
+            if (courseMatch) {
+              courseCategory = courseMatch[1].trim(); // 课程类别
+              const courseName = courseMatch[2].trim(); // 课程名称
+              teacher = courseMatch[3].trim(); // 老师
+              const classroom = courseMatch[4].trim();  // 教室号
+              finalCourseName = `${classroom} ${courseName}`;
+            } else {
+              // 如果无法匹配预期格式，尝试简单清理
+              finalCourseName = courseText.replace(/^\s*\/|\/\s*$/g, "").trim();
+            }
 
             // 已移除防止重复的逻辑，以允许同一时间段有多个课程
             schedule.push({
-              courseName: courseText,
+              courseName: finalCourseName,
+              courseCategory: courseCategory, // 新增：课程类别
+              teacher: teacher, // 新增：老师
               dayOfWeek: dayOfWeek,
               startTime: startTimeInfo.start,
               endTime: endTimeInfo.end,
