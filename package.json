@@ -1,5 +1,5 @@
 {
-  "name": "TimeFlow",
+  "name": "timeflow",
   "private": true,
   "version": "1.1.13",
   "type": "module",
@@ -24,11 +24,9 @@
     "@fortawesome/fontawesome-free": "^6.7.2",
     "@tailwindcss/vite": "^4.1.7",
     "better-sqlite3": "^12.2.0",
-    "docx": "^9.5.1",
     "electron-is-dev": "^3.0.1",
     "electron-win-state": "^1.1.22",
     "mammoth": "^1.9.1",
-    "p-limit": "^6.2.0",
     "path": "^0.12.7",
     "pinia": "^3.0.2",
     "pinyin-pro": "^3.26.0",
