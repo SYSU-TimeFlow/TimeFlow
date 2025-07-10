@@ -5,12 +5,21 @@
 <script setup>
 import { onMounted } from "vue";
 import { useSettingStore } from "./stores/setting";
+import { useUiStore } from "./stores/ui";
 
 // 在应用挂载时应用主题和字号
 onMounted(() => {
   const settingStore = useSettingStore();
   settingStore.applyTheme(settingStore.themeMode);
   settingStore.applyFontSize(settingStore.fontSize);
+
+  // 新增：监听主进程 show-info-message 事件
+  const uiStore = useUiStore();
+  if (window.electronAPI && window.electronAPI.on) {
+    window.electronAPI.on('show-info-message', (_event, message) => {
+      uiStore.showInfoMessage('提示', message);
+    });
+  }
 });
 </script>
 

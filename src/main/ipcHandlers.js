@@ -225,6 +225,7 @@ export function initializeIpcHandlers(ipcMain, sqliteStore, mainDirname, Browser
       settingsCount: Object.keys(settings || {}).length
     });
     
+    const win = BrowserWindow.getAllWindows()[0];
     try {
       sqliteStore.setSettings(settings); // 保存用户设置
       
@@ -236,6 +237,8 @@ export function initializeIpcHandlers(ipcMain, sqliteStore, mainDirname, Browser
       return { success: true }; // 返回成功状态
     } catch (error) {
       console.error("Error saving settings to user config:", error);
+      const msg = `设置保存失败: ${error.message}`;
+      if (win) win.webContents.send('show-info-message', msg);
       return { success: false, error: error.message }; // 返回失败状态和错误信息
     }
   });
@@ -315,6 +318,7 @@ export function initializeIpcHandlers(ipcMain, sqliteStore, mainDirname, Browser
 
   // 新增：处理课程导入
   ipcMain.handle('import-schedule', async () => {
+    const win = BrowserWindow.getAllWindows()[0];
     const { canceled, filePaths } = await dialog.showOpenDialog({
       properties: ['openFile'],
       filters: [
@@ -330,15 +334,13 @@ export function initializeIpcHandlers(ipcMain, sqliteStore, mainDirname, Browser
       // 如果不是docx格式，打开浏览器跳转到转换网站
       try {
         await shell.openExternal('https://cloudconvert.com/');
-        return { 
-          success: false, 
-          message: '只支持.docx格式的文件。已为您打开CloudConvert网站，您可以在此将其他格式转换为.docx格式。' 
-        };
+        const msg = '只支持.docx格式的文件。已为您打开CloudConvert网站，您可以在此将其他格式转换为.docx格式。';
+        if (win) win.webContents.send('show-info-message', msg);
+        return { success: false };
       } catch (error) {
-        return { 
-          success: false, 
-          message: '只支持.docx格式的文件。请将文件转换为.docx格式后重试。您可以访问 https://cloudconvert.com/ 进行格式转换。' 
-        };
+        const msg = '只支持.docx格式的文件。请将文件转换为.docx格式后重试。您可以访问 https://cloudconvert.com/ 进行格式转换。';
+        if (win) win.webContents.send('show-info-message', msg);
+        return { success: false };
       }
     }
 
@@ -347,13 +349,17 @@ export function initializeIpcHandlers(ipcMain, sqliteStore, mainDirname, Browser
 
       const tableMatch = html.match(/<table.*?>([\s\S]*?)<\/table>/);
       if (!tableMatch) {
-        return { success: false, message: '在文档中未找到表格' };
+        const msg = '在文档中未找到表格';
+        if (win) win.webContents.send('show-info-message', msg);
+        return { success: false };
       }
 
       const tableHtml = tableMatch[1];
       const rowsHtml = tableHtml.match(/<tr.*?>([\s\S]*?)<\/tr>/g) || [];
       if (rowsHtml.length < 2) {
-        return { success: false, message: '表格内容过少，无法解析' };
+        const msg = '表格内容过少，无法解析';
+        if (win) win.webContents.send('show-info-message', msg);
+        return { success: false };
       }
 
       const grid = [];
@@ -495,24 +501,31 @@ export function initializeIpcHandlers(ipcMain, sqliteStore, mainDirname, Browser
       }
 
       if (schedule.length === 0) {
-        return { success: false, message: '表格为空或无法解析课程内容' };
+        const msg = '表格为空或无法解析课程内容';
+        if (win) win.webContents.send('show-info-message', msg);
+        return { success: false };
       }
 
       return { success: true, schedule };
     } catch (error) {
       console.error('解析课程文件失败:', error);
-      return { success: false, message: `解析失败: ${error.message}` };
+      const msg = `解析失败: ${error.message}`;
+      if (win) win.webContents.send('show-info-message', msg);
+      return { success: false };
     }
   });
 
   // 新增：处理自然语言文本
   ipcMain.handle('process-natural-language', async (event, text) => {
+    const win = BrowserWindow.getAllWindows()[0];
     try {
       // 修改：使用 chrono.zh.parse 来支持中文日期解析
       const results = chrono.zh.parse(text);
 
       if (results.length === 0) {
-        return { success: false, message: '无法识别出有效的日期和时间。' };
+        const msg = '无法识别出有效的日期和时间。';
+        if (win) win.webContents.send('show-info-message', msg);
+        return { success: false, message: msg };
       }
 
       // 使用第一个解析结果
@@ -522,7 +535,9 @@ export function initializeIpcHandlers(ipcMain, sqliteStore, mainDirname, Browser
       const title = text.replace(result.text, '').trim().replace(/[:：]$/, '').trim();
 
       if (!title) {
-        return { success: false, message: '无法识别出事件标题。' };
+        const msg = '无法识别出事件标题。';
+        if (win) win.webContents.send('show-info-message', msg);
+        return { success: false, message: msg };
       }
 
       const eventData = {
@@ -535,7 +550,9 @@ export function initializeIpcHandlers(ipcMain, sqliteStore, mainDirname, Browser
       return { success: true, event: eventData };
     } catch (error) {
       console.error('NLP processing failed:', error);
-      return { success: false, message: '处理文本时发生内部错误。' };
+      const msg = '处理文本时发生内部错误。';
+      if (win) win.webContents.send('show-info-message', msg);
+      return { success: false, message: msg };
     }
   });
 
