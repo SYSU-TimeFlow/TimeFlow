@@ -62,8 +62,8 @@
 
     <!-- 视图选择器组件 -->
     <ViewSelector />
-    <!-- 分类列表，它不会在 todo 视图显示 -->
-    <Categories v-if="uiStore.currentView !== 'todo'" />
+    <!-- 分类列表，所有视图都显示 -->
+    <Categories />
 
     <!-- 反馈按钮 -->
     <button

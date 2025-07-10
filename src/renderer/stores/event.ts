@@ -316,6 +316,11 @@ export const useEventStore = defineStore("event", () => {
   });
 
   const filteredTodos = computed(() => {
+    // 只显示激活分类的待办事项
+    const activeCategoryIds = categories.value
+      .filter((category) => category.active)
+      .map((category) => category.id);
+
     let list: Event[];
     switch (activeFilter.value) {
       case "today":
@@ -331,35 +336,25 @@ export const useEventStore = defineStore("event", () => {
         list = allTodos.value;
     }
 
-    // 所有待办项都应该显示，无论是否有截止日期
+    // 只保留属于激活分类的待办事项
+    list = list.filter((todo) => activeCategoryIds.includes(todo.categoryId));
+
     // 优先显示未完成事项，并在各自组内按截止日期升序排序
     return [...list].sort((a, b) => {
-      // 首先按照完成状态排序
       if (a.completed !== b.completed) {
-        return a.completed ? 1 : -1; // 未完成在前
+        return a.completed ? 1 : -1;
       }
-
-      // 判断是否有截止日期（不是1970年占位符）
       const aHasDeadline = new Date(a.end).getFullYear() > 1970;
       const bHasDeadline = new Date(b.end).getFullYear() > 1970;
-
-      // 如果一个有截止日期而另一个没有
       if (aHasDeadline !== bHasDeadline) {
-        return aHasDeadline ? -1 : 1; // 有截止日期的优先显示
+        return aHasDeadline ? -1 : 1;
       }
-
-      // 如果都有截止日期，按日期升序排列
       if (aHasDeadline && bHasDeadline) {
-        return a.end.getTime() - b.end.getTime(); // 截止日期升序
+        return a.end.getTime() - b.end.getTime();
       }
-
-      // 如果都没有截止日期，按创建时间（ID）排序
       return a.id - b.id;
     });
   });
-  // 打开新建待办事项模态框
-
-  // 打开编辑待办事项模态框
 
   // 响应式校验状态
   const todoError = ref("");

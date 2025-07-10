@@ -4,9 +4,9 @@
     <!-- 周视图网格布局 -->
     <div class="grid grid-cols-1 max-h-[1664px] rounded-lg shadow-sm">
       <!-- sticky头部：日期栏+全天事件栏 -->
-      <div class="sticky top-0 z-30">
+      <div class="sticky top-0 z-30 backdrop-blur-md backdrop-saturate-125 bg-white/70">
         <!-- 周视图头部，显示本周7天 -->
-        <div class="grid grid-cols-[80px_repeat(7,1fr)]  border-b border-gray-200">
+        <div class="grid grid-cols-[80px_repeat(7,1fr)] border-gray-200">
           <!-- 左侧空白，用于对齐时间轴 -->
           <div></div>
           <!-- 渲染每一天的表头（星期几和日期） -->
@@ -84,7 +84,7 @@
                 <span
                   class="event-title text-sm font-medium truncate"
                   :style="{
-                    color: getContrastColor(event.categoryColor),
+                    color: 'var(--event-font-color)',
                   }"
                 >
                   {{ event.title }}
@@ -130,7 +130,7 @@
                 settingStore.weekStart
               )"
               :key="idx"
-              class="hour-cell relative cursor-pointer select-none translate-y-2 z-[1] transition-colors duration-150 hover:after:content-[''] hover:after:absolute hover:after:inset-0 hover:after:border hover:after:border-blue-500 hover:after:pointer-events-none hover:after:z-[2]"
+              class="hour-cell relative cursor-pointer select-none translate-y-2 z-[1] transition-colors duration-150 hover:after:content-[''] hover:after:absolute hover:after:inset-0 hover:after:border hover:after:border-blue-500 hover:after:pointer-events-none hover:after:z-[2] hover:bg-blue-50"
               @click="uiStore.handleHourClick({date: day.date}, hour - 1)"
               @dragover.prevent
               @drop="uiStore.handleWeekDrop($event, {
@@ -273,7 +273,7 @@
                     <div
                       class="event-time text-xs font-medium"
                       :style="{
-                        color: event.categoryColor,
+                        color: 'var(--event-font-color)',
                         textDecoration:
                           event.eventType === 'both' && event.completed
                             ? 'line-through'
@@ -296,7 +296,7 @@
                   <div
                     class="event-title text-sm font-medium truncate"
                     :style="{
-                      color: getContrastColor(event.categoryColor),
+                      color: 'var(--event-font-color)',
                       textDecoration:
                         event.eventType === 'both' && event.completed
                           ? 'line-through'
@@ -376,12 +376,13 @@ onMounted(() => {
   font-size: var(--small-text-font-size);
 }
 
-/* 修复暗黑模式下的hover效果 */
 .dark-mode .hour-cell:hover {
   background-color: var(--hour-cell-hover);
 }
 
-.hour-cell:hover {
-  background-color: rgb(239 246 255); /* blue-50 的RGB值 */
+.dark-mode .sticky.top-0.z-30 {
+  background-color: rgba(30, 32, 40, 0.55);
+  backdrop-filter: blur(8px) saturate(1.2);
+  -webkit-backdrop-filter: blur(8px) saturate(1.2);
 }
 </style>

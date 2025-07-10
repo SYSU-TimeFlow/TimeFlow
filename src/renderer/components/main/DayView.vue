@@ -54,7 +54,7 @@
                 <span
                   class="event-title text-sm font-medium truncate"
                   :style="{
-                    color: getContrastColor(event.categoryColor),
+                    color: 'var(--event-font-color)',
                     textDecoration:
                       event.eventType === 'both' && event.completed
                         ? 'line-through'
@@ -224,7 +224,7 @@
                   <div
                     class="event-time text-xs font-medium"
                     :style="{
-                      color: event.categoryColor,
+                      color: 'var(--event-font-color)',
                       textDecoration:
                         event.eventType === 'both' && event.completed
                           ? 'line-through'
@@ -242,7 +242,7 @@
                 <div
                   class="event-title text-sm font-medium truncate"
                   :style="{
-                    color: getContrastColor(event.categoryColor),
+                    color: 'var(--event-font-color)',
                     textDecoration:
                       event.eventType === 'both' && event.completed
                         ? 'line-through'
