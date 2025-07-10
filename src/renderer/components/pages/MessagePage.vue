@@ -8,6 +8,7 @@
   <!-- 模态框容器，仅当 showMessageModal 为 true 时显示 -->
   <div
     v-if="uiStore.showMessageModal"
+    :class="['message-modal-root', settingStore.themeMode]"
     class="fixed inset-0 flex items-center justify-center z-50"
     style="background:rgba(0,0,0,0.18);backdrop-filter:blur(2px);"
     @click="uiStore.closeMessageModal"
@@ -23,7 +24,7 @@
         {{ uiStore.messageModalTitle }}
       </h3>
       <!-- 主体 -->
-      <div class="modal-body text-base text-center mb-6 message-modal-body" style="color:#444;min-width:220px;">
+      <div class="modal-body text-base text-center mb-6 message-modal-body" style="min-width:220px; background: inherit;">
         {{ uiStore.messageModalContent }}
       </div>
       <!-- 底部按钮区 -->
@@ -62,17 +63,19 @@
 
 <script setup>
 import { useUiStore } from '../../stores/ui';
+import { useSettingStore } from '../../stores/setting';
 const uiStore = useUiStore();
+const settingStore = useSettingStore();
 </script>
 
 <style scoped>
-.message-modal-content {
+.message-modal-root.light .message-modal-content {
   background: #fff;
-  border-radius: 10px;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.18);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  color: #222;
+}
+.message-modal-root.dark .message-modal-content {
+  background: #23272f;
+  color: #f3f3f3;
 }
 .message-modal-title {
   font-size: 1.2rem;
@@ -83,6 +86,7 @@ const uiStore = useUiStore();
   font-size: 1rem;
   margin-bottom: 20px;
   text-align: center;
+  background: inherit;
 }
 .modal-save-btn {
   padding: 6px 24px;
