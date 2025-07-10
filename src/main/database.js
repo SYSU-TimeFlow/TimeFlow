@@ -7,6 +7,7 @@ import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
 import { app } from 'electron';
+import logger from './logger.js';
 
 // 获取当前文件目录
 const __filename = fileURLToPath(import.meta.url);
@@ -14,10 +15,13 @@ const __dirname = path.dirname(__filename);
 
 class SQLiteStore {
   constructor() {
+    logger.info("Initializing SQLite database store");
+    
     // 使用 Electron 的用户数据目录，而不是应用目录
     const dataDir = app.getPath('userData');
     if (!fs.existsSync(dataDir)) {
       fs.mkdirSync(dataDir, { recursive: true });
+      logger.info("Created user data directory", { dataDir });
     }
 
     // 数据库文件路径
@@ -36,9 +40,9 @@ class SQLiteStore {
       // 迁移数据库（处理结构变化）
       this.migrateDatabase();
       
-      console.log('SQLite database initialized successfully at:', dbPath);
+      logger.info('SQLite database initialized successfully', { dbPath });
     } catch (error) {
-      console.error('Failed to initialize SQLite database:', error);
+      logger.error('Failed to initialize SQLite database', error);
       throw error;
     }
   }
@@ -48,6 +52,8 @@ class SQLiteStore {
    */
   initializeDatabase() {
     try {
+      logger.info("Initializing database tables");
+      
       // 创建分类表
       this.db.exec(`
         CREATE TABLE IF NOT EXISTS categories (
@@ -59,6 +65,7 @@ class SQLiteStore {
           updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
         )
       `);
+      logger.database("CREATE", "categories", { action: "table_created" });
 
       // 创建事件表
       this.db.exec(`
@@ -81,6 +88,7 @@ class SQLiteStore {
           FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE SET NULL
         )
       `);
+      logger.database("CREATE", "events", { action: "table_created" });
 
       // 创建设置表
       this.db.exec(`
@@ -91,6 +99,7 @@ class SQLiteStore {
           updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
         )
       `);
+      logger.database("CREATE", "settings", { action: "table_created" });
 
       // 创建更新触发器
       this.db.exec(`
@@ -116,13 +125,14 @@ class SQLiteStore {
           UPDATE settings SET updated_at = CURRENT_TIMESTAMP WHERE key = NEW.key;
         END
       `);
+      logger.database("CREATE", "triggers", { action: "triggers_created" });
 
       // 初始化默认分类数据
       this.initializeDefaultCategories();
 
-      console.log('Database tables initialized successfully');
+      logger.info('Database tables initialized successfully');
     } catch (error) {
-      console.error('Failed to initialize database tables:', error);
+      logger.error('Failed to initialize database tables', error);
       throw error;
     }
   }
@@ -135,7 +145,10 @@ class SQLiteStore {
     try {
       // 检查分类表是否为空
       const categoryCount = this.db.prepare('SELECT COUNT(*) as count FROM categories').get().count;
+      logger.database("SELECT", "categories", { action: "count_check", count: categoryCount });
+      
       if (categoryCount === 0) {
+        logger.info("No categories found, initializing default categories");
         
         const defaultCategories = [
           { name: 'Other', color: '#e63946', active: true }
@@ -282,8 +295,14 @@ class SQLiteStore {
    */
   getCategories() {
     try {
+      logger.database("SELECT", "categories", { action: "get_all" });
       const stmt = this.db.prepare('SELECT * FROM categories ORDER BY id ASC');
       const categories = stmt.all();
+      
+      logger.database("SELECT", "categories", { 
+        action: "get_all_result", 
+        count: categories.length 
+      });
       
       // 转换数据类型
       return categories.map(category => ({
@@ -406,6 +425,8 @@ class SQLiteStore {
    */
   getEvents() {
     try {
+      logger.database("SELECT", "events", { action: "get_all_with_categories" });
+      
       const stmt = this.db.prepare(`
         SELECT e.*, c.name as category_name, c.color as category_color
         FROM events e
@@ -414,6 +435,11 @@ class SQLiteStore {
       `);
       
       const events = stmt.all();
+      
+      logger.database("SELECT", "events", { 
+        action: "get_all_result", 
+        count: events.length 
+      });
       
       // 转换数据类型并映射字段名以匹配前端期望的格式
       return events.map(event => {
@@ -442,7 +468,7 @@ class SQLiteStore {
         };
       });
     } catch (error) {
-      console.error('Failed to get events:', error);
+      logger.error('Failed to get events', error);
       return [];
     }
   }

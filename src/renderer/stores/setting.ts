@@ -1,6 +1,7 @@
 import { defineStore } from "pinia";
 import { ref, computed, watch } from "vue";
 import { Settings } from "../const";
+import logger from "../utils/logger.js";
 
 // 添加 electronAPI 的类型定义
 // 没有运行时效果，只是告诉 TypeScript 这些属性的存在，是合法的
@@ -48,6 +49,10 @@ export const useSettingStore = defineStore("setting", () => {
   watch(
     allSettings,
     async () => {
+      logger.debug("Settings changed, saving to storage", { 
+        settings: allSettings.value,
+        store: 'setting'
+      });
       await saveSettings();
     },
     { deep: true }
@@ -56,25 +61,44 @@ export const useSettingStore = defineStore("setting", () => {
   // 保存所有设置 - 修改为通过 Electron API 保存
   async function saveSettings() {
     try {
+      logger.api('saveSettings', { 
+        settingsCount: Object.keys(allSettings.value).length,
+        store: 'setting'
+      });
+      
       // @ts-ignore
       await window.electronAPI.saveSettings(allSettings.value);
+      
       // 应用主题设置
       applyTheme(themeMode.value);
       // 应用字号设置
       applyFontSize(fontSize.value);
+      
+      logger.info("Settings saved successfully", {
+        store: 'setting',
+        settings: allSettings.value
+      });
     } catch (error) {
-      console.error("Error saving settings via Electron API:", error);
+      logger.error("Error saving settings via Electron API", error);
     }
   }
 
   // 加载设置 - 修改为通过 Electron API 加载
   async function loadSettings() {
-    // console.log("LoadSettings called");
+    logger.info("Loading settings from storage", { store: 'setting' });
+    
     try {
+      logger.api('loadSettings', { store: 'setting' });
+      
       // @ts-ignore
       const settings = await window.electronAPI.loadSettings();
 
       if (settings && Object.keys(settings).length > 0) {
+        logger.info("Settings loaded from storage", { 
+          settingsCount: Object.keys(settings).length,
+          store: 'setting'
+        });
+        
         themeMode.value = settings.themeMode || "light";
         fontSize.value = settings.fontSize || "medium";
         iconStyle.value = settings.iconStyle || "default";
@@ -91,12 +115,18 @@ export const useSettingStore = defineStore("setting", () => {
 
         // 加载完设置后应用主题
         applyTheme(themeMode.value);
+        
+        logger.debug("Settings applied to store", {
+          themeMode: themeMode.value,
+          fontSize: fontSize.value,
+          store: 'setting'
+        });
       } else {
         // 如果从 main process 返回的是空对象或 undefined，则可能需要应用一套默认值
         // 或者依赖 ref 的初始值。当前行为是依赖 ref 初始值。
-        console.log(
-          "No settings loaded from main process or settings were empty, using defaults."
-        );
+        logger.warn("No settings loaded from main process or settings were empty, using defaults", {
+          store: 'setting'
+        });
         // 应用默认主题
         applyTheme("light");
       }

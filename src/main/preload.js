@@ -22,4 +22,6 @@ contextBridge.exposeInMainWorld('electronAPI', {
   processNaturalLanguage: (text) => ipcRenderer.invoke('process-natural-language', text),
   // 新增：语音识别API
   recognizeSpeech: () => ipcRenderer.invoke('recognize-speech'),
+  // 新增：日志API
+  sendLog: (logData) => ipcRenderer.invoke('send-log', logData),
 });
