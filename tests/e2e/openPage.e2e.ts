@@ -12,22 +12,22 @@ test('openPages', async () => {
     await page.goto('http://localhost:5173/#/');
     await page.getByRole('button', { name: '' }).click();
     // 打开设置页面
-    await expect(page.getByRole('heading', { name: '设置' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Settings' })).toBeVisible();
     await page.getByRole('combobox').first().selectOption('light');
-    await expect(page.locator('#app')).toContainText('亮');
+    await expect(page.locator('#app')).toContainText('Light');
     await page.getByRole('combobox').first().selectOption('dark');
-    await expect(page.locator('#app')).toContainText('暗');
+    await expect(page.locator('#app')).toContainText('Dark');
     await page.getByRole('combobox').nth(1).selectOption('small');
-    await expect(page.locator('#app')).toContainText('小');
+    await expect(page.locator('#app')).toContainText('Small');
     await page.getByRole('combobox').nth(1).selectOption('medium');
-    await expect(page.locator('#app')).toContainText('中');
+    await expect(page.locator('#app')).toContainText('Medium');
     await page.getByRole('combobox').nth(1).selectOption('large');
-    await expect(page.locator('#app')).toContainText('大');
+    await expect(page.locator('#app')).toContainText('Large');
     await page.getByRole('combobox').nth(1).selectOption('medium');
-    await page.getByRole('button', { name: '重置默认' }).click();
-    await expect(page.locator('#app')).toContainText('亮');
-    await expect(page.locator('#app')).toContainText('中');
-    await page.getByTitle('关闭', { exact: true }).click();
+    await page.getByRole('button', { name: 'Reset to Default' }).click();
+    await expect(page.locator('#app')).toContainText('Light');
+    await expect(page.locator('#app')).toContainText('Medium');
+    await page.getByTitle('Close', { exact: true }).click();
 
     // 打开分类页面
     await page.getByTitle('添加新分类', { exact: true }).click();
@@ -38,22 +38,22 @@ test('openPages', async () => {
     await page.getByText('Add Event').click();
     await expect(page.getByRole('heading', { name: 'New Event' })).toBeVisible();
     await page.getByRole('button', { name: '' }).nth(1).click();
-    await page.getByRole('button', { name: ' 周' }).click();
+    await page.getByRole('button', { name: ' Week' }).click();
     await page.getByText('Add Event').click();
     await expect(page.getByRole('heading', { name: 'New Event' })).toBeVisible();
     await page.getByRole('button', { name: '' }).nth(1).click();
-    await page.getByRole('button', { name: ' 日' }).click();
+    await page.getByRole('button', { name: ' Day' }).click();
     await page.getByText('Add Event').click();
     await expect(page.getByRole('heading', { name: 'New Event' })).toBeVisible();
     await page.getByRole('button', { name: '' }).nth(1).click();
-    await page.getByRole('button', { name: ' 待办' }).click();
+    await page.getByRole('button', { name: ' ToDo' }).click();
     await page.getByRole('button', { name: '+ Add Event' }).click();
     await expect(page.getByRole('heading', { name: 'New Todo' })).toBeVisible();
     await page.getByRole('button', { name: '' }).nth(1).click();
     await page.getByRole('heading', { name: 'TimeFlow' }).click();
-    await expect(page.getByText('Add Event View 月周日待办')).not.toBeVisible();
+    await expect(page.getByText('Add Event View MonthWeekDayToDo')).not.toBeVisible();
     await page.getByRole('heading', { name: 'TimeFlow' }).click();
-    await expect(page.getByText('Add Event View 月周日待办')).toBeVisible();
+    await expect(page.getByText('Add Event View MonthWeekDayToDo')).toBeVisible();
 
     // 模拟按下？打开快捷键帮助页面
     await page.keyboard.press('?');

@@ -53,7 +53,7 @@ const killProcessOnPort = async (port) => {
   let electronApp;
   try {
     electronApp = await electron.launch({
-      args: [path.join(__dirname, "../../main.js")],
+      args: [path.join(__dirname, "../../src/main/main.js")],
       executablePath: electronPath,
       env: {
         ...process.env,
