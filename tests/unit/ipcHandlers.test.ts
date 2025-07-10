@@ -115,11 +115,11 @@ describe("IPC Handlers", () => {
         const result = await handlers["load-app-data"]();
 
         expect(mockSqliteStore.setCategories).toHaveBeenCalledWith([
-          { id: 1, name: "工作", color: "#e63946", active: true },
-          { id: 2, name: "个人", color: "#f8961e", active: true },
-          { id: 3, name: "家庭", color: "#fcbf49", active: true },
-          { id: 4, name: "健康", color: "#2a9d8f", active: true },
-          { id: 5, name: "其他", color: "#43aa8b", active: true },
+          { id: 1, name: "Work", color: "#e63946", active: true },
+          { id: 2, name: "Personal", color: "#f8961e", active: true },
+          { id: 3, name: "Family", color: "#fcbf49", active: true },
+          { id: 4, name: "Health", color: "#2a9d8f", active: true },
+          { id: 5, name: "Other", color: "#43aa8b", active: true },
         ]);
         expect(mockSqliteStore.setEvents).toHaveBeenCalledWith([]);
         expect(result.categories).toHaveLength(5);

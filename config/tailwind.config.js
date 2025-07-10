@@ -3,7 +3,7 @@ module.exports = {
     "../index.html",
     "../src/**/*.{vue,js,ts,jsx,tsx}",
   ],
-  darkMode: 'class', // 确保使用 class 模式
+  darkMode: ['class', '.dark-mode'], // 使用自定义的 dark-mode 类名
   theme: {
     extend: {
       // 你的自定义主题

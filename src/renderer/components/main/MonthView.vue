@@ -43,8 +43,8 @@
               day.isToday
                 ? 'text-blue-600 font-semibold'
                 : day.isCurrentMonth
-                ? 'text-gray-800'
-                : 'text-gray-400',
+                ? (settingStore.themeMode !== 'dark' ? 'text-gray-800' : 'text-gray-400')
+                : (settingStore.themeMode !== 'dark' ? 'text-gray-400' : 'text-gray-800'),
             ]"
           >
             {{ day.dayNumber }}
@@ -97,7 +97,7 @@
                 :class="
                   event.completed
                     ? 'bg-indigo-500 border-indigo-600'
-                    : 'border-gray-300'
+                    : 'bg-white border-gray-300'
                 "
                 @click.stop="eventStore.toggleTodo(event.id)"
               >

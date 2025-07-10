@@ -19,7 +19,7 @@
               @click="eventStore.setFilter(filter.value)"
               class="px-4 py-2 rounded-xl transition cursor-pointer"
               :class="{
-                'bg-indigo-600 text-white':
+                'bg-blue-600 text-white':
                   eventStore.activeFilter === filter.value,
                 'bg-gray-100 text-gray-700 hover:bg-gray-200':
                   eventStore.activeFilter !== filter.value && settingStore.themeMode !== 'dark',
@@ -42,7 +42,7 @@
                 'bg-gray-100': todo.completed && settingStore.themeMode !== 'dark',
                 'bg-white': !todo.completed && settingStore.themeMode !== 'dark',
                 'bg-gray-700': todo.completed && settingStore.themeMode === 'dark',
-                'bg-gray-800': !todo.completed && settingStore.themeMode === 'dark',
+                'bg-dark': !todo.completed && settingStore.themeMode === 'dark',
               }"
               :style="{
                 borderLeftColor:
@@ -59,11 +59,11 @@
                 <div class="flex items-center gap-2">
                   <!-- 完成状态指示器 -->
                   <div
-                    class="w-5 h-5 rounded-full border flex items-center justify-center cursor-pointer relative z-10 transition-all duration-200 ease group-hover:border-indigo-400 hover:ring-2 hover:ring-indigo-300/20 status-indicator"
+                    class="w-5 h-5 rounded-full border flex items-center justify-center cursor-pointer relative z-10 transition-all duration-200 ease group-hover:border-blue-500 hover:ring-2 hover:ring-blue-200/30 status-indicator"
                     :class="
                       todo.completed
-                        ? 'bg-indigo-500 border-indigo-600'
-                        : 'border-gray-300'
+                        ? 'bg-blue-600 border-blue-600'
+                        : 'bg-white border-gray-300'
                     "
                     @click.stop="eventStore.toggleTodo(todo.id)"
                   >
@@ -113,7 +113,7 @@
                   <!-- 备注图标提示 -->
                   <i
                     v-if="todo.description"
-                    class="fas fa-sticky-note small-text ml-1 cursor-pointer relative transition-all duration-200 ease hover:text-indigo-500 hover:scale-110"
+                    class="fas fa-sticky-note small-text ml-1 cursor-pointer relative transition-all duration-200 ease hover:text-blue-600 hover:scale-110"
                     :class="{
                       'text-gray-400': settingStore.themeMode !== 'dark',
                       'text-gray-500': settingStore.themeMode === 'dark',
@@ -176,8 +176,6 @@
           </div>
         </div>
       </div>
-
-      <!-- 已移除添加按钮 -->
     </div>
   </div>
 </template>
@@ -195,10 +193,10 @@ const settingStore = useSettingStore();
 
 // 定义过滤器选项，并明确指定类型
 const filters: { value: FilterType; label: string }[] = [
-  { value: "today", label: "我的一天" },
-  { value: "all", label: "全部" },
-  { value: "active", label: "进行中" },
-  { value: "completed", label: "已完成" },
+  { value: "today", label: "Today" },
+  { value: "all", label: "All" },
+  { value: "active", label: "Active" },
+  { value: "completed", label: "Completed" },
 ];
 
 // 获取不同过滤器的待办事项数量
@@ -253,7 +251,7 @@ function isOverdue(endDate: any): boolean {
 }
 
 .dark-mode .todo-item .status-indicator:hover {
-  border-color: #58a6ff;
-  box-shadow: 0 0 0 2px rgba(88, 166, 255, 0.2);
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
 }
 </style>

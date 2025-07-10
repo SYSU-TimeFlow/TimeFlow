@@ -42,11 +42,11 @@ export function initializeIpcHandlers(ipcMain, sqliteStore, mainDirname, Browser
     if (needsDefaultCategories || needsDefaultEvents) {
       if (needsDefaultCategories) {
       categories = [
-        { id: 1, name: "工作", color: "#e63946", active: true },
-        { id: 2, name: "个人", color: "#f8961e", active: true },
-        { id: 3, name: "家庭", color: "#fcbf49", active: true },
-        { id: 4, name: "健康", color: "#2a9d8f", active: true },
-        { id: 5, name: "其他", color: "#43aa8b", active: true },
+        { id: 1, name: "Work", color: "#e63946", active: true },
+        { id: 2, name: "Personal", color: "#f8961e", active: true },
+        { id: 3, name: "Family", color: "#fcbf49", active: true },
+        { id: 4, name: "Health", color: "#2a9d8f", active: true },
+        { id: 5, name: "Other", color: "#43aa8b", active: true },
       ];
       sqliteStore.setCategories(categories);
       console.log("Loaded default categories (hardcoded).");

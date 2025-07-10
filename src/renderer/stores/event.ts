@@ -439,11 +439,11 @@ export const useEventStore = defineStore("event", () => {
   const emptyStateMessage = computed(() => {
     switch (activeFilter.value) {
       case "completed":
-        return "没有已完成的待办事项";
+        return "No completed todos";
       case "active":
-        return "没有进行中的待办事项";
+        return "No active todos";
       default:
-        return "没有待办事项";
+        return "No todos";
     }
   });
 
@@ -592,7 +592,7 @@ export const useEventStore = defineStore("event", () => {
     if (window.electronAPI) {
       // 导入前提示用户将清除旧数据
       const scheduleCategoryExists = categories.value.some(
-        (c) => c.name === "课程"
+        (c) => c.name === "Course"
       );
       if (scheduleCategoryExists) {
         if (!confirm("导入新的课程将会清除所有已导入的课程，要继续吗？")) {
@@ -604,7 +604,7 @@ export const useEventStore = defineStore("event", () => {
       if (result.success && result.schedule) {
         // 查找“课程”分类
         const scheduleCategory = categories.value.find(
-          (c) => c.name === "课程"
+          (c) => c.name === "Course"
         );
         if (scheduleCategory) {
           // 根据分类ID来过滤和删除事件
@@ -615,12 +615,12 @@ export const useEventStore = defineStore("event", () => {
 
         // 自动创建或查找“课程”分类
         let scheduleCategoryRef = categories.value.find(
-          (c) => c.name === "课程"
+          (c) => c.name === "Course"
         );
         if (!scheduleCategoryRef) {
           scheduleCategoryRef = {
             id: Date.now(),
-            name: "课程",
+            name: "Course",
             color: "#7209b7", // 深紫色
             active: true,
           };

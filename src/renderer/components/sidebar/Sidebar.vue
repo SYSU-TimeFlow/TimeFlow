@@ -60,8 +60,6 @@
       <span v-if="!uiStore.sidebarCollapsed">Add Event</span>
     </button>
 
-    <!-- 迷你日历组件 -->
-    <!-- <MiniCalendar /> -->
     <!-- 视图选择器组件 -->
     <ViewSelector />
     <!-- 分类列表，它不会在 todo 视图显示 -->
@@ -78,7 +76,7 @@
           !uiStore.sidebarCollapsed ? 'mr-2' : '', // 根据折叠状态设置边距
         ]"
       ></i>
-      <span v-if="!uiStore.sidebarCollapsed">我要反馈</span>
+      <span v-if="!uiStore.sidebarCollapsed">FeedBack</span>
     </button>
 
     <!-- 反馈弹窗 -->
@@ -147,7 +145,6 @@ const uiStore = useUiStore();
 
 /* 反馈按钮样式 */
 .feedback-btn {
-  border: 1px solid var(--border-color);
   background-color: var(--bg-sidebar);
   color: var(--text-secondary);
 }

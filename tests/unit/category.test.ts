@@ -33,7 +33,7 @@ beforeEach(() => {
       // 模拟加载应用数据的方法，返回预设的分类和事件数据
       loadAppData: vi.fn(async () => ({
         categories: [
-          { id: 1, name: "其他", color: "#e63946", active: true }, // 默认分类
+          { id: 1, name: "Other", color: "#e63946", active: true }, // 默认分类
           { id: 2, name: "Work", color: "#2a9d8f", active: true },
           { id: 3, name: "Personal", color: "#f8961e", active: true },
         ],
@@ -152,7 +152,7 @@ describe("saveCategory", () => {
     // console.log("========== UPDATE CATEGORY COLOR BEGIN ==========");
     eventStore.currentCategory = {
       id: 1,
-      name: "其他", // 正确的分类名称
+      name: "Other", // 正确的分类名称
       color: "#7209b7", // 新颜色：紫色
       active: true,
     };
@@ -208,7 +208,7 @@ describe("deleteCategory", () => {
 
     expect(eventStore.categories).toHaveLength(2);
     // 确认剩下的是"其他"和"Personal"分类
-    expect(eventStore.categories.some(c => c.id === 1 && c.name === "其他")).toBe(true);
+    expect(eventStore.categories.some(c => c.id === 1 && c.name === "Other")).toBe(true);
     expect(eventStore.categories.some(c => c.id === 3 && c.name === "Personal")).toBe(true);
     // 验证关联的事件被删除
     expect(eventStore.events.every(e => e.categoryId !== 2)).toBe(true);

@@ -17,40 +17,32 @@ export const createHeaderModule = (storeContext: any) => {
 
   // 主日历标题
   const calendarTitle = computed(() => {
-    const options: Intl.DateTimeFormatOptions = {
-      month: "long",
-      year: "numeric",
+    const formatDate = (date: Date) => {
+      const year = date.getFullYear();
+      const month = date.getMonth() + 1;
+      const day = date.getDate();
+      return `${year}/${month}/${day}`;
     };
+
     if (currentView.value === "week") {
-      return ` ${new Intl.DateTimeFormat("zh-CN", {
-        month: "short",
-        day: "numeric",
-        year: "numeric",
-      }).format(getStartOfWeek(currentDate.value))} - ${new Intl.DateTimeFormat(
-        "zh-CN",
-        { month: "short", day: "numeric", year: "numeric" }
-      ).format(getEndOfWeek(currentDate.value))}`;
+      return `${formatDate(getStartOfWeek(currentDate.value))} - ${formatDate(getEndOfWeek(currentDate.value))}`;
     } else if (currentView.value === "day") {
-      return new Intl.DateTimeFormat("zh-CN", {
-        weekday: "long",
-        month: "long",
-        day: "numeric",
-        year: "numeric",
-      }).format(currentDate.value);
+      return formatDate(currentDate.value);
     } else if (currentView.value === "todo") {
       return "";
     }
-    return new Intl.DateTimeFormat("zh-CN", options).format(currentDate.value);
+    // 月视图显示年月
+    const year = currentDate.value.getFullYear();
+    const month = currentDate.value.getMonth() + 1;
+    return `${year}/${month}`;
   });
 
   // 日视图标题
   const dayViewTitle = computed(() => {
-    return new Intl.DateTimeFormat("zh-CN", {
-      weekday: "long",
-      month: "long",
-      day: "numeric",
-      year: "numeric",
-    }).format(currentDate.value);
+    const year = currentDate.value.getFullYear();
+    const month = currentDate.value.getMonth() + 1;
+    const day = currentDate.value.getDate();
+    return `${year}/${month}/${day}`;
   });
 
   // 导航功能
