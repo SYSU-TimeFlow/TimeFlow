@@ -335,9 +335,7 @@ let finalTranscript = '';
 const processTextWithNLP = async (text: string) => {
   if (!electronAPI || !electronAPI.processNaturalLanguage) {
     console.error("NLP API is not available.");
-    if (window.electronAPI && window.electronAPI.notify) {
-      window.electronAPI.notify('错误', '自然语言处理功能不可用。');
-    }
+    uiStore.showMessage('错误', '自然语言处理功能不可用。');
     return { success: false, message: 'NLP API not available' };
   }
 
@@ -345,23 +343,17 @@ const processTextWithNLP = async (text: string) => {
     const result = await electronAPI.processNaturalLanguage(text);
     if (result && result.success) {
       eventStore.createEventFromNLP(result.event);
-      if (window.electronAPI && window.electronAPI.notify) {
-        window.electronAPI.notify('成功', `事件 "${result.event.title}" 已创建。`);
-      }
+      uiStore.showMessage('成功', `事件 "${result.event.title}" 已创建。`);
       return { success: true };
     } else {
       console.error("NLP Error:", result ? result.message : "Unknown error");
-      if (window.electronAPI && window.electronAPI.notify) {
-        window.electronAPI.notify('创建事件失败', result.message || '无法解析您的输入，请检查内容和格式。');
-      }
+      uiStore.showMessage('创建事件失败', result.message || '无法解析您的输入，请检查内容和格式。');
       return { success: false, message: result.message || 'Unknown error' };
     }
   } catch (error) {
     console.error("Error processing natural language:", error);
     const errorMessage = error instanceof Error ? error.message : '发生未知错误';
-    if (window.electronAPI && window.electronAPI.notify) {
-      window.electronAPI.notify('创建事件失败', '处理您的请求时发生了一个内部错误。');
-    }
+    uiStore.showMessage('创建事件失败', '处理您的请求时发生了一个内部错误。');
     return { success: false, message: errorMessage };
   }
 };
