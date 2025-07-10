@@ -520,7 +520,7 @@ const handleSearchKeydown = (event: KeyboardEvent) => {
       uiStore.setAppMode("normal");
     } else {
       // 命令无法识别时显示反馈
-      showCommandError(`未知命令: ${input.value}`);
+      uiStore.showInfoMessage('命令错误', '无法识别的命令，请检查输入。');
     }
 
     event.preventDefault();
@@ -570,13 +570,6 @@ const formatEventDate = (dateString: string | Date) => {
     month: "short",
     day: "numeric",
   });
-};
-
-// 显示命令错误的函数
-const showCommandError = (message: string) => {
-  // 这里可以添加UI反馈，比如一个短暂的通知或者在命令框下方显示错误信息
-  console.error(message);
-  // TODO: 实现更好的UI反馈
 };
 
 // ==================== 全局快捷键 ====================
