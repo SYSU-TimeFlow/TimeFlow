@@ -45,18 +45,51 @@ import SettingPage from "../components/pages/SettingPage.vue"
 import HelpPage from "../components/pages/HelpPage.vue"
 import { useUiStore } from "../stores/ui";
 import { useSettingStore } from "../stores/setting";
+import { useLogger, useErrorHandler } from "../utils/useLogger.js";
 
 // 使用UI仓库仅用于初始化
 const uiStore = useUiStore();
 const settingStore = useSettingStore();
 
-// 生命周期钩子
-onMounted(() => {
-  // 加载设置
-  settingStore.loadSettings();
+// 使用日志系统
+const { 
+  logUserAction, 
+  logInfo, 
+  logError, 
+  createAsyncTracker,
+  startTimer 
+} = useLogger('CalendarApp');
 
-  // 组件挂载后，默认显示今天的日期
-  uiStore.goToToday();
+const { safeAsync } = useErrorHandler();
+
+// 生命周期钩子
+onMounted(async () => {
+  logInfo("CalendarApp mounted, initializing application");
+  
+  const initTimer = startTimer('app_initialization');
+  
+  try {
+    // 安全地加载设置
+    await safeAsync(
+      () => settingStore.loadSettings(),
+      {
+        errorMessage: 'Failed to load settings',
+        componentName: 'CalendarApp',
+        onSuccess: () => logInfo("Settings loaded successfully"),
+        onError: (error) => logError("Settings loading failed", error)
+      }
+    );
+
+    // 组件挂载后，默认显示今天的日期
+    uiStore.goToToday();
+    logUserAction('navigate_to_today', { source: 'app_initialization' });
+    
+    logInfo("CalendarApp initialization completed successfully");
+  } catch (error) {
+    logError("CalendarApp initialization failed", error);
+  } finally {
+    initTimer(); // 停止计时器
+  }
 });
 </script>
 

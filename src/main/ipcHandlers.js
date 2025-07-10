@@ -1,6 +1,7 @@
 import { Notification, dialog } from "electron";
 import mammoth from "mammoth"; // 新增：导入 mammoth 库用于解析
 import * as chrono from 'chrono-node'; // 新增：导入 chrono-node 用于自然语言日期解析
+import logger from './logger.js'; // 导入日志系统
 
 /**
  * 初始化应用的 IPC (Inter-Process Communication) 处理程序。
@@ -17,6 +18,8 @@ import * as chrono from 'chrono-node'; // 新增：导入 chrono-node 用于自�
  * 函数会尝试从预定义的默认数据加载。
  */
 export function initializeIpcHandlers(ipcMain, sqliteStore, mainDirname, BrowserWindow) {
+  logger.info("Initializing IPC handlers");
+  
   // ================= 应用数据（分类和事件）存储 IPC ==================
 
   /**
@@ -29,46 +32,71 @@ export function initializeIpcHandlers(ipcMain, sqliteStore, mainDirname, Browser
    * @returns {Promise<object>} 一个包含 `categories` 和 `events` 的对象。
    */
   ipcMain.handle('load-app-data', async () => {
-    // 从 SQLite 数据库获取分类和事件数据
-    let categories = sqliteStore.getCategories();
-    let appEvents = sqliteStore.getEvents();
+    logger.ipc('load-app-data', 'receive', { action: 'loading_app_data' });
+    
+    try {
+      // 从 SQLite 数据库获取分类和事件数据
+      let categories = sqliteStore.getCategories();
+      let appEvents = sqliteStore.getEvents();
 
-    // 检查是否需要加载默认分类 (如果 'categories' 不存在或是空数组)
-    const needsDefaultCategories = !categories || (Array.isArray(categories) && categories.length === 0);
-    // 检查是否需要加载默认事件 (如果 'appEvents' 不存在或是空数组)
-    const needsDefaultEvents = !appEvents || (Array.isArray(appEvents) && appEvents.length === 0);
+      // 检查是否需要加载默认分类 (如果 'categories' 不存在或是空数组)
+      const needsDefaultCategories = !categories || (Array.isArray(categories) && categories.length === 0);
+      // 检查是否需要加载默认事件 (如果 'appEvents' 不存在或是空数组)
+      const needsDefaultEvents = !appEvents || (Array.isArray(appEvents) && appEvents.length === 0);
 
-    // 如果需要加载默认分类或默认事件
-    if (needsDefaultCategories || needsDefaultEvents) {
-      if (needsDefaultCategories) {
-      categories = [
-        { id: 1, name: "Work", color: "#e63946", active: true },
-        { id: 2, name: "Personal", color: "#f8961e", active: true },
-        { id: 3, name: "Family", color: "#fcbf49", active: true },
-        { id: 4, name: "Health", color: "#2a9d8f", active: true },
-        { id: 5, name: "Other", color: "#43aa8b", active: true },
-      ];
-      sqliteStore.setCategories(categories);
-      console.log("Loaded default categories (hardcoded).");
+      // 如果需要加载默认分类或默认事件
+      if (needsDefaultCategories || needsDefaultEvents) {
+        if (needsDefaultCategories) {
+          logger.info("Loading default categories");
+          categories = [
+            { id: 1, name: "Work", color: "#e63946", active: true },
+            { id: 2, name: "Personal", color: "#f8961e", active: true },
+            { id: 3, name: "Family", color: "#fcbf49", active: true },
+            { id: 4, name: "Health", color: "#2a9d8f", active: true },
+            { id: 5, name: "Other", color: "#43aa8b", active: true },
+          ];
+          sqliteStore.setCategories(categories);
+          logger.info("Loaded default categories (hardcoded)");
+        }
+
+        if (needsDefaultEvents) {
+          logger.info("Initializing default events as empty array");
+          appEvents = []; // 默认事件为空数组
+          sqliteStore.setEvents(appEvents);
+          logger.info("Initialized default events as an empty array (hardcoded)");
+        }
       }
 
-      if (needsDefaultEvents) {
-      appEvents = []; // 默认事件为空数组
-      sqliteStore.setEvents(appEvents);
-      console.log("Initialized default events as an empty array (hardcoded).");
-      }
+      // 确保所有事件的 start 和 end 属性是 ISO 字符串格式
+      // 这对于 FullCalendar 等库是必要的，并且保证了数据的一致性
+      const processedEvents = appEvents.map(event => ({
+        ...event,
+        start: typeof event.start === 'string' ? event.start : new Date(event.start).toISOString(),
+        end: typeof event.end === 'string' ? event.end : new Date(event.end).toISOString(),
+      }));
+
+      logger.ipc('load-app-data', 'send', { 
+        action: 'app_data_loaded',
+        categoriesCount: categories.length,
+        eventsCount: processedEvents.length
+      });
+
+      // 返回加载的分类和处理后的事件
+      return { categories, events: processedEvents };
+    } catch (error) {
+      logger.error('Failed to load app data', error);
+      // 返回默认数据以防止应用崩溃
+      return { 
+        categories: [
+          { id: 1, name: "Work", color: "#e63946", active: true },
+          { id: 2, name: "Personal", color: "#f8961e", active: true },
+          { id: 3, name: "Family", color: "#fcbf49", active: true },
+          { id: 4, name: "Health", color: "#2a9d8f", active: true },
+          { id: 5, name: "Other", color: "#43aa8b", active: true },
+        ], 
+        events: [] 
+      };
     }
-
-    // 确保所有事件的 start 和 end 属性是 ISO 字符串格式
-    // 这对于 FullCalendar 等库是必要的，并且保证了数据的一致性
-    const processedEvents = appEvents.map(event => ({
-      ...event,
-      start: typeof event.start === 'string' ? event.start : new Date(event.start).toISOString(),
-      end: typeof event.end === 'string' ? event.end : new Date(event.end).toISOString(),
-    }));
-
-    // 返回加载的分类和处理后的事件
-    return { categories, events: processedEvents };
   });
 
   // 保存应用数据 (分类和事件)
@@ -83,18 +111,41 @@ export function initializeIpcHandlers(ipcMain, sqliteStore, mainDirname, Browser
    * @returns {Promise<void>} 保存操作完成后解析的 Promise。
    */
   ipcMain.handle('save-app-data', async (event, data) => {
-    const { categories, events } = data; // 从传入的数据中解构分类和事件
-    if (categories) {
-      sqliteStore.setCategories(categories); // 保存分类数据
-    }
-    if (events) {
-      // 序列化事件数据，确保日期是 ISO 字符串
-      const serializableEvents = events.map(e => ({
-        ...e,
-        start: new Date(e.start).toISOString(), // 转换为 ISO 字符串
-        end: new Date(e.end).toISOString(),   // 转换为 ISO 字符串
-      }));
-      sqliteStore.setEvents(serializableEvents); // 保存事件数据
+    logger.ipc('save-app-data', 'receive', { 
+      action: 'saving_app_data',
+      hasCategories: !!data?.categories,
+      hasEvents: !!data?.events,
+      categoriesCount: data?.categories?.length || 0,
+      eventsCount: data?.events?.length || 0
+    });
+    
+    try {
+      const { categories, events } = data; // 从传入的数据中解构分类和事件
+      
+      if (categories) {
+        logger.database("UPDATE", "categories", { count: categories.length });
+        sqliteStore.setCategories(categories); // 保存分类数据
+      }
+      
+      if (events) {
+        // 序列化事件数据，确保日期是 ISO 字符串
+        const serializableEvents = events.map(e => ({
+          ...e,
+          start: new Date(e.start).toISOString(), // 转换为 ISO 字符串
+          end: new Date(e.end).toISOString(),   // 转换为 ISO 字符串
+        }));
+        
+        logger.database("UPDATE", "events", { count: serializableEvents.length });
+        sqliteStore.setEvents(serializableEvents); // 保存事件数据
+      }
+      
+      logger.ipc('save-app-data', 'send', { 
+        action: 'app_data_saved',
+        success: true
+      });
+    } catch (error) {
+      logger.error('Failed to save app data', error);
+      throw error; // 重新抛出错误，让调用方处理
     }
   });
 
@@ -111,26 +162,51 @@ export function initializeIpcHandlers(ipcMain, sqliteStore, mainDirname, Browser
    * @returns {Promise<object>} 用户的设置对象。
    */
   ipcMain.handle('load-settings', async () => {
-    // 从 SQLite 数据库获取用户设置
-    let userSettings = sqliteStore.getSettings();
+    logger.ipc('load-settings', 'receive', { action: 'loading_settings' });
+    
+    try {
+      // 从 SQLite 数据库获取用户设置
+      let userSettings = sqliteStore.getSettings();
 
-    // 如果用户设置不存在或为空对象，则尝试加载默认设置
-    if (!userSettings || Object.keys(userSettings).length === 0) {
-      // 写死默认设置
-      userSettings = {
-      themeMode: "light",
-      fontSize: "medium",
-      iconStyle: "default",
-      notifications: true,
-      hour24: false,
-      showLunar: false,
-      weekStart: "0",
-      language: "zh-CN"
+      // 如果用户设置不存在或为空对象，则尝试加载默认设置
+      if (!userSettings || Object.keys(userSettings).length === 0) {
+        logger.info("No user settings found, loading default settings");
+        
+        // 写死默认设置
+        userSettings = {
+          themeMode: "light",
+          fontSize: "medium",
+          iconStyle: "default",
+          notifications: true,
+          hour24: false,
+          showLunar: false,
+          weekStart: "0",
+          language: "zh-CN"
+        };
+        sqliteStore.setSettings(userSettings); // 将默认设置存入 SQLite 数据库
+        logger.info("Loaded default settings (hardcoded) and saved to user config");
+      }
+      
+      logger.ipc('load-settings', 'send', { 
+        action: 'settings_loaded',
+        settingsCount: Object.keys(userSettings).length
+      });
+      
+      return userSettings; // 返回加载的设置
+    } catch (error) {
+      logger.error('Failed to load settings', error);
+      // 返回默认设置以防止应用崩溃
+      return {
+        themeMode: "light",
+        fontSize: "medium",
+        iconStyle: "default",
+        notifications: true,
+        hour24: false,
+        showLunar: false,
+        weekStart: "0",
+        language: "zh-CN"
       };
-      sqliteStore.setSettings(userSettings); // 将默认设置存入 SQLite 数据库
-      console.log("Loaded default settings (hardcoded) and saved to user config.");
     }
-    return userSettings; // 返回加载的设置
   });
 
   // 保存设置
@@ -144,8 +220,19 @@ export function initializeIpcHandlers(ipcMain, sqliteStore, mainDirname, Browser
    * @returns {Promise<object>} 一个包含 `success` (布尔值) 和可选 `error` (字符串) 的对象，指示操作结果。
    */
   ipcMain.handle('save-settings', async (event, settings) => {
+    logger.ipc('save-settings', 'receive', { 
+      action: 'saving_settings',
+      settingsCount: Object.keys(settings || {}).length
+    });
+    
     try {
       sqliteStore.setSettings(settings); // 保存用户设置
+      
+      logger.ipc('save-settings', 'send', { 
+        action: 'settings_saved',
+        success: true
+      });
+      
       return { success: true }; // 返回成功状态
     } catch (error) {
       console.error("Error saving settings to user config:", error);
@@ -156,43 +243,74 @@ export function initializeIpcHandlers(ipcMain, sqliteStore, mainDirname, Browser
   // ================= 监听窗口操作事件 ==================
   // 最小化窗口
   ipcMain.on("window-minimize", () => {
+    logger.ipc('window-minimize', 'receive', { action: 'minimize_window' });
     const win = BrowserWindow.getFocusedWindow(); // 获取当前聚焦的窗口
     if (win) {
       win.minimize(); // 最小化窗口
+      logger.user('window_minimize', { windowId: win.id });
+    } else {
+      logger.warn('No focused window found for minimize operation');
     }
   });
 
   // 最大化/还原窗口
   ipcMain.on("window-maximize", () => {
+    logger.ipc('window-maximize', 'receive', { action: 'maximize_toggle_window' });
     const win = BrowserWindow.getFocusedWindow(); // 获取当前聚焦的窗口
     if (win) {
       if (win.isMaximized()) { // 检查窗口是否已最大化
         win.unmaximize(); // 还原窗口
+        logger.user('window_unmaximize', { windowId: win.id });
       } else {
         win.maximize(); // 最大化窗口
+        logger.user('window_maximize', { windowId: win.id });
       }
+    } else {
+      logger.warn('No focused window found for maximize operation');
     }
   });
 
   // 关闭窗口
   ipcMain.on("window-close", () => {
+    logger.ipc('window-close', 'receive', { action: 'close_window' });
     const win = BrowserWindow.getFocusedWindow(); // 获取当前聚焦的窗口
     if (win) {
+      logger.user('window_close', { windowId: win.id });
       win.close(); // 关闭窗口
+    } else {
+      logger.warn('No focused window found for close operation');
     }
   });
 
   // 新增：系统通知处理
   ipcMain.handle('notify', (event, { title, body }) => {
-    const notification = new Notification({ title, body, silent: false });
-    notification.show();
-    notification.on('click', () => {
-      const win = BrowserWindow.getAllWindows()[0]; // 获取第一个窗口
-      if (win) {
-        win.show(); // 点击通知时显示窗口
-      }
+    logger.ipc('notify', 'receive', { 
+      action: 'show_notification',
+      title: title?.substring(0, 50), // 限制日志中的标题长度
+      hasBody: !!body
     });
-    setTimeout(() => notification.close(), 5000); // 5秒后自动关闭
+    
+    try {
+      const notification = new Notification({ title, body, silent: false });
+      notification.show();
+      
+      notification.on('click', () => {
+        logger.user('notification_click', { title: title?.substring(0, 50) });
+        const win = BrowserWindow.getAllWindows()[0]; // 获取第一个窗口
+        if (win) {
+          win.show(); // 点击通知时显示窗口
+        }
+      });
+      
+      setTimeout(() => {
+        notification.close();
+        logger.debug('Notification auto-closed after 5 seconds');
+      }, 5000); // 5秒后自动关闭
+      
+      logger.user('notification_shown', { title: title?.substring(0, 50) });
+    } catch (error) {
+      logger.error('Failed to show notification', error);
+    }
   });
 
   // 新增：处理课程导入
@@ -442,4 +560,45 @@ export function initializeIpcHandlers(ipcMain, sqliteStore, mainDirname, Browser
       }, 2000); // 模拟2秒的识别过程
     });
   });
+
+  // ================= 日志处理 IPC ==================
+
+  /**
+   * 处理来自渲染进程的日志
+   * @description 接收渲染进程发送的日志并通过主进程的日志系统记录
+   */
+  ipcMain.handle('send-log', async (event, logData) => {
+    try {
+      const { level, message, meta } = logData;
+      
+      // 添加渲染进程标识
+      const rendererMeta = {
+        ...meta,
+        source: 'renderer',
+        processType: 'renderer'
+      };
+      
+      // 根据日志级别调用相应的日志方法
+      switch (level.toLowerCase()) {
+        case 'debug':
+          logger.debug(message, rendererMeta);
+          break;
+        case 'info':
+          logger.info(message, rendererMeta);
+          break;
+        case 'warn':
+          logger.warn(message, rendererMeta);
+          break;
+        case 'error':
+          logger.error(message, rendererMeta);
+          break;
+        default:
+          logger.info(message, rendererMeta);
+      }
+    } catch (error) {
+      logger.error('Failed to process renderer log', error);
+    }
+  });
+
+  logger.info("All IPC handlers initialized successfully");
 }
