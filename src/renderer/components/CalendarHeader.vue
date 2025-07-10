@@ -157,15 +157,11 @@
         class="header-icon-button w-8 h-8 cursor-pointer no-drag rounded-md ml-2 flex items-center justify-center"
         title="Go to today"
       >
-        <i class="fas fa-calendar-day"></i>
-      </button>
-      <!-- 新增：文本导入按钮 -->
-      <button
-        @click="handleSpeechRecognition"
-        class="header-icon-button w-8 h-8 rounded-md cursor-pointer no-drag ml-1 flex items-center justify-center"
-        title="Create event by text description"
-      >
-        <i class="fas fa-comment-dots"></i>
+        <!-- 定位图标SVG -->
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="10" cy="10" r="7" stroke="currentColor" stroke-width="2"/>
+          <circle cx="10" cy="10" r="2.2" fill="currentColor"/>
+        </svg>
       </button>
     </div>
 
@@ -302,19 +298,6 @@
       </div>
     </div>
   </header>
-
-  <!-- 新增：文本识别弹窗 -->
-  <div v-if="isSpeechModalVisible" class="speech-modal-overlay">
-    <div class="speech-modal-content no-drag">
-      <h3 class="speech-modal-title">文本识别</h3>
-      <p class="speech-status">{{ speechStatus }}</p>
-      <div ref="transcriptDivRef" class="speech-transcript" contenteditable="true"></div>
-      <div class="speech-modal-actions">
-        <button @click="handleSpeechCancel" class="speech-btn-cancel">取消</button>
-        <button @click="handleSpeechDone" class="speech-btn-done">完成</button>
-      </div>
-    </div>
-  </div>
 </template>
 
 <script setup lang="ts">
@@ -346,7 +329,6 @@ let placeholderInterval: number | undefined;
 const isSpeechModalVisible = ref(false);
 const speechStatus = ref("点击“完成”或“取消”");
 const transcriptDivRef = ref<HTMLDivElement | null>(null);
-let recognition: any = null; // SpeechRecognition 实例
 let finalTranscript = '';
 
 // 新增：封装核心NLP处理逻辑
@@ -383,53 +365,6 @@ const processTextWithNLP = async (text: string) => {
     return { success: false, message: errorMessage };
   }
 };
-
-
-const handleSpeechRecognition = async () => {
-  // 检查 electronAPI 是否可用
-  if (!electronAPI || !electronAPI.processNaturalLanguage) {
-    speechStatus.value = "错误：自然语言处理功能不可用。";
-    isSpeechModalVisible.value = true;
-    return;
-  }
-
-  isSpeechModalVisible.value = true;
-  speechStatus.value = "请输入事件描述，例如“明天下午3点开会”";
-  finalTranscript = ''; // 重置之前的记录
-  
-  nextTick(() => {
-    if (transcriptDivRef.value) {
-      transcriptDivRef.value.innerHTML = ''; // 清空显示区域
-      transcriptDivRef.value.focus();
-    }
-  });
-};
-
-// 用户点击“完成”按钮
-const handleSpeechDone = async () => {
-  if (!transcriptDivRef.value || !transcriptDivRef.value.innerText.trim()) {
-    // @ts-ignore
-    window.electronAPI.notify('提示', '输入内容不能为空。');
-    return;
-  }
-
-  const text = transcriptDivRef.value.innerText.trim();
-  speechStatus.value = "正在处理...";
-
-  const result = await processTextWithNLP(text);
-  if (result.success) {
-    isSpeechModalVisible.value = false; // 关闭弹窗
-  } else {
-    speechStatus.value = `处理失败: ${result.message || '未知错误'}`;
-  }
-};
-
-// 用户点击“取消”按钮
-const handleSpeechCancel = () => {
-  // 由于逻辑在主进程，前端只需关闭弹窗
-  isSpeechModalVisible.value = false;
-};
-
 
 // ==================== 事件通知功能 ====================
 // 已通知事件唯一标识集合，防止重复通知（考虑时间变化）
@@ -716,6 +651,7 @@ const handleGlobalKeydown = (event: KeyboardEvent) => {
         event.preventDefault();
         break;
       case ".":
+      case "。":
         uiStore.toggleSearchActive(true);
         uiStore.setAppMode("nlp"); // 设置为新的NLP模式
         nextTick(() => {
