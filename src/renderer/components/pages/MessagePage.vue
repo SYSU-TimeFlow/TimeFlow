@@ -10,7 +10,7 @@
     v-if="uiStore.showMessageModal"
     class="fixed inset-0 flex items-center justify-center z-50"
     style="background:rgba(0,0,0,0.18);backdrop-filter:blur(2px);"
-    @click="closeModal"
+    @click="uiStore.closeMessageModal"
   >
     <!-- 弹窗主容器，阻止点击事件冒泡 -->
     <div
@@ -26,8 +26,27 @@
       <div class="modal-body text-base text-center mb-6 message-modal-body" style="color:#444;min-width:220px;">
         {{ uiStore.messageModalContent }}
       </div>
-      <!-- 底部 -->
-      <button class="modal-save-btn w-28 h-10 mx-auto" style="font-weight:500;font-size:1.08rem;" @click="uiStore.closeMessageModal">确定</button>
+      <!-- 底部按钮区 -->
+      <div class="flex gap-4 justify-center w-full">
+        <button
+          v-if="uiStore.messageModalType === 'confirm'"
+          class="modal-save-btn w-28 h-10"
+          style="font-weight:500;font-size:1.08rem;"
+          @click="uiStore.handleMessageConfirm"
+        >确定</button>
+        <button
+          v-if="uiStore.messageModalType === 'confirm'"
+          class="modal-cancel-btn w-28 h-10"
+          style="font-weight:500;font-size:1.08rem;background:#eee;color:#444;"
+          @click="uiStore.closeMessageModal"
+        >取消</button>
+        <button
+          v-if="uiStore.messageModalType === 'info'"
+          class="modal-save-btn w-28 h-10"
+          style="font-weight:500;font-size:1.08rem;"
+          @click="uiStore.closeMessageModal"
+        >确定</button>
+      </div>
       <!-- 关闭按钮 -->
       <button
         class="modal-close-btn absolute top-3 right-3"
@@ -76,6 +95,18 @@ const uiStore = useUiStore();
 }
 .modal-save-btn:hover {
   background: #3c78d8;
+}
+.modal-cancel-btn {
+  padding: 6px 24px;
+  border: none;
+  border-radius: 6px;
+  background: #eee;
+  color: #444;
+  font-size: 1rem;
+  cursor: pointer;
+}
+.modal-cancel-btn:hover {
+  background: #ddd;
 }
 .modal-close-btn {
   background: none;
