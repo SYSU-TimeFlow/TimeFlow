@@ -131,9 +131,9 @@
         <button
           @click="eventStore.importScheduleFromFile()"
           class="modal-import-btn"
-          title="从文件导入课程"
+          title="Import course from file"
         >
-          导入课表
+          Import Course
         </button>
         <div class="flex space-x-3">
           <!-- 删除按钮，仅在编辑事件时显示 (isNewEvent 为 false) -->

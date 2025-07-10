@@ -102,7 +102,7 @@
           <div
             v-for="hour in 24"
             :key="`hour-${hour}-${currentTime.getTime()}`"
-            class="time-label h-16 text-xs text-gray-500 text-right translate-y-2 flex items-start justify-end transition-opacity duration-300 ease-in-out"
+            class="time-label h-16 text-xs text-gray-500 text-right flex items-start justify-end transition-opacity duration-300 ease-in-out"
             :class="{ 'opacity-0': uiStore.shouldHideHourLabel(hour - 1) }"
           >
             {{ formatHour(hour - 1, settingStore.hour24) }}
@@ -261,7 +261,7 @@
                       :class="
                         event.completed
                           ? 'bg-indigo-500 border-indigo-600'
-                          : 'border-gray-300'
+                          : 'bg-white border-gray-300'
                       "
                       @click.stop="eventStore.toggleTodo(event.id)"
                     >

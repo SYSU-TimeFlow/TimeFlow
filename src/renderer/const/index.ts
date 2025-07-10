@@ -84,10 +84,10 @@ export interface WeekViewDay {
 
 // 定义日历视图选项
 export const calendarViews = [
-  { id: "month", label: "月", icon: "fa-calendar-alt" },
-  { id: "week", label: "周", icon: "fa-calendar-week" },
-  { id: "day", label: "日", icon: "fa-calendar-day" },
-  { id: "todo", label: "待办", icon: "fa-list-check" },
+  { id: "month", label: "Month", icon: "fa-calendar-alt" },
+  { id: "week", label: "Week", icon: "fa-calendar-week" },
+  { id: "day", label: "Day", icon: "fa-calendar-day" },
+  { id: "todo", label: "ToDo", icon: "fa-list-check" },
 ];
 
 // 农历数据表
@@ -164,11 +164,11 @@ export const dayNames = [
 ];
 
 export const weekDays = [
-  "星期日",
-  "星期一",
-  "星期二",
-  "星期三",
-  "星期四",
-  "星期五",
-  "星期六",
+  "Sunday",
+  "Monday",
+  "Tuesday",
+  "Wednesday",
+  "Thursday",
+  "Friday",
+  "Saturday",
 ];

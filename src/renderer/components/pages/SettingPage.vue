@@ -22,12 +22,12 @@
     >
       <!-- 模态框头部 -->
       <div class="modal-header p-6 pb-0 relative">
-        <h3 class="text-2xl font-semibold">设置</h3>
+        <h3 class="text-2xl font-semibold">Settings</h3>
         <!-- 关闭按钮 -->
         <button
           class="modal-close-btn absolute top-4 right-4"
           @click="uiStore.closeSettings"
-          title="关闭"
+          title="Close"
         >
           <i class="fas fa-times"></i>
         </button>
@@ -36,7 +36,7 @@
       <!-- 模态框主体 -->
       <div class="modal-body p-6">
         <!-- 通用小标题 -->
-        <div class="text-secondary text-sm font-semibold mb-2 mt-2">通用</div>
+        <div class="text-secondary text-sm font-semibold mb-2 mt-2">General</div>
 
         <!-- 主题切换（选择条，选项为亮/暗） -->
         <div class="form-group mb-4 flex items-center justify-between">
@@ -55,15 +55,15 @@
                 stroke-linejoin="round"
               />
             </svg>
-            主题
+            Theme
           </label>
           <select
             v-model="settingStore.themeMode"
             class="border rounded-md px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             @change="applyThemeChange"
           >
-            <option value="light">亮</option>
-            <option value="dark">暗</option>
+            <option value="light">Light</option>
+            <option value="dark">Dark</option>
           </select>
         </div>
 
@@ -95,16 +95,16 @@
                 A
               </text>
             </svg>
-            字号
+            Font Size
           </label>
           <select
             v-model="settingStore.fontSize"
             class="border rounded-md px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             @change="applyFontSizeChange"
           >
-            <option value="small">小</option>
-            <option value="medium">中</option>
-            <option value="large">大</option>
+            <option value="small">Small</option>
+            <option value="medium">Medium</option>
+            <option value="large">Large</option>
           </select>
         </div>
 
@@ -124,7 +124,7 @@
                 stroke-linejoin="round"
               />
             </svg>
-            通知
+            Notifications
           </label>
           <input
             type="checkbox"
@@ -135,7 +135,7 @@
 
         <!-- 日期和时间小标题 -->
         <div class="text-secondary text-sm font-semibold mb-2 mt-6">
-          日期和时间
+          Date & Time
         </div>
 
         <!-- 每周起始日 -->
@@ -170,19 +170,19 @@
               <circle cx="12" cy="12" r="1" fill="currentColor" />
               <circle cx="16" cy="12" r="1" fill="currentColor" />
             </svg>
-            每周起始日
+            Week Start
           </label>
           <select
             v-model="settingStore.weekStart"
             class="border rounded-md px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           >
-            <option value="0">星期日</option>
-            <option value="1">星期一</option>
-            <option value="2">星期二</option>
-            <option value="3">星期三</option>
-            <option value="4">星期四</option>
-            <option value="5">星期五</option>
-            <option value="6">星期六</option>
+            <option value="0">Sunday</option>
+            <option value="1">Monday</option>
+            <option value="2">Tuesday</option>
+            <option value="3">Wednesday</option>
+            <option value="4">Thursday</option>
+            <option value="5">Friday</option>
+            <option value="6">Saturday</option>
           </select>
         </div>
 
@@ -203,7 +203,7 @@
                 stroke-linejoin="round"
               />
             </svg>
-            24时制
+            24-Hour Format
           </label>
           <input
             type="checkbox"
@@ -259,7 +259,7 @@
                 stroke-width="2"
               />
             </svg>
-            农历
+            Lunar Calendar
           </label>
           <input
             type="checkbox"
@@ -270,7 +270,7 @@
 
         <!-- 联系我们小标题 -->
         <div class="text-secondary text-sm font-semibold mb-2 mt-6">
-          联系我们
+          Contact Us
         </div>
 
         <!-- 关于 -->
@@ -290,10 +290,10 @@
                 stroke-linejoin="round"
               />
             </svg>
-            关于
+            About
           </label>
           <span class="text-secondary text-sm"
-            >TimeFlow 日历 v1.0.0<br />作者：SYSU-TimeFlow</span
+            >TimeFlow Calendar v1.0.0<br />Author: SYSU-TimeFlow</span
           >
         </div>
       </div>
@@ -302,7 +302,7 @@
       <div class="modal-footer p-6 pt-0">
         <!-- 重置按钮 -->
         <button class="modal-save-btn w-full" @click="resetSettings">
-          重置默认
+          Reset to Default
         </button>
       </div>
 
@@ -332,7 +332,7 @@ import { useUiStore } from "../../stores/ui";
 const settingStore = useSettingStore();
 const uiStore = useUiStore();
 const showToast = ref(false);
-const toastMessage = ref("设置已保存！");
+const toastMessage = ref("Settings saved!");
 const toastType = ref("success");
 
 /**
@@ -363,7 +363,7 @@ function resetSettings() {
   settingStore.resetSettings();
 
   // 显示提示
-  toastMessage.value = "已重置为默认设置";
+  toastMessage.value = "Reset to default settings";
   toastType.value = "info";
   showToast.value = true;
   setTimeout(() => {

@@ -75,7 +75,7 @@
           <div
             v-for="hour in 24"
             :key="`hour-${hour}-${currentTime.getTime()}`"
-            class="time-label h-16 text-xs text-gray-500 text-right translate-y-2 flex items-start justify-end transition-opacity duration-300 ease-in-out"
+            class="time-label h-16 text-xs text-gray-500 text-right flex items-start justify-end transition-opacity duration-300 ease-in-out"
             :class="{ 'opacity-0': uiStore.shouldHideHourLabel(hour - 1) }"
           >
             {{ formatHour(hour - 1, settingStore.hour24) }}
@@ -99,7 +99,7 @@
             <div
               v-for="hour in 24"
               :key="hour"
-              class="time-slot h-16 relative transition-colors duration-150 hover:before:content-[''] hover:before:absolute hover:before:inset-2 hover:before:z-[1] hover:after:content-[''] hover:after:absolute hover:after:inset-2 hover:after:border hover:after:border-blue-500 hover:after:pointer-events-none hover:after:z-[2]"
+              class="time-slot h-16 relative cursor-pointer select-none translate-y-2 z-[1] transition-colors duration-150 hover:after:content-[''] hover:after:absolute hover:after:inset-0 hover:after:border hover:after:border-blue-500 hover:after:pointer-events-none hover:after:z-[2]"
               @click="
                 uiStore.handleHourClick(
                   { date: uiStore.currentDate },
@@ -212,7 +212,7 @@
                     :class="
                       event.completed
                         ? 'bg-indigo-500 border-indigo-600'
-                        : 'border-gray-300'
+                        : 'bg-white border-gray-300'
                     "
                     @click.stop="eventStore.toggleTodo(event.id)"
                   >
@@ -325,11 +325,11 @@ onMounted(() => {
 }
 
 /* 修复暗黑模式下的hover效果 */
-.dark-mode .time-slot:hover::before {
-  background-color: var(--hour-cell-hover) !important;
+.dark-mode .time-slot:hover {
+  background-color: var(--hour-cell-hover);
 }
 
-.time-slot:hover::before {
+.time-slot:hover {
   background-color: rgb(239 246 255); /* blue-50 的RGB值 */
 }
 </style>

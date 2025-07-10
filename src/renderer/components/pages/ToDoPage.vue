@@ -115,9 +115,21 @@
       </div>
 
       <!-- 模态框底部，包含操作按钮 -->
-      <div class="modal-footer p-4 border-t flex justify-end space-x-3">
-        <!-- 保存按钮 -->
-        <button @click="saveTodo" class="modal-save-btn">Save</button>
+      <div class="modal-footer p-4 border-t flex justify-between items-center">
+        <!-- 空占位符（左侧） -->
+        <div></div>
+        <div class="flex space-x-3">
+          <!-- 删除按钮，仅在编辑待办事项时显示 (isNewTodo 为 false) -->
+          <button
+            v-if="!eventStore.isNewTodo"
+            @click="eventStore.deleteEvent()"
+            class="modal-del-btn"
+          >
+            Delete
+          </button>
+          <!-- 保存按钮 -->
+          <button @click="saveTodo" class="modal-save-btn">Save</button>
+        </div>
       </div>
     </div>
   </div>

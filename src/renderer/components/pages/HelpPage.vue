@@ -27,7 +27,7 @@
         <button
           @click="uiStore.closeHelpModal"
           class="modal-close-btn"
-          title="关闭"
+          title="Close"
         >
           <i class="fas fa-times"></i>
         </button>
@@ -38,24 +38,24 @@
         <!-- 导航部分 -->
         <div class="shortcut-section mb-6">
           <h4 class="text-md font-semibold mb-3 text-gray-700 border-b pb-1">
-            导航
+            Navigation
           </h4>
           <div class="grid grid-cols-1 gap-3">
             <div class="shortcut-item flex justify-between items-center">
-              <span class="key-combo"><kbd>h</kbd> 或 <kbd>←</kbd></span>
-              <span class="description text-gray-700">上一个(周/月)</span>
+              <span class="key-combo"><kbd>h</kbd> or <kbd>←</kbd></span>
+              <span class="description text-gray-700">Previous (week/month)</span>
             </div>
             <div class="shortcut-item flex justify-between items-center">
-              <span class="key-combo"><kbd>l</kbd> 或 <kbd>→</kbd></span>
-              <span class="description text-gray-700">下一个(周/月)</span>
+              <span class="key-combo"><kbd>l</kbd> or <kbd>→</kbd></span>
+              <span class="description text-gray-700">Next (week/month)</span>
             </div>
             <div class="shortcut-item flex justify-between items-center">
-              <span class="key-combo"><kbd>j</kbd> 或 <kbd>↓</kbd></span>
-              <span class="description text-gray-700">向下滚动</span>
+              <span class="key-combo"><kbd>j</kbd> or <kbd>↓</kbd></span>
+              <span class="description text-gray-700">Scroll down</span>
             </div>
             <div class="shortcut-item flex justify-between items-center">
-              <span class="key-combo"><kbd>k</kbd> 或 <kbd>↑</kbd></span>
-              <span class="description text-gray-700">向上滚动</span>
+              <span class="key-combo"><kbd>k</kbd> or <kbd>↑</kbd></span>
+              <span class="description text-gray-700">Scroll up</span>
             </div>
           </div>
         </div>
@@ -63,24 +63,24 @@
         <!-- 视图切换部分 -->
         <div class="shortcut-section mb-6">
           <h4 class="text-md font-semibold mb-3 text-gray-700 border-b pb-1">
-            视图切换
+            View Switching
           </h4>
           <div class="grid grid-cols-1 gap-3">
             <div class="shortcut-item flex justify-between items-center">
               <span class="key-combo"><kbd>1</kbd></span>
-              <span class="description text-gray-700">月视图</span>
+              <span class="description text-gray-700">Month View</span>
             </div>
             <div class="shortcut-item flex justify-between items-center">
               <span class="key-combo"><kbd>2</kbd></span>
-              <span class="description text-gray-700">周视图</span>
+              <span class="description text-gray-700">Week View</span>
             </div>
             <div class="shortcut-item flex justify-between items-center">
               <span class="key-combo"><kbd>3</kbd></span>
-              <span class="description text-gray-700">日视图</span>
+              <span class="description text-gray-700">Day View</span>
             </div>
             <div class="shortcut-item flex justify-between items-center">
               <span class="key-combo"><kbd>4</kbd></span>
-              <span class="description text-gray-700">待办事项视图</span>
+              <span class="description text-gray-700">Todo View</span>
             </div>
           </div>
         </div>
@@ -88,20 +88,20 @@
         <!-- 模式切换部分 -->
         <div class="shortcut-section mb-6">
           <h4 class="text-md font-semibold mb-3 text-gray-700 border-b pb-1">
-            模式与搜索
+            Mode & Search
           </h4>
           <div class="grid grid-cols-1 gap-3">
             <div class="shortcut-item flex justify-between items-center">
               <span class="key-combo"><kbd>/</kbd></span>
-              <span class="description text-gray-700">进入搜索模式</span>
+              <span class="description text-gray-700">Enter Search Mode</span>
             </div>
             <div class="shortcut-item flex justify-between items-center">
               <span class="key-combo"><kbd>:</kbd></span>
-              <span class="description text-gray-700">进入命令模式</span>
+              <span class="description text-gray-700">Enter Command Mode</span>
             </div>
             <div class="shortcut-item flex justify-between items-center">
               <span class="key-combo"><kbd>Esc</kbd></span>
-              <span class="description text-gray-700">返回普通模式</span>
+              <span class="description text-gray-700">Return to Normal Mode</span>
             </div>
           </div>
         </div>
@@ -109,20 +109,20 @@
         <!-- 事件操作部分 -->
         <div class="shortcut-section mb-6">
           <h4 class="text-md font-semibold mb-3 text-gray-700 border-b pb-1">
-            事件操作
+            Event Operations
           </h4>
           <div class="grid grid-cols-1 gap-3">
-            <div class="shortcut-item flex justify-between items-center">
+            <div class="shortcut-item flex justify-between items-center text-sm">
               <span class="key-combo"><kbd>a</kbd></span>
-              <span class="description text-gray-700">切换事件页</span>
+              <span class="description text-gray-500">Open Event Page</span>
             </div>
             <div class="shortcut-item flex justify-between items-center">
               <span class="key-combo"><kbd>s</kbd></span>
-              <span class="description text-gray-700">切换设置页</span>
+              <span class="description text-gray-700">Toggle Settings Page</span>
             </div>
             <div class="shortcut-item flex justify-between items-center">
-              <span class="key-combo"><kbd>空格</kbd></span>
-              <span class="description text-gray-700">切换侧边栏</span>
+              <span class="key-combo"><kbd>Space</kbd></span>
+              <span class="description text-gray-700">Toggle Sidebar</span>
             </div>
           </div>
         </div>
@@ -130,12 +130,12 @@
         <!-- 其他快捷键 -->
         <div class="shortcut-section">
           <h4 class="text-md font-semibold mb-3 text-gray-700 border-b pb-1">
-            其他
+            Others
           </h4>
           <div class="grid grid-cols-1 gap-3">
             <div class="shortcut-item flex justify-between items-center">
               <span class="key-combo"><kbd>?</kbd></span>
-              <span class="description text-gray-700">显示此帮助</span>
+              <span class="description text-gray-700">Show This Help</span>
             </div>
           </div>
         </div>

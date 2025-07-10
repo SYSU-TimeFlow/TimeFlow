@@ -138,7 +138,7 @@ class SQLiteStore {
       if (categoryCount === 0) {
         
         const defaultCategories = [
-          { name: '其他', color: '#e63946', active: true }
+          { name: 'Other', color: '#e63946', active: true }
         ];
         
         const insertStmt = this.db.prepare(`
