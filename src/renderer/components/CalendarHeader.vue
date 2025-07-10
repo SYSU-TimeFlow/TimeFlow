@@ -248,8 +248,8 @@
         <svg
           v-else
           class="theme-moon"
-          width="22"
-          height="22"
+          width="1em"
+          height="1em"
           viewBox="0 0 22 22"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
@@ -337,7 +337,7 @@ const cogRotation = ref(0);
 const themeBtnHover = ref(false);
 
 // ==================== 动态占位符 ====================
-const placeholders = ['Press / to search', 'Press . to edit'];
+const placeholders = ['Press / to search', 'Press . to ai'];
 const placeholderIndex = ref(0);
 const placeholderText = ref(placeholders[0]);
 let placeholderInterval: number | undefined;
@@ -776,7 +776,7 @@ onMounted(() => {
   placeholderInterval = window.setInterval(() => {
     placeholderIndex.value = (placeholderIndex.value + 1) % placeholders.length;
     placeholderText.value = placeholders[placeholderIndex.value];
-  }, 3000);
+  }, 20000);
 });
 
 // 组件卸载时清除滚动回调
@@ -1019,5 +1019,10 @@ watch(isCogHovered, (hovered) => {
 }
 .speech-btn-done:hover {
   background-color: #3c78d8;
+}
+
+.theme-moon {
+  font-size: 1.25em; /* 可根据header字体大小调整，或直接继承 */
+  vertical-align: middle;
 }
 </style>
