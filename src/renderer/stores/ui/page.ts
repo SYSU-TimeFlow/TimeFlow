@@ -13,6 +13,8 @@ export const createPageModule = (storeContext: any) => {
   const showTodoModal = ref(false);
   const showFeedbackModal = ref(false);
   const showSettings = ref(false);
+  const showMessageModal = ref(false);
+
 
   // 通用模态框控制函数
   const toggleModal = (modalRef: any) => {
@@ -37,6 +39,7 @@ export const createPageModule = (storeContext: any) => {
   const closeTodoModal = () => closeModal(showTodoModal);
   const closeEventModal = () => closeModal(showEventModal);
   const closeCategoryModal = () => closeModal(showCategoryModal);
+  const closeMessageModal = () => closeModal(showMessageModal);
 
   // 设置弹窗控制
   async function toggleSettings() {
@@ -248,6 +251,16 @@ export const createPageModule = (storeContext: any) => {
     }
   };
 
+  // 消息模态框状态与方法
+  const messageModalTitle = ref('');
+  const messageModalContent = ref('');
+
+  function showMessage(title: string, content: string) {
+    messageModalTitle.value = title;
+    messageModalContent.value = content;
+    showMessageModal.value = true;
+  }
+
   return {
     showHelpModal,
     showCategoryModal,
@@ -275,5 +288,10 @@ export const createPageModule = (storeContext: any) => {
     scrollApp,
     executeCommand,
     handleGlobalKeydown,
+    showMessageModal,
+    closeMessageModal,
+    showMessage,
+    messageModalTitle,
+    messageModalContent,
   };
 };
