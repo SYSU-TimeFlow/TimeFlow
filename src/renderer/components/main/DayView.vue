@@ -275,6 +275,7 @@
 </template>
 
 <script setup lang="ts">
+import { onMounted } from 'vue';
 import { useUiStore } from "../../stores/ui";
 import { useEventStore } from "../../stores/event";
 import { useSettingStore } from "../../stores/setting";
@@ -295,6 +296,10 @@ defineProps<{
 const uiStore = useUiStore();
 const eventStore = useEventStore();
 const settingStore = useSettingStore();
+
+onMounted(() => {
+  uiStore.scrollToCurrentTimeLine();
+});
 </script>
 
 <style scoped>
