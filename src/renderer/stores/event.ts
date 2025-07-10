@@ -508,41 +508,30 @@ export const useEventStore = defineStore("event", () => {
   async function deleteCategory() {
     if (!isNewCategory.value) {
       if (categories.value.length <= 1) {
-        console.warn("Cannot delete the last category."); // 可以添加用户提示
+        uiStore.showInfoMessage("无法删除分类", "至少需要保留一个分类");
         return;
       }
 
-    const index = categories.value.findIndex(
+      // 弹出确认模态框，等待用户操作
+      await uiStore.showConfirmMessage(
+        "确认删除分类",
+        "删除该分类将同时删除其下所有事件，是否继续？"
+      );
+
+      const index = categories.value.findIndex(
         (c) => c.id === currentCategory.value.id
       );
       if (index !== -1) {
         const categoryToDeleteId = currentCategory.value.id;
-        // 查找一个默认分类来重新分配事件，优先选择“其他”，否则选择第一个不是正在删除的分类
-        const defaultCategory =
-          categories.value.find(
-            (c) => c.id === 5 && c.id !== categoryToDeleteId
-          ) || categories.value.find((c) => c.id !== categoryToDeleteId);
-
-        if (!defaultCategory) {
-          console.error(
-            "No suitable default category found to reassign events to. This should not happen if there's more than one category."
-          );
-          uiStore.closeCategoryModal();
-          return;
-        }
-
-        events.value.forEach((event) => {
-          if (event.categoryId === categoryToDeleteId) {
-            event.categoryId = defaultCategory.id;
-            event.categoryColor = defaultCategory.color;
+        // 直接删除该分类下所有事件
+        for (let i = events.value.length - 1; i >= 0; i--) {
+          if (events.value[i].categoryId === categoryToDeleteId) {
+            events.value.splice(i, 1);
           }
-        });
-
+        }
         categories.value.splice(index, 1);
       }
-
     }
-
     uiStore.closeCategoryModal();
   }
 
