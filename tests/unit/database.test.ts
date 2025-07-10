@@ -451,7 +451,7 @@ describe('SQLiteStore', () => {
       });
 
       it('应该处理数字ID', () => {
-        store.deleteEvent("1");
+        store.deleteEvent(1);
         
         expect(mockStatement.run).toHaveBeenCalledWith(1);
       });
