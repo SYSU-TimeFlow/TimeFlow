@@ -511,38 +511,41 @@ export const useEventStore = defineStore("event", () => {
   }
 
   async function deleteCategory() {
-    if (isNewCategory.value) {
-      uiStore.closeCategoryModal();
-      return;
-    }
+    if (!isNewCategory.value) {
+      if (categories.value.length <= 1) {
+        console.warn("Cannot delete the last category."); // 可以添加用户提示
+        return;
+      }
 
-    // 弹出确认对话框
-    const confirmed = window.confirm(
-      `确定要删除“${currentCategory.value.name}”分类吗？这将同时删除此分类下的所有事件。此操作无法撤销。`
-    );
-
-    if (!confirmed) {
-      uiStore.closeCategoryModal();
-      return; // 用户取消操作
-    }
-
-    const categoryToDeleteId = currentCategory.value.id;
-    const initialEventCount = events.value.length;
-
-    // 过滤掉所有属于该分类的事件
-    events.value = events.value.filter(
-      (event) => event.categoryId !== categoryToDeleteId
-    );
-
-    const removedEventsCount = initialEventCount - events.value.length;
-    console.log(`删除了 ${removedEventsCount} 个关联事件。`);
-
-    // 删除分类本身
     const index = categories.value.findIndex(
-      (c) => c.id === categoryToDeleteId
-    );
-    if (index !== -1) {
-      categories.value.splice(index, 1);
+        (c) => c.id === currentCategory.value.id
+      );
+      if (index !== -1) {
+        const categoryToDeleteId = currentCategory.value.id;
+        // 查找一个默认分类来重新分配事件，优先选择“其他”，否则选择第一个不是正在删除的分类
+        const defaultCategory =
+          categories.value.find(
+            (c) => c.id === 5 && c.id !== categoryToDeleteId
+          ) || categories.value.find((c) => c.id !== categoryToDeleteId);
+
+        if (!defaultCategory) {
+          console.error(
+            "No suitable default category found to reassign events to. This should not happen if there's more than one category."
+          );
+          uiStore.closeCategoryModal();
+          return;
+        }
+
+        events.value.forEach((event) => {
+          if (event.categoryId === categoryToDeleteId) {
+            event.categoryId = defaultCategory.id;
+            event.categoryColor = defaultCategory.color;
+          }
+        });
+
+        categories.value.splice(index, 1);
+      }
+
     }
 
     uiStore.closeCategoryModal();
