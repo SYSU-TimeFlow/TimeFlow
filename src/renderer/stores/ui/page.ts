@@ -254,11 +254,32 @@ export const createPageModule = (storeContext: any) => {
   // 消息模态框状态与方法
   const messageModalTitle = ref('');
   const messageModalContent = ref('');
+  const messageModalType = ref<'info' | 'confirm'>('info');
+  let messageModalResolve: ((value: boolean) => void) | null = null;
 
-  function showMessage(title: string, content: string) {
+  function showInfoMessage(title: string, content: string) {
     messageModalTitle.value = title;
     messageModalContent.value = content;
+    messageModalType.value = 'info';
     showMessageModal.value = true;
+  }
+
+  function showConfirmMessage(title: string, content: string): Promise<boolean> {
+    messageModalTitle.value = title;
+    messageModalContent.value = content;
+    messageModalType.value = 'confirm';
+    showMessageModal.value = true;
+    return new Promise((resolve) => {
+      messageModalResolve = resolve;
+    });
+  }
+
+  function handleMessageConfirm() {
+    showMessageModal.value = false;
+    if (messageModalResolve) {
+      messageModalResolve(true);
+      messageModalResolve = null;
+    }
   }
 
   return {
@@ -290,8 +311,11 @@ export const createPageModule = (storeContext: any) => {
     handleGlobalKeydown,
     showMessageModal,
     closeMessageModal,
-    showMessage,
+    showInfoMessage,
     messageModalTitle,
     messageModalContent,
+    messageModalType,
+    showConfirmMessage,
+    handleMessageConfirm,
   };
 };
