@@ -30,6 +30,8 @@
     <CategoryPage />
     <!-- 设置模态框，仅在showSettings为true时显示 -->
     <SettingPage />
+    <!-- 消息模态框组件 (用于显示应用内消息和通知) -->
+    <MessagePage />
   </div>
 </template>
 
@@ -43,6 +45,7 @@ import ToDoPage from "../components/pages/ToDoPage.vue"
 import CategoryPage from "../components/pages/CategoryPage.vue"
 import SettingPage from "../components/pages/SettingPage.vue"
 import HelpPage from "../components/pages/HelpPage.vue"
+import MessagePage from "../components/pages/MessagePage.vue";
 import { useUiStore } from "../stores/ui";
 import { useSettingStore } from "../stores/setting";
 
