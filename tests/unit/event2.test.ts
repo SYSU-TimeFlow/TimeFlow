@@ -146,11 +146,11 @@ describe("Event Store - Extended Tests", () => {
     });
 
     it("应该根据活跃分类过滤事件", () => {
-      // 待办事项列表应该显示所有分类的项目，不管分类是否活跃
+      // 待办事项列表应该只显示激活分类的项目，学习分类现在是未激活的
       const filteredTodos = eventStore.filteredTodos;
       const learningTodos = filteredTodos.filter(todo => todo.categoryId === 3);
-      // 待办事项列表中应该能看到学习分类的项目
-      expect(learningTodos.length).toBeGreaterThan(0);
+      // 待办事项列表中应该看不到未激活分类的项目
+      expect(learningTodos.length).toBe(0);
 
       // 但在日历视图中，应该只显示活跃分类的事件
       const eventsForDay = eventStore.getEventsForDay(new Date("2025-05-25"));

@@ -46,6 +46,11 @@ const mockNotification = {
 
 vi.mock("electron", () => ({
   Notification: vi.fn(() => mockNotification),
+  app: {
+    getPath: vi.fn(() => "/test/userData"),
+    getName: vi.fn(() => "TimeFlow"),
+    getVersion: vi.fn(() => "1.0.0"),
+  },
 }));
 
 describe("IPC Handlers", () => {

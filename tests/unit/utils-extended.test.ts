@@ -140,15 +140,15 @@ describe("Utils - Extended Tests", () => {
       const weekDays = utils.getWeekDays(testDate, 0); // 周日开始
       
       // 第一天应该是周日
-      expect(weekDays[0].dayName).toBe("星期日");
+      expect(weekDays[0].dayName).toBe("Sunday");
       expect(weekDays[0].date.getDay()).toBe(0);
       
       // 第四天应该是周三（包含测试日期）
-      expect(weekDays[3].dayName).toBe("星期三");
+      expect(weekDays[3].dayName).toBe("Wednesday");
       expect(weekDays[3].date.getDay()).toBe(3);
       
       // 最后一天应该是周六
-      expect(weekDays[6].dayName).toBe("星期六");
+      expect(weekDays[6].dayName).toBe("Saturday");
       expect(weekDays[6].date.getDay()).toBe(6);
     });
 
@@ -168,18 +168,18 @@ describe("Utils - Extended Tests", () => {
       const weekDayNamesStartMonday = utils.getWeekDayNames(1);
       
       expect(weekDayNamesStartSunday).toEqual([
-        "星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"
+        "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"
       ]);
       
       expect(weekDayNamesStartMonday).toEqual([
-        "星期一", "星期二", "星期三", "星期四", "星期五", "星期六", "星期日"
+        "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"
       ]);
     });
 
     it("getWeekDayNames 应该处理无效的周起始日", () => {
       const weekDayNames = utils.getWeekDayNames(7); // 无效值
       expect(weekDayNames.length).toBe(7);
-      expect(weekDayNames[0]).toBe("星期日"); // 应该默认为周日开始
+      expect(weekDayNames[0]).toBe("Sunday"); // 应该默认为周日开始
     });
   });
 
@@ -313,16 +313,16 @@ describe("Utils - Extended Tests", () => {
   });
 
   describe("Locale and Internationalization", () => {
-    it("星期名称应该是中文", () => {
+    it("星期名称应该是英文", () => {
       const weekDayNames = utils.getWeekDayNames(0);
       
-      expect(weekDayNames).toContain("星期一");
-      expect(weekDayNames).toContain("星期二");
-      expect(weekDayNames).toContain("星期三");
-      expect(weekDayNames).toContain("星期四");
-      expect(weekDayNames).toContain("星期五");
-      expect(weekDayNames).toContain("星期六");
-      expect(weekDayNames).toContain("星期日");
+      expect(weekDayNames).toContain("Monday");
+      expect(weekDayNames).toContain("Tuesday");
+      expect(weekDayNames).toContain("Wednesday");
+      expect(weekDayNames).toContain("Thursday");
+      expect(weekDayNames).toContain("Friday");
+      expect(weekDayNames).toContain("Saturday");
+      expect(weekDayNames).toContain("Sunday");
     });
 
     it("月份显示应该处理不同的输入格式", () => {

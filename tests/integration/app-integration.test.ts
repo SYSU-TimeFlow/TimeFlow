@@ -382,8 +382,10 @@ describe("Integration Tests", () => {
       await new Promise(resolve => setTimeout(resolve, 0));
       
       expect(consoleSpy).toHaveBeenCalledWith(
-        "Error saving settings via Electron API:",
-        expect.any(Error)
+        "[ERROR] Error saving settings via Electron API",
+        expect.objectContaining({
+          error: expect.any(String)
+        })
       );
       
       consoleSpy.mockRestore();

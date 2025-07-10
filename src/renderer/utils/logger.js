@@ -31,8 +31,8 @@ class RendererLogger {
       message,
       meta: {
         ...meta,
-        url: window.location.href,
-        userAgent: navigator.userAgent,
+        url: typeof window !== 'undefined' && window.location ? window.location.href : 'test-environment',
+        userAgent: typeof navigator !== 'undefined' ? navigator.userAgent : 'test-environment',
         processType: 'renderer'
       }
     };
@@ -53,7 +53,7 @@ class RendererLogger {
    */
   async sendToMain(logData) {
     try {
-      if (window.electronAPI && window.electronAPI.sendLog) {
+      if (typeof window !== 'undefined' && window.electronAPI && window.electronAPI.sendLog) {
         await window.electronAPI.sendLog(logData);
       }
     } catch (error) {
@@ -222,23 +222,25 @@ class RendererLogger {
 // 创建全局日志实例
 const logger = new RendererLogger();
 
-// 捕获全局错误
-window.addEventListener('error', (event) => {
-  logger.error('Global error caught', {
-    message: event.message,
-    filename: event.filename,
-    lineno: event.lineno,
-    colno: event.colno,
-    stack: event.error?.stack
+// 捕获全局错误 (仅在浏览器环境)
+if (typeof window !== 'undefined' && window.addEventListener) {
+  window.addEventListener('error', (event) => {
+    logger.error('Global error caught', {
+      message: event.message,
+      filename: event.filename,
+      lineno: event.lineno,
+      colno: event.colno,
+      stack: event.error?.stack
+    });
   });
-});
 
-// 捕获未处理的 Promise 拒绝
-window.addEventListener('unhandledrejection', (event) => {
-  logger.error('Unhandled promise rejection', {
-    reason: event.reason?.toString() || 'Unknown reason',
-    promise: event.promise?.toString() || 'Unknown promise'
+  // 捕获未处理的 Promise 拒绝
+  window.addEventListener('unhandledrejection', (event) => {
+    logger.error('Unhandled promise rejection', {
+      reason: event.reason?.toString() || 'Unknown reason',
+      promise: event.promise?.toString() || 'Unknown promise'
+    });
   });
-});
+}
 
 export default logger;
