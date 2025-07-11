@@ -187,14 +187,14 @@
                   class="day-event absolute rounded-sm px-2 py-1 overflow-hidden cursor-pointer flex items-center justify-center text-2xl font-bold z-20"
                   :style="{
                     top: `${
-                      Math.min(...group.map((e) => calculateEventTop(e))) + 8
+                      Math.min(...group.map((e) => calculateEventTop(e, new Date(day.date)))) + 8
                     }px`,
                     height: `${
                       Math.max(
                         ...group.map(
-                          (e) => calculateEventTop(e) + calculateEventHeight(e)
+                          (e) => calculateEventTop(e, new Date(day.date)) + calculateEventHeight(e, new Date(day.date))
                         )
-                      ) - Math.min(...group.map((e) => calculateEventTop(e))) ||
+                      ) - Math.min(...group.map((e) => calculateEventTop(e, new Date(day.date)))) ||
                       64
                     }px`,
                     left: '4px',
@@ -223,9 +223,9 @@
                       : '',
                   ]"
                   :style="{
-                    top: `${event.allDay ? 8 : calculateEventTop(event) + 8}px`,
+                    top: `${event.allDay ? 8 : calculateEventTop(event, new Date(day.date)) + 8}px`,
                     height: `${
-                      event.allDay ? 1536 : calculateEventHeight(event)
+                      event.allDay ? 1536 : calculateEventHeight(event, new Date(day.date))
                     }px`,
                     left: '4px',
                     right: '4px',
@@ -295,9 +295,11 @@
                     >
                       {{
                         event.allDay
-                          ? "All day"
+                          ? "All Day"
                           : event.eventType === "both"
                           ? formatTime(new Date(event.end), settingStore.hour24)
+                          : !isSameDay(new Date(event.start), new Date(event.end))
+                          ? getCrossDayLabel(event, day.date, settingStore.hour24)
                           : formatEventTime(event, settingStore.hour24)
                       }}
                     </div>
@@ -354,6 +356,8 @@ import {
   getContrastColor,
   getEventGroups,
   getWeekDays,
+  getCrossDayLabel,
+  isSameDay,
 } from "../../utils";
 
 defineProps<{

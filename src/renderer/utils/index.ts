@@ -295,8 +295,10 @@ export function getContrastColor(hexColor: string): string {
 
 /**
  * 计算事件在时间轴上的位置
+ * @param event 事件对象
+ * @param currentDate 当前视图的日期，可选，表示使用事件自身的日期
  */
-export function calculateEventTop(event: any): number {
+export function calculateEventTop(event: any, currentDate?: Date): number {
   // 对于both类型事件（即待办事项），使用截止时间减去1小时作为展示位置
   if (
     event.eventType === "both" &&
@@ -311,15 +313,42 @@ export function calculateEventTop(event: any): number {
     return ((displayHour * 60 + endMinute) / 60) * 64;
   }
 
-  // 对于普通事件，使用原来的计算方式
+  // 处理跨天事件的不同情况
   const start = new Date(event.start);
-  return ((start.getHours() * 60 + start.getMinutes()) / 60) * 64;
+  const end = new Date(event.end);
+  
+  // 如果没有提供当前日期，则默认使用事件的开始日期
+  const viewDate = currentDate || new Date(start);
+  const viewDateStart = new Date(viewDate.getFullYear(), viewDate.getMonth(), viewDate.getDate(), 0, 0, 0);
+  const viewDateEnd = new Date(viewDate.getFullYear(), viewDate.getMonth(), viewDate.getDate(), 23, 59, 59);
+  
+  // 情况1：开始时间在当天，结束时间不在当天 - 使用开始时间的位置
+  if (start >= viewDateStart && start <= viewDateEnd && end > viewDateEnd) {
+    return ((start.getHours() * 60 + start.getMinutes()) / 60) * 64;
+  }
+  
+  // 情况2：开始时间和结束时间都不在当天 - 从0点开始渲染
+  else if (start < viewDateStart && end > viewDateEnd) {
+    return 0; // 从当天开始（0点）
+  }
+  
+  // 情况3：开始时间不在当天（在当天之前），但结束时间在当天 - 从0点开始渲染
+  else if (start < viewDateStart && end >= viewDateStart && end <= viewDateEnd) {
+    return 0; // 从当天开始（0点）
+  }
+  
+  // 情况4：事件完全在当天内 - 使用开始时间的位置
+  else {
+    return ((start.getHours() * 60 + start.getMinutes()) / 60) * 64;
+  }
 }
 
 /**
  * 计算事件的高度
+ * @param event 事件对象
+ * @param currentDate 当前视图的日期，可选，表示使用事件自身的日期
  */
-export function calculateEventHeight(event: any): number {
+export function calculateEventHeight(event: any, currentDate?: Date): number {
   // 对于both类型事件（即待办事项），固定高度为1小时
   if (
     event.eventType === "both" &&
@@ -328,11 +357,40 @@ export function calculateEventHeight(event: any): number {
     return 64; // 1小时的高度
   }
 
-  // 对于普通事件，使用原来的计算方式
+  // 对于普通事件，根据是否跨天处理
   const start = new Date(event.start);
   const end = new Date(event.end);
-  const durationHours = (end.getTime() - start.getTime()) / (1000 * 60 * 60);
-  return Math.max(durationHours * 64, 24);
+  
+  // 如果没有提供当前日期，则默认使用事件的开始日期
+  const viewDate = currentDate || new Date(start);
+  const viewDateStart = new Date(viewDate.getFullYear(), viewDate.getMonth(), viewDate.getDate(), 0, 0, 0);
+  const viewDateEnd = new Date(viewDate.getFullYear(), viewDate.getMonth(), viewDate.getDate(), 23, 59, 59);
+  
+  // 情况1：开始时间在当天，结束时间不在当天
+  if (start >= viewDateStart && start <= viewDateEnd && end > viewDateEnd) {
+    // 从开始时间到当天结束
+    const durationHours = (viewDateEnd.getTime() - start.getTime()) / (1000 * 60 * 60);
+    return Math.max(durationHours * 64, 24);
+  }
+  
+  // 情况2：开始时间和结束时间都不在当天（开始时间在当天之前，结束时间在当天之后）
+  else if (start < viewDateStart && end > viewDateEnd) {
+    // 渲染整天
+    return 24 * 64; // 24小时 * 64px/小时 = 整天高度
+  }
+  
+  // 情况3：开始时间不在当天（在当天之前），但结束时间在当天
+  else if (start < viewDateStart && end >= viewDateStart && end <= viewDateEnd) {
+    // 从当天开始到结束时间
+    const durationHours = (end.getTime() - viewDateStart.getTime()) / (1000 * 60 * 60);
+    return Math.max(durationHours * 64, 24);
+  }
+  
+  // 情况4：事件完全在当天内
+  else {
+    const durationHours = (end.getTime() - start.getTime()) / (1000 * 60 * 60);
+    return Math.max(durationHours * 64, 24);
+  }
 }
 
 /**
@@ -481,4 +539,39 @@ export function getEventGroups(events: any[]): any[][] {
     groupMap[root].push(events[i]);
   }
   return Object.values(groupMap);
+}
+
+
+/**
+ * 获取跨天事件在月视图中的显示标签
+ * @param event 事件对象
+ * @param dayDate 当前日期格子的日期
+ * @param hour24 是否24小时制
+ * @returns 根据事件在当天的状态返回合适的标签
+ */
+export function getCrossDayLabel(event: any, dayDate: any, hour24: boolean): string {
+  const start = new Date(event.start);
+  const end = new Date(event.end);
+  const currentDay = new Date(dayDate);
+  
+  // 设置时间为当天的开始和结束
+  const dayStart = new Date(currentDay);
+  dayStart.setHours(0, 0, 0, 0);
+  const dayEnd = new Date(currentDay);
+  dayEnd.setHours(23, 59, 59, 999);
+  
+  // 情况1: 当前日期是事件的开始日期
+  if (isSameDay(start, currentDay)) {
+    return `Start ${formatTime(start, hour24)}`;
+  }
+  
+  // 情况2: 当前日期是事件的结束日期
+  else if (isSameDay(end, currentDay)) {
+    return `End ${formatTime(end, hour24)}`;
+  }
+  
+  // 情况3: 当前日期是事件跨越的中间日期
+  else {
+    return "Cross Day";
+  }
 }

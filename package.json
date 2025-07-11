@@ -5,7 +5,7 @@
   "type": "module",
   "main": "./src/main/main.js",
   "config": {
-    "buildTrigger": "0"
+    "buildTrigger": "1"
   },
   "scripts": {
     "dev": "vite --config config/vite.config.js",
