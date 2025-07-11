@@ -13,6 +13,11 @@ declare global {
       minimize?: () => void;
       maximize?: () => void;
       close?: () => void;
+      importSchedule: () => Promise<{
+        success: boolean;
+        schedule?: any[];
+        message?: string;
+      }>;
     };
   }
 }
