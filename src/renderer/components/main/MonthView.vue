@@ -1,14 +1,18 @@
 <template>
   <!-- 月视图容器 -->
   <div class="calendar-grid flex-1 overflow-visible p-6 min-h-[800px]">
-    <!-- 星期头部 -->
-    <div class="grid grid-cols-7 mb-2">
-      <div
-        v-for="day in getWeekDayNames(settingStore.weekStart)"
-        :key="day"
-        class="text-sm font-medium text-gray-500 pb-2 text-center"
-      >
-        {{ day }}
+    <!-- 固定星期头部 -->
+    <div
+      class="sticky top-0 z-30 backdrop-blur-md backdrop-saturate-125 bg-white/70 rounded-lg"
+    >
+      <div class="grid grid-cols-7 mb-2">
+        <div
+          v-for="day in getWeekDayNames(settingStore.weekStart)"
+          :key="day"
+          class="text-sm font-medium text-gray-500 pb-2 text-center"
+        >
+          {{ day }}
+        </div>
       </div>
     </div>
     <!-- 日期格子容器 -->
@@ -184,6 +188,12 @@ const settingStore = useSettingStore();
 .calendar-day {
   background-color: var(--bg-secondary);
   border-color: var(--border-color) !important;
+}
+
+.dark-mode .sticky.top-0.z-30 {
+  background-color: rgba(30, 32, 40, 0.55);
+  backdrop-filter: blur(8px) saturate(1.2);
+  -webkit-backdrop-filter: blur(8px) saturate(1.2);
 }
 
 .lunar-month {
