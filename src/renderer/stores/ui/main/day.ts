@@ -251,11 +251,11 @@ export const createDayModule = (storeContext: any) => {
   // 滚动到当前时间线（无动画，直接定位）
   function scrollToCurrentTimeLine() {
     setTimeout(() => {
-      const currentTimeLine = document.querySelector('.current-time-line');
+      const currentTimeLine = document.querySelector(".current-time-line");
       if (currentTimeLine) {
         currentTimeLine.scrollIntoView({
-          behavior: 'auto', // 立即跳转，无动画
-          block: 'center',
+          behavior: "auto", // 立即跳转，无动画
+          block: "center",
         });
       }
     }, 0);

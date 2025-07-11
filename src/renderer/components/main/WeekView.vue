@@ -4,7 +4,9 @@
     <!-- 周视图网格布局 -->
     <div class="grid grid-cols-1 max-h-[1664px] rounded-lg shadow-sm">
       <!-- sticky头部：日期栏+全天事件栏 -->
-      <div class="sticky top-0 z-30 backdrop-blur-md backdrop-saturate-125 bg-white/70">
+      <div
+        class="sticky top-0 z-30 backdrop-blur-md backdrop-saturate-125 bg-white/70"
+      >
         <!-- 周视图头部，显示本周7天 -->
         <div class="grid grid-cols-[80px_repeat(7,1fr)] border-gray-200">
           <!-- 左侧空白，用于对齐时间轴 -->
@@ -16,7 +18,7 @@
               settingStore.weekStart
             )"
             :key="idx"
-            class="day-header flex flex-col items-center justify-center p-2 "
+            class="day-header flex flex-col items-center justify-center p-2"
           >
             <div class="text-sm font-medium">{{ day.dayName }}</div>
             <div
@@ -119,8 +121,15 @@
             }"
             :key="currentTime.getTime()"
           >
-            <div class="time-text absolute -left-[75px] -top-2 w-15 text-right text-blue-500 font-medium" style="font-size: calc(var(--small-text-font-size) * 0.9);">{{ uiStore.getCurrentTimeText() }}</div>
-            <div class="time-line absolute left-0 right-0 h-0.5 bg-blue-500 top-0"></div>
+            <div
+              class="time-text absolute -left-[75px] -top-2 w-15 text-right text-blue-500 font-medium"
+              style="font-size: calc(var(--small-text-font-size) * 0.9)"
+            >
+              {{ uiStore.getCurrentTimeText() }}
+            </div>
+            <div
+              class="time-line absolute left-0 right-0 h-0.5 bg-blue-500 top-0"
+            ></div>
           </div>
           <!-- 小时格子背景 -->
           <div v-for="hour in 24" :key="hour" class="contents">
@@ -131,12 +140,14 @@
               )"
               :key="idx"
               class="hour-cell relative cursor-pointer select-none translate-y-2 z-[1] transition-colors duration-150 hover:after:content-[''] hover:after:absolute hover:after:inset-0 hover:after:border hover:after:border-blue-500 hover:after:pointer-events-none hover:after:z-[2] hover:bg-blue-50"
-              @click="uiStore.handleHourClick({date: day.date}, hour - 1)"
+              @click="uiStore.handleHourClick({ date: day.date }, hour - 1)"
               @dragover.prevent
-              @drop="uiStore.handleWeekDrop($event, {
-                date: day.date,
-                hour: hour - 1,
-              })"
+              @drop="
+                uiStore.handleWeekDrop($event, {
+                  date: day.date,
+                  hour: hour - 1,
+                })
+              "
             ></div>
           </div>
           <!-- 周视图的每小时横线 -->
@@ -181,11 +192,9 @@
                     height: `${
                       Math.max(
                         ...group.map(
-                          (e) =>
-                            calculateEventTop(e) + calculateEventHeight(e)
+                          (e) => calculateEventTop(e) + calculateEventHeight(e)
                         )
-                      ) -
-                        Math.min(...group.map((e) => calculateEventTop(e))) ||
+                      ) - Math.min(...group.map((e) => calculateEventTop(e))) ||
                       64
                     }px`,
                     left: '4px',
@@ -209,12 +218,12 @@
                   :key="event.id"
                   :class="[
                     'day-event absolute rounded-sm px-2 py-1 overflow-hidden cursor-pointer transition-all duration-150 ease-in-out hover:-translate-y-px hover:shadow-lg hover:z-20 hover:border-l-4 border-l-[3px]',
-                    event.eventType === 'both' ? 'both-event-week flex flex-col' : '',
+                    event.eventType === 'both'
+                      ? 'both-event-week flex flex-col'
+                      : '',
                   ]"
                   :style="{
-                    top: `${
-                      event.allDay ? 8 : calculateEventTop(event) + 8
-                    }px`,
+                    top: `${event.allDay ? 8 : calculateEventTop(event) + 8}px`,
                     height: `${
                       event.allDay ? 1536 : calculateEventHeight(event)
                     }px`,
@@ -278,17 +287,17 @@
                           event.eventType === 'both' && event.completed
                             ? 'line-through'
                             : 'none',
-                        opacity: event.eventType === 'both' && event.completed ? 0.7 : 1,
+                        opacity:
+                          event.eventType === 'both' && event.completed
+                            ? 0.7
+                            : 1,
                       }"
                     >
                       {{
                         event.allDay
                           ? "All day"
                           : event.eventType === "both"
-                          ? formatTime(
-                              new Date(event.end),
-                              settingStore.hour24
-                            )
+                          ? formatTime(new Date(event.end), settingStore.hour24)
                           : formatEventTime(event, settingStore.hour24)
                       }}
                     </div>
@@ -301,7 +310,8 @@
                         event.eventType === 'both' && event.completed
                           ? 'line-through'
                           : 'none',
-                      opacity: event.eventType === 'both' && event.completed ? 0.7 : 1,
+                      opacity:
+                        event.eventType === 'both' && event.completed ? 0.7 : 1,
                     }"
                   >
                     {{ event.title }}
@@ -314,7 +324,8 @@
                         event.eventType === 'both' && event.completed
                           ? 'line-through'
                           : 'none',
-                      opacity: event.eventType === 'both' && event.completed ? 0.7 : 1,
+                      opacity:
+                        event.eventType === 'both' && event.completed ? 0.7 : 1,
                     }"
                   >
                     {{ event.description }}
@@ -330,7 +341,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue';
+import { onMounted } from "vue";
 import { useUiStore } from "../../stores/ui";
 import { useEventStore } from "../../stores/event";
 import { useSettingStore } from "../../stores/setting";

@@ -13,7 +13,7 @@
    - 提供一致的交互体验，增强用户的熟悉感。
 */
 
-@import url('./theme.css');
+@import url("./theme.css");
 
 /* ====================== 统一模态框样式 ======================= */
 
@@ -35,7 +35,9 @@
 .dark-mode .help-modal,
 .dark-mode .category-modal,
 .dark-mode .feedback-modal {
-  background-color: var(--modal-bg) !important; /* 使用暗黑模式下的模态框背景色 */
+  background-color: var(
+    --modal-bg
+  ) !important; /* 使用暗黑模式下的模态框背景色 */
   color: var(--modal-text-primary-color); /* 使用暗黑模式下的主要文本颜色 */
   border: 1px solid var(--modal-border); /* 添加边框以增强区分度 */
   box-shadow: var(--modal-shadow); /* 添加阴影以提升视觉层次 */
@@ -94,8 +96,12 @@
 .dark-mode .form-group input,
 .dark-mode .form-group textarea,
 .dark-mode .form-group select {
-  background-color: var(--modal-input-bg) !important; /* 使用暗黑模式下的输入框背景色 */
-  color: var(--modal-input-text) !important; /* 使用暗黑模式下的输入框文字颜色 */
+  background-color: var(
+    --modal-input-bg
+  ) !important; /* 使用暗黑模式下的输入框背景色 */
+  color: var(
+    --modal-input-text
+  ) !important; /* 使用暗黑模式下的输入框文字颜色 */
   border: 1px solid var(--modal-input-border, #d1d5db) !important; /* 使用暗黑模式下的输入框边框颜色，默认值为 border-gray-300 */
   box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.3); /* 添加内阴影以增强视觉效果 */
 }
@@ -157,7 +163,12 @@
 
 .dark-mode .modal-close-btn:hover {
   color: #bc2d2d; /* 暗黑模式下悬停时关闭按钮颜色 */
-  background-color: rgba(255, 107, 107, 0.1); /* 暗黑模式下悬停时关闭按钮背景色 */
+  background-color: rgba(
+    255,
+    107,
+    107,
+    0.1
+  ); /* 暗黑模式下悬停时关闭按钮背景色 */
 }
 
 /* ==================== 保存按钮 ==================== */

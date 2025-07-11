@@ -10,11 +10,14 @@ class RendererLogger {
       INFO: 1,
       WARN: 2,
       ERROR: 3,
-      FATAL: 4
+      FATAL: 4,
     };
-    
+
     // 当前日志级别（开发模式显示所有，生产模式只显示 INFO 及以上）
-    this.currentLevel = process.env.NODE_ENV === 'development' ? this.levels.DEBUG : this.levels.INFO;
+    this.currentLevel =
+      process.env.NODE_ENV === "development"
+        ? this.levels.DEBUG
+        : this.levels.INFO;
   }
 
   /**
@@ -31,10 +34,16 @@ class RendererLogger {
       message,
       meta: {
         ...meta,
-        url: typeof window !== 'undefined' && window.location ? window.location.href : 'test-environment',
-        userAgent: typeof navigator !== 'undefined' ? navigator.userAgent : 'test-environment',
-        processType: 'renderer'
-      }
+        url:
+          typeof window !== "undefined" && window.location
+            ? window.location.href
+            : "test-environment",
+        userAgent:
+          typeof navigator !== "undefined"
+            ? navigator.userAgent
+            : "test-environment",
+        processType: "renderer",
+      },
     };
   }
 
@@ -53,11 +62,15 @@ class RendererLogger {
    */
   async sendToMain(logData) {
     try {
-      if (typeof window !== 'undefined' && window.electronAPI && window.electronAPI.sendLog) {
+      if (
+        typeof window !== "undefined" &&
+        window.electronAPI &&
+        window.electronAPI.sendLog
+      ) {
         await window.electronAPI.sendLog(logData);
       }
     } catch (error) {
-      console.error('Failed to send log to main process:', error);
+      console.error("Failed to send log to main process:", error);
     }
   }
 
@@ -67,9 +80,9 @@ class RendererLogger {
    * @param {object} meta - 额外的元数据
    */
   debug(message, meta = {}) {
-    if (!this.shouldLog('DEBUG')) return;
-    
-    const logData = this.formatMessage('debug', message, meta);
+    if (!this.shouldLog("DEBUG")) return;
+
+    const logData = this.formatMessage("debug", message, meta);
     console.debug(`[DEBUG] ${message}`, meta);
     this.sendToMain(logData);
   }
@@ -80,9 +93,9 @@ class RendererLogger {
    * @param {object} meta - 额外的元数据
    */
   info(message, meta = {}) {
-    if (!this.shouldLog('INFO')) return;
-    
-    const logData = this.formatMessage('info', message, meta);
+    if (!this.shouldLog("INFO")) return;
+
+    const logData = this.formatMessage("info", message, meta);
     console.info(`[INFO] ${message}`, meta);
     this.sendToMain(logData);
   }
@@ -93,9 +106,9 @@ class RendererLogger {
    * @param {object} meta - 额外的元数据
    */
   warn(message, meta = {}) {
-    if (!this.shouldLog('WARN')) return;
-    
-    const logData = this.formatMessage('warn', message, meta);
+    if (!this.shouldLog("WARN")) return;
+
+    const logData = this.formatMessage("warn", message, meta);
     console.warn(`[WARN] ${message}`, meta);
     this.sendToMain(logData);
   }
@@ -106,20 +119,20 @@ class RendererLogger {
    * @param {Error|object} error - 错误对象或额外的元数据
    */
   error(message, error = {}) {
-    if (!this.shouldLog('ERROR')) return;
-    
+    if (!this.shouldLog("ERROR")) return;
+
     let meta = {};
     if (error instanceof Error) {
       meta = {
         error: error.message,
         stack: error.stack,
-        name: error.name
+        name: error.name,
       };
     } else {
       meta = error;
     }
-    
-    const logData = this.formatMessage('error', message, meta);
+
+    const logData = this.formatMessage("error", message, meta);
     console.error(`[ERROR] ${message}`, meta);
     this.sendToMain(logData);
   }
@@ -136,13 +149,13 @@ class RendererLogger {
         error: error.message,
         stack: error.stack,
         name: error.name,
-        level: 'fatal'
+        level: "fatal",
       };
     } else {
-      meta = { ...error, level: 'fatal' };
+      meta = { ...error, level: "fatal" };
     }
-    
-    const logData = this.formatMessage('error', `[FATAL] ${message}`, meta);
+
+    const logData = this.formatMessage("error", `[FATAL] ${message}`, meta);
     console.error(`[FATAL] ${message}`, meta);
     this.sendToMain(logData);
   }
@@ -155,8 +168,8 @@ class RendererLogger {
   user(action, meta = {}) {
     this.info(`User action: ${action}`, {
       ...meta,
-      category: 'user_action',
-      action
+      category: "user_action",
+      action,
     });
   }
 
@@ -169,9 +182,9 @@ class RendererLogger {
   navigation(from, to, meta = {}) {
     this.info(`Navigation: ${from} -> ${to}`, {
       ...meta,
-      category: 'navigation',
+      category: "navigation",
       from,
-      to
+      to,
     });
   }
 
@@ -183,8 +196,8 @@ class RendererLogger {
   api(api, meta = {}) {
     this.debug(`API call: ${api}`, {
       ...meta,
-      category: 'api',
-      api
+      category: "api",
+      api,
     });
   }
 
@@ -197,9 +210,9 @@ class RendererLogger {
   performance(metric, value, meta = {}) {
     this.info(`Performance metric: ${metric} = ${value}`, {
       ...meta,
-      category: 'performance',
+      category: "performance",
       metric,
-      value
+      value,
     });
   }
 
@@ -212,9 +225,9 @@ class RendererLogger {
   component(component, lifecycle, meta = {}) {
     this.debug(`Component ${component}: ${lifecycle}`, {
       ...meta,
-      category: 'component',
+      category: "component",
       component,
-      lifecycle
+      lifecycle,
     });
   }
 }
@@ -223,22 +236,22 @@ class RendererLogger {
 const logger = new RendererLogger();
 
 // 捕获全局错误 (仅在浏览器环境)
-if (typeof window !== 'undefined' && window.addEventListener) {
-  window.addEventListener('error', (event) => {
-    logger.error('Global error caught', {
+if (typeof window !== "undefined" && window.addEventListener) {
+  window.addEventListener("error", (event) => {
+    logger.error("Global error caught", {
       message: event.message,
       filename: event.filename,
       lineno: event.lineno,
       colno: event.colno,
-      stack: event.error?.stack
+      stack: event.error?.stack,
     });
   });
 
   // 捕获未处理的 Promise 拒绝
-  window.addEventListener('unhandledrejection', (event) => {
-    logger.error('Unhandled promise rejection', {
-      reason: event.reason?.toString() || 'Unknown reason',
-      promise: event.promise?.toString() || 'Unknown promise'
+  window.addEventListener("unhandledrejection", (event) => {
+    logger.error("Unhandled promise rejection", {
+      reason: event.reason?.toString() || "Unknown reason",
+      promise: event.promise?.toString() || "Unknown promise",
     });
   });
 }

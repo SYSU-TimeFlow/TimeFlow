@@ -9,7 +9,7 @@
 <template>
   <!-- 主日历应用程序容器 - 改为固定屏幕大小 -->
   <div
-    class="calendar-app h-screen w-screen  text-gray-800 flex flex-col overflow-hidden"
+    class="calendar-app h-screen w-screen text-gray-800 flex flex-col overflow-hidden"
   >
     <!-- 应用程序头部 -->
     <CalendarHeader class="flex-shrink-0" />
@@ -40,11 +40,11 @@ import { onMounted } from "vue";
 import Sidebar from "../components/sidebar/Sidebar.vue";
 import CalendarMain from "../components/main/CalendarMain.vue";
 import CalendarHeader from "../components/CalendarHeader.vue";
-import EventPage from "../components/pages/EventPage.vue"
-import ToDoPage from "../components/pages/ToDoPage.vue"
-import CategoryPage from "../components/pages/CategoryPage.vue"
-import SettingPage from "../components/pages/SettingPage.vue"
-import HelpPage from "../components/pages/HelpPage.vue"
+import EventPage from "../components/pages/EventPage.vue";
+import ToDoPage from "../components/pages/ToDoPage.vue";
+import CategoryPage from "../components/pages/CategoryPage.vue";
+import SettingPage from "../components/pages/SettingPage.vue";
+import HelpPage from "../components/pages/HelpPage.vue";
 import MessagePage from "../components/pages/MessagePage.vue";
 import { useUiStore } from "../stores/ui";
 import { useSettingStore } from "../stores/setting";
@@ -55,38 +55,30 @@ const uiStore = useUiStore();
 const settingStore = useSettingStore();
 
 // 使用日志系统
-const { 
-  logUserAction, 
-  logInfo, 
-  logError, 
-  createAsyncTracker,
-  startTimer 
-} = useLogger('CalendarApp');
+const { logUserAction, logInfo, logError, createAsyncTracker, startTimer } =
+  useLogger("CalendarApp");
 
 const { safeAsync } = useErrorHandler();
 
 // 生命周期钩子
 onMounted(async () => {
   logInfo("CalendarApp mounted, initializing application");
-  
-  const initTimer = startTimer('app_initialization');
-  
+
+  const initTimer = startTimer("app_initialization");
+
   try {
     // 安全地加载设置
-    await safeAsync(
-      () => settingStore.loadSettings(),
-      {
-        errorMessage: 'Failed to load settings',
-        componentName: 'CalendarApp',
-        onSuccess: () => logInfo("Settings loaded successfully"),
-        onError: (error) => logError("Settings loading failed", error)
-      }
-    );
+    await safeAsync(() => settingStore.loadSettings(), {
+      errorMessage: "Failed to load settings",
+      componentName: "CalendarApp",
+      onSuccess: () => logInfo("Settings loaded successfully"),
+      onError: (error) => logError("Settings loading failed", error),
+    });
 
     // 组件挂载后，默认显示今天的日期
     uiStore.goToToday();
-    logUserAction('navigate_to_today', { source: 'app_initialization' });
-    
+    logUserAction("navigate_to_today", { source: "app_initialization" });
+
     logInfo("CalendarApp initialization completed successfully");
   } catch (error) {
     logError("CalendarApp initialization failed", error);

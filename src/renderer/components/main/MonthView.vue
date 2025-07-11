@@ -23,7 +23,9 @@
         :class="[
           'calendar-day border border-gray-200 h-auto min-h-[120px] max-h-[180px] p-1 pb-2 relative flex flex-col transition-all duration-200 ease-in-out hover:bg-gray-50 hover:border-blue-500 hover:shadow-lg hover:shadow-blue-500/30 hover:z-[5]',
           day.isCurrentMonth ? '' : 'bg-gray-200',
-          day.isToday ? 'today relative after:absolute after:top-0 after:left-0 after:right-0 after:h-[3px] after:bg-blue-600' : '',
+          day.isToday
+            ? 'today relative after:absolute after:top-0 after:left-0 after:right-0 after:h-[3px] after:bg-blue-600'
+            : '',
           day.isWeekend ? 'weekend' : '',
         ]"
         @click="uiStore.handleDayClick(day, true)"
@@ -43,8 +45,12 @@
               day.isToday
                 ? 'text-blue-600 font-semibold'
                 : day.isCurrentMonth
-                ? (settingStore.themeMode !== 'dark' ? 'text-gray-800' : 'text-gray-400')
-                : (settingStore.themeMode !== 'dark' ? 'text-gray-400' : 'text-gray-800'),
+                ? settingStore.themeMode !== 'dark'
+                  ? 'text-gray-800'
+                  : 'text-gray-400'
+                : settingStore.themeMode !== 'dark'
+                ? 'text-gray-400'
+                : 'text-gray-800',
             ]"
           >
             {{ day.dayNumber }}
@@ -54,7 +60,9 @@
             v-if="settingStore.showLunar"
             class="lunar-date text-xs block mt-0.5"
             :class="{
-              'lunar-month text-blue-500 font-medium': getLunarDate(new Date(day.date)).month,
+              'lunar-month text-blue-500 font-medium': getLunarDate(
+                new Date(day.date)
+              ).month,
             }"
           >
             {{
@@ -115,7 +123,8 @@
                     event.eventType === 'both' && event.completed
                       ? 'line-through'
                       : 'none',
-                  opacity: event.eventType === 'both' && event.completed ? 0.7 : 1,
+                  opacity:
+                    event.eventType === 'both' && event.completed ? 0.7 : 1,
                 }"
               >
                 {{
@@ -136,7 +145,8 @@
                   event.eventType === 'both' && event.completed
                     ? 'line-through'
                     : 'none',
-                opacity: event.eventType === 'both' && event.completed ? 0.7 : 1,
+                opacity:
+                  event.eventType === 'both' && event.completed ? 0.7 : 1,
               }"
             >
               {{ event.title }}

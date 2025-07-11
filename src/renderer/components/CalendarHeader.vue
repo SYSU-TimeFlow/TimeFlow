@@ -8,14 +8,11 @@
 
 <template>
   <!-- 应用程序头部 -->
-  <header
-    class="app-header drag px-6 py-3 flex items-center h-12"
-  >
+  <header class="app-header drag px-6 py-3 flex items-center h-12">
     <!-- 左侧区域：TimeFlow标题和日历标题 -->
     <div class="header-left flex items-center flex-shrink mr-6 w-1/4">
       <h1
-        class="font-semibold mr-6 no-drag cursor-pointer transition-colors
-          text-[var(--heading-color)] hover:text-[#4a86e8]"
+        class="font-semibold mr-6 no-drag cursor-pointer transition-colors text-[var(--heading-color)] hover:text-[#4a86e8]"
         @click="uiStore.toggleSidebar()"
         title="Toggle sidebar"
       >
@@ -58,11 +55,10 @@
           @click="activateSearch"
         >
           <i class="fas fa-keyboard text-gray-400"></i>
-          <span class="flex items-center w-full leading-[1.5] relative overflow-hidden h-full ml-2">
-            <span
-              :key="placeholderText"
-              class="placeholder-anim"
-            >
+          <span
+            class="flex items-center w-full leading-[1.5] relative overflow-hidden h-full ml-2"
+          >
+            <span :key="placeholderText" class="placeholder-anim">
               {{ placeholderText }}
             </span>
           </span>
@@ -80,8 +76,7 @@
               ? 'Enter command...'
               : 'Describe event...'
           "
-          class="pl-8 pr-4 py-1 border rounded-md focus:outline-none w-64 h-8
-            placeholder-gray-400"
+          class="pl-8 pr-4 py-1 border rounded-md focus:outline-none w-64 h-8 placeholder-gray-400"
           :value="uiStore.searchInputValue"
           @input="handleInputChange"
           @focus="uiStore.handleSearchFocusAction"
@@ -91,26 +86,23 @@
 
         <i
           class="fas absolute left-3 top-1/2 transform -translate-y-1/2 pointer-events-none"
-          :class="
-            [
-              uiStore.isSearchActive && uiStore.appMode === 'normal'
-                ? 'fa-search'
-                : '',
-              uiStore.isSearchActive && uiStore.appMode === 'command'
-                ? 'fa-terminal text-blue-600'
-                : '',
-              uiStore.isSearchActive && uiStore.appMode === 'nlp'
-                ? 'fa-comment-dots text-purple-500'
-                : '',
-            ]
-          "
+          :class="[
+            uiStore.isSearchActive && uiStore.appMode === 'normal'
+              ? 'fa-search'
+              : '',
+            uiStore.isSearchActive && uiStore.appMode === 'command'
+              ? 'fa-terminal text-blue-600'
+              : '',
+            uiStore.isSearchActive && uiStore.appMode === 'nlp'
+              ? 'fa-comment-dots text-purple-500'
+              : '',
+          ]"
         ></i>
 
         <!-- 搜索结果列表 -->
         <div
           v-if="uiStore.showSearchDropdown && uiStore.appMode === 'normal'"
-          class="search-results absolute left-0 right-0 mt-1 border rounded-md shadow-lg z-50 max-h-60 overflow-y-auto
-            "
+          class="search-results absolute left-0 right-0 mt-1 border rounded-md shadow-lg z-50 max-h-60 overflow-y-auto"
         >
           <ul ref="resultListRef" class="list-none p-0 m-0">
             <li
@@ -130,8 +122,13 @@
                   )
                 "
               ></span>
-              <span v-if="event.eventType === 'todo' || event.eventType === 'both'">
-                <span v-if="event.end && new Date(event.end).getFullYear() > 1970" class="text-xs ml-2">
+              <span
+                v-if="event.eventType === 'todo' || event.eventType === 'both'"
+              >
+                <span
+                  v-if="event.end && new Date(event.end).getFullYear() > 1970"
+                  class="text-xs ml-2"
+                >
                   {{ formatEventDate(event.end) }}
                 </span>
               </span>
@@ -141,8 +138,7 @@
             </li>
             <li
               v-if="
-                uiStore.searchQuery.trim() &&
-                uiStore.searchResults.length === 0
+                uiStore.searchQuery.trim() && uiStore.searchResults.length === 0
               "
               class="px-4 py-2"
             >
@@ -158,20 +154,38 @@
         title="Go to today"
       >
         <!-- 定位图标SVG -->
-        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <circle cx="10" cy="10" r="7" stroke="currentColor" stroke-width="2"/>
-          <circle cx="10" cy="10" r="2.2" fill="currentColor"/>
+        <svg
+          width="20"
+          height="20"
+          viewBox="0 0 20 20"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <circle
+            cx="10"
+            cy="10"
+            r="7"
+            stroke="currentColor"
+            stroke-width="2"
+          />
+          <circle cx="10" cy="10" r="2.2" fill="currentColor" />
         </svg>
       </button>
     </div>
 
     <!-- 右侧区域：其他控制按钮 -->
-    <div class="header-right no-drag flex items-center flex-shrink-0 w-1/5 justify-end">
+    <div
+      class="header-right no-drag flex items-center flex-shrink-0 w-1/5 justify-end"
+    >
       <!-- 通知铃铛按钮 -->
       <button
         class="header-icon-button w-8 h-8 rounded-md relative flex items-center justify-center"
         @click="toggleNotification"
-        :title="settingStore.notifications ? 'Disable notifications' : 'Enable notifications'"
+        :title="
+          settingStore.notifications
+            ? 'Disable notifications'
+            : 'Enable notifications'
+        "
       >
         <i
           class="fas fa-bell"
@@ -249,12 +263,12 @@
           viewBox="0 0 22 22"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
-          style="transform: translateY(-1px);"
+          style="transform: translateY(-1px)"
         >
-            <path
+          <path
             d="M19.5 17.5A9.5 9.5 0 0 1 10 3.26A9.503 9.503 0 0 0 10 22a9.5 9.5 0 0 0 9.5-4.5z"
             fill="#ccc"
-            />
+          />
         </svg>
       </button>
       <!-- 设置按钮 -->
@@ -320,7 +334,7 @@ const cogRotation = ref(0);
 const themeBtnHover = ref(false);
 
 // ==================== 动态占位符 ====================
-const placeholders = ['Press / to search', 'Press . to ai'];
+const placeholders = ["Press / to search", "Press . to ai"];
 const placeholderIndex = ref(0);
 const placeholderText = ref(placeholders[0]);
 let placeholderInterval: number | undefined;
@@ -329,31 +343,38 @@ let placeholderInterval: number | undefined;
 const isSpeechModalVisible = ref(false);
 const speechStatus = ref("点击“完成”或“取消”");
 const transcriptDivRef = ref<HTMLDivElement | null>(null);
-let finalTranscript = '';
+let finalTranscript = "";
 
 // 新增：封装核心NLP处理逻辑
 const processTextWithNLP = async (text: string) => {
   if (!electronAPI || !electronAPI.processNaturalLanguage) {
     console.error("NLP API is not available.");
-    uiStore.showInfoMessage('错误', '自然语言处理功能不可用。');
-    return { success: false, message: 'NLP API not available' };
+    uiStore.showInfoMessage("错误", "自然语言处理功能不可用。");
+    return { success: false, message: "NLP API not available" };
   }
 
   try {
     const result = await electronAPI.processNaturalLanguage(text);
     if (result && result.success) {
       eventStore.createEventFromNLP(result.event);
-      uiStore.showInfoMessage('成功', `事件 "${result.event.title}" 已创建。`);
+      uiStore.showInfoMessage("成功", `事件 "${result.event.title}" 已创建。`);
       return { success: true };
     } else {
       console.error("NLP Error:", result ? result.message : "Unknown error");
-      uiStore.showInfoMessage('创建事件失败', result.message || '无法解析您的输入，请检查内容和格式。');
-      return { success: false, message: result.message || 'Unknown error' };
+      uiStore.showInfoMessage(
+        "创建事件失败",
+        result.message || "无法解析您的输入，请检查内容和格式。"
+      );
+      return { success: false, message: result.message || "Unknown error" };
     }
   } catch (error) {
     console.error("Error processing natural language:", error);
-    const errorMessage = error instanceof Error ? error.message : '发生未知错误';
-    uiStore.showInfoMessage('创建事件失败', '处理您的请求时发生了一个内部错误。');
+    const errorMessage =
+      error instanceof Error ? error.message : "发生未知错误";
+    uiStore.showInfoMessage(
+      "创建事件失败",
+      "处理您的请求时发生了一个内部错误。"
+    );
     return { success: false, message: errorMessage };
   }
 };
@@ -520,17 +541,17 @@ const handleSearchKeydown = (event: KeyboardEvent) => {
       uiStore.setAppMode("normal");
     } else {
       // 命令无法识别时显示反馈
-      uiStore.showInfoMessage('命令错误', '无法识别的命令，请检查输入。');
+      uiStore.showInfoMessage("命令错误", "无法识别的命令，请检查输入。");
     }
 
     event.preventDefault();
-  } else if (event.key === 'Enter' && uiStore.appMode === 'nlp') {
+  } else if (event.key === "Enter" && uiStore.appMode === "nlp") {
     // 新增：处理NLP模式下的回车事件
     const input = event.target as HTMLInputElement;
     const text = input.value.trim();
     if (text) {
       // 复用核心NLP处理逻辑
-      processTextWithNLP(text).then(result => {
+      processTextWithNLP(text).then((result) => {
         if (result.success) {
           // 成功后清空并退出搜索模式
           uiStore.updateSearchInputValue("");
@@ -608,7 +629,7 @@ const handleGlobalKeydown = (event: KeyboardEvent) => {
         break;
       case "a":
         // 根据当前视图决定打开哪个modal
-        if (uiStore.currentView === 'todo') {
+        if (uiStore.currentView === "todo") {
           uiStore.openNewTodoModal();
         } else {
           uiStore.openNewEventModal();
@@ -810,17 +831,39 @@ watch(isCogHovered, (hovered) => {
   animation: bell-shake 0.6s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
 }
 @keyframes bell-shake {
-  0% { transform: rotate(0); }
-  10% { transform: rotate(-15deg); }
-  20% { transform: rotate(10deg); }
-  30% { transform: rotate(-10deg); }
-  40% { transform: rotate(6deg); }
-  50% { transform: rotate(-4deg); }
-  60% { transform: rotate(2deg); }
-  70% { transform: rotate(-1deg); }
-  80% { transform: rotate(1deg); }
-  90% { transform: rotate(0); }
-  100% { transform: rotate(0); }
+  0% {
+    transform: rotate(0);
+  }
+  10% {
+    transform: rotate(-15deg);
+  }
+  20% {
+    transform: rotate(10deg);
+  }
+  30% {
+    transform: rotate(-10deg);
+  }
+  40% {
+    transform: rotate(6deg);
+  }
+  50% {
+    transform: rotate(-4deg);
+  }
+  60% {
+    transform: rotate(2deg);
+  }
+  70% {
+    transform: rotate(-1deg);
+  }
+  80% {
+    transform: rotate(1deg);
+  }
+  90% {
+    transform: rotate(0);
+  }
+  100% {
+    transform: rotate(0);
+  }
 }
 .bell-disabled {
   color: #bdbdbd !important;

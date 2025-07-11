@@ -4,10 +4,7 @@
     class="fixed inset-0 bg-transparent backdrop-blur-sm flex items-center justify-center z-50"
     @click="uiStore.showFeedbackModal = false"
   >
-    <div
-      class="feedback-modal w-[600px] h-[600px] relative"
-      @click.stop
-    >
+    <div class="feedback-modal w-[600px] h-[600px] relative" @click.stop>
       <!-- 关闭按钮 -->
       <button
         @click="uiStore.showFeedbackModal = false"

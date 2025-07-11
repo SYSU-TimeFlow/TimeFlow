@@ -9,8 +9,8 @@ import logger from "./utils/logger.js";
 
 import "./styles/index.css";
 
-logger.info("Starting Vue application", { 
-  environment: process.env.NODE_ENV || 'development'
+logger.info("Starting Vue application", {
+  environment: process.env.NODE_ENV || "development",
 });
 
 const app = createApp(App);
@@ -28,7 +28,7 @@ app.config.errorHandler = (err: unknown, instance, info) => {
     error: error.message,
     stack: error.stack,
     componentInfo: info,
-    instanceType: instance?.$options.name || 'Unknown'
+    instanceType: instance?.$options.name || "Unknown",
   });
 };
 
@@ -36,8 +36,8 @@ app.config.errorHandler = (err: unknown, instance, info) => {
 app.config.warnHandler = (msg, instance, trace) => {
   logger.warn("Vue warning", {
     message: msg,
-    componentName: instance?.$options.name || 'Unknown',
-    trace
+    componentName: instance?.$options.name || "Unknown",
+    trace,
   });
 };
 

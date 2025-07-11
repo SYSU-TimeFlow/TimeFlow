@@ -10,21 +10,34 @@
     v-if="uiStore.showMessageModal"
     :class="['message-modal-root', settingStore.themeMode]"
     class="fixed inset-0 flex items-center justify-center z-50"
-    style="background:rgba(0,0,0,0.18);backdrop-filter:blur(2px);"
+    style="background: rgba(0, 0, 0, 0.18); backdrop-filter: blur(2px)"
     @click="uiStore.closeMessageModal"
   >
     <!-- 弹窗主容器，阻止点击事件冒泡 -->
     <div
       class="message-modal-content relative overflow-y-auto transition-all duration-300 flex flex-col items-center"
-      style="min-width:320px;max-width:90vw;max-height:90vh;padding:32px 36px;box-shadow:0 8px 32px rgba(0,0,0,0.18);border-radius:16px;"
+      style="
+        min-width: 320px;
+        max-width: 90vw;
+        max-height: 90vh;
+        padding: 32px 36px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
+        border-radius: 16px;
+      "
       @click.stop
     >
       <!-- 头部 -->
-      <h3 class="message-modal-title text-xl font-semibold mb-4 text-center" style="letter-spacing:0.5px;">
+      <h3
+        class="message-modal-title text-xl font-semibold mb-4 text-center"
+        style="letter-spacing: 0.5px"
+      >
         {{ uiStore.messageModalTitle }}
       </h3>
       <!-- 主体 -->
-      <div class="modal-body text-base text-center mb-6 message-modal-body" style="min-width:220px; background: inherit;">
+      <div
+        class="modal-body text-base text-center mb-6 message-modal-body"
+        style="min-width: 220px; background: inherit"
+      >
         {{ uiStore.messageModalContent }}
       </div>
       <!-- 底部按钮区 -->
@@ -32,28 +45,39 @@
         <button
           v-if="uiStore.messageModalType === 'confirm'"
           class="modal-save-btn w-28 h-10"
-          style="font-weight:500;font-size:1.08rem;"
+          style="font-weight: 500; font-size: 1.08rem"
           @click="uiStore.handleMessageConfirm"
-        >确定</button>
+        >
+          确定
+        </button>
         <button
           v-if="uiStore.messageModalType === 'confirm'"
           class="modal-cancel-btn w-28 h-10"
-          style="font-weight:500;font-size:1.08rem;background:#eee;color:#444;"
+          style="
+            font-weight: 500;
+            font-size: 1.08rem;
+            background: #eee;
+            color: #444;
+          "
           @click="uiStore.closeMessageModal"
-        >取消</button>
+        >
+          取消
+        </button>
         <button
           v-if="uiStore.messageModalType === 'info'"
           class="modal-save-btn w-28 h-10"
-          style="font-weight:500;font-size:1.08rem;"
+          style="font-weight: 500; font-size: 1.08rem"
           @click="uiStore.closeMessageModal"
-        >确定</button>
+        >
+          确定
+        </button>
       </div>
       <!-- 关闭按钮 -->
       <button
         class="modal-close-btn absolute top-3 right-3"
         @click="uiStore.closeMessageModal"
         title="关闭"
-        style="padding:2px;"
+        style="padding: 2px"
       >
         <i class="fas fa-times"></i>
       </button>
@@ -62,8 +86,8 @@
 </template>
 
 <script setup>
-import { useUiStore } from '../../stores/ui';
-import { useSettingStore } from '../../stores/setting';
+import { useUiStore } from "../../stores/ui";
+import { useSettingStore } from "../../stores/setting";
 const uiStore = useUiStore();
 const settingStore = useSettingStore();
 </script>

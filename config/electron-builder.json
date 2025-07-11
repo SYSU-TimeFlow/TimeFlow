@@ -1,6 +1,9 @@
 {
   "productName": "TimeFlow",
-  "files": ["src/main/main.js", "src/main/preload.js", "src/main/ipcHandlers.js", "src/main/database.js", "dist"],
+  "files": [
+    "src/main",
+    "dist"
+  ],
   "directories": {
     "output": "build"
   },

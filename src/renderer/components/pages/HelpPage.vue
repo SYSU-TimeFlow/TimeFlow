@@ -17,9 +17,7 @@
       @click.stop
     >
       <!-- 模态框头部 -->
-      <div
-        class="modal-header p-4 border-b flex justify-between items-center"
-      >
+      <div class="modal-header p-4 border-b flex justify-between items-center">
         <h3 class="text-lg font-semibold text-blue-800">
           <i class="fas fa-keyboard mr-2"></i> TimeFlow Keyboard Shortcuts
         </h3>
@@ -43,7 +41,9 @@
           <div class="grid grid-cols-1 gap-3">
             <div class="shortcut-item flex justify-between items-center">
               <span class="key-combo"><kbd>h</kbd> or <kbd>←</kbd></span>
-              <span class="description text-gray-700">Previous (week/month)</span>
+              <span class="description text-gray-700"
+                >Previous (week/month)</span
+              >
             </div>
             <div class="shortcut-item flex justify-between items-center">
               <span class="key-combo"><kbd>l</kbd> or <kbd>→</kbd></span>
@@ -101,18 +101,27 @@
             </div>
             <div class="shortcut-item flex justify-between items-center">
               <span class="key-combo"><kbd>.</kbd></span>
-              <span class="description text-gray-700">Text Recognition to Create Event</span>
+              <span class="description text-gray-700"
+                >Text Recognition to Create Event</span
+              >
             </div>
             <div class="shortcut-item flex justify-between items-center">
               <span class="key-combo"><kbd>Esc</kbd></span>
-              <span class="description text-gray-700">Return to Normal Mode</span>
+              <span class="description text-gray-700"
+                >Return to Normal Mode</span
+              >
             </div>
           </div>
           <!-- 命令模式说明 -->
           <div class="mt-4 text-gray-600 text-sm">
             <div class="font-semibold mb-1">Command Mode Examples:</div>
-            <div class="mb-1"><span class="key-combo">today</span> — Jump to today</div>
-            <div><span class="key-combo">2000/1/1</span> or <span class="key-combo">2000-01-01</span> — Jump to specified date</div>
+            <div class="mb-1">
+              <span class="key-combo">today</span> — Jump to today
+            </div>
+            <div>
+              <span class="key-combo">2000/1/1</span> or
+              <span class="key-combo">2000-01-01</span> — Jump to specified date
+            </div>
           </div>
         </div>
 
@@ -122,13 +131,17 @@
             Event Operations
           </h4>
           <div class="grid grid-cols-1 gap-3">
-            <div class="shortcut-item flex justify-between items-center text-sm">
+            <div
+              class="shortcut-item flex justify-between items-center text-sm"
+            >
               <span class="key-combo"><kbd>a</kbd></span>
               <span class="description text-gray-500">Open Event Page</span>
             </div>
             <div class="shortcut-item flex justify-between items-center">
               <span class="key-combo"><kbd>s</kbd></span>
-              <span class="description text-gray-700">Toggle Settings Page</span>
+              <span class="description text-gray-700"
+                >Toggle Settings Page</span
+              >
             </div>
             <div class="shortcut-item flex justify-between items-center">
               <span class="key-combo"><kbd>Space</kbd></span>

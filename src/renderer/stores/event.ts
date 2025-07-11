@@ -536,9 +536,17 @@ export const useEventStore = defineStore("event", () => {
   }
 
   // 新增：通过自然语言处理结果创建事件
-  function createEventFromNLP(nlpEvent: { title: string; start: Date; end: Date }) {
-    const newId = events.value.length > 0 ? Math.max(...events.value.map(e => e.id)) + 1 : 1;
-    const defaultCategory = categories.value.find(c => c.id === 5) || categories.value[0]; // 默认“其他”分类或第一个
+  function createEventFromNLP(nlpEvent: {
+    title: string;
+    start: Date;
+    end: Date;
+  }) {
+    const newId =
+      events.value.length > 0
+        ? Math.max(...events.value.map((e) => e.id)) + 1
+        : 1;
+    const defaultCategory =
+      categories.value.find((c) => c.id === 5) || categories.value[0]; // 默认“其他”分类或第一个
 
     if (!defaultCategory) {
       console.error("无法创建事件，因为没有可用的分类。");
@@ -551,7 +559,7 @@ export const useEventStore = defineStore("event", () => {
       nlpEvent.title,
       new Date(nlpEvent.start),
       new Date(nlpEvent.end),
-      '', // description
+      "", // description
       defaultCategory.id,
       defaultCategory.color,
       false, // allDay
@@ -560,9 +568,9 @@ export const useEventStore = defineStore("event", () => {
     );
 
     events.value.push(newEvent);
-    
+
     // 可选：创建后立即打开日历视图并跳转到对应日期
-    uiStore.changeView('day');
+    uiStore.changeView("day");
     uiStore.currentDate = new Date(nlpEvent.start);
   }
 
