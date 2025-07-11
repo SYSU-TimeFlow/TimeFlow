@@ -58,7 +58,7 @@
                         : 'none',
                   }"
                 >
-                  {{ event.title }}
+                  {{ event.title }}{{ !isSameDay(new Date(event.start), new Date(event.end)) ? ' (跨天)' : '' }}
                 </span>
               </div>
             </template>
@@ -234,8 +234,12 @@
                     }"
                   >
                     {{
-                      event.eventType === "both"
+                      event.allDay 
+                        ? "All Day"
+                        : event.eventType === "both"
                         ? formatTime(new Date(event.end), settingStore.hour24)
+                        : !isSameDay(new Date(event.start), new Date(event.end))
+                        ? getCrossDayLabel(event, uiStore.currentDate, settingStore.hour24)
                         : formatEventTime(event, settingStore.hour24)
                     }}
                   </div>
@@ -291,6 +295,7 @@ import {
   getContrastColor,
   getEventGroups,
   isSameDay,
+  getCrossDayLabel,
 } from "../../utils";
 
 defineProps<{

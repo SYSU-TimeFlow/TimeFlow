@@ -562,16 +562,16 @@ export function getCrossDayLabel(event: any, dayDate: any, hour24: boolean): str
   
   // 情况1: 当前日期是事件的开始日期
   if (isSameDay(start, currentDay)) {
-    return `开始 ${formatTime(start, hour24)}`;
+    return `Start ${formatTime(start, hour24)}`;
   }
   
   // 情况2: 当前日期是事件的结束日期
   else if (isSameDay(end, currentDay)) {
-    return `结束 ${formatTime(end, hour24)}`;
+    return `End ${formatTime(end, hour24)}`;
   }
   
   // 情况3: 当前日期是事件跨越的中间日期
   else {
-    return "跨天";
+    return "Cross Day";
   }
 }
