@@ -89,7 +89,7 @@
                     color: 'var(--event-font-color)',
                   }"
                 >
-                  {{ event.title }}{{ !isSameDay(new Date(event.start), new Date(event.end)) ? ' (跨天)' : '' }}
+                  {{ event.title }}
                 </span>
               </div>
             </template>
