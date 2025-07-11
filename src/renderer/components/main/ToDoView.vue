@@ -159,7 +159,7 @@
               >
                 <!-- 删除按钮 -->
                 <button
-                  @click.stop="eventStore.deleteEvent(todo.id)"
+                  @click.stop="eventStore.deleteTodo(todo.id)"
                   class="p-2 text-red-500 rounded-lg transition"
                   :class="{
                     'hover:bg-red-50': settingStore.themeMode !== 'dark',

@@ -17,7 +17,7 @@
       @click.stop
     >
       <!-- 模态框头部 -->
-      <div class="modal-header p-4 border-b flex justify-between items-center">
+      <div class="modal-header p-4 flex justify-between items-center">
         <h3 class="text-lg font-semibold text-blue-800">
           <i class="fas fa-keyboard mr-2"></i> TimeFlow Keyboard Shortcuts
         </h3>

@@ -14,7 +14,7 @@
     >
       <!-- 模态框头部 -->
       <div
-        class="modal-header p-4 border-b flex justify-between items-center"
+        class="modal-header p-4 flex justify-between items-center"
         :style="{
           backgroundColor: eventStore.currentEvent.categoryColor + '33',
         }"
@@ -115,14 +115,14 @@
       </div>
 
       <!-- 模态框底部，包含操作按钮 -->
-      <div class="modal-footer p-4 border-t flex justify-between items-center">
+      <div class="modal-footer p-4 flex justify-between items-center">
         <!-- 空占位符（左侧） -->
         <div></div>
         <div class="flex space-x-3">
           <!-- 删除按钮，仅在编辑待办事项时显示 (isNewTodo 为 false) -->
           <button
             v-if="!eventStore.isNewTodo"
-            @click="eventStore.deleteEvent()"
+            @click="eventStore.deleteTodo()"
             class="modal-del-btn"
           >
             Delete
