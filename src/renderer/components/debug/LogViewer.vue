@@ -21,7 +21,7 @@
         <button @click="exportLogs" class="export-btn">导出日志</button>
       </div>
     </div>
-    
+
     <div class="log-content" ref="logContainer">
       <div
         v-for="(log, index) in filteredLogs"
@@ -31,7 +31,10 @@
         <span class="log-time">{{ formatTime(log.timestamp) }}</span>
         <span class="log-level">{{ log.level.toUpperCase() }}</span>
         <span class="log-message">{{ log.message }}</span>
-        <div v-if="log.meta && Object.keys(log.meta).length > 0" class="log-meta">
+        <div
+          v-if="log.meta && Object.keys(log.meta).length > 0"
+          class="log-meta"
+        >
           <pre>{{ JSON.stringify(log.meta, null, 2) }}</pre>
         </div>
       </div>
@@ -40,14 +43,14 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, nextTick } from 'vue';
-import { useLogger } from '../../utils/useLogger.js';
+import { ref, computed, onMounted, nextTick } from "vue";
+import { useLogger } from "../../utils/useLogger.js";
 
-const { logInfo, logUserAction } = useLogger('LogViewer');
+const { logInfo, logUserAction } = useLogger("LogViewer");
 
 // 响应式数据
 const logs = ref([]);
-const selectedLevel = ref('');
+const selectedLevel = ref("");
 const logContainer = ref(null);
 
 // 计算属性
@@ -55,12 +58,12 @@ const filteredLogs = computed(() => {
   if (!selectedLevel.value) {
     return logs.value;
   }
-  return logs.value.filter(log => log.level === selectedLevel.value);
+  return logs.value.filter((log) => log.level === selectedLevel.value);
 });
 
 // 方法
 const formatTime = (timestamp) => {
-  return new Date(timestamp).toLocaleString('zh-CN');
+  return new Date(timestamp).toLocaleString("zh-CN");
 };
 
 const addLog = (logData) => {
@@ -69,7 +72,7 @@ const addLog = (logData) => {
   if (logs.value.length > 1000) {
     logs.value = logs.value.slice(-1000);
   }
-  
+
   // 自动滚动到底部
   nextTick(() => {
     if (logContainer.value) {
@@ -80,26 +83,26 @@ const addLog = (logData) => {
 
 const clearLogs = () => {
   logs.value = [];
-  logUserAction('clear_logs');
+  logUserAction("clear_logs");
 };
 
 const exportLogs = () => {
   try {
     const logData = JSON.stringify(filteredLogs.value, null, 2);
-    const blob = new Blob([logData], { type: 'application/json' });
+    const blob = new Blob([logData], { type: "application/json" });
     const url = URL.createObjectURL(blob);
-    
-    const a = document.createElement('a');
+
+    const a = document.createElement("a");
     a.href = url;
-    a.download = `timeflow-logs-${new Date().toISOString().split('T')[0]}.json`;
+    a.download = `timeflow-logs-${new Date().toISOString().split("T")[0]}.json`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
-    
+
     URL.revokeObjectURL(url);
-    logUserAction('export_logs', { logCount: filteredLogs.value.length });
+    logUserAction("export_logs", { logCount: filteredLogs.value.length });
   } catch (error) {
-    console.error('Failed to export logs:', error);
+    console.error("Failed to export logs:", error);
   }
 };
 
@@ -108,21 +111,21 @@ const initializeLogs = () => {
   // 添加一些示例日志
   addLog({
     timestamp: new Date().toISOString(),
-    level: 'info',
-    message: 'Log viewer initialized',
-    meta: { component: 'LogViewer' }
+    level: "info",
+    message: "Log viewer initialized",
+    meta: { component: "LogViewer" },
   });
 };
 
 // 生命周期
 onMounted(() => {
-  logInfo('LogViewer mounted');
+  logInfo("LogViewer mounted");
   initializeLogs();
 });
 
 // 暴露方法供父组件使用
 defineExpose({
-  addLog
+  addLog,
 });
 </script>
 
@@ -185,7 +188,7 @@ defineExpose({
   flex: 1;
   overflow-y: auto;
   padding: 8px;
-  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+  font-family: "Consolas", "Monaco", "Courier New", monospace;
   font-size: 12px;
   line-height: 1.4;
 }

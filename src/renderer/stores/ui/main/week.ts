@@ -95,7 +95,9 @@ export const createWeekModule = (storeContext: any) => {
 
   // 检查时间是否有效
   function isValidTime(hour: number, minute: number) {
-    return hour >= 0 && hour < 24 && minute >= 0 && minute < 60 && minute % 5 === 0;
+    return (
+      hour >= 0 && hour < 24 && minute >= 0 && minute < 60 && minute % 5 === 0
+    );
   }
 
   // 检查时间变化是否足够大
@@ -172,15 +174,15 @@ export const createWeekModule = (storeContext: any) => {
 
           // 检查时间变化是否显著 (比较日期和时间)
           if (!isTimeChangeSignificant(originalStart, newStart)) {
-             // 如果仅日期变化但时间点未显著变化，也可能需要更新
-             // 此处逻辑可根据需求调整，若日期变化本身就视为显著，则可移除此判断或调整isTimeChangeSignificant
-             // 当前isTimeChangeSignificant只比较时间戳，所以日期变化也会触发
+            // 如果仅日期变化但时间点未显著变化，也可能需要更新
+            // 此处逻辑可根据需求调整，若日期变化本身就视为显著，则可移除此判断或调整isTimeChangeSignificant
+            // 当前isTimeChangeSignificant只比较时间戳，所以日期变化也会触发
             if (originalStart.toDateString() === newStart.toDateString()) {
-                draggedEvent.value = null;
-                return;
+              draggedEvent.value = null;
+              return;
             }
           }
-          
+
           eventStore.events[eventIndex] = {
             ...originalEvent,
             start: newStart,
@@ -240,11 +242,11 @@ export const createWeekModule = (storeContext: any) => {
   // 滚动到当前时间线（无动画，直接定位）
   function scrollToCurrentTimeLine() {
     setTimeout(() => {
-      const currentTimeLine = document.querySelector('.current-time-line');
+      const currentTimeLine = document.querySelector(".current-time-line");
       if (currentTimeLine) {
         currentTimeLine.scrollIntoView({
-          behavior: 'auto', // 立即跳转，无动画
-          block: 'center',
+          behavior: "auto", // 立即跳转，无动画
+          block: "center",
         });
       }
     }, 0);

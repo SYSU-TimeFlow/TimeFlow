@@ -124,9 +124,7 @@
         </div>
       </div>
       <!-- 模态框底部，包含操作按钮 -->
-      <div
-        class="modal-footer p-4 border-t flex justify-between items-center"
-      >
+      <div class="modal-footer p-4 border-t flex justify-between items-center">
         <!-- 导入课表按钮（左下角） -->
         <button
           @click="eventStore.importScheduleFromFile()"
@@ -145,10 +143,7 @@
             Delete
           </button>
           <!-- 保存按钮 -->
-          <button
-            @click="eventStore.saveEvent"
-            class="modal-save-btn"
-          >
+          <button @click="eventStore.saveEvent" class="modal-save-btn">
             Save
           </button>
         </div>

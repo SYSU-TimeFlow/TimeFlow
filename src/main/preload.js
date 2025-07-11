@@ -2,28 +2,29 @@
  * @file preload.js
  * @description 预加载脚本，在主进程创建窗口时，注入到渲染进程中的脚本，用来安全地暴露有限的主进程 API 给前端页面用。
  */
-const { contextBridge, ipcRenderer } = require('electron');
+const { contextBridge, ipcRenderer } = require("electron");
 
-contextBridge.exposeInMainWorld('electronAPI', {
-  minimize: () => ipcRenderer.send('window-minimize'),
-  maximize: () => ipcRenderer.send('window-maximize'),
-  close: () => ipcRenderer.send('window-close'),
+contextBridge.exposeInMainWorld("electronAPI", {
+  minimize: () => ipcRenderer.send("window-minimize"),
+  maximize: () => ipcRenderer.send("window-maximize"),
+  close: () => ipcRenderer.send("window-close"),
   // 修改：暴露应用数据加载和保存的 API
-  loadAppData: () => ipcRenderer.invoke('load-app-data'),
-  saveAppData: (data) => ipcRenderer.invoke('save-app-data', data),
+  loadAppData: () => ipcRenderer.invoke("load-app-data"),
+  saveAppData: (data) => ipcRenderer.invoke("save-app-data", data),
   // 保留旧的设置API（如果将来需要） -> 这些将用于新的设置加载/保存逻辑
-  loadSettings: () => ipcRenderer.invoke('load-settings'),
-  saveSettings: (settings) => ipcRenderer.invoke('save-settings', settings),
+  loadSettings: () => ipcRenderer.invoke("load-settings"),
+  saveSettings: (settings) => ipcRenderer.invoke("save-settings", settings),
   // 通知API
-  notify: (title, body) => ipcRenderer.invoke('notify', { title, body }),
+  notify: (title, body) => ipcRenderer.invoke("notify", { title, body }),
   // 课程导入API
-  importSchedule: () => ipcRenderer.invoke('import-schedule'),
+  importSchedule: () => ipcRenderer.invoke("import-schedule"),
   // 新增：自然语言处理API
-  processNaturalLanguage: (text) => ipcRenderer.invoke('process-natural-language', text),
+  processNaturalLanguage: (text) =>
+    ipcRenderer.invoke("process-natural-language", text),
   // 新增：语音识别API
-  recognizeSpeech: () => ipcRenderer.invoke('recognize-speech'),
+  recognizeSpeech: () => ipcRenderer.invoke("recognize-speech"),
   // 新增：日志API
-  sendLog: (logData) => ipcRenderer.invoke('send-log', logData),
+  sendLog: (logData) => ipcRenderer.invoke("send-log", logData),
   // 新增：暴露事件监听方法
   on: (channel, listener) => ipcRenderer.on(channel, listener),
 });

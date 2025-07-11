@@ -16,8 +16,8 @@ onMounted(() => {
   // 新增：监听主进程 show-info-message 事件
   const uiStore = useUiStore();
   if (window.electronAPI && window.electronAPI.on) {
-    window.electronAPI.on('show-info-message', (_event, message) => {
-      uiStore.showInfoMessage('提示', message);
+    window.electronAPI.on("show-info-message", (_event, message) => {
+      uiStore.showInfoMessage("提示", message);
     });
   }
 });

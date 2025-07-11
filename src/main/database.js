@@ -2,12 +2,12 @@
  * @description SQLite 数据库存储模块
  * @description 负责管理应用的数据存储，包括事件、分类和设置
  */
-import Database from 'better-sqlite3';
-import path from 'path';
-import fs from 'fs';
-import { fileURLToPath } from 'url';
-import { app } from 'electron';
-import logger from './logger.js';
+import Database from "better-sqlite3";
+import path from "path";
+import fs from "fs";
+import { fileURLToPath } from "url";
+import { app } from "electron";
+import logger from "./logger.js";
 
 // 获取当前文件目录
 const __filename = fileURLToPath(import.meta.url);
@@ -16,33 +16,33 @@ const __dirname = path.dirname(__filename);
 class SQLiteStore {
   constructor() {
     logger.info("Initializing SQLite database store");
-    
+
     // 使用 Electron 的用户数据目录，而不是应用目录
-    const dataDir = app.getPath('userData');
+    const dataDir = app.getPath("userData");
     if (!fs.existsSync(dataDir)) {
       fs.mkdirSync(dataDir, { recursive: true });
       logger.info("Created user data directory", { dataDir });
     }
 
     // 数据库文件路径
-    const dbPath = path.join(dataDir, 'timeflow.db');
-    
+    const dbPath = path.join(dataDir, "timeflow.db");
+
     try {
       // 初始化 SQLite 数据库连接
       this.db = new Database(dbPath);
-      
+
       // 启用外键约束
-      this.db.pragma('foreign_keys = ON');
-      
+      this.db.pragma("foreign_keys = ON");
+
       // 初始化数据库表结构
       this.initializeDatabase();
-      
+
       // 迁移数据库（处理结构变化）
       this.migrateDatabase();
-      
-      logger.info('SQLite database initialized successfully', { dbPath });
+
+      logger.info("SQLite database initialized successfully", { dbPath });
     } catch (error) {
-      logger.error('Failed to initialize SQLite database', error);
+      logger.error("Failed to initialize SQLite database", error);
       throw error;
     }
   }
@@ -53,7 +53,7 @@ class SQLiteStore {
   initializeDatabase() {
     try {
       logger.info("Initializing database tables");
-      
+
       // 创建分类表
       this.db.exec(`
         CREATE TABLE IF NOT EXISTS categories (
@@ -130,9 +130,9 @@ class SQLiteStore {
       // 初始化默认分类数据
       this.initializeDefaultCategories();
 
-      logger.info('Database tables initialized successfully');
+      logger.info("Database tables initialized successfully");
     } catch (error) {
-      logger.error('Failed to initialize database tables', error);
+      logger.error("Failed to initialize database tables", error);
       throw error;
     }
   }
@@ -144,28 +144,36 @@ class SQLiteStore {
   initializeDefaultCategories() {
     try {
       // 检查分类表是否为空
-      const categoryCount = this.db.prepare('SELECT COUNT(*) as count FROM categories').get().count;
-      logger.database("SELECT", "categories", { action: "count_check", count: categoryCount });
-      
+      const categoryCount = this.db
+        .prepare("SELECT COUNT(*) as count FROM categories")
+        .get().count;
+      logger.database("SELECT", "categories", {
+        action: "count_check",
+        count: categoryCount,
+      });
+
       if (categoryCount === 0) {
         logger.info("No categories found, initializing default categories");
-        
+
         const defaultCategories = [
-          { name: 'Other', color: '#e63946', active: true }
+          { name: "Other", color: "#e63946", active: true },
         ];
-        
+
         const insertStmt = this.db.prepare(`
           INSERT INTO categories (name, color, active)
           VALUES (?, ?, ?)
         `);
-        
+
         for (const category of defaultCategories) {
-          insertStmt.run(category.name, category.color, category.active ? 1 : 0);
+          insertStmt.run(
+            category.name,
+            category.color,
+            category.active ? 1 : 0
+          );
         }
-        
       }
     } catch (error) {
-      console.error('Failed to initialize default categories:', error);
+      console.error("Failed to initialize default categories:", error);
     }
   }
 
@@ -176,17 +184,17 @@ class SQLiteStore {
     try {
       // 检查events表的id字段类型
       const tableInfo = this.db.prepare("PRAGMA table_info(events)").all();
-      const idColumn = tableInfo.find(col => col.name === 'id');
-      
-      if (idColumn && idColumn.type === 'TEXT') {
-        console.log('Migrating events table from TEXT id to INTEGER id...');
-        
+      const idColumn = tableInfo.find((col) => col.name === "id");
+
+      if (idColumn && idColumn.type === "TEXT") {
+        console.log("Migrating events table from TEXT id to INTEGER id...");
+
         // 备份现有数据
-        const existingEvents = this.db.prepare('SELECT * FROM events').all();
-        
+        const existingEvents = this.db.prepare("SELECT * FROM events").all();
+
         // 删除现有表
-        this.db.exec('DROP TABLE IF EXISTS events');
-        
+        this.db.exec("DROP TABLE IF EXISTS events");
+
         // 重新创建表
         this.db.exec(`
           CREATE TABLE events (
@@ -208,7 +216,7 @@ class SQLiteStore {
             FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE SET NULL
           )
         `);
-        
+
         // 恢复数据，转换ID为数字
         if (existingEvents.length > 0) {
           const insertStmt = this.db.prepare(`
@@ -217,7 +225,7 @@ class SQLiteStore {
               location, all_day, color, background_color, border_color, text_color
             ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
           `);
-          
+
           for (const event of existingEvents) {
             try {
               insertStmt.run(
@@ -236,11 +244,11 @@ class SQLiteStore {
                 event.text_color
               );
             } catch (err) {
-              console.warn('Failed to migrate event:', event.id, err);
+              console.warn("Failed to migrate event:", event.id, err);
             }
           }
         }
-        
+
         // 重新创建触发器
         this.db.exec(`
           CREATE TRIGGER IF NOT EXISTS update_events_timestamp 
@@ -249,11 +257,11 @@ class SQLiteStore {
             UPDATE events SET updated_at = CURRENT_TIMESTAMP WHERE id = NEW.id;
           END
         `);
-        
-        console.log('Database migration completed successfully');
+
+        console.log("Database migration completed successfully");
       }
     } catch (error) {
-      console.error('Failed to migrate database:', error);
+      console.error("Failed to migrate database:", error);
     }
   }
 
@@ -266,10 +274,14 @@ class SQLiteStore {
    */
   mapTypeToEventType(type) {
     switch (type) {
-      case 0: return "todo";
-      case 1: return "calendar";
-      case 2: return "both";
-      default: return "calendar";
+      case 0:
+        return "todo";
+      case 1:
+        return "calendar";
+      case 2:
+        return "both";
+      default:
+        return "calendar";
     }
   }
 
@@ -280,10 +292,14 @@ class SQLiteStore {
    */
   mapEventTypeToType(eventType) {
     switch (eventType) {
-      case "todo": return 0;
-      case "calendar": return 1;
-      case "both": return 2;
-      default: return 1;
+      case "todo":
+        return 0;
+      case "calendar":
+        return 1;
+      case "both":
+        return 2;
+      default:
+        return 1;
     }
   }
 
@@ -296,21 +312,21 @@ class SQLiteStore {
   getCategories() {
     try {
       logger.database("SELECT", "categories", { action: "get_all" });
-      const stmt = this.db.prepare('SELECT * FROM categories ORDER BY id ASC');
+      const stmt = this.db.prepare("SELECT * FROM categories ORDER BY id ASC");
       const categories = stmt.all();
-      
-      logger.database("SELECT", "categories", { 
-        action: "get_all_result", 
-        count: categories.length 
+
+      logger.database("SELECT", "categories", {
+        action: "get_all_result",
+        count: categories.length,
       });
-      
+
       // 转换数据类型
-      return categories.map(category => ({
+      return categories.map((category) => ({
         ...category,
-        active: Boolean(category.active)
+        active: Boolean(category.active),
       }));
     } catch (error) {
-      console.error('Failed to get categories:', error);
+      console.error("Failed to get categories:", error);
       return [];
     }
   }
@@ -321,7 +337,7 @@ class SQLiteStore {
    */
   setCategories(categories) {
     if (!Array.isArray(categories)) {
-      console.error('Categories must be an array');
+      console.error("Categories must be an array");
       return;
     }
 
@@ -329,14 +345,14 @@ class SQLiteStore {
       // 使用事务确保数据一致性
       const transaction = this.db.transaction(() => {
         // 清空现有分类
-        this.db.prepare('DELETE FROM categories').run();
-        
+        this.db.prepare("DELETE FROM categories").run();
+
         // 插入新分类
         const insertStmt = this.db.prepare(`
           INSERT INTO categories (id, name, color, active) 
           VALUES (?, ?, ?, ?)
         `);
-        
+
         for (const category of categories) {
           insertStmt.run(
             category.id,
@@ -348,9 +364,9 @@ class SQLiteStore {
       });
 
       transaction();
-      console.log('Categories saved successfully');
+      console.log("Categories saved successfully");
     } catch (error) {
-      console.error('Failed to save categories:', error);
+      console.error("Failed to save categories:", error);
     }
   }
 
@@ -365,16 +381,16 @@ class SQLiteStore {
         INSERT INTO categories (name, color, active) 
         VALUES (?, ?, ?)
       `);
-      
+
       const result = stmt.run(
         category.name,
         category.color,
         category.active ? 1 : 0
       );
-      
+
       return result.lastInsertRowid;
     } catch (error) {
-      console.error('Failed to add category:', error);
+      console.error("Failed to add category:", error);
       throw error;
     }
   }
@@ -390,7 +406,7 @@ class SQLiteStore {
         SET name = ?, color = ?, active = ? 
         WHERE id = ?
       `);
-      
+
       stmt.run(
         category.name,
         category.color,
@@ -398,7 +414,7 @@ class SQLiteStore {
         category.id
       );
     } catch (error) {
-      console.error('Failed to update category:', error);
+      console.error("Failed to update category:", error);
       throw error;
     }
   }
@@ -409,10 +425,10 @@ class SQLiteStore {
    */
   deleteCategory(categoryId) {
     try {
-      const stmt = this.db.prepare('DELETE FROM categories WHERE id = ?');
+      const stmt = this.db.prepare("DELETE FROM categories WHERE id = ?");
       stmt.run(categoryId);
     } catch (error) {
-      console.error('Failed to delete category:', error);
+      console.error("Failed to delete category:", error);
       throw error;
     }
   }
@@ -425,27 +441,29 @@ class SQLiteStore {
    */
   getEvents() {
     try {
-      logger.database("SELECT", "events", { action: "get_all_with_categories" });
-      
+      logger.database("SELECT", "events", {
+        action: "get_all_with_categories",
+      });
+
       const stmt = this.db.prepare(`
         SELECT e.*, c.name as category_name, c.color as category_color
         FROM events e
         LEFT JOIN categories c ON e.category_id = c.id
         ORDER BY e.start ASC
       `);
-      
+
       const events = stmt.all();
-      
-      logger.database("SELECT", "events", { 
-        action: "get_all_result", 
-        count: events.length 
+
+      logger.database("SELECT", "events", {
+        action: "get_all_result",
+        count: events.length,
       });
-      
+
       // 转换数据类型并映射字段名以匹配前端期望的格式
-      return events.map(event => {
+      return events.map((event) => {
         // 确保分类颜色有默认值
-        const categoryColor = event.category_color || '#43aa8b';
-        
+        const categoryColor = event.category_color || "#43aa8b";
+
         return {
           id: Number(event.id), // 确保ID是数字类型
           title: event.title,
@@ -464,11 +482,11 @@ class SQLiteStore {
           border_color: event.border_color,
           text_color: event.text_color,
           // 分类信息
-          category_name: event.category_name
+          category_name: event.category_name,
         };
       });
     } catch (error) {
-      logger.error('Failed to get events', error);
+      logger.error("Failed to get events", error);
       return [];
     }
   }
@@ -479,7 +497,7 @@ class SQLiteStore {
    */
   setEvents(events) {
     if (!Array.isArray(events)) {
-      console.error('Events must be an array');
+      console.error("Events must be an array");
       return;
     }
 
@@ -487,8 +505,8 @@ class SQLiteStore {
       // 使用事务确保数据一致性
       const transaction = this.db.transaction(() => {
         // 清空现有事件
-        this.db.prepare('DELETE FROM events').run();
-        
+        this.db.prepare("DELETE FROM events").run();
+
         // 插入新事件
         const insertStmt = this.db.prepare(`
           INSERT INTO events (
@@ -496,7 +514,7 @@ class SQLiteStore {
             location, all_day, color, background_color, border_color, text_color
           ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `);
-        
+
         for (const event of events) {
           insertStmt.run(
             Number(event.id), // 确保ID是数字
@@ -507,7 +525,7 @@ class SQLiteStore {
             event.categoryId || event.category_id || 5, // 处理categoryId到category_id的映射，默认为5
             event.description || null,
             event.location || null,
-            (event.allDay || event.all_day) ? 1 : 0, // 处理allDay到all_day的映射
+            event.allDay || event.all_day ? 1 : 0, // 处理allDay到all_day的映射
             event.color || event.categoryColor || null,
             event.background_color || event.backgroundColor || null,
             event.border_color || event.borderColor || null,
@@ -517,9 +535,9 @@ class SQLiteStore {
       });
 
       transaction();
-      console.log('Events saved successfully');
+      console.log("Events saved successfully");
     } catch (error) {
-      console.error('Failed to save events:', error);
+      console.error("Failed to save events:", error);
     }
   }
 
@@ -536,7 +554,7 @@ class SQLiteStore {
           location, all_day, color, background_color, border_color, text_color
         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `);
-      
+
       stmt.run(
         Number(event.id), // 确保ID是数字
         event.title,
@@ -546,16 +564,16 @@ class SQLiteStore {
         event.categoryId || event.category_id || 5, // 默认分类5
         event.description || null,
         event.location || null,
-        (event.allDay || event.all_day) ? 1 : 0,
+        event.allDay || event.all_day ? 1 : 0,
         event.color || event.categoryColor || null,
         event.background_color || event.backgroundColor || null,
         event.border_color || event.borderColor || null,
         event.text_color || event.textColor || null
       );
-      
+
       return Number(event.id);
     } catch (error) {
-      console.error('Failed to add event:', error);
+      console.error("Failed to add event:", error);
       throw error;
     }
   }
@@ -573,7 +591,7 @@ class SQLiteStore {
             background_color = ?, border_color = ?, text_color = ?
         WHERE id = ?
       `);
-      
+
       stmt.run(
         event.title,
         event.start,
@@ -582,7 +600,7 @@ class SQLiteStore {
         event.categoryId || event.category_id || 5, // 默认分类5
         event.description || null,
         event.location || null,
-        (event.allDay || event.all_day) ? 1 : 0,
+        event.allDay || event.all_day ? 1 : 0,
         event.color || event.categoryColor || null,
         event.background_color || event.backgroundColor || null,
         event.border_color || event.borderColor || null,
@@ -590,7 +608,7 @@ class SQLiteStore {
         Number(event.id) // 确保ID是数字
       );
     } catch (error) {
-      console.error('Failed to update event:', error);
+      console.error("Failed to update event:", error);
       throw error;
     }
   }
@@ -601,10 +619,10 @@ class SQLiteStore {
    */
   deleteEvent(eventId) {
     try {
-      const stmt = this.db.prepare('DELETE FROM events WHERE id = ?');
+      const stmt = this.db.prepare("DELETE FROM events WHERE id = ?");
       stmt.run(Number(eventId)); // 确保ID是数字
     } catch (error) {
-      console.error('Failed to delete event:', error);
+      console.error("Failed to delete event:", error);
       throw error;
     }
   }
@@ -618,9 +636,9 @@ class SQLiteStore {
    */
   getSetting(key) {
     try {
-      const stmt = this.db.prepare('SELECT value FROM settings WHERE key = ?');
+      const stmt = this.db.prepare("SELECT value FROM settings WHERE key = ?");
       const row = stmt.get(key);
-      
+
       if (row) {
         try {
           return JSON.parse(row.value);
@@ -628,10 +646,10 @@ class SQLiteStore {
           return row.value;
         }
       }
-      
+
       return null;
     } catch (error) {
-      console.error('Failed to get setting:', error);
+      console.error("Failed to get setting:", error);
       return null;
     }
   }
@@ -647,11 +665,12 @@ class SQLiteStore {
         INSERT OR REPLACE INTO settings (key, value) 
         VALUES (?, ?)
       `);
-      
-      const serializedValue = typeof value === 'string' ? value : JSON.stringify(value);
+
+      const serializedValue =
+        typeof value === "string" ? value : JSON.stringify(value);
       stmt.run(key, serializedValue);
     } catch (error) {
-      console.error('Failed to set setting:', error);
+      console.error("Failed to set setting:", error);
       throw error;
     }
   }
@@ -662,9 +681,9 @@ class SQLiteStore {
    */
   getAllSettings() {
     try {
-      const stmt = this.db.prepare('SELECT key, value FROM settings');
+      const stmt = this.db.prepare("SELECT key, value FROM settings");
       const rows = stmt.all();
-      
+
       const settings = {};
       for (const row of rows) {
         try {
@@ -673,10 +692,10 @@ class SQLiteStore {
           settings[row.key] = row.value;
         }
       }
-      
+
       return settings;
     } catch (error) {
-      console.error('Failed to get all settings:', error);
+      console.error("Failed to get all settings:", error);
       return {};
     }
   }
@@ -687,10 +706,10 @@ class SQLiteStore {
    */
   deleteSetting(key) {
     try {
-      const stmt = this.db.prepare('DELETE FROM settings WHERE key = ?');
+      const stmt = this.db.prepare("DELETE FROM settings WHERE key = ?");
       stmt.run(key);
     } catch (error) {
-      console.error('Failed to delete setting:', error);
+      console.error("Failed to delete setting:", error);
       throw error;
     }
   }
@@ -710,8 +729,8 @@ class SQLiteStore {
    * @param {Object} settings 设置对象
    */
   setSettings(settings) {
-    if (typeof settings !== 'object' || settings === null) {
-      console.error('Settings must be an object');
+    if (typeof settings !== "object" || settings === null) {
+      console.error("Settings must be an object");
       return;
     }
 
@@ -722,17 +741,18 @@ class SQLiteStore {
           INSERT OR REPLACE INTO settings (key, value) 
           VALUES (?, ?)
         `);
-        
+
         for (const [key, value] of Object.entries(settings)) {
-          const serializedValue = typeof value === 'string' ? value : JSON.stringify(value);
+          const serializedValue =
+            typeof value === "string" ? value : JSON.stringify(value);
           stmt.run(key, serializedValue);
         }
       });
 
       transaction();
-      console.log('Settings saved successfully');
+      console.log("Settings saved successfully");
     } catch (error) {
-      console.error('Failed to save settings:', error);
+      console.error("Failed to save settings:", error);
       throw error;
     }
   }
@@ -746,10 +766,10 @@ class SQLiteStore {
     try {
       if (this.db) {
         this.db.close();
-        console.log('Database connection closed');
+        console.log("Database connection closed");
       }
     } catch (error) {
-      console.error('Failed to close database:', error);
+      console.error("Failed to close database:", error);
     }
   }
 
@@ -760,9 +780,9 @@ class SQLiteStore {
   backup(backupPath) {
     try {
       this.db.backup(backupPath);
-      console.log('Database backed up to:', backupPath);
+      console.log("Database backed up to:", backupPath);
     } catch (error) {
-      console.error('Failed to backup database:', error);
+      console.error("Failed to backup database:", error);
       throw error;
     }
   }
@@ -773,17 +793,23 @@ class SQLiteStore {
    */
   getStats() {
     try {
-      const categoriesCount = this.db.prepare('SELECT COUNT(*) as count FROM categories').get().count;
-      const eventsCount = this.db.prepare('SELECT COUNT(*) as count FROM events').get().count;
-      const settingsCount = this.db.prepare('SELECT COUNT(*) as count FROM settings').get().count;
-      
+      const categoriesCount = this.db
+        .prepare("SELECT COUNT(*) as count FROM categories")
+        .get().count;
+      const eventsCount = this.db
+        .prepare("SELECT COUNT(*) as count FROM events")
+        .get().count;
+      const settingsCount = this.db
+        .prepare("SELECT COUNT(*) as count FROM settings")
+        .get().count;
+
       return {
         categories: categoriesCount,
         events: eventsCount,
-        settings: settingsCount
+        settings: settingsCount,
       };
     } catch (error) {
-      console.error('Failed to get database stats:', error);
+      console.error("Failed to get database stats:", error);
       return { categories: 0, events: 0, settings: 0 };
     }
   }
@@ -794,15 +820,15 @@ class SQLiteStore {
   clearAllData() {
     try {
       const transaction = this.db.transaction(() => {
-        this.db.prepare('DELETE FROM events').run();
-        this.db.prepare('DELETE FROM categories').run();
-        this.db.prepare('DELETE FROM settings').run();
+        this.db.prepare("DELETE FROM events").run();
+        this.db.prepare("DELETE FROM categories").run();
+        this.db.prepare("DELETE FROM settings").run();
       });
 
       transaction();
-      console.log('All data cleared successfully');
+      console.log("All data cleared successfully");
     } catch (error) {
-      console.error('Failed to clear all data:', error);
+      console.error("Failed to clear all data:", error);
       throw error;
     }
   }

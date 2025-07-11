@@ -15,7 +15,6 @@ export const createPageModule = (storeContext: any) => {
   const showSettings = ref(false);
   const showMessageModal = ref(false);
 
-
   // 通用模态框控制函数
   const toggleModal = (modalRef: any) => {
     modalRef.value = !modalRef.value;
@@ -33,7 +32,7 @@ export const createPageModule = (storeContext: any) => {
   const toggleTodoModal = () => toggleModal(showTodoModal);
   const toggleHelpModal = () => toggleModal(showHelpModal);
   const toggleEventModal = () => toggleModal(showEventModal);
-  
+
   const openHelpModal = () => openModal(showHelpModal);
   const closeHelpModal = () => closeModal(showHelpModal);
   const closeTodoModal = () => closeModal(showTodoModal);
@@ -55,13 +54,15 @@ export const createPageModule = (storeContext: any) => {
   // 创建默认分类
   const createDefaultCategory = () => {
     const eventStore = useEventStore();
-    return eventStore.categories.find((c) => c.id === 5) ||
+    return (
+      eventStore.categories.find((c) => c.id === 5) ||
       eventStore.categories[0] || {
         id: 5,
         color: "#43aa8b",
         name: "Other",
         active: true,
-      };
+      }
+    );
   };
 
   // 待办事项模态框操作
@@ -93,13 +94,13 @@ export const createPageModule = (storeContext: any) => {
     const eventStore = useEventStore();
     eventStore.isNewTodo = false;
     const placeholderDate = new Date(0);
-    
+
     eventStore.currentEvent = {
       ...todo,
       start: formatDateForInput(placeholderDate),
       end: todo.end ? formatDateForInput(todo.end) : "",
     };
-    
+
     openModal(showTodoModal);
   };
 
@@ -156,7 +157,8 @@ export const createPageModule = (storeContext: any) => {
     eventStore.currentCategory = {
       id: Date.now(),
       name: "",
-      color: colorOptions.find((c) => !eventStore.isColorUsed(c)) || colorOptions[0],
+      color:
+        colorOptions.find((c) => !eventStore.isColorUsed(c)) || colorOptions[0],
       active: true,
     };
     openModal(showCategoryModal);
@@ -172,7 +174,7 @@ export const createPageModule = (storeContext: any) => {
   // 滚动控制
   const scrollApp = (direction: "up" | "down") => {
     const scrollDistance = direction === "up" ? -200 : 200;
-    
+
     const scrollTargets = [
       showHelpModal.value ? ".help-modal .modal-body" : null,
       showEventModal.value ? ".event-modal .modal-body" : null,
@@ -245,7 +247,12 @@ export const createPageModule = (storeContext: any) => {
       if (event.key === "Escape") {
         closeEventModal();
         event.preventDefault();
-      } else if (event.key === "Enter" && !event.ctrlKey && !event.altKey && !event.shiftKey) {
+      } else if (
+        event.key === "Enter" &&
+        !event.ctrlKey &&
+        !event.altKey &&
+        !event.shiftKey
+      ) {
         if (
           document.activeElement instanceof HTMLTextAreaElement ||
           document.activeElement?.hasAttribute("contenteditable")
@@ -253,7 +260,9 @@ export const createPageModule = (storeContext: any) => {
           return;
         }
 
-        const saveButton = document.querySelector(".event-modal .save-button") as HTMLButtonElement;
+        const saveButton = document.querySelector(
+          ".event-modal .save-button"
+        ) as HTMLButtonElement;
         if (saveButton) {
           saveButton.click();
           event.preventDefault();
@@ -273,22 +282,25 @@ export const createPageModule = (storeContext: any) => {
   };
 
   // 消息模态框状态与方法
-  const messageModalTitle = ref('');
-  const messageModalContent = ref('');
-  const messageModalType = ref<'info' | 'confirm'>('info');
+  const messageModalTitle = ref("");
+  const messageModalContent = ref("");
+  const messageModalType = ref<"info" | "confirm">("info");
   let messageModalResolve: ((value: boolean) => void) | null = null;
 
   function showInfoMessage(title: string, content: string) {
     messageModalTitle.value = title;
     messageModalContent.value = content;
-    messageModalType.value = 'info';
+    messageModalType.value = "info";
     showMessageModal.value = true;
   }
 
-  function showConfirmMessage(title: string, content: string): Promise<boolean> {
+  function showConfirmMessage(
+    title: string,
+    content: string
+  ): Promise<boolean> {
     messageModalTitle.value = title;
     messageModalContent.value = content;
-    messageModalType.value = 'confirm';
+    messageModalType.value = "confirm";
     showMessageModal.value = true;
     return new Promise((resolve) => {
       messageModalResolve = resolve;

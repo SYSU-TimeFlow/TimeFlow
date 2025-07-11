@@ -20,14 +20,14 @@ if (process.platform === "win32") {
   app.setAppUserModelId(app.name);
   logger.info("Application user model ID set for Windows platform", {
     platform: process.platform,
-    appName: app.name
+    appName: app.name,
   });
 }
 
 // 创建窗口函数
 const createWindow = () => {
   logger.info("Starting window creation process");
-  
+
   // 创建窗口状态管理器
   const winState = new WindowState.default({
     defaultWidth: 1200,
@@ -36,14 +36,14 @@ const createWindow = () => {
 
   logger.debug("Window state manager created", {
     defaultWidth: 1200,
-    defaultHeight: 800
+    defaultHeight: 800,
   });
 
   const win = new BrowserWindow({
     ...winState.winOptions,
     minWidth: 900,
     minHeight: 700,
-    icon: path.join(__dirname, "../../public/icon.png"), 
+    icon: path.join(__dirname, "../../public/icon.png"),
     frame: false,
     autohideMenu: true,
     webPreferences: {
@@ -57,7 +57,7 @@ const createWindow = () => {
     minWidth: 900,
     minHeight: 700,
     contextIsolation: true,
-    nodeIntegration: false
+    nodeIntegration: false,
   });
 
   // 监听窗口状态变化
@@ -75,25 +75,25 @@ const createWindow = () => {
     logger.info("Loading production build", { indexPath });
     win.loadFile(indexPath);
   }
-  
+
   // 监听窗口事件
-  win.on('ready-to-show', () => {
+  win.on("ready-to-show", () => {
     logger.info("Window is ready to show");
   });
-  
-  win.on('closed', () => {
+
+  win.on("closed", () => {
     logger.info("Window closed");
   });
-  
-  win.on('minimize', () => {
+
+  win.on("minimize", () => {
     logger.debug("Window minimized");
   });
-  
-  win.on('maximize', () => {
+
+  win.on("maximize", () => {
     logger.debug("Window maximized");
   });
-  
-  win.on('unmaximize', () => {
+
+  win.on("unmaximize", () => {
     logger.debug("Window unmaximized");
   });
 };
@@ -104,22 +104,17 @@ const sqliteStore = new SQLiteStore();
 
 // 新增：初始化 IPC 数据处理器
 logger.info("Initializing IPC handlers");
-initializeIpcHandlers(
-  ipcMain,
-  sqliteStore,
-  __dirname,
-  BrowserWindow
-);
+initializeIpcHandlers(ipcMain, sqliteStore, __dirname, BrowserWindow);
 
 // 当 Electron 完成初始化时创建窗口（防止白屏等待加载初始化）
 app.whenReady().then(() => {
-  logger.info("Electron app is ready", { 
+  logger.info("Electron app is ready", {
     version: app.getVersion(),
     name: app.getName(),
     platform: process.platform,
-    arch: process.arch
+    arch: process.arch,
   });
-  
+
   createWindow();
 
   app.on("activate", () => {
@@ -150,14 +145,14 @@ app.on("will-quit", () => {
 });
 
 // 处理未捕获的异常
-process.on('uncaughtException', (error) => {
+process.on("uncaughtException", (error) => {
   logger.fatal("Uncaught exception in main process", error);
 });
 
 // 处理未处理的 Promise 拒绝
-process.on('unhandledRejection', (reason, promise) => {
+process.on("unhandledRejection", (reason, promise) => {
   logger.error("Unhandled promise rejection in main process", {
-    reason: reason?.toString() || 'Unknown reason',
-    promise: promise?.toString() || 'Unknown promise'
+    reason: reason?.toString() || "Unknown reason",
+    promise: promise?.toString() || "Unknown promise",
   });
 });

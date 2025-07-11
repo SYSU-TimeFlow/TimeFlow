@@ -25,7 +25,9 @@ export const createHeaderModule = (storeContext: any) => {
     };
 
     if (currentView.value === "week") {
-      return `${formatDate(getStartOfWeek(currentDate.value))} - ${formatDate(getEndOfWeek(currentDate.value))}`;
+      return `${formatDate(getStartOfWeek(currentDate.value))} - ${formatDate(
+        getEndOfWeek(currentDate.value)
+      )}`;
     } else if (currentView.value === "day") {
       return formatDate(currentDate.value);
     } else if (currentView.value === "todo") {

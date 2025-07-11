@@ -4,10 +4,7 @@
     <!-- 日视图网格布局 -->
     <div class="grid grid-cols-1 max-h-[1664px] rounded-lg shadow-sm">
       <!-- 日视图头部 -->
-      <div
-        class="day-header text-center p-4 "
-      >
-      </div>
+      <div class="day-header text-center p-4"></div>
       <!-- 全天事件栏 -->
       <div
         v-if="
@@ -15,7 +12,7 @@
             .getEventsForDay(new Date(uiStore.currentDate))
             .some((e) => e.allDay)
         "
-        class="sticky top-0 z-30  h-[28px] min-h-[28px] max-h-[28px]"
+        class="sticky top-0 z-30 h-[28px] min-h-[28px] max-h-[28px]"
       >
         <div class="flex items-center h-full">
           <div
@@ -101,10 +98,7 @@
               :key="hour"
               class="time-slot h-16 relative cursor-pointer select-none translate-y-2 z-[1] transition-colors duration-150 hover:after:content-[''] hover:after:absolute hover:after:inset-0 hover:after:border hover:after:border-blue-500 hover:after:pointer-events-none hover:after:z-[2]"
               @click="
-                uiStore.handleHourClick(
-                  { date: uiStore.currentDate },
-                  hour - 1
-                )
+                uiStore.handleHourClick({ date: uiStore.currentDate }, hour - 1)
               "
               @dragover.prevent
               @drop="
@@ -126,8 +120,15 @@
               }"
               :key="currentTime.getTime()"
             >
-              <div class="time-text absolute -left-[75px] -top-2 w-15 text-right text-blue-500 font-medium" style="font-size: calc(var(--small-text-font-size) * 0.9);">{{ uiStore.getCurrentTimeText() }}</div>
-              <div class="time-line absolute left-0 right-0 h-0.5 bg-blue-500 top-0"></div>
+              <div
+                class="time-text absolute -left-[75px] -top-2 w-15 text-right text-blue-500 font-medium"
+                style="font-size: calc(var(--small-text-font-size) * 0.9)"
+              >
+                {{ uiStore.getCurrentTimeText() }}
+              </div>
+              <div
+                class="time-line absolute left-0 right-0 h-0.5 bg-blue-500 top-0"
+              ></div>
             </div>
             <!-- 日视图事件渲染 -->
             <div
@@ -143,15 +144,15 @@
                 :key="event.id"
                 :class="[
                   'day-event absolute rounded-sm px-2 py-1 overflow-hidden cursor-pointer transition-all duration-150 ease-in-out hover:-translate-y-px hover:shadow-lg hover:z-20 hover:border-l-4 border-l-[3px]',
-                  event.eventType === 'both' ? 'both-event-week flex flex-col' : '',
+                  event.eventType === 'both'
+                    ? 'both-event-week flex flex-col'
+                    : '',
                 ]"
                 :style="{
                   top:
                     event.eventType === 'both'
                       ? '8px'
-                      : `${
-                          event.allDay ? 8 : calculateEventTop(event) + 8
-                        }px`,
+                      : `${event.allDay ? 8 : calculateEventTop(event) + 8}px`,
                   height:
                     event.eventType === 'both'
                       ? `${
@@ -169,8 +170,7 @@
                   borderLeftColor: event.categoryColor,
                   zIndex: '10',
                   transform:
-                    uiStore.draggedEvent &&
-                    uiStore.draggedEvent.id === event.id
+                    uiStore.draggedEvent && uiStore.draggedEvent.id === event.id
                       ? `translateY(${uiStore.calculateDragOffset(event)})`
                       : 'none',
                   pointerEvents: uiStore.draggedEvent
@@ -229,7 +229,8 @@
                         event.eventType === 'both' && event.completed
                           ? 'line-through'
                           : 'none',
-                      opacity: event.eventType === 'both' && event.completed ? 0.7 : 1,
+                      opacity:
+                        event.eventType === 'both' && event.completed ? 0.7 : 1,
                     }"
                   >
                     {{
@@ -247,7 +248,8 @@
                       event.eventType === 'both' && event.completed
                         ? 'line-through'
                         : 'none',
-                    opacity: event.eventType === 'both' && event.completed ? 0.7 : 1,
+                    opacity:
+                      event.eventType === 'both' && event.completed ? 0.7 : 1,
                   }"
                 >
                   {{ event.title }}
@@ -260,7 +262,8 @@
                       event.eventType === 'both' && event.completed
                         ? 'line-through'
                         : 'none',
-                    opacity: event.eventType === 'both' && event.completed ? 0.7 : 1,
+                    opacity:
+                      event.eventType === 'both' && event.completed ? 0.7 : 1,
                   }"
                 >
                   {{ event.description }}
@@ -275,7 +278,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue';
+import { onMounted } from "vue";
 import { useUiStore } from "../../stores/ui";
 import { useEventStore } from "../../stores/event";
 import { useSettingStore } from "../../stores/setting";

@@ -36,7 +36,9 @@
       <!-- 模态框主体 -->
       <div class="modal-body p-6">
         <!-- 通用小标题 -->
-        <div class="text-secondary text-sm font-semibold mb-2 mt-2">General</div>
+        <div class="text-secondary text-sm font-semibold mb-2 mt-2">
+          General
+        </div>
 
         <!-- 主题切换（选择条，选项为亮/暗） -->
         <div class="form-group mb-4 flex items-center justify-between">

@@ -2,27 +2,27 @@
  * @description Vue 日志组合式 API
  * @description 提供给 Vue 组件使用的日志功能
  */
-import { ref, onMounted, onUnmounted } from 'vue'
-import logger from './logger.js'
+import { ref, onMounted, onUnmounted } from "vue";
+import logger from "./logger.js";
 
 /**
  * 组件日志钩子
  * @param {string} componentName - 组件名称
  * @returns {object} 日志相关的方法和响应式数据
  */
-export function useLogger(componentName = 'Unknown') {
+export function useLogger(componentName = "Unknown") {
   const loggerInstance = logger;
   const errorCount = ref(0);
   const lastError = ref(null);
 
   // 组件挂载时记录日志
   onMounted(() => {
-    loggerInstance.component(componentName, 'mounted');
+    loggerInstance.component(componentName, "mounted");
   });
 
   // 组件卸载时记录日志
   onUnmounted(() => {
-    loggerInstance.component(componentName, 'unmounted');
+    loggerInstance.component(componentName, "unmounted");
   });
 
   /**
@@ -33,7 +33,7 @@ export function useLogger(componentName = 'Unknown') {
   const logUserAction = (action, meta = {}) => {
     loggerInstance.user(action, {
       ...meta,
-      component: componentName
+      component: componentName,
     });
   };
 
@@ -45,7 +45,7 @@ export function useLogger(componentName = 'Unknown') {
   const logApiCall = (api, meta = {}) => {
     loggerInstance.api(api, {
       ...meta,
-      component: componentName
+      component: componentName,
     });
   };
 
@@ -57,11 +57,13 @@ export function useLogger(componentName = 'Unknown') {
   const logError = (message, error = {}) => {
     errorCount.value++;
     lastError.value = { message, error, timestamp: new Date() };
-    
+
     loggerInstance.error(message, {
-      ...(error instanceof Error ? { error: error.message, stack: error.stack } : error),
+      ...(error instanceof Error
+        ? { error: error.message, stack: error.stack }
+        : error),
       component: componentName,
-      errorCount: errorCount.value
+      errorCount: errorCount.value,
     });
   };
 
@@ -73,7 +75,7 @@ export function useLogger(componentName = 'Unknown') {
   const logInfo = (message, meta = {}) => {
     loggerInstance.info(message, {
       ...meta,
-      component: componentName
+      component: componentName,
     });
   };
 
@@ -85,7 +87,7 @@ export function useLogger(componentName = 'Unknown') {
   const logDebug = (message, meta = {}) => {
     loggerInstance.debug(message, {
       ...meta,
-      component: componentName
+      component: componentName,
     });
   };
 
@@ -97,7 +99,7 @@ export function useLogger(componentName = 'Unknown') {
   const logWarning = (message, meta = {}) => {
     loggerInstance.warn(message, {
       ...meta,
-      component: componentName
+      component: componentName,
     });
   };
 
@@ -110,7 +112,7 @@ export function useLogger(componentName = 'Unknown') {
   const logPerformance = (metric, value, meta = {}) => {
     loggerInstance.performance(metric, value, {
       ...meta,
-      component: componentName
+      component: componentName,
     });
   };
 
@@ -122,11 +124,11 @@ export function useLogger(componentName = 'Unknown') {
   const startTimer = (name) => {
     const startTime = performance.now();
     logDebug(`Timer started: ${name}`);
-    
+
     return () => {
       const endTime = performance.now();
       const duration = endTime - startTime;
-      logPerformance(name, Math.round(duration), { unit: 'ms' });
+      logPerformance(name, Math.round(duration), { unit: "ms" });
       return duration;
     };
   };
@@ -138,31 +140,35 @@ export function useLogger(componentName = 'Unknown') {
    */
   const createAsyncTracker = (operationName) => {
     const startTime = performance.now();
-    
+
     return {
       start: (meta = {}) => {
         logInfo(`Starting async operation: ${operationName}`, meta);
       },
-      
+
       success: (result, meta = {}) => {
         const duration = performance.now() - startTime;
         logInfo(`Async operation completed: ${operationName}`, {
           ...meta,
           duration: Math.round(duration),
-          success: true
+          success: true,
         });
-        logPerformance(`${operationName}_duration`, Math.round(duration), { unit: 'ms' });
+        logPerformance(`${operationName}_duration`, Math.round(duration), {
+          unit: "ms",
+        });
       },
-      
+
       error: (error, meta = {}) => {
         const duration = performance.now() - startTime;
         logError(`Async operation failed: ${operationName}`, {
-          ...(error instanceof Error ? { error: error.message, stack: error.stack } : { error }),
+          ...(error instanceof Error
+            ? { error: error.message, stack: error.stack }
+            : { error }),
           ...meta,
           duration: Math.round(duration),
-          success: false
+          success: false,
         });
-      }
+      },
     };
   };
 
@@ -175,17 +181,17 @@ export function useLogger(componentName = 'Unknown') {
     logDebug,
     logWarning,
     logPerformance,
-    
+
     // 高级功能
     startTimer,
     createAsyncTracker,
-    
+
     // 响应式数据
     errorCount,
     lastError,
-    
+
     // 原始 logger 实例
-    logger: loggerInstance
+    logger: loggerInstance,
   };
 }
 
@@ -201,11 +207,11 @@ export function useErrorHandler() {
    * @returns {Promise} 执行结果
    */
   const safeAsync = async (asyncFn, options = {}) => {
-    const { 
-      errorMessage = 'Async operation failed',
+    const {
+      errorMessage = "Async operation failed",
       onError = null,
       onSuccess = null,
-      componentName = 'Unknown'
+      componentName = "Unknown",
     } = options;
 
     try {
@@ -216,9 +222,9 @@ export function useErrorHandler() {
       logger.error(errorMessage, {
         error: error.message,
         stack: error.stack,
-        component: componentName
+        component: componentName,
       });
-      
+
       if (onError) onError(error);
       throw error;
     }
@@ -231,11 +237,11 @@ export function useErrorHandler() {
    * @returns {any} 执行结果
    */
   const safeSync = (syncFn, options = {}) => {
-    const { 
-      errorMessage = 'Sync operation failed',
+    const {
+      errorMessage = "Sync operation failed",
       onError = null,
       onSuccess = null,
-      componentName = 'Unknown'
+      componentName = "Unknown",
     } = options;
 
     try {
@@ -246,9 +252,9 @@ export function useErrorHandler() {
       logger.error(errorMessage, {
         error: error.message,
         stack: error.stack,
-        component: componentName
+        component: componentName,
       });
-      
+
       if (onError) onError(error);
       throw error;
     }
@@ -256,7 +262,7 @@ export function useErrorHandler() {
 
   return {
     safeAsync,
-    safeSync
+    safeSync,
   };
 }
 
