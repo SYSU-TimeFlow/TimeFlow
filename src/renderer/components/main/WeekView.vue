@@ -89,7 +89,7 @@
                     color: 'var(--event-font-color)',
                   }"
                 >
-                  {{ event.title }}
+                  {{ event.title }}{{ !isSameDay(new Date(event.start), new Date(event.end)) ? ' (跨天)' : '' }}
                 </span>
               </div>
             </template>
@@ -295,9 +295,11 @@
                     >
                       {{
                         event.allDay
-                          ? "All day"
+                          ? "全天"
                           : event.eventType === "both"
                           ? formatTime(new Date(event.end), settingStore.hour24)
+                          : !isSameDay(new Date(event.start), new Date(event.end))
+                          ? getCrossDayLabel(event, day.date, settingStore.hour24)
                           : formatEventTime(event, settingStore.hour24)
                       }}
                     </div>
@@ -330,6 +332,20 @@
                   >
                     {{ event.description }}
                   </div>
+                  <div
+                    class="flex flex-row items-center gap-1 mt-0.5"
+                    v-if="!isSameDay(new Date(event.start), new Date(event.end))"
+                  >
+                    <span
+                      class="cross-day-indicator-week px-1 py-0.5 rounded-sm text-xs opacity-75"
+                      :style="{
+                        backgroundColor: event.categoryColor + '55',
+                        color: 'var(--event-font-color)',
+                      }"
+                    >
+                      {{ getCrossDayLabel(event, day.date, settingStore.hour24).split(' ')[0] }}
+                    </span>
+                  </div>
                 </div>
               </template>
             </template>
@@ -354,6 +370,8 @@ import {
   getContrastColor,
   getEventGroups,
   getWeekDays,
+  getCrossDayLabel,
+  isSameDay,
 } from "../../utils";
 
 defineProps<{
