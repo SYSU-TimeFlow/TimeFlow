@@ -88,7 +88,7 @@
         <!-- 模式切换部分 -->
         <div class="shortcut-section mb-6">
           <h4 class="text-md font-semibold mb-3 text-gray-700 border-b pb-1">
-            Mode & Search
+            Mode Switching
           </h4>
           <div class="grid grid-cols-1 gap-3">
             <div class="shortcut-item flex justify-between items-center">
@@ -100,9 +100,19 @@
               <span class="description text-gray-700">Enter Command Mode</span>
             </div>
             <div class="shortcut-item flex justify-between items-center">
+              <span class="key-combo"><kbd>.</kbd></span>
+              <span class="description text-gray-700">Text Recognition to Create Event</span>
+            </div>
+            <div class="shortcut-item flex justify-between items-center">
               <span class="key-combo"><kbd>Esc</kbd></span>
               <span class="description text-gray-700">Return to Normal Mode</span>
             </div>
+          </div>
+          <!-- 命令模式说明 -->
+          <div class="mt-4 text-gray-600 text-sm">
+            <div class="font-semibold mb-1">Command Mode Examples:</div>
+            <div class="mb-1"><span class="key-combo">today</span> — Jump to today</div>
+            <div><span class="key-combo">2000/1/1</span> or <span class="key-combo">2000-01-01</span> — Jump to specified date</div>
           </div>
         </div>
 

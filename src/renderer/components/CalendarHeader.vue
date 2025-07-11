@@ -628,6 +628,7 @@ const handleGlobalKeydown = (event: KeyboardEvent) => {
         event.preventDefault();
         break;
       case ":":
+      case "：":
         uiStore.toggleSearchActive(true);
         uiStore.setAppMode("command");
         nextTick(() => {
@@ -665,6 +666,7 @@ const handleGlobalKeydown = (event: KeyboardEvent) => {
         event.preventDefault();
         break;
       case "?":
+      case "？":
         uiStore.toggleHelpModal();
         event.preventDefault();
         break;

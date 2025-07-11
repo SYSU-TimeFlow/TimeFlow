@@ -204,6 +204,21 @@ export const createPageModule = (storeContext: any) => {
   const executeCommand = (commandText: string): boolean => {
     const command = commandText.replace(/^:/, "").trim().toLowerCase();
 
+    // 日期跳转命令：如 2000/1/1 或 2000-01-01
+    const datePattern = /^(\d{4})[\/-](\d{1,2})[\/-](\d{1,2})$/;
+    const match = command.match(datePattern);
+    if (match) {
+      const year = parseInt(match[1], 10);
+      const month = parseInt(match[2], 10) - 1; // JS月份从0开始
+      const day = parseInt(match[3], 10);
+      const date = new Date(year, month, day);
+      if (!isNaN(date.getTime())) {
+        storeContext.currentDate.value = date;
+        storeContext.selectedDate.value = date;
+        return true;
+      }
+    }
+
     switch (command) {
       case "today":
         storeContext.currentDate.value = new Date();
