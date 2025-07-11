@@ -152,7 +152,7 @@
                   top:
                     event.eventType === 'both'
                       ? '8px'
-                      : `${event.allDay ? 8 : calculateEventTop(event) + 8}px`,
+                      : `${event.allDay ? 8 : calculateEventTop(event, new Date(uiStore.currentDate)) + 8}px`,
                   height:
                     event.eventType === 'both'
                       ? `${
@@ -162,7 +162,7 @@
                           64
                         }px`
                       : `${
-                          event.allDay ? 1536 : calculateEventHeight(event)
+                          event.allDay ? 1536 : calculateEventHeight(event, new Date(uiStore.currentDate))
                         }px`,
                   left: `calc(${(100 / group.length) * idx}% + 4px)`,
                   width: `calc(${100 / group.length}% - 8px)`,
@@ -290,6 +290,7 @@ import {
   calculateEventTop,
   getContrastColor,
   getEventGroups,
+  isSameDay,
 } from "../../utils";
 
 defineProps<{
