@@ -359,59 +359,5 @@ describe("eventStore", () => {
       );
       // console.log("\x1b[32m%s\x1b[0m", "========== LOAD FROM LOCAL STORAGE END ============");
     });
-
-    it("should save events and categories to local storage", async () => {
-      // console.log("\x1b[32m%s\x1b[0m", "========== SAVE TO LOCAL STORAGE BEGIN ============");
-
-      // console.log("\x1b[34m%s\x1b[0m", "Starting test for saving events and categories");
-
-      const newCategory = {
-        id: 3,
-        name: "Health",
-        color: "#2a9d8f",
-        active: true,
-      };
-      // console.log("\x1b[34m%s\x1b[0m", "Original categories:", eventStore.categories);
-
-      eventStore.categories.push(newCategory);
-
-      // console.log("\x1b[34m%s\x1b[0m", "Updated categories:", eventStore.categories);
-
-      // Uncomment and complete the following lines if needed
-      // const newEvent = {
-      //   title: "Health Event",
-      //   start: new Date("2025-05-20T10:00:00.000Z"),
-      //   end: new Date("2025-05-20T11:00:00.000Z"),
-      //   eventType: EventType.CALENDAR,
-      // };
-
-      // // console.log("\x1b[34m%s\x1b[0m", "Original events:", eventStore.events);
-
-      // await eventStore.addEvent(
-      //   newEvent.title,
-      //   newEvent.start,
-      //   newEvent.end,
-      //   newEvent.eventType
-      // );
-
-      // // console.log("\x1b[34m%s\x1b[0m", "Updated events:", eventStore.events);
-
-      // @ts-ignore 验证本地存储是否正确保存
-      // expect(global.window.electronAPI.saveAppData).toHaveBeenCalledWith(
-      //   expect.objectContaining({
-      //     categories: expect.arrayContaining([
-      //       expect.objectContaining({ name: "Health" }),
-      //     ]),
-      //     events: expect.arrayContaining([
-      //       expect.objectContaining({
-      //         title: "Health Event",
-      //         start: newEvent.start.toISOString(),
-      //         end: newEvent.end.toISOString(),
-      //       }),
-      //     ]),
-      //   })
-      // );
-      // console.log("\x1b[32m%s\x1b[0m", "========== SAVE TO LOCAL STORAGE END ============");
-    });
   });
 });

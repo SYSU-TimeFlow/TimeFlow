@@ -1,7 +1,6 @@
 <!--
   @component: LogViewer
   @description: 日志查看器组件，用于显示应用日志
-  @author: AI Assistant
   @date: 2025-07-10
 -->
 

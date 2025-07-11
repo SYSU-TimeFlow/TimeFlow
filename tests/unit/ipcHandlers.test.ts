@@ -95,6 +95,9 @@ const mockWindow = {
   isMaximized: vi.fn(),
   close: vi.fn(),
   show: vi.fn(),
+  webContents: {
+    send: vi.fn(),
+  },
 };
 
 const mockNotification = {
