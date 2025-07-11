@@ -9,6 +9,65 @@
 import { describe, it, expect, beforeEach, vi, afterEach } from "vitest";
 import { initializeIpcHandlers } from "../../src/main/ipcHandlers.js";
 
+// Mock file system to prevent actual directory creation in tests
+vi.mock("fs", () => ({
+  existsSync: vi.fn(() => true), // Always return true to skip directory creation
+  mkdirSync: vi.fn(), // Mock mkdir to prevent actual directory creation
+  default: {
+    existsSync: vi.fn(() => true),
+    mkdirSync: vi.fn(),
+  }
+}));
+
+// Mock winston and winston-daily-rotate-file to prevent file operations
+vi.mock("winston", () => ({
+  createLogger: vi.fn(() => ({
+    debug: vi.fn(),
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
+  })),
+  format: {
+    combine: vi.fn(),
+    timestamp: vi.fn(),
+    errors: vi.fn(),
+    json: vi.fn(),
+    printf: vi.fn(),
+    colorize: vi.fn(),
+  },
+  transports: {
+    Console: vi.fn(),
+  },
+  default: {
+    createLogger: vi.fn(() => ({
+      debug: vi.fn(),
+      info: vi.fn(),
+      warn: vi.fn(),
+      error: vi.fn(),
+    })),
+    format: {
+      combine: vi.fn(),
+      timestamp: vi.fn(),
+      errors: vi.fn(),
+      json: vi.fn(),
+      printf: vi.fn(),
+      colorize: vi.fn(),
+    },
+    transports: {
+      Console: vi.fn(),
+    },
+  }
+}));
+
+vi.mock("winston-daily-rotate-file", () => {
+  const MockDailyRotateFile = vi.fn(() => ({
+    on: vi.fn(),
+  }));
+  return {
+    default: MockDailyRotateFile,
+  };
+});
+
 // Mock dependencies
 const mockIpcMain = {
   handle: vi.fn(),
@@ -46,6 +105,11 @@ const mockNotification = {
 
 vi.mock("electron", () => ({
   Notification: vi.fn(() => mockNotification),
+  app: {
+    getPath: vi.fn(() => "/test/userData"),
+    getName: vi.fn(() => "TimeFlow"),
+    getVersion: vi.fn(() => "1.0.0"),
+  },
 }));
 
 describe("IPC Handlers", () => {

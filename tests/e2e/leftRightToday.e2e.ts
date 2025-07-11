@@ -14,17 +14,17 @@ test('left right today', async () => {
     await page.goto('http://localhost:5173/#/');
     await page.locator('div').filter({ hasText: /^12$/ }).first().click();
     await page.getByRole('button', { name: '' }).nth(1).click();
-    await page.getByRole('button', { name: ' 日' }).click();
-    await expect(page.locator('h2')).toContainText('12日');
+    await page.getByRole('button', { name: ' Day' }).click();
+    await expect(page.locator('h2')).toContainText('12');
     await page.getByRole('banner').getByRole('button', { name: '' }).click();
-    await expect(page.locator('h2')).toContainText('11日');
+    await expect(page.locator('h2')).toContainText('11');
     await page.getByRole('button', { name: '' }).click();
-    await expect(page.locator('h2')).toContainText('12日');
-    await page.getByRole('button', { name: 'Today' }).click();
+    await expect(page.locator('h2')).toContainText('12');
+    await page.getByRole('button', { name: 'Go to today' }).click();
     // 获取今日日期
     const today = new Date();
     const todayDate = today.getDate().toString();
-    await expect(page.locator('h2')).toContainText(`${todayDate}日`);
+    await expect(page.locator('h2')).toContainText(`${todayDate}`);
 
     // ===============================================
     // |替换部分结束                                  |

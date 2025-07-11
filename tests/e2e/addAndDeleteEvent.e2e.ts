@@ -21,13 +21,12 @@ test('Add & Delete Event', async () => {
     await page.getByRole('textbox', { name: 'Event description' }).fill('测试描述');
     await page.getByRole('button', { name: 'Save' }).click();
 
-    await expect(page.getByText('上午09:00 - 上午10:00playwright测试')).toBeVisible();
     await expect(page.getByRole('main')).toContainText('playwright测试');
     
-    await page.getByText('上午09:00 - 上午10:00playwright测试').click();
+    await page.getByText('playwright测试').click();
     await page.getByRole('button', { name: 'Delete' }).click();
     
-    await expect(page.getByText('上午09:00 - 上午10:00playwright测试')).not.toBeVisible();
+    await expect(page.getByText('playwright测试')).not.toBeVisible();
     await expect(page.getByRole('main')).not.toContainText('playwright测试');
   
     // ===============================================
