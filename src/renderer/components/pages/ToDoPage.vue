@@ -122,7 +122,7 @@
           <!-- 删除按钮，仅在编辑待办事项时显示 (isNewTodo 为 false) -->
           <button
             v-if="!eventStore.isNewTodo"
-            @click="eventStore.deleteEvent()"
+            @click="eventStore.deleteTodo()"
             class="modal-del-btn"
           >
             Delete

@@ -275,6 +275,16 @@ export const useEventStore = defineStore("event", () => {
     uiStore.closeEventModal();
   }
 
+    async function deleteTodo(id?: number) {
+    // 如果 id 不是 number 类型，使用 currentEvent.value.id
+    const eventId = typeof id === "number" ? id : currentEvent.value.id;
+    const index = events.value.findIndex((e) => e.id === eventId);
+    if (index !== -1) {
+      events.value.splice(index, 1);
+    }
+    uiStore.closeTodoModal();
+  }
+
   // 切换待办事项完成状态
   async function toggleTodo(id: number) {
     const event = events.value.find(
@@ -746,6 +756,7 @@ export const useEventStore = defineStore("event", () => {
     // 事件相关方法
     saveEvent,
     deleteEvent,
+    deleteTodo,
     toggleTodo,
     saveTodo,
     setFilter,
