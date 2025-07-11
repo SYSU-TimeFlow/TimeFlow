@@ -27,8 +27,7 @@ beforeEach(() => {
     },
   } as any;
   global.window = {
-    confirm: vi.fn(() => true), // 修正：在此处模拟 confirm 函数
-    alert: vi.fn(),             // 修正：在此处模拟 alert 函数
+    alert: vi.fn(),             // 保留 alert 函数的模拟
     electronAPI: {
       // 模拟加载应用数据的方法，返回预设的分类和事件数据
       loadAppData: vi.fn(async () => ({
@@ -177,7 +176,7 @@ describe("deleteCategory", () => {
     await eventStore.loadAppDataFromStore();
   });
 
-  it("当删除分类时，其关联的事件也应被删除", () => {
+  it("当删除分类时，其关联的事件也应被删除", async () => {
     // 初始状态由 beforeEach 加载，包含3个分类和1个事件
     eventStore.currentCategory = {
       id: 2, // 准备删除 ID 为 2 的分类 (Work)
@@ -201,10 +200,20 @@ describe("deleteCategory", () => {
       false
     ));
 
-    // 模拟用户确认
-    vi.spyOn(window, "confirm").mockReturnValueOnce(true);
+    // 我们需要导入并mock UI store
+    const { useUiStore } = await import("../../src/renderer/stores/ui/index");
+    const uiStore = useUiStore();
+    
+    // Mock showConfirmMessage to resolve with true (用户确认删除)
+    const mockShowConfirmMessage = vi.spyOn(uiStore, "showConfirmMessage").mockResolvedValue(true);
 
-    eventStore.deleteCategory();
+    await eventStore.deleteCategory();
+
+    // 验证确认对话框被调用
+    expect(mockShowConfirmMessage).toHaveBeenCalledWith(
+      "确认删除分类",
+      "删除该分类将同时删除其下所有事件，是否继续？"
+    );
 
     expect(eventStore.categories).toHaveLength(2);
     // 确认剩下的是"其他"和"Personal"分类
