@@ -24,4 +24,6 @@ contextBridge.exposeInMainWorld('electronAPI', {
   recognizeSpeech: () => ipcRenderer.invoke('recognize-speech'),
   // 新增：日志API
   sendLog: (logData) => ipcRenderer.invoke('send-log', logData),
+  // 新增：暴露事件监听方法
+  on: (channel, listener) => ipcRenderer.on(channel, listener),
 });
