@@ -587,7 +587,12 @@ export const useEventStore = defineStore("event", () => {
         (c) => c.name === "Course"
       );
       if (scheduleCategoryExists) {
-        if (!confirm("导入新的课程将会清除所有已导入的课程，要继续吗？")) {
+        // 使用确认对话框替代浏览器原生confirm
+        const confirmed = await uiStore.showConfirmMessage(
+          "确认导入课程", 
+          "导入新的课程将会清除所有已导入的课程，要继续吗？"
+        );
+        if (!confirmed) {
           return;
         }
       }
@@ -708,11 +713,12 @@ export const useEventStore = defineStore("event", () => {
           });
         }
 
-        alert(
+        uiStore.showInfoMessage(
+          "导入课程成功",
           `成功为 ${semesterName}（从 ${firstSemesterMonday.toLocaleDateString()} 开始，共 ${SEMESTER_WEEKS} 周）创建了 ${createdEventsCount} 个课程！`
         );
       } else if (result.message) {
-        alert(`导入失败: ${result.message}`);
+        uiStore.showInfoMessage("导入失败", result.message);
       }
     }
   }
