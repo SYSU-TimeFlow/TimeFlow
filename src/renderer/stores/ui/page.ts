@@ -107,8 +107,14 @@ export const createPageModule = (storeContext: any) => {
   const openNewEventModal = (date?: Date) => {
     const eventStore = useEventStore();
     eventStore.isNewEvent = true;
-    const startDate = new Date();
-    const endDate = new Date(startDate.getTime() + 60 * 60 * 1000);
+    let startDate: Date, endDate: Date;
+    if (date) {
+      startDate = new Date(date);
+      endDate = new Date(date.getTime() + 60 * 60 * 1000); // 默认持续1小时
+    } else {
+      startDate = new Date();
+      endDate = new Date(startDate.getTime() + 60 * 60 * 1000);
+    }
     const defaultCat = createDefaultCategory();
 
     eventStore.currentEvent = {
