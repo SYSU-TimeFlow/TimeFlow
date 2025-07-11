@@ -133,10 +133,7 @@
                     : event.eventType === "both"
                     ? formatTime(new Date(event.end), settingStore.hour24)
                     : !isSameDay(new Date(event.start), new Date(event.end))
-                    ? (new Date(event.start) <= new Date(day.date) 
-                       && new Date(event.end) >= new Date(day.date)) 
-                      ? "Cross day"
-                      : formatEventTime(event, settingStore.hour24)
+                    ? getCrossDayLabel(event, day.date, settingStore.hour24)
                     : formatEventTime(event, settingStore.hour24)
                 }}
               </div>
@@ -175,6 +172,7 @@ import {
   getMonthDays,
   getWeekDayNames,
   isSameDay,
+  getCrossDayLabel,
 } from "../../utils";
 
 const uiStore = useUiStore();

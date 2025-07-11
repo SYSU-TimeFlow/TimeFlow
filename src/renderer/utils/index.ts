@@ -540,3 +540,38 @@ export function getEventGroups(events: any[]): any[][] {
   }
   return Object.values(groupMap);
 }
+
+
+/**
+ * 获取跨天事件在月视图中的显示标签
+ * @param event 事件对象
+ * @param dayDate 当前日期格子的日期
+ * @param hour24 是否24小时制
+ * @returns 根据事件在当天的状态返回合适的标签
+ */
+export function getCrossDayLabel(event: any, dayDate: any, hour24: boolean): string {
+  const start = new Date(event.start);
+  const end = new Date(event.end);
+  const currentDay = new Date(dayDate);
+  
+  // 设置时间为当天的开始和结束
+  const dayStart = new Date(currentDay);
+  dayStart.setHours(0, 0, 0, 0);
+  const dayEnd = new Date(currentDay);
+  dayEnd.setHours(23, 59, 59, 999);
+  
+  // 情况1: 当前日期是事件的开始日期
+  if (isSameDay(start, currentDay)) {
+    return `开始 ${formatTime(start, hour24)}`;
+  }
+  
+  // 情况2: 当前日期是事件的结束日期
+  else if (isSameDay(end, currentDay)) {
+    return `结束 ${formatTime(end, hour24)}`;
+  }
+  
+  // 情况3: 当前日期是事件跨越的中间日期
+  else {
+    return "跨天";
+  }
+}
