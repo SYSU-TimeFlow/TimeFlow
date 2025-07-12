@@ -290,24 +290,23 @@ onMounted(async () => {
 }
 
 .start-button {
-  background: linear-gradient(45deg, #388bfd, #58a6ff);
-  color: white;
-  border: none;
-  padding: 16px 40px;
-  border-radius: 50px;
-  font-size: 1.1rem;
-  font-weight: bold;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
-  text-transform: uppercase;
-  letter-spacing: 1px;
+    background: linear-gradient(45deg, #fff, #fff);
+    color: #388bfd;
+    border: none;
+    padding: 16px 40px;
+    border-radius: 50px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+    text-transform: uppercase;
+    letter-spacing: 1px;
 }
 
 .start-button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 12px 25px rgba(0, 0, 0, 0.3);
-  background: linear-gradient(45deg, #1f6feb, #388bfd);
+    transform: translateY(-2px);
+    box-shadow: 0 12px 25px rgba(0, 0, 0, 0.3);
 }
 
 .start-button:active {

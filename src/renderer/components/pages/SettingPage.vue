@@ -295,7 +295,7 @@
             About
           </label>
           <span class="text-secondary text-sm"
-            >TimeFlow Calendar v1.0.0<br />Author: SYSU-TimeFlow</span
+            >TimeFlow Calendar v1.2.2<br />Author: SYSU-TimeFlow</span
           >
         </div>
       </div>

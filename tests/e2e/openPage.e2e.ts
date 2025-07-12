@@ -15,6 +15,11 @@ test('openPages', async () => {
       await startButton.click();
     }
 
+    const skipGuideButton = page.getByRole('button', { name: '跳过引导' });
+    if (await skipGuideButton.isVisible()) {
+      await skipGuideButton.click();
+    }
+
     await page.getByRole('button', { name: '' }).click();
     // 打开设置页面
     await expect(page.getByRole('heading', { name: 'Settings' })).toBeVisible();

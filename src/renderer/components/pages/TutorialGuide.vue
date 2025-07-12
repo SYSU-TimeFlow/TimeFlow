@@ -109,7 +109,7 @@ const tutorialSteps = ref([
   },
   {
     title: '智能搜索',
-    description: '在标题输入框中可以搜索事件，还可以使用AI助手帮助您管理日程。',
+    description: '在标题输入框中可以搜索事件，或使用AI助手帮助您创建日程。',
     selector: '.mode-indicator, .search-input, [data-tutorial="search"]',
     position: 'bottom'
   },
@@ -121,7 +121,7 @@ const tutorialSteps = ref([
   },
   {
     title: '开始体验',
-    description: '现在您已经了解了主要功能，开始使用TimeFlow管理您的时间吧！',
+    description: '您已经了解了主要功能，开始使用TimeFlow管理您的时间吧！',
     selector: null,
     position: 'center'
   }

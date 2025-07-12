@@ -20,6 +20,11 @@ test('Add & Delete Event', async () => {
       await startButton.click();
     }
 
+    const skipGuideButton = page.getByRole('button', { name: '跳过引导' });
+    if (await skipGuideButton.isVisible()) {
+      await skipGuideButton.click();
+    }
+
     await page.locator('div').filter({ hasText: /^5$/ }).first().click();
     await page.getByRole('textbox', { name: 'Event title' }).click();
     await page.getByRole('textbox', { name: 'Event title' }).fill('playwright测试');

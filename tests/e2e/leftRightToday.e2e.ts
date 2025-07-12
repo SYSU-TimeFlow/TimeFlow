@@ -17,6 +17,11 @@ test('left right today', async () => {
       await startButton.click();
     }
 
+    const skipGuideButton = page.getByRole('button', { name: '跳过引导' });
+    if (await skipGuideButton.isVisible()) {
+      await skipGuideButton.click();
+    }
+
     await page.locator('div').filter({ hasText: /^12$/ }).first().click();
     await page.getByRole('button', { name: '' }).nth(1).click();
     await page.getByRole('button', { name: ' Day' }).click();

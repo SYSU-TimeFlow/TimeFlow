@@ -18,6 +18,11 @@ test('displayTodoInCalendar', async () => {
       await startButton.click();
     }
 
+    const skipGuideButton = page.getByRole('button', { name: '跳过引导' });
+    if (await skipGuideButton.isVisible()) {
+      await skipGuideButton.click();
+    }
+
     await page.getByRole('button', { name: 'ToDo' }).click();
     await page.getByRole('button', { name: '+ Add Event' }).click();
     await page.getByRole('textbox', { name: 'Enter task title' }).click();
