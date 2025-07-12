@@ -72,14 +72,39 @@ describe('SQLiteStore', () => {
   afterEach(() => {
     // 关闭数据库连接
     if (store) {
-      store.close();
+      try {
+        store.close();
+      } catch (error) {
+        console.warn('Error closing database:', error.message);
+      }
+    }
+    
+    // 清理单个测试的数据库文件
+    try {
+      if (fs.existsSync(testDbPath)) {
+        fs.unlinkSync(testDbPath);
+      }
+    } catch (error) {
+      console.warn('Could not clean up test database file:', error.message);
     }
   });
 
   afterAll(() => {
     // 清理测试数据目录
     if (fs.existsSync(testDataDir)) {
-      fs.rmSync(testDataDir, { recursive: true, force: true });
+      try {
+        // 先尝试正常删除
+        fs.rmSync(testDataDir, { recursive: true, force: true });
+      } catch (error) {
+        // 如果删除失败，等待一段时间后重试
+        setTimeout(() => {
+          try {
+            fs.rmSync(testDataDir, { recursive: true, force: true });
+          } catch (retryError) {
+            console.warn('Could not clean up test directory:', retryError.message);
+          }
+        }, 100);
+      }
     }
   });
 

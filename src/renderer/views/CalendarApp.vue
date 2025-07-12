@@ -32,6 +32,8 @@
     <SettingPage />
     <!-- 消息模态框组件 (用于显示应用内消息和通知) -->
     <MessagePage />
+    <!-- 欢迎界面组件 -->
+    <WelcomePage />
   </div>
 </template>
 
@@ -46,6 +48,7 @@ import CategoryPage from "../components/pages/CategoryPage.vue";
 import SettingPage from "../components/pages/SettingPage.vue";
 import HelpPage from "../components/pages/HelpPage.vue";
 import MessagePage from "../components/pages/MessagePage.vue";
+import WelcomePage from "../components/pages/WelcomePage.vue";
 import { useUiStore } from "../stores/ui";
 import { useSettingStore } from "../stores/setting";
 import { useLogger, useErrorHandler } from "../utils/useLogger.js";

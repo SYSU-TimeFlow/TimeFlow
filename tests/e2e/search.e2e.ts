@@ -12,6 +12,11 @@ test('search functionality', async () => {
 
     // 该测试用例的目的是测试搜索功能
     await page.goto('http://localhost:5173/#/');
+    const startButton = page.getByRole('button', { name: '开始使用' });
+    if (await startButton.isVisible()) {
+      await startButton.click();
+    }
+
     await page.locator('div').filter({ hasText: /^15$/ }).first().click();
     await page.getByRole('textbox', { name: 'Event title' }).click();
     await page.getByRole('textbox', { name: 'Event title' }).fill('搜索');

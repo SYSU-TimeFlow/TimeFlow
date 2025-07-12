@@ -13,6 +13,11 @@ test('displayTodoInCalendar', async () => {
     // 该测试是在todo列表中添加一个事件，然后在日历中查看它是否可见
 
     await page.goto('http://localhost:5173/#/');
+    const startButton = page.getByRole('button', { name: '开始使用' });
+    if (await startButton.isVisible()) {
+      await startButton.click();
+    }
+
     await page.getByRole('button', { name: 'ToDo' }).click();
     await page.getByRole('button', { name: '+ Add Event' }).click();
     await page.getByRole('textbox', { name: 'Enter task title' }).click();

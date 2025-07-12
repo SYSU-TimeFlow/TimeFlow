@@ -12,6 +12,11 @@ test('left right today', async () => {
     
     // 该测试用例的目的是测试左侧和右侧的今天按钮功能
     await page.goto('http://localhost:5173/#/');
+    const startButton = page.getByRole('button', { name: '开始使用' });
+    if (await startButton.isVisible()) {
+      await startButton.click();
+    }
+
     await page.locator('div').filter({ hasText: /^12$/ }).first().click();
     await page.getByRole('button', { name: '' }).nth(1).click();
     await page.getByRole('button', { name: ' Day' }).click();

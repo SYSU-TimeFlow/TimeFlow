@@ -15,7 +15,17 @@ import { Event, EventType } from "../../src/renderer/const";
 const mockElectronAPI = {
   loadAppData: vi.fn(),
   saveAppData: vi.fn(),
-  loadSettings: vi.fn(),
+  loadSettings: vi.fn().mockResolvedValue({
+    themeMode: "light",
+    fontSize: "medium",
+    iconStyle: "default",
+    notifications: true,
+    hour24: false,
+    showLunar: false,
+    weekStart: "0",
+    language: "zh-CN",
+    hasWelcomeBeenShown: true,
+  }),
   saveSettings: vi.fn(),
   notify: vi.fn(),
 };

@@ -336,6 +336,7 @@ describe("IPC Handlers", () => {
           showLunar: false,
           weekStart: "0",
           language: "zh-CN",
+          hasWelcomeBeenShown: false,
         });
         expect(result.themeMode).toBe("light");
         expect(result.language).toBe("zh-CN");

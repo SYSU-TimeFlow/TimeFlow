@@ -730,6 +730,7 @@ export const useEventStore = defineStore("event", () => {
       } else if (result.message) {
         uiStore.showInfoMessage("导入失败", result.message);
       }
+      uiStore.closeEventModal();
     }
   }
   // =======================END 课程导入功能 END========================
