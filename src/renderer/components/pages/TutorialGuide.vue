@@ -97,7 +97,7 @@ const currentStepIndex = ref(0);
 const tutorialSteps = ref([
   {
     title: '创建事件',
-    description: '点击这里可以创建新的日程事件，支持多种事件类型。',
+    description: '点击这里可以创建新的日程事件，也可以点击对应的日期窗格。',
     selector: '.add-event-btn, [data-tutorial="add-event"]',
     position: 'right'
   },
@@ -112,6 +112,12 @@ const tutorialSteps = ref([
     description: '在标题输入框中可以搜索事件，还可以使用AI助手帮助您管理日程。',
     selector: '.mode-indicator, .search-input, [data-tutorial="search"]',
     position: 'bottom'
+  },
+  {
+    title: '帮助文档',
+    description: "按下 ? 可以查看帮助文档，了解更多功能和使用技巧。",
+    selector: null,
+    position: 'center'
   },
   {
     title: '开始体验',
