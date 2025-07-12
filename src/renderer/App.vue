@@ -8,8 +8,12 @@ import { useSettingStore } from "./stores/setting";
 import { useUiStore } from "./stores/ui";
 
 // 在应用挂载时应用主题和字号
-onMounted(() => {
+onMounted(async () => {
   const settingStore = useSettingStore();
+  
+  // 先加载设置
+  await settingStore.loadSettings();
+  
   settingStore.applyTheme(settingStore.themeMode);
   settingStore.applyFontSize(settingStore.fontSize);
 

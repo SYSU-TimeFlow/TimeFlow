@@ -89,13 +89,23 @@ const getRibbonStyle = (ribbon: any) => {
 };
 
 // 关闭欢迎界面
-const closeWelcome = () => {
+const closeWelcome = async () => {
+  console.log('关闭欢迎界面，设置状态为已显示');
   showWelcome.value = false;
-  settingStore.setWelcomeShown(true);
+  await settingStore.setWelcomeShown(true);
+  console.log('欢迎界面状态已保存:', settingStore.hasWelcomeBeenShown);
 };
 
 // 组件挂载时检查是否需要显示欢迎界面
-onMounted(() => {
+onMounted(async () => {
+  // 确保设置已经加载
+  await settingStore.loadSettings();
+  
+  console.log('欢迎界面检查:', {
+    hasWelcomeBeenShown: settingStore.hasWelcomeBeenShown,
+    shouldShow: !settingStore.hasWelcomeBeenShown
+  });
+  
   if (!settingStore.hasWelcomeBeenShown) {
     showWelcome.value = true;
     generateRibbons();

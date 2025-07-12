@@ -288,9 +288,9 @@ export const useSettingStore = defineStore("setting", () => {
     setWeekStart,
     getWeekStart,
     toggleWeekStart,
-    setWelcomeShown: (shown: boolean) => {
+    setWelcomeShown: async (shown: boolean) => {
       hasWelcomeBeenShown.value = shown;
-      saveSettings();
+      await saveSettings();
     },
 
     // 本地存储相关
