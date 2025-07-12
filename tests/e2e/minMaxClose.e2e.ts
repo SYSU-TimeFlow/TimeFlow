@@ -10,6 +10,23 @@ test('min & max & close', async () => {
     // |以下是你可以替换的部分 - 每次录制新测试后替换这里|
     // ================================================
 
+    await page.goto('http://localhost:5173/#/');
+
+    try {
+      const startButton = page.getByRole('button', { name: '开始使用' });
+
+      // 尝试等待按钮出现（最多等 3 秒），如果不存在则说明已完成引导
+      await startButton.waitFor({ timeout: 3000 });
+
+      if (await startButton.isVisible()) {
+        await startButton.click();
+        await page.getByRole('button', { name: '跳过引导' }).click();
+      }
+    } catch (error) {
+      // 如果“开始使用”按钮不存在，说明已完成新手引导，可跳过
+      console.log('新手引导已完成，跳过引导操作');
+    }
+
     // 该测试用例的目的是测试最小化、最大化和关闭窗口的功能
     // 获取窗口大小
     const initialSize = await page.evaluate(() => {
