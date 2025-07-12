@@ -33,7 +33,7 @@ test('openPages', async () => {
     await page.getByTitle('Close', { exact: true }).click();
 
     // 打开分类页面
-    await page.getByRole('button', { name: 'Add categorie', exact: true }).click();
+    await page.getByTitle('Add category', { exact: true }).click();
     await expect(page.getByRole('heading', { name: '添加分类' })).toBeVisible();
     await page.getByRole('button', { name: '' }).nth(1).click();
 
