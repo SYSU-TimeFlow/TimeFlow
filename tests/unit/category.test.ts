@@ -67,6 +67,7 @@ beforeEach(() => {
           showLunar: false,
           weekStart: "0",
           language: "zh-CN",
+          hasWelcomeBeenShown: true,
         };
       }),
       // 模拟保存设置的saveSettings方法

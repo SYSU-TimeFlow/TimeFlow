@@ -10,6 +10,11 @@ test('openPages', async () => {
     // |以下是你可以替换的部分 - 每次录制新测试后替换这里|
     // ================================================
     await page.goto('http://localhost:5173/#/');
+    const startButton = page.getByRole('button', { name: '开始使用' });
+    if (await startButton.isVisible()) {
+      await startButton.click();
+    }
+
     await page.getByRole('button', { name: '' }).click();
     // 打开设置页面
     await expect(page.getByRole('heading', { name: 'Settings' })).toBeVisible();

@@ -199,6 +199,7 @@ export function initializeIpcHandlers(
           showLunar: false,
           weekStart: "0",
           language: "zh-CN",
+          hasWelcomeBeenShown: false,
         };
         sqliteStore.setSettings(userSettings); // 将默认设置存入 SQLite 数据库
         logger.info(
@@ -224,6 +225,7 @@ export function initializeIpcHandlers(
         showLunar: false,
         weekStart: "0",
         language: "zh-CN",
+        hasWelcomeBeenShown: false,
       };
     }
   });

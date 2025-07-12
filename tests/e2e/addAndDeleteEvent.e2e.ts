@@ -13,6 +13,13 @@ test('Add & Delete Event', async () => {
     // 该测试用例的目的是添加一个事件，然后删除它
 
     await page.goto('http://localhost:5173/#/');
+
+    // 如果有开始使用按钮，点击它
+    const startButton = page.getByRole('button', { name: '开始使用' });
+    if (await startButton.isVisible()) {
+      await startButton.click();
+    }
+
     await page.locator('div').filter({ hasText: /^5$/ }).first().click();
     await page.getByRole('textbox', { name: 'Event title' }).click();
     await page.getByRole('textbox', { name: 'Event title' }).fill('playwright测试');
