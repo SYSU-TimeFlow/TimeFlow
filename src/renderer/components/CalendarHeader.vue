@@ -53,6 +53,7 @@
           v-if="!uiStore.isSearchActive"
           class="mode-indicator pl-3 pr-4 py-1 border rounded-md w-64 h-8 flex items-center cursor-pointer hover:bg-[var(--hover-bg)]"
           @click="activateSearch"
+          data-tutorial="search"
         >
           <i class="fas fa-keyboard text-gray-400"></i>
           <span
@@ -82,6 +83,7 @@
           @focus="uiStore.handleSearchFocusAction"
           @blur="handleSearchBlur"
           @keydown="handleSearchKeydown"
+          data-tutorial="search"
         />
 
         <i

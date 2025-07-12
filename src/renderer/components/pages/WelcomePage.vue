@@ -6,54 +6,66 @@
 -->
 
 <template>
-  <div v-if="showWelcome" class="welcome-modal-overlay" @click="closeWelcome">
-    <!-- 彩色飘带背景 -->
-    <div class="confetti-container">
-      <div 
-        v-for="(ribbon, index) in ribbons" 
-        :key="index"
-        class="ribbon"
-        :style="getRibbonStyle(ribbon)"
-      ></div>
-    </div>
-    
-    <!-- 欢迎内容 -->
-    <div class="welcome-modal" @click.stop>
-      <div class="welcome-content">
-        <!-- 应用图标 -->
-        <div class="welcome-icon">
-          <div class="icon-circle">
-            <img src="/icon.png" alt="TimeFlow" class="app-icon" />
+  <div>
+    <!-- 欢迎界面 -->
+    <div v-if="showWelcome" class="welcome-modal-overlay" @click="closeWelcome">
+      <!-- 彩色飘带背景 -->
+      <div class="confetti-container">
+        <div 
+          v-for="(ribbon, index) in ribbons" 
+          :key="index"
+          class="ribbon"
+          :style="getRibbonStyle(ribbon)"
+        ></div>
+      </div>
+      
+      <!-- 欢迎内容 -->
+      <div class="welcome-modal" @click.stop>
+        <div class="welcome-content">
+          <!-- 应用图标 -->
+          <div class="welcome-icon">
+            <div class="icon-circle">
+              <img src="/icon.png" alt="TimeFlow" class="app-icon" />
+            </div>
           </div>
+          
+          <!-- 欢迎标题 -->
+          <h1 class="welcome-title">欢迎使用 TimeFlow!</h1>
+          
+          <!-- 感谢信息 -->
+          <p class="welcome-message">
+            感谢您选择 TimeFlow 来管理您的时间和日程。
+            <br>
+            我们致力于为您提供最优质的时间管理体验！
+          </p>
+          
+          <!-- 开始按钮 -->
+          <button class="start-button" @click="startTutorial">
+            开始使用
+          </button>
         </div>
-        
-        <!-- 欢迎标题 -->
-        <h1 class="welcome-title">欢迎使用 TimeFlow!</h1>
-        
-        <!-- 感谢信息 -->
-        <p class="welcome-message">
-          感谢您选择 TimeFlow 来管理您的时间和日程。
-          <br>
-          我们致力于为您提供最优质的时间管理体验！
-        </p>
-        
-        <!-- 开始按钮 -->
-        <button class="start-button" @click="closeWelcome">
-          开始使用
-        </button>
       </div>
     </div>
+    
+    <!-- 引导教程 -->
+    <TutorialGuide 
+      :show="showTutorial" 
+      @complete="completeTutorial"
+      @skip="skipTutorial"
+    />
   </div>
 </template>
 
 <script lang="ts" setup>
 import { ref, onMounted, onUnmounted } from 'vue';
 import { useSettingStore } from '../../stores/setting';
+import TutorialGuide from './TutorialGuide.vue';
 
 const settingStore = useSettingStore();
 
 // 响应式数据
 const showWelcome = ref(false);
+const showTutorial = ref(false);
 const ribbons = ref<Array<{color: string, delay: number, duration: number, left: number}>>([]);
 
 // 彩色飘带配置 - 恢复彩色效果
@@ -88,7 +100,33 @@ const getRibbonStyle = (ribbon: any) => {
   };
 };
 
-// 关闭欢迎界面
+// 开始引导教程
+const startTutorial = async () => {
+  console.log('开始引导教程');
+  showWelcome.value = false;
+  // 等待一小段时间让欢迎界面消失
+  setTimeout(() => {
+    showTutorial.value = true;
+  }, 300);
+};
+
+// 完成引导教程
+const completeTutorial = async () => {
+  console.log('完成引导教程，设置状态为已显示');
+  showTutorial.value = false;
+  await settingStore.setWelcomeShown(true);
+  console.log('欢迎界面状态已保存:', settingStore.hasWelcomeBeenShown);
+};
+
+// 跳过引导教程
+const skipTutorial = async () => {
+  console.log('跳过引导教程，设置状态为已显示');
+  showTutorial.value = false;
+  await settingStore.setWelcomeShown(true);
+  console.log('欢迎界面状态已保存:', settingStore.hasWelcomeBeenShown);
+};
+
+// 关闭欢迎界面（如果用户点击背景）
 const closeWelcome = async () => {
   console.log('关闭欢迎界面，设置状态为已显示');
   showWelcome.value = false;
