@@ -33,6 +33,7 @@ export const useSettingStore = defineStore("setting", () => {
   const showLunar = ref(false);
   const weekStart = ref("0"); // 0 for Sunday, 1 for Monday
   const language = ref("zh-CN");
+  const hasWelcomeBeenShown = ref(false);
 
   // 所有设置的聚合对象
   const allSettings = computed(
@@ -45,6 +46,7 @@ export const useSettingStore = defineStore("setting", () => {
       showLunar: showLunar.value,
       weekStart: weekStart.value,
       language: language.value,
+      hasWelcomeBeenShown: hasWelcomeBeenShown.value,
     })
   );
 
@@ -117,6 +119,8 @@ export const useSettingStore = defineStore("setting", () => {
           typeof settings.showLunar === "boolean" ? settings.showLunar : false;
         weekStart.value = settings.weekStart || "0";
         language.value = settings.language || "zh-CN";
+        hasWelcomeBeenShown.value = 
+          typeof settings.hasWelcomeBeenShown === "boolean" ? settings.hasWelcomeBeenShown : false;
 
         // 加载完设置后应用主题
         applyTheme(themeMode.value);
@@ -268,6 +272,7 @@ export const useSettingStore = defineStore("setting", () => {
     showLunar,
     weekStart,
     language,
+    hasWelcomeBeenShown,
 
     // 计算属性
     allSettings,
@@ -283,6 +288,10 @@ export const useSettingStore = defineStore("setting", () => {
     setWeekStart,
     getWeekStart,
     toggleWeekStart,
+    setWelcomeShown: (shown: boolean) => {
+      hasWelcomeBeenShown.value = shown;
+      saveSettings();
+    },
 
     // 本地存储相关
     saveSettings,
