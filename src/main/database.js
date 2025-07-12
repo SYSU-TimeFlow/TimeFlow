@@ -156,7 +156,7 @@ class SQLiteStore {
         logger.info("No categories found, initializing default categories");
 
         const defaultCategories = [
-          { name: "Other", color: "#e63946", active: true },
+          { name: "Others", color: "#e63946", active: true },
         ];
 
         const insertStmt = this.db.prepare(`
