@@ -12,14 +12,20 @@ test('left right today', async () => {
     
     // 该测试用例的目的是测试左侧和右侧的今天按钮功能
     await page.goto('http://localhost:5173/#/');
-    const startButton = page.getByRole('button', { name: '开始使用' });
-    if (await startButton.isVisible()) {
-      await startButton.click();
-    }
 
-    const skipGuideButton = page.getByRole('button', { name: '跳过引导' });
-    if (await skipGuideButton.isVisible()) {
-      await skipGuideButton.click();
+    try {
+      const startButton = page.getByRole('button', { name: '开始使用' });
+
+      // 尝试等待按钮出现（最多等 3 秒），如果不存在则说明已完成引导
+      await startButton.waitFor({ timeout: 3000 });
+
+      if (await startButton.isVisible()) {
+        await startButton.click();
+        await page.getByRole('button', { name: '跳过引导' }).click();
+      }
+    } catch (error) {
+      // 如果“开始使用”按钮不存在，说明已完成新手引导，可跳过
+      console.log('新手引导已完成，跳过引导操作');
     }
 
     await page.locator('div').filter({ hasText: /^12$/ }).first().click();
