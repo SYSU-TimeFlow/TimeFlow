@@ -525,19 +525,27 @@ export function initializeIpcHandlers(
             let courseCategory = "";
             let teacher = "";
 
+            // 首先移除右括号之前的所有内容（包括学历和课程类别部分）
+            const cleanedCourseText = courseText.replace(/^.*?\)/, "");
+
             // 提取课程类别、课程名称、老师和教室号
-            const courseMatch = courseText.match(
-              /本\(([^)]+)\)([^\/]+)\/([^\/]+)\/[^-]*-[^-]*-([^(]+)/
+            const courseMatch = cleanedCourseText.match(
+              /([^\/]+)\/([^\/]+)\/[^-]*-[^-]*-([^(]+)/
             );
             if (courseMatch) {
-              courseCategory = courseMatch[1].trim(); // 课程类别
-              const courseName = courseMatch[2].trim(); // 课程名称
-              teacher = courseMatch[3].trim(); // 老师
-              const classroom = courseMatch[4].trim(); // 教室号
+              const courseName = courseMatch[1].trim(); // 课程名称
+              teacher = courseMatch[2].trim(); // 老师
+              const classroom = courseMatch[3].trim(); // 教室号
               finalCourseName = `${classroom} ${courseName}`;
+              // 由于我们移除了括号部分，无法从清理后的文本中获取课程类别
+              // 可以考虑从原始文本中提取
+              const categoryMatch = courseText.match(/\(([^)]+)\)/);
+              if (categoryMatch) {
+                courseCategory = categoryMatch[1].trim();
+              }
             } else {
               // 如果无法匹配预期格式，尝试简单清理
-              finalCourseName = courseText.replace(/^\s*\/|\/\s*$/g, "").trim();
+              finalCourseName = cleanedCourseText.replace(/^\s*\/|\/\s*$/g, "").trim();
             }
 
             // 已移除防止重复的逻辑，以允许同一时间段有多个课程

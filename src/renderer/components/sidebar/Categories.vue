@@ -16,7 +16,7 @@
       <button
         @click="uiStore.openNewCategoryModal()"
         class="text-gray-500 hover:text-gray-700 cursor-pointer !rounded-button whitespace-nowrap"
-        title="添加新分类"
+        title="Add category"
       >
         <i class="fas fa-plus text-xs"></i>
       </button>

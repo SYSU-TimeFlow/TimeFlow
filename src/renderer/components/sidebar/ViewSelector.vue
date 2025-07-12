@@ -21,7 +21,7 @@
       View
     </div>
     <!-- 视图按钮列表 -->
-    <div class="flex flex-col space-y-1">
+    <div class="flex flex-col space-y-1" data-tutorial="view-switcher">
       <!-- 遍历 calendarViews 数组，为每个视图创建一个切换按钮 -->
       <button
         v-for="view in uiStore.calendarViews"

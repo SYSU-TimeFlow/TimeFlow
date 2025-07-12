@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { setUpEverything, closeEverything } from './test_utils';
+import { setUpEverything, closeEverything, skipOnboarding } from './test_utils';
 
 test('openPages', async () => {
   // 启动 Vite 开发服务器
@@ -10,10 +10,8 @@ test('openPages', async () => {
     // |以下是你可以替换的部分 - 每次录制新测试后替换这里|
     // ================================================
     await page.goto('http://localhost:5173/#/');
-    const startButton = page.getByRole('button', { name: '开始使用' });
-    if (await startButton.isVisible()) {
-      await startButton.click();
-    }
+
+    await skipOnboarding(page);
 
     await page.getByRole('button', { name: '' }).click();
     // 打开设置页面
@@ -35,7 +33,7 @@ test('openPages', async () => {
     await page.getByTitle('Close', { exact: true }).click();
 
     // 打开分类页面
-    await page.getByTitle('添加新分类', { exact: true }).click();
+    await page.getByTitle('Add category', { exact: true }).click();
     await expect(page.getByRole('heading', { name: '添加分类' })).toBeVisible();
     await page.getByRole('button', { name: '' }).nth(1).click();
 

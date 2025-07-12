@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { setUpEverything, closeEverything } from './test_utils';
+import { setUpEverything, closeEverything, skipOnboarding } from './test_utils';
 
 test('Add & Delete Event', async () => {
   // 启动 Vite 开发服务器
@@ -14,11 +14,7 @@ test('Add & Delete Event', async () => {
 
     await page.goto('http://localhost:5173/#/');
 
-    // 如果有开始使用按钮，点击它
-    const startButton = page.getByRole('button', { name: '开始使用' });
-    if (await startButton.isVisible()) {
-      await startButton.click();
-    }
+    await skipOnboarding(page);
 
     await page.locator('div').filter({ hasText: /^5$/ }).first().click();
     await page.getByRole('textbox', { name: 'Event title' }).click();

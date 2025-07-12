@@ -35,6 +35,7 @@
       v-if="uiStore.currentView !== 'todo'"
       @click="uiStore.openNewEventModal()"
       class="add-event-btn mx-4 my-3 py-2 px-4 bg-blue-600 text-white rounded-lg flex items-center justify-center hover:bg-blue-700 transition cursor-pointer !rounded-button whitespace-nowrap"
+      data-tutorial="add-event"
     >
       <i
         :class="[

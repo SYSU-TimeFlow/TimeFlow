@@ -65,6 +65,24 @@ export const setUpEverything = async (): Promise<{
   return { viteProcess, electronApp, page };
 };
 
+// 跳过新手引导
+export const skipOnboarding = async (page: Page): Promise<void> => {
+  try {
+    const startButton = page.getByRole('button', { name: '开始使用' });
+
+    // 尝试等待按钮出现（最多等 3 秒），如果不存在则说明已完成引导
+    await startButton.waitFor({ timeout: 3000 });
+
+    if (await startButton.isVisible()) {
+      await startButton.click();
+      await page.getByRole('button', { name: '跳过引导' }).click();
+    }
+  } catch (error) {
+    // 如果"开始使用"按钮不存在，说明已完成新手引导，可跳过
+    console.log('新手引导已完成，跳过引导操作');
+  }
+};
+
 // ✅ 一键关闭所有东西
 export const closeEverything = async (electronApp: ElectronApplication) => {
   await electronApp.close();

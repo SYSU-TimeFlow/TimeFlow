@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { setUpEverything, closeEverything } from './test_utils';
+import { setUpEverything, closeEverything, skipOnboarding } from './test_utils';
 
 test('displayTodoInCalendar', async () => {
   // 启动 Vite 开发服务器
@@ -13,10 +13,8 @@ test('displayTodoInCalendar', async () => {
     // 该测试是在todo列表中添加一个事件，然后在日历中查看它是否可见
 
     await page.goto('http://localhost:5173/#/');
-    const startButton = page.getByRole('button', { name: '开始使用' });
-    if (await startButton.isVisible()) {
-      await startButton.click();
-    }
+
+    await skipOnboarding(page);
 
     await page.getByRole('button', { name: 'ToDo' }).click();
     await page.getByRole('button', { name: '+ Add Event' }).click();
