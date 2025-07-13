@@ -1,5 +1,11 @@
-<!-- 
- @Component: 用于导入 Vue 3 代码
+<!--
+  @file index.html
+  @description 应用主入口 HTML，负责挂载前端 Vue 3 应用并引入主脚本。
+  为什么这样做：
+  - 通过 <div id="app"></div> 作为 Vue 应用挂载点，保证前端框架与页面结构解耦，便于维护和扩展。
+  - 使用 <script type="module"> 加载 Vite 构建的主入口文件，支持现代浏览器原生 ES 模块，提升加载性能和开发体验。
+  - 设置 viewport 和 charset，保证页面在不同设备和语言环境下表现一致。
+  - 保持 HTML 结构简洁，便于后续集成 PWA、SEO 或其他前端特性。
 -->
 <!DOCTYPE html>
 <html lang="en">
@@ -10,7 +16,7 @@
   </head>
   <body>
     <div id="app"></div>
-    <!-- 导入 vite 和 vue -->
+    <!-- 加载 Vite 构建的 Vue 3 应用入口 -->
     <script type="module" src="/src/renderer/main.ts"></script>
   </body>
 </html>

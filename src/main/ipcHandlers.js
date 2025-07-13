@@ -1,21 +1,22 @@
 import { Notification, dialog } from "electron";
-import mammoth from "mammoth"; // 新增：导入 mammoth 库用于解析
-import * as chrono from "chrono-node"; // 新增：导入 chrono-node 用于自然语言日期解析
-import logger from "./logger.js"; // 导入日志系统
+import mammoth from "mammoth"; // 用于解析 docx 文件，便于课程表导入
+import * as chrono from "chrono-node"; // 用于自然语言日期解析，提升用户输入体验
+import logger from "./logger.js"; // 统一日志管理，便于问题追踪
 
 /**
- * 初始化应用的 IPC (Inter-Process Communication) 处理程序。
- *
- * @param {object} ipcMain - Electron 的 IPC 主进程模块，用于在主进程和渲染进程之间进行异步通信。
- * @param {object} sqliteStore - SQLite 数据库存储实例，用于存储应用数据和设置。
- * @param {string} mainDirname - 应用的主目录路径 (通常是 `__dirname` 的值)。
- * @param {object} BrowserWindow - Electron 的 BrowserWindow 模块，用于创建和控制浏览器窗口。
- *
- * @description
- * 此函数负责设置所有与主进程相关的 IPC 事件监听器。这些监听器处理来自渲染进程的请求，
- * 包括加载和保存应用数据（分类、事件）和用户设置。此外，它还管理窗口的基本操作，
- * 如最小化、最大化和关闭窗口。在初始化过程中，如果检测到用户数据或设置为空，
- * 函数会尝试从预定义的默认数据加载。
+ * 初始化主进程的 IPC 事件处理器，负责主进程与渲染进程的数据和操作交互。
+ * 
+ * 为什么这样做：
+ * - 通过集中管理 IPC 事件，确保主进程与渲染进程的数据同步和状态一致，避免分散处理导致的维护困难。
+ * - 统一处理应用数据（分类、事件）、用户设置、窗口操作、通知、文件导入、自然语言解析等功能，便于扩展和调试。
+ * - 在数据为空或异常时自动加载默认数据，保证应用稳定运行，提升用户体验。
+ * - 日志系统贯穿各处理流程，方便定位问题和分析用户行为。
+ * 
+ * 参数说明：
+ * @param {object} ipcMain - Electron 主进程 IPC 模块，负责事件监听和处理。
+ * @param {object} sqliteStore - SQLite 数据库实例，持久化存储应用数据和设置。
+ * @param {string} mainDirname - 应用主目录路径，部分文件操作需要。
+ * @param {object} BrowserWindow - Electron 窗口管理模块，支持窗口相关操作。
  */
 export function initializeIpcHandlers(
   ipcMain,
@@ -26,15 +27,8 @@ export function initializeIpcHandlers(
   logger.info("Initializing IPC handlers");
 
   // ================= 应用数据（分类和事件）存储 IPC ==================
-
   /**
-   * @description
-   * 处理 'load-app-data' IPC 事件。
-   * 当渲染进程请求加载应用数据（分类和事件）时，此处理程序被调用。
-   * 它首先尝试从 SQLite 数据库加载现有数据。如果数据不存在或为空，
-   * 它会加载默认数据并保存到数据库。
-   * 加载后，事件的日期会被标准化为 ISO 字符串格式。
-   * @returns {Promise<object>} 一个包含 `categories` 和 `events` 的对象。
+   * 加载应用数据（分类和事件）。
    */
   ipcMain.handle("load-app-data", async () => {
     logger.ipc("load-app-data", "receive", { action: "loading_app_data" });
@@ -114,16 +108,8 @@ export function initializeIpcHandlers(
     }
   });
 
-  // 保存应用数据 (分类和事件)
   /**
-   * @description
-   * 处理 'save-app-data' IPC 事件。
-   * 当渲染进程请求保存应用数据（分类和事件）时，此处理程序被调用。
-   * 它接收包含 `categories` 和 `events` 的对象，并将它们保存到 SQLite 数据库。
-   * 事件的日期在保存前会被转换为 ISO 字符串格式，以确保数据存储的一致性。
-   * @param {object} event - Electron IPC 事件对象 (未使用)。
-   * @param {object} data - 包含 `categories` 和 `events` 数组的对象。
-   * @returns {Promise<void>} 保存操作完成后解析的 Promise。
+   * 保存应用数据（分类和事件）。
    */
   ipcMain.handle("save-app-data", async (event, data) => {
     logger.ipc("save-app-data", "receive", {
@@ -167,16 +153,8 @@ export function initializeIpcHandlers(
   });
 
   // ================= 设置数据存储 IPC ==================
-
-  // 加载设置
   /**
-   * @description
-   * 处理 'load-settings' IPC 事件。
-   * 当渲染进程请求加载用户设置时，此处理程序被调用。
-   * 它首先尝试从 SQLite 数据库加载现有用户设置。如果设置不存在或为空对象，
-   * 它会加载默认设置并保存到数据库。
-   * 加载的设置（无论是用户保存的还是默认的）随后返回给渲染进程。
-   * @returns {Promise<object>} 用户的设置对象。
+   * 加载用户设置。
    */
   ipcMain.handle("load-settings", async () => {
     logger.ipc("load-settings", "receive", { action: "loading_settings" });
@@ -230,15 +208,8 @@ export function initializeIpcHandlers(
     }
   });
 
-  // 保存设置
   /**
-   * @description
-   * 处理 'save-settings' IPC 事件。
-   * 当渲染进程请求保存用户设置时，此处理程序被调用。
-   * 它接收设置对象，并将其保存到 SQLite 数据库。
-   * @param {object} event - Electron IPC 事件对象 (未使用)。
-   * @param {object} settings - 要保存的用户设置对象。
-   * @returns {Promise<object>} 一个包含 `success` (布尔值) 和可选 `error` (字符串) 的对象，指示操作结果。
+   * 保存用户设置。
    */
   ipcMain.handle("save-settings", async (event, settings) => {
     logger.ipc("save-settings", "receive", {
@@ -265,7 +236,9 @@ export function initializeIpcHandlers(
   });
 
   // ================= 监听窗口操作事件 ==================
-  // 最小化窗口
+  /**
+   * 最小化窗口。
+   */
   ipcMain.on("window-minimize", () => {
     logger.ipc("window-minimize", "receive", { action: "minimize_window" });
     const win = BrowserWindow.getFocusedWindow(); // 获取当前聚焦的窗口
@@ -277,7 +250,9 @@ export function initializeIpcHandlers(
     }
   });
 
-  // 最大化/还原窗口
+  /**
+   * 最大化或还原窗口。
+   */
   ipcMain.on("window-maximize", () => {
     logger.ipc("window-maximize", "receive", {
       action: "maximize_toggle_window",
@@ -297,7 +272,9 @@ export function initializeIpcHandlers(
     }
   });
 
-  // 关闭窗口
+  /**
+   * 关闭窗口。
+   */
   ipcMain.on("window-close", () => {
     logger.ipc("window-close", "receive", { action: "close_window" });
     const win = BrowserWindow.getFocusedWindow(); // 获取当前聚焦的窗口
@@ -309,7 +286,10 @@ export function initializeIpcHandlers(
     }
   });
 
-  // 新增：系统通知处理
+  // ================= 系统通知处理 ==================
+  /**
+   * 展示系统通知。
+   */
   ipcMain.handle("notify", (event, { title, body }) => {
     logger.ipc("notify", "receive", {
       action: "show_notification",
@@ -340,7 +320,10 @@ export function initializeIpcHandlers(
     }
   });
 
-  // 新增：处理课程导入
+  // ================= 课程表导入处理 ==================
+  /**
+   * 导入课程表文件（docx）。
+   */
   ipcMain.handle("import-schedule", async () => {
     const win = BrowserWindow.getAllWindows()[0];
     const { canceled, filePaths } = await dialog.showOpenDialog({
@@ -522,6 +505,7 @@ export function initializeIpcHandlers(
 
             // 解析课程信息：格式为 "学历(课程类别)课程名称/老师/校园地点-教学楼号-教室号(座位数)/人数"
             let finalCourseName = courseText;
+            let classRoom = "";
             let courseCategory = "";
             let teacher = "";
 
@@ -535,8 +519,8 @@ export function initializeIpcHandlers(
             if (courseMatch) {
               const courseName = courseMatch[1].trim(); // 课程名称
               teacher = courseMatch[2].trim(); // 老师
-              const classroom = courseMatch[3].trim(); // 教室号
-              finalCourseName = `${classroom} ${courseName}`;
+              classRoom = courseMatch[3].trim(); // 教室号
+              finalCourseName = `${courseName}`;
               // 由于我们移除了括号部分，无法从清理后的文本中获取课程类别
               // 可以考虑从原始文本中提取
               const categoryMatch = courseText.match(/\(([^)]+)\)/);
@@ -551,6 +535,7 @@ export function initializeIpcHandlers(
             // 已移除防止重复的逻辑，以允许同一时间段有多个课程
             schedule.push({
               courseName: finalCourseName,
+              classRoom: classRoom,
               courseCategory: courseCategory, // 新增：课程类别
               teacher: teacher, // 新增：老师
               dayOfWeek: dayOfWeek,
@@ -578,7 +563,10 @@ export function initializeIpcHandlers(
     }
   });
 
-  // 新增：处理自然语言文本
+  // ================= 自然语言处理 ==================
+  /**
+   * 处理自然语言文本，解析日期和事件。
+   */
   ipcMain.handle("process-natural-language", async (event, text) => {
     const win = BrowserWindow.getAllWindows()[0];
     try {
@@ -625,7 +613,10 @@ export function initializeIpcHandlers(
     }
   });
 
-  // 新增：处理语音识别请求
+  // ================= 语音识别处理 ==================
+  /**
+   * 语音识别请求（模拟）。
+   */
   ipcMain.handle("recognize-speech", async () => {
     // 注意：Electron 主进程本身没有内置的语音识别 API。
     // 实现此功能通常需要：
@@ -648,10 +639,8 @@ export function initializeIpcHandlers(
   });
 
   // ================= 日志处理 IPC ==================
-
   /**
-   * 处理来自渲染进程的日志
-   * @description 接收渲染进程发送的日志并通过主进程的日志系统记录
+   * 处理渲染进程日志。
    */
   ipcMain.handle("send-log", async (event, logData) => {
     try {

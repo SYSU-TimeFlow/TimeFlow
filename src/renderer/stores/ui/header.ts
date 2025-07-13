@@ -1,3 +1,18 @@
+/**
+ * @file header.ts
+ * @description 日历头部功能模块，负责主界面标题、导航、日期选择、搜索等交互逻辑的统一管理。
+ * 
+ * 为什么这样做：
+ * - 通过 computed 动态生成日历标题，自动适配月/周/日/待办等不同视图，提升用户体验和界面一致性。
+ * - 导航功能（前后跳转、回到今天、日期选择）集中管理，保证页面状态同步，便于扩展和维护。
+ * - 搜索功能支持多种匹配方式（日期、数字、文本、拼音），提升检索效率和智能化体验。
+ * - 搜索输入采用防抖处理，减少无效计算，提升性能。
+ * - 搜索结果支持高亮、键盘导航、下拉展示，优化交互细节。
+ * - 所有搜索和导航相关状态集中管理，便于与其他模块协作和数据同步。
+ * - 通过回调和事件处理，支持自定义滚动和结果选择，提升灵活性。
+ * - 所有核心操作均有注释说明，便于团队协作和后续维护。
+ */
+
 import { computed, ref, nextTick } from "vue";
 import { getStartOfWeek, getEndOfWeek } from "../../utils";
 import { EventType, calendarViews } from "../../const";
@@ -50,9 +65,9 @@ export const createHeaderModule = (storeContext: any) => {
   // 导航功能
   function changeView(view: string) {
     currentView.value = view;
-    if (view === 'week' || view === 'day') {
-      currentDate.value = new Date();
-    }
+    // if (view === 'week' || view === 'day') {
+    //   currentDate.value = new Date();
+    // }
   }
 
   function navigateCalendar(direction: "prev" | "next") {

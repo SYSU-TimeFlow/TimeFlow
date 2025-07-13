@@ -1,3 +1,19 @@
+/**
+ * @file event.ts
+ * @description 事件和分类的状态管理模块，基于 Pinia 实现，负责前端所有日历事件、待办事项、课程导入等核心业务逻辑。
+ * 
+ * 为什么这样做：
+ * - 使用 Pinia 统一管理事件和分类状态，保证数据响应式和组件间同步，提升维护性和扩展性。
+ * - 通过 Electron API 与主进程通信，实现数据持久化和多端一致，避免前端本地存储带来的兼容性和安全问题。
+ * - 所有数据变更（事件、分类）均自动保存，减少用户操作负担，提升数据安全性。
+ * - 支持事件、待办事项、课程导入等多种业务场景，便于功能扩展和复用。
+ * - 课程导入逻辑根据当前时间动态确定学期，自动生成批量课程事件，提升用户体验和效率。
+ * - 兼容自然语言事件创建、分类颜色联动、批量删除等高级功能，满足复杂日历场景需求。
+ * - 响应式校验和错误提示，保证用户输入有效性，减少误操作。
+ * - 通过 computed 和 watch 实现高效筛选和自动保存，提升性能和交互体验。
+ * - 所有核心操作均有注释说明，便于团队协作和后续维护。
+ */
+
 import { defineStore } from "pinia";
 import { ref, computed, nextTick, watch } from "vue";
 import { useUiStore } from "./ui";
@@ -710,7 +726,7 @@ export const useEventStore = defineStore("event", () => {
                 item.courseName,
                 start,
                 end,
-                `${item.courseCategory} ${item.teacher} ${week + 1}周`,
+                `${item.classRoom} ${item.courseCategory} ${item.teacher} ${week + 1}周`,
                 scheduleCategoryRef.id,
                 scheduleCategoryRef.color,
                 false,
