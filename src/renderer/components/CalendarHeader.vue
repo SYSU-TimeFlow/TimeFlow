@@ -95,18 +95,13 @@
 
         <!-- 搜索框图标，根据不同模式显示不同图标 -->
         <i
+          v-if="uiStore.isSearchActive"
           class="fas absolute left-3 top-1/2 transform -translate-y-1/2 pointer-events-none"
-          :class="
-            uiStore.isSearchActive && uiStore.appMode === 'normal'
-              ? 'fa-search'
-              : '',
-            uiStore.isSearchActive && uiStore.appMode === 'command'
-              ? 'fa-terminal text-blue-600'
-              : '',
-            uiStore.isSearchActive && uiStore.appMode === 'nlp'
-              ? 'fa-comment-dots text-purple-500'
-              : ''
-          "
+          :class="[
+            uiStore.appMode === 'normal' ? 'fa-search' : '',
+            uiStore.appMode === 'command' ? 'fa-terminal text-blue-600' : '',
+            uiStore.appMode === 'nlp' ? 'fa-comment-dots text-purple-500' : '',
+          ]"
         ></i>
 
         <!-- 搜索结果列表 -->
@@ -352,7 +347,7 @@ let placeholderInterval: number | undefined;
 
 // ==================== 文本识别功能 (新实现) ====================
 const isSpeechModalVisible = ref(false);
-const speechStatus = ref("点击"完成"或"取消"");
+const speechStatus = ref('点击"完成"或"取消"'); // 修复：使用单引号包裹，避免嵌套引号问题
 const transcriptDivRef = ref<HTMLDivElement | null>(null);
 let finalTranscript = "";
 
