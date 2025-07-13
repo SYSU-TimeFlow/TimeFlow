@@ -1,7 +1,17 @@
 /**
- * @description SQLite 数据库存储模块
- * @description 负责管理应用的数据存储，包括事件、分类和设置
+ * @file database.js
+ * @description SQLite 数据库存储模块，负责管理应用的所有持久化数据，包括事件、分类和设置。
+ * 
+ * 为什么这样做：
+ * - 通过集中管理数据库操作，确保数据结构一致性和业务逻辑可维护性，避免分散存储导致的混乱和数据丢失。
+ * - 使用 Electron 用户数据目录存储数据库文件，保证数据隔离且随用户账户迁移，提升安全性和跨平台兼容性。
+ * - 自动初始化表结构和触发器，确保每次启动都能自愈数据库，减少因升级或异常导致的数据损坏。
+ * - 默认数据和结构迁移逻辑，保证新用户和老用户都能无缝使用，降低维护成本。
+ * - 所有操作均接入日志系统，便于问题定位和数据追踪。
+ * - 分类、事件、设置等核心业务均提供批量和单项操作，支持事务，保证数据一致性和性能。
+ * - 提供辅助方法（如类型映射、统计、备份、清空等），方便扩展和维护。
  */
+
 import Database from "better-sqlite3";
 import path from "path";
 import fs from "fs";
@@ -9,7 +19,7 @@ import { fileURLToPath } from "url";
 import { app } from "electron";
 import logger from "./logger.js";
 
-// 获取当前文件目录
+// 获取当前文件目录，便于定位资源和跨平台兼容
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -17,7 +27,7 @@ class SQLiteStore {
   constructor() {
     logger.info("Initializing SQLite database store");
 
-    // 使用 Electron 的用户数据目录，而不是应用目录
+    // 使用 Electron 用户数据目录存储数据库，保证数据隔离和安全
     const dataDir = app.getPath("userData");
     if (!fs.existsSync(dataDir)) {
       fs.mkdirSync(dataDir, { recursive: true });
@@ -28,16 +38,16 @@ class SQLiteStore {
     const dbPath = path.join(dataDir, "timeflow.db");
 
     try {
-      // 初始化 SQLite 数据库连接
+      // 初始化数据库连接
       this.db = new Database(dbPath);
 
-      // 启用外键约束
+      // 启用外键约束，保证数据完整性
       this.db.pragma("foreign_keys = ON");
 
-      // 初始化数据库表结构
+      // 初始化表结构和触发器，保证每次启动都能自愈
       this.initializeDatabase();
 
-      // 迁移数据库（处理结构变化）
+      // 处理历史结构变更，保证升级兼容
       this.migrateDatabase();
 
       logger.info("SQLite database initialized successfully", { dbPath });
@@ -48,7 +58,8 @@ class SQLiteStore {
   }
 
   /**
-   * 初始化数据库表结构
+   * 初始化数据库表结构和触发器
+   * 为什么这样做：自动建表和触发器，保证数据结构一致性和时间戳自动更新，减少人为错误。
    */
   initializeDatabase() {
     try {
@@ -139,7 +150,7 @@ class SQLiteStore {
 
   /**
    * 初始化默认分类数据
-   * 在第一次创建数据库时添加默认分类
+   * 为什么这样做：首次启动时自动填充默认分类，保证前端有内容可用，避免空白页面。
    */
   initializeDefaultCategories() {
     try {
@@ -178,7 +189,8 @@ class SQLiteStore {
   }
 
   /**
-   * 迁移数据库结构（处理ID类型变化）
+   * 迁移数据库结构（如ID类型变更）
+   * 为什么这样做：自动处理历史结构变更，保证老用户数据不丢失，升级无缝。
    */
   migrateDatabase() {
     try {
@@ -268,9 +280,8 @@ class SQLiteStore {
   // ===================== 辅助方法 =====================
 
   /**
-   * 将数据库中的type字段映射为前端的eventType
-   * @param {number} type 数据库中的类型值
-   * @returns {string} 前端eventType字符串
+   * 类型映射：数据库 type <-> 前端 eventType
+   * 为什么这样做：前后端类型不一致时自动转换，保证数据流畅对接。
    */
   mapTypeToEventType(type) {
     switch (type) {
@@ -307,7 +318,7 @@ class SQLiteStore {
 
   /**
    * 获取所有分类
-   * @returns {Array} 分类数组
+   * 为什么这样做：统一入口获取分类，自动类型转换，便于前端直接使用。
    */
   getCategories() {
     try {
@@ -332,8 +343,8 @@ class SQLiteStore {
   }
 
   /**
-   * 设置分类数据
-   * @param {Array} categories 分类数组
+   * 批量设置分类
+   * 为什么这样做：支持批量导入和覆盖，事务保证一致性，提升性能。
    */
   setCategories(categories) {
     if (!Array.isArray(categories)) {
@@ -372,8 +383,7 @@ class SQLiteStore {
 
   /**
    * 添加单个分类
-   * @param {Object} category 分类对象
-   * @returns {number} 新分类的ID
+   * 为什么这样做：便于前端快速新增分类，返回新ID便于后续操作。
    */
   addCategory(category) {
     try {
@@ -397,7 +407,7 @@ class SQLiteStore {
 
   /**
    * 更新分类
-   * @param {Object} category 分类对象
+   * 为什么这样做：支持分类编辑，保证数据实时同步。
    */
   updateCategory(category) {
     try {
@@ -421,7 +431,7 @@ class SQLiteStore {
 
   /**
    * 删除分类
-   * @param {number} categoryId 分类ID
+   * 为什么这样做：支持分类删除，自动级联处理相关数据。
    */
   deleteCategory(categoryId) {
     try {
@@ -437,7 +447,7 @@ class SQLiteStore {
 
   /**
    * 获取所有事件
-   * @returns {Array} 事件数组
+   * 为什么这样做：统一入口获取事件，自动类型和字段映射，便于前端直接渲染。
    */
   getEvents() {
     try {
@@ -469,8 +479,8 @@ class SQLiteStore {
           title: event.title,
           start: event.start,
           end: event.end,
-          eventType: this.mapTypeToEventType(Number(event.type)), // 映射数据库type到前端eventType
-          categoryId: event.category_id ? Number(event.category_id) : 5, // 映射category_id到categoryId，默认为5
+          eventType: this.mapTypeToEventType(Number(event.type)), // 显射数据库type到前端eventType
+          categoryId: event.category_id ? Number(event.category_id) : 5, // 显射category_id到categoryId，默认为5
           categoryColor: categoryColor, // 使用分类颜色
           description: event.description || "",
           location: event.location || "",
@@ -492,8 +502,8 @@ class SQLiteStore {
   }
 
   /**
-   * 设置事件数据
-   * @param {Array} events 事件数组
+   * 批量设置事件
+   * 为什么这样做：支持批量导入和覆盖，事务保证一致性，提升性能。
    */
   setEvents(events) {
     if (!Array.isArray(events)) {
@@ -543,8 +553,7 @@ class SQLiteStore {
 
   /**
    * 添加单个事件
-   * @param {Object} event 事件对象
-   * @returns {number} 事件ID
+   * 为什么这样做：便于前端快速新增事件，返回新ID便于后续操作。
    */
   addEvent(event) {
     try {
@@ -580,7 +589,7 @@ class SQLiteStore {
 
   /**
    * 更新事件
-   * @param {Object} event 事件对象
+   * 为什么这样做：支持事件编辑，保证数据实时同步。
    */
   updateEvent(event) {
     try {
@@ -615,7 +624,7 @@ class SQLiteStore {
 
   /**
    * 删除事件
-   * @param {number} eventId 事件ID
+   * 为什么这样做：支持事件删除，自动处理相关依赖。
    */
   deleteEvent(eventId) {
     try {
@@ -630,9 +639,8 @@ class SQLiteStore {
   // ===================== 设置管理 =====================
 
   /**
-   * 获取设置值
-   * @param {string} key 设置键
-   * @returns {any} 设置值
+   * 获取单项设置
+   * 为什么这样做：便于前端按需获取配置，自动解析 JSON。
    */
   getSetting(key) {
     try {
@@ -655,9 +663,8 @@ class SQLiteStore {
   }
 
   /**
-   * 设置设置值
-   * @param {string} key 设置键
-   * @param {any} value 设置值
+   * 设置单项配置
+   * 为什么这样做：支持前端灵活保存配置，自动序列化。
    */
   setSetting(key, value) {
     try {
@@ -677,7 +684,7 @@ class SQLiteStore {
 
   /**
    * 获取所有设置
-   * @returns {Object} 设置对象
+   * 为什么这样做：批量获取所有配置，便于前端初始化和同步。
    */
   getAllSettings() {
     try {
@@ -701,8 +708,8 @@ class SQLiteStore {
   }
 
   /**
-   * 删除设置
-   * @param {string} key 设置键
+   * 删除单项设置
+   * 为什么这样做：支持配置项删除，提升灵活性。
    */
   deleteSetting(key) {
     try {
@@ -717,16 +724,14 @@ class SQLiteStore {
   // ===================== 设置管理 (兼容方法) =====================
 
   /**
-   * 获取所有设置 (兼容方法)
-   * @returns {Object} 设置对象
+   * 兼容方法：获取所有设置
    */
   getSettings() {
     return this.getAllSettings();
   }
 
   /**
-   * 设置所有设置 (兼容方法)
-   * @param {Object} settings 设置对象
+   * 兼容方法：批量设置所有配置
    */
   setSettings(settings) {
     if (typeof settings !== "object" || settings === null) {
@@ -761,6 +766,7 @@ class SQLiteStore {
 
   /**
    * 关闭数据库连接
+   * 为什么这样做：释放资源，防止内存泄漏。
    */
   close() {
     try {
@@ -775,7 +781,7 @@ class SQLiteStore {
 
   /**
    * 备份数据库
-   * @param {string} backupPath 备份文件路径
+   * 为什么这样做：支持数据迁移和灾备，提升安全性。
    */
   backup(backupPath) {
     try {
@@ -789,7 +795,7 @@ class SQLiteStore {
 
   /**
    * 获取数据库统计信息
-   * @returns {Object} 统计信息
+   * 为什么这样做：便于前端展示和运维监控。
    */
   getStats() {
     try {
@@ -816,6 +822,7 @@ class SQLiteStore {
 
   /**
    * 清空所有数据
+   * 为什么这样做：支持一键重置，便于调试和用户自助清理。
    */
   clearAllData() {
     try {
