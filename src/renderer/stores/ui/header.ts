@@ -50,9 +50,9 @@ export const createHeaderModule = (storeContext: any) => {
   // 导航功能
   function changeView(view: string) {
     currentView.value = view;
-    if (view === 'week' || view === 'day') {
-      currentDate.value = new Date();
-    }
+    // if (view === 'week' || view === 'day') {
+    //   currentDate.value = new Date();
+    // }
   }
 
   function navigateCalendar(direction: "prev" | "next") {

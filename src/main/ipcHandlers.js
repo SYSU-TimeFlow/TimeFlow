@@ -522,6 +522,7 @@ export function initializeIpcHandlers(
 
             // 解析课程信息：格式为 "学历(课程类别)课程名称/老师/校园地点-教学楼号-教室号(座位数)/人数"
             let finalCourseName = courseText;
+            let classRoom = "";
             let courseCategory = "";
             let teacher = "";
 
@@ -535,8 +536,8 @@ export function initializeIpcHandlers(
             if (courseMatch) {
               const courseName = courseMatch[1].trim(); // 课程名称
               teacher = courseMatch[2].trim(); // 老师
-              const classroom = courseMatch[3].trim(); // 教室号
-              finalCourseName = `${classroom} ${courseName}`;
+              classRoom = courseMatch[3].trim(); // 教室号
+              finalCourseName = `${courseName}`;
               // 由于我们移除了括号部分，无法从清理后的文本中获取课程类别
               // 可以考虑从原始文本中提取
               const categoryMatch = courseText.match(/\(([^)]+)\)/);
@@ -551,6 +552,7 @@ export function initializeIpcHandlers(
             // 已移除防止重复的逻辑，以允许同一时间段有多个课程
             schedule.push({
               courseName: finalCourseName,
+              classRoom: classRoom,
               courseCategory: courseCategory, // 新增：课程类别
               teacher: teacher, // 新增：老师
               dayOfWeek: dayOfWeek,
