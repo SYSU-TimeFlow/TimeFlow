@@ -401,11 +401,11 @@ export function initializeIpcHandlers(
           for (let rLoop = 0; rLoop < rowspan; rLoop++) {
             for (let cLoop = 0; cLoop < colspan; cLoop++) {
               if (!grid[rowIndex + rLoop]) grid[rowIndex + rLoop] = [];
-              // 修正：在网格中存储原始的 rowspan 信息
+              // 在网格中存储原始的 rowspan 信息
               grid[rowIndex + rLoop][gridColIndex + cLoop] = {
                 text: cellText,
                 isPlaceholder: rLoop > 0 || cLoop > 0,
-                // 新增：存储原始的 rowspan
+                // 存储原始的 rowspan
                 rowspan: rLoop === 0 && cLoop === 0 ? rowspan : 0,
               };
             }
@@ -449,7 +449,7 @@ export function initializeIpcHandlers(
             continue;
           }
 
-          // 修正：直接使用存储的 rowspan，不再手动计算
+          // 直接使用存储的 rowspan，不再手动计算
           const rowSpanCount = currentCell.rowspan || 1;
 
           // 标记所有被占用的单元格
@@ -460,7 +460,7 @@ export function initializeIpcHandlers(
           const startTimeInfo = timeSlotsInfo[r];
           const endTimeInfo = timeSlotsInfo[r + rowSpanCount - 1];
 
-          // 修正：通过查找第一行的表头来确定星期几
+          // 通过查找第一行的表头来确定星期几
           const dayHeaderCell = grid[0][c];
           const dayHeaderText = dayHeaderCell ? dayHeaderCell.text : "";
           const dayMap = {
@@ -487,7 +487,7 @@ export function initializeIpcHandlers(
           }
 
           if (startTimeInfo && endTimeInfo) {
-            // 新增：解析课程名称中的周数范围
+            // 解析课程名称中的周数范围
             let courseText = grid[r][c].text;
             let startWeek = 1; // 默认开始周
             let endWeek = 18; // 默认结束周 (与渲染器逻辑一致)
@@ -536,13 +536,13 @@ export function initializeIpcHandlers(
             schedule.push({
               courseName: finalCourseName,
               classRoom: classRoom,
-              courseCategory: courseCategory, // 新增：课程类别
-              teacher: teacher, // 新增：老师
+              courseCategory: courseCategory, // 课程类别
+              teacher: teacher, // 老师
               dayOfWeek: dayOfWeek,
               startTime: startTimeInfo.start,
               endTime: endTimeInfo.end,
-              startWeek: startWeek, // 新增：传递开始周
-              endWeek: endWeek, // 新增：传递结束周
+              startWeek: startWeek, // 传递开始周
+              endWeek: endWeek, // 传递结束周
             });
           }
         }
@@ -613,30 +613,6 @@ export function initializeIpcHandlers(
     }
   });
 
-  // ================= 语音识别处理 ==================
-  /**
-   * 语音识别请求（模拟）。
-   */
-  ipcMain.handle("recognize-speech", async () => {
-    // 注意：Electron 主进程本身没有内置的语音识别 API。
-    // 实现此功能通常需要：
-    // 1. 在渲染器进程中使用 Web Speech API (如您之前的实现)。
-    // 2. 在主进程中使用第三方语音识别服务（如 Google Cloud Speech-to-Text, Azure 等）的 SDK。
-    // 3. 集成离线的语音识别库（如 Vosk, DeepSpeech），但这可能很复杂。
-    //
-    // 此处我们模拟一个异步的语音识别过程，2秒后返回结果。
-    // 您未来可以在这里集成真正的语音识别库。
-    console.log("主进程收到语音识别请求，开始模拟识别...");
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        console.log("模拟识别完成。");
-        resolve({
-          success: true,
-          text: "明天下午三点提醒我开会",
-        });
-      }, 2000); // 模拟2秒的识别过程
-    });
-  });
 
   // ================= 日志处理 IPC ==================
   /**

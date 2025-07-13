@@ -1,11 +1,23 @@
+<!-- 
+ @component DayView.vue
+ @description: 日视图组件，负责展示日历的日视图，包含全天事件和时间轴事件的显示,并且提供每个小时时段提供交互功能,同时支持拖拽和调整事件的大小。
+ 
+ 主要功能：
+ 1. 显示24小时时间轴
+ 2. 渲染全天事件和定时事件
+ 3. 支持事件拖拽和大小调整
+ 4. 显示实时时间线
+ 5. 提供时间段点击交互
+ 6. 支持待办事项的完成状态切换
+-->
+
 <template>
-  <!-- 日视图容器 -->
   <div class="day-view flex-1 overflow-visible p-4 min-h-[600px]">
-    <!-- 日视图网格布局 -->
     <div class="grid grid-cols-1 max-h-[1664px] rounded-lg shadow-sm">
-      <!-- 日视图头部 -->
+      <!-- 日视图头部区域 -->
       <div class="day-header text-center p-4"></div>
-      <!-- 全天事件栏 -->
+      
+      <!-- 全天事件显示区域 -->
       <div
         v-if="
           eventStore
@@ -21,6 +33,7 @@
             全天
           </div>
           <div class="flex-1 relative h-full overflow-hidden">
+            <!-- 渲染全天事件组 - 按组显示，避免重叠 -->
             <template
               v-for="(group, groupIdx) in getEventGroups(
                 eventStore
@@ -65,9 +78,10 @@
           </div>
         </div>
       </div>
+      
       <!-- 日视图主体内容 -->
       <div class="flex h-full pt-3">
-        <!-- 左侧时间标签列 -->
+        <!-- 左侧时间标签列 - 显示24小时的时间标签 -->
         <div class="time-labels pr-4 w-20">
           <div
             v-for="hour in 24"
@@ -78,11 +92,10 @@
             {{ formatHour(hour - 1, settingStore.hour24) }}
           </div>
         </div>
-        <!-- 事件显示列 -->
         <div class="day-column flex-1 relative">
-          <!-- 时间轴背景 -->
+          <!-- 时间轴基础结构 -->
           <div class="time-axis relative h-full">
-            <!-- 整点时间线 -->
+            <!-- 创建24条水平分隔线，标识每个整小时点 -->
             <div
               v-for="hour in 24"
               :key="hour"
@@ -92,7 +105,8 @@
                 backgroundColor: 'var(--border-color)',
               }"
             ></div>
-            <!-- 时间格子 -->
+            
+            <!-- 时间格子交互系统 - 为每个小时时段提供交互功能 -->
             <div
               v-for="hour in 24"
               :key="hour"
@@ -109,9 +123,8 @@
               "
             ></div>
           </div>
-          <!-- 事件渲染区域 -->
           <div class="events absolute top-0 left-0 right-0 z-10">
-            <!-- 实时时间线 -->
+            <!-- 实时时间线 - 仅在日视图中显示 -用实线显示当前时间-->
             <div
               v-if="uiStore.currentView === 'day'"
               class="current-time-line absolute left-0 right-0 pointer-events-none z-30"
@@ -130,6 +143,7 @@
                 class="time-line absolute left-0 right-0 h-0.5 bg-blue-500 top-0"
               ></div>
             </div>
+            
             <!-- 日视图事件渲染 -->
             <div
               v-for="(group, groupIdx) in getEventGroups(
@@ -139,6 +153,7 @@
               )"
               :key="groupIdx"
             >
+              <!-- 渲染组内的每个事件 判断当前事件的类别，并且通过计算事件开始时间和结束时间来得出所创建事件的高度-->
               <div
                 v-for="(event, idx) in group"
                 :key="event.id"
@@ -187,7 +202,7 @@
                 draggable="true"
                 @dragstart="uiStore.handleDragStart($event, event)"
               >
-                <!-- 事件调整大小手柄 -->
+                <!-- 顶部调整大小手柄 可以拖拽事件的上边框进行修改事件的开始时间-->
                 <div
                   v-if="!event.allDay"
                   class="event-resize-handle top-handle absolute left-0 right-0 top-0 h-1.5 cursor-ns-resize z-20 hover:bg-blue-500/30"
@@ -196,6 +211,8 @@
                   "
                   @click.stop
                 ></div>
+                
+                <!-- 底部调整大小手柄 可以拖拽事件的下边框进行修改事件的截止时间-->
                 <div
                   v-if="!event.allDay"
                   class="event-resize-handle bottom-handle absolute left-0 right-0 bottom-0 h-1.5 cursor-ns-resize z-20 hover:bg-blue-500/30"
@@ -204,8 +221,10 @@
                   "
                   @click.stop
                 ></div>
+                
+                <!-- 事件内容区域 -->
                 <div class="flex items-center w-full">
-                  <!-- 复选框 -->
+                  <!-- 待办事项复选框 对于待办事项的事件可以勾选复选框表明完成该todo事项-->
                   <div
                     v-if="event.eventType === 'both'"
                     class="w-3 h-3 rounded-full border flex items-center justify-center cursor-pointer mr-1"
@@ -221,6 +240,7 @@
                       class="fas fa-check text-white text-[9px]"
                     ></i>
                   </div>
+                  
                   <div
                     class="event-time text-xs font-medium"
                     :style="{
@@ -244,6 +264,7 @@
                     }}
                   </div>
                 </div>
+                
                 <div
                   class="event-title text-sm font-medium truncate"
                   :style="{
@@ -258,6 +279,7 @@
                 >
                   {{ event.title }}
                 </div>
+                
                 <div
                   v-if="event.description"
                   class="event-description text-xs truncate text-gray-600"
@@ -333,12 +355,11 @@ onMounted(() => {
   background-color: var(--border-color);
 }
 
-/* 修复暗黑模式下的hover效果 */
 .dark-mode .time-slot:hover {
   background-color: var(--hour-cell-hover);
 }
 
 .time-slot:hover {
-  background-color: rgb(239 246 255); /* blue-50 的RGB值 */
+  background-color: rgb(239 246 255); 
 }
 </style>

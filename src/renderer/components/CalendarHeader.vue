@@ -1,9 +1,16 @@
 <!--
-  @component: CalendarHeader
-  @description: 应用程序头部组件，包含标题、导航按钮、搜索框和窗口控制按钮
-  @author: huzch
-  @modified: DuSuang
-  @date: 2025-05-25
+  @component CalendarHeader.vue
+  @description: 应用程序头部组件，包含标题、导航按钮、搜索框和窗口控制按钮，提供全局操作入口和智能搜索功能。
+  
+  主要功能：
+  1. 应用标题和日历标题显示
+  2. 日历导航控制（前进/后退/今天）
+  3. 智能搜索和命令输入系统
+  4. 多模式输入支持（搜索/命令/AI）
+  5. 全局快捷键处理
+  6. 通知系统管理
+  7. 主题切换功能
+  8. 窗口控制按钮
 -->
 
 <template>
@@ -86,6 +93,7 @@
           data-tutorial="search"
         />
 
+        <!-- 搜索框图标，根据不同模式显示不同图标 -->
         <i
           class="fas absolute left-3 top-1/2 transform -translate-y-1/2 pointer-events-none"
           :class="[
@@ -289,6 +297,7 @@
           }"
         ></i>
       </button>
+      <!-- 窗口控制按钮组 -->
       <div class="window-actions flex">
         <button
           class="header-icon-button w-8 h-8 rounded-l-md transition-colors m-0 flex items-center justify-center"
@@ -347,7 +356,11 @@ const speechStatus = ref("点击“完成”或“取消”");
 const transcriptDivRef = ref<HTMLDivElement | null>(null);
 let finalTranscript = "";
 
-// 新增：封装核心NLP处理逻辑
+/**
+ * 处理自然语言输入，调用NLP API创建事件
+ * @param {string} text - 用户输入的自然语言文本
+ * @returns {Object} 处理结果对象，包含成功状态和消息
+ */
 const processTextWithNLP = async (text: string) => {
   if (!electronAPI || !electronAPI.processNaturalLanguage) {
     console.error("NLP API is not available.");
@@ -385,7 +398,11 @@ const processTextWithNLP = async (text: string) => {
 // 已通知事件唯一标识集合，防止重复通知（考虑时间变化）
 const notifiedEventKeys = ref<Set<string>>(new Set());
 
-// 生成唯一key
+/**
+ * 生成事件通知的唯一标识
+ * @param {Object} event - 事件对象
+ * @returns {string} 唯一标识字符串
+ */
 function getEventNotifyKey(event: any) {
   // 判断是否为待办事项（start为1970年）
   const start = event.start ? new Date(event.start).getTime() : 0;
@@ -397,7 +414,10 @@ function getEventNotifyKey(event: any) {
   return isTodo ? `${event.id}|${end}` : `${event.id}|${start}|${end}`;
 }
 
-// 检查日程并发送通知
+/**
+ * 检查日程并发送通知
+ * 检查即将开始或即将结束的事件，发送系统通知
+ */
 const checkAndNotifyEvents = () => {
   if (!settingStore.notifications) return;
   const now = new Date();
@@ -443,7 +463,11 @@ const checkAndNotifyEvents = () => {
   });
 };
 
-// 发送系统通知
+/**
+ * 发送系统通知
+ * @param {Object} event - 事件对象
+ * @param {string} type - 通知类型（"即将开始"或"即将结束"）
+ */
 function sendEventNotification(event: any, type: string) {
   let timeInfo = "";
   const now = new Date();
@@ -475,7 +499,10 @@ function sendEventNotification(event: any, type: string) {
   }
 }
 
-// 通知开关切换
+/**
+ * 切换通知开关
+ * 切换通知状态并保存设置
+ */
 const toggleNotification = () => {
   settingStore.notifications = !settingStore.notifications;
   isBellShaking.value = true;
@@ -493,7 +520,10 @@ const toggleNotification = () => {
 };
 
 // ==================== 事件搜索功能 ====================
-// 滚动到当前聚焦的搜索结果项
+/**
+ * 滚动到当前聚焦的搜索结果项
+ * 确保当前聚焦的搜索结果在视窗内可见
+ */
 const scrollToFocusedResult = () => {
   nextTick(() => {
     if (
@@ -512,7 +542,10 @@ const scrollToFocusedResult = () => {
   });
 };
 
-// 处理搜索框失焦
+/**
+ * 处理搜索框失焦事件
+ * 延迟处理以防止点击搜索结果时结果框消失过快
+ */
 const handleSearchBlur = () => {
   // 延迟处理，防止点击搜索结果时结果框消失过快
   setTimeout(() => {
@@ -522,7 +555,10 @@ const handleSearchBlur = () => {
   }, 100);
 };
 
-// 处理搜索框键盘事件
+/**
+ * 处理搜索框键盘事件
+ * @param {KeyboardEvent} event - 键盘事件对象
+ */
 const handleSearchKeydown = (event: KeyboardEvent) => {
   if (event.key === "Escape") {
     uiStore.toggleSearchActive(false);
@@ -570,14 +606,20 @@ const handleSearchKeydown = (event: KeyboardEvent) => {
   }
 };
 
-// 处理输入变化
+/**
+ * 处理输入变化事件
+ * @param {Event} event - 输入事件对象
+ */
 const handleInputChange = (event: Event) => {
   const input = event.target as HTMLInputElement;
   let value = input.value;
   uiStore.updateSearchInputValue(value);
 };
 
-// 激活搜索框
+/**
+ * 激活搜索框
+ * 显示搜索框并自动聚焦
+ */
 const activateSearch = () => {
   uiStore.toggleSearchActive(true);
   uiStore.setAppMode("normal");
@@ -586,7 +628,11 @@ const activateSearch = () => {
   });
 };
 
-// 格式化事件日期，用于在搜索结果中显示
+/**
+ * 格式化事件日期
+ * @param {string | Date} dateString - 日期字符串或Date对象
+ * @returns {string} 格式化后的日期字符串
+ */
 const formatEventDate = (dateString: string | Date) => {
   const date = new Date(dateString);
   return date.toLocaleDateString("zh-CN", {
@@ -596,6 +642,10 @@ const formatEventDate = (dateString: string | Date) => {
 };
 
 // ==================== 全局快捷键 ====================
+/**
+ * 处理全局键盘事件
+ * @param {KeyboardEvent} event - 键盘事件对象
+ */
 const handleGlobalKeydown = (event: KeyboardEvent) => {
   // 如果是在输入框、textarea等元素中则不拦截
   if (
@@ -698,6 +748,10 @@ const handleGlobalKeydown = (event: KeyboardEvent) => {
 };
 
 // ==================== 主题切换按钮 ====================
+/**
+ * 处理主题切换
+ * 在亮色和暗色主题之间切换
+ */
 const handleThemeToggle = () => {
   // 直接调用 settingStore 的 setThemeMode，保证与设置界面同步
   settingStore.setThemeMode(
@@ -708,6 +762,7 @@ const handleThemeToggle = () => {
 // ==================== 生命周期 ====================
 let notifyTimer: number | undefined;
 
+// 组件挂载时初始化
 onMounted(() => {
   uiStore.setScrollUiUpdateCallback(scrollToFocusedResult);
 
@@ -725,7 +780,7 @@ onMounted(() => {
   }, 20000);
 });
 
-// 组件卸载时清除滚动回调
+// 组件卸载时清除所有事件监听器和定时器
 onUnmounted(() => {
   uiStore.clearScrollUiUpdateCallback();
 
@@ -735,6 +790,7 @@ onUnmounted(() => {
   if (placeholderInterval) clearInterval(placeholderInterval); // 清除占位符定时器
 });
 
+// 监听通知设置变化
 watch(
   () => settingStore.notifications,
   (newVal) => {
@@ -756,6 +812,7 @@ watch(isCogHovered, (hovered) => {
 </script>
 
 <style scoped>
+/* 基础样式 */
 .app-header {
   background-color: var(--header-bg);
 }

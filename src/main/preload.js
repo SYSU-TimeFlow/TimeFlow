@@ -33,11 +33,7 @@ contextBridge.exposeInMainWorld("electronAPI", {
   // 自然语言处理 API，前端可请求主进程解析用户输入的自然语言文本
   processNaturalLanguage: (text) =>
     ipcRenderer.invoke("process-natural-language", text),
-
-  // 语音识别 API，前端可请求主进程进行语音识别（当前为模拟实现）
-  recognizeSpeech: () => ipcRenderer.invoke("recognize-speech"),
-
-  // 日志 API，前端可将日志发送到主进程统一记录
+  // 新增：日志API
   sendLog: (logData) => ipcRenderer.invoke("send-log", logData),
 
   // 事件监听 API，前端可订阅主进程推送的消息，实现消息通知等功能

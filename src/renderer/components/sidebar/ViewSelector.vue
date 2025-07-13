@@ -1,8 +1,13 @@
 <!-- 
- @file ViewSelector.vue
- @description 日历视图选择器组件。
- 该组件允许用户在不同的日历视图（如月视图、周视图、日视图）之间切换。
- 当侧边栏折叠时，仅显示视图图标；展开时，显示图标和视图名称。
+ @component ViewSelector.vue
+ @description: 日历视图选择器组件，允许用户在不同的日历视图（月视图、周视图、日视图、待办视图）之间切换，支持侧边栏折叠状态的适配。
+ 
+ 主要功能：
+ 1. 显示所有可用的日历视图选项
+ 2. 支持视图切换交互
+ 3. 高亮显示当前激活的视图
+ 4. 适配侧边栏折叠/展开状态
+ 5. 提供视图图标和标签显示
 -->
 
 <template>
@@ -31,7 +36,7 @@
           'view-btn flex items-center py-2 px-3 rounded-lg cursor-pointer !rounded-button whitespace-nowrap',
           uiStore.currentView === view.id
             ? 'bg-blue-100 text-blue-600 active'
-            : 'hover:bg-gray-200', // 添加active类以便在暗黑模式下识别
+            : 'hover:bg-gray-200', 
         ]"
       >
         <!-- 视图图标 -->
@@ -53,7 +58,6 @@ const uiStore = useUiStore();
 </script>
 
 <style scoped>
-/* 基础样式 */
 .text-sm {
   font-size: var(--font-size-sm);
 }
@@ -66,7 +70,6 @@ const uiStore = useUiStore();
   font-size: var(--font-size-base);
 }
 
-/* 暗黑模式样式 */
 .dark-mode .view-btn:hover:not(.active) {
   background-color: var(--hover-bg) !important;
   color: var(--text-secondary);

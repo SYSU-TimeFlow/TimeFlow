@@ -1,3 +1,17 @@
+<!-- 
+ @component Sidebar.vue
+ @description: 侧边栏组件，提供应用的主要导航功能和快捷操作，包含视图切换、分类管理、添加事件等功能，支持折叠/展开状态。
+ 
+ 主要功能：
+ 1. 侧边栏折叠/展开状态切换
+ 2. 添加新事件和待办事项入口
+ 3. 视图选择器组件集成
+ 4. 事件分类管理显示
+ 5. 反馈功能入口
+ 6. 响应式宽度调整
+ 7. 悬停显示切换按钮
+-->
+
 <template>
   <!-- 侧边栏容器 -->
   <aside
@@ -30,7 +44,8 @@
         "
       ></i>
     </button>
-    <!-- 添加新事件按钮 -->
+    
+    <!-- 添加新事件按钮 - 在非待办视图中显示 -->
     <button
       v-if="uiStore.currentView !== 'todo'"
       @click="uiStore.openNewEventModal()"
@@ -46,7 +61,8 @@
       <!-- 仅在侧边栏展开时显示文字 -->
       <span v-if="!uiStore.sidebarCollapsed">Add Event</span>
     </button>
-    <!-- 仅在待办视图显示 Add Todo 按钮-->
+    
+    <!-- 添加待办事项按钮 - 仅在待办视图显示 -->
     <button
       v-if="uiStore.currentView === 'todo'"
       @click="uiStore.openNewTodoModal()"
@@ -63,6 +79,7 @@
 
     <!-- 视图选择器组件 -->
     <ViewSelector />
+    
     <!-- 分类列表，所有视图都显示 -->
     <Categories />
 
@@ -120,7 +137,7 @@ const uiStore = useUiStore();
   background-color: var(--active-bg);
 }
 
-/* 确保按钮在侧边栏右边界处 */
+/* 侧边栏切换按钮样式 */
 .sidebar-toggle {
   transform: translateY(-50%); /* 垂直居中 */
 }
@@ -131,7 +148,7 @@ const uiStore = useUiStore();
   transform: translateY(-50%) translateX(0);
 }
 
-/* 修改字号相关的样式 */
+/* 字体大小相关样式 */
 .sidebar-title {
   font-size: var(--font-size-base);
 }

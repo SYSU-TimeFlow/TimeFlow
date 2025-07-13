@@ -72,7 +72,6 @@ export const useEventStore = defineStore("event", () => {
       await window.electronAPI.saveAppData(dataToSave);
     } catch (error) {
       // 如果保存过程中发生错误，则在控制台打印错误信息。
-      // 修正了 catch 块的语法
       console.error("通过 Electron API 保存应用数据时出错:", error);
     }
   }
@@ -561,7 +560,7 @@ export const useEventStore = defineStore("event", () => {
     uiStore.closeCategoryModal();
   }
 
-  // 新增：通过自然语言处理结果创建事件
+  // 通过自然语言处理结果创建事件
   function createEventFromNLP(nlpEvent: {
     title: string;
     start: Date;
@@ -693,7 +692,7 @@ export const useEventStore = defineStore("event", () => {
         // 4. 循环整个学期（18周），从学期第一周的周一为基准创建所有事件
         for (let week = 0; week < SEMESTER_WEEKS; week++) {
           result.schedule.forEach((item) => {
-            // 核心修正：检查当前周是否在课程指定的周数范围内
+            // 检查当前周是否在课程指定的周数范围内
             if (week + 1 >= item.startWeek && week + 1 <= item.endWeek) {
               const eventDate = new Date(firstSemesterMonday);
               // 计算当前课程在学期中对应的具体日期
@@ -721,7 +720,7 @@ export const useEventStore = defineStore("event", () => {
               );
 
               const newEvent = new Event(
-                // 修正：使用时间戳和计数器生成唯一的整数ID，避免使用浮点数
+                // 使用时间戳和计数器生成唯一的整数ID，避免使用浮点数
                 new Date().getTime() + createdEventsCount,
                 item.courseName,
                 start,

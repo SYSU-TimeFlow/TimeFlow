@@ -1,6 +1,15 @@
 <!-- 
  @component Categories.vue
- @description: 事件分类组件，用于显示和选择事件的分类。 
+ @description: 事件分类组件，用于显示和选择事件的分类，提供分类的激活状态切换和编辑功能。
+ 
+ 主要功能：
+ 1. 显示事件分类列表
+ 2. 支持分类激活状态切换
+ 3. 提供新增分类入口
+ 4. 支持分类编辑操作
+ 5. 适配侧边栏折叠状态
+ 6. 颜色标识分类区分
+ 7. 响应式交互设计
 -->
 
 <template>
@@ -33,11 +42,11 @@
           category.active ? '' : 'opacity-50', // 如果分类未激活，则降低其不透明度
         ]"
       >
-        <!-- 点击圆点切换激活状态 -->
+        <!-- 分类颜色标识圆点 - 点击切换激活状态 -->
         <span
           :class="[
             'category-color w-3 h-3 rounded-full',
-            uiStore.sidebarCollapsed ? '' : 'mr-3', // 侧边栏折叠时不显示右边距
+            uiStore.sidebarCollapsed ? '' : 'mr-3', 
           ]"
           :style="{ backgroundColor: category.color }"
           @click="eventStore.toggleCategory(category.id)"
@@ -91,7 +100,7 @@ const uiStore = useUiStore();
   color: var(--text-secondary);
   border: 1px solid transparent;
   transition: all 0.2s ease;
-  margin-right: 4px; /* 添加右边距，为箭头留出空间 */
+  margin-right: 4px; 
 }
 
 .category-item:hover {
@@ -105,7 +114,7 @@ const uiStore = useUiStore();
   color: var(--heading-color);
 }
 
-/* 编辑按钮样式 */
+
 .edit-button {
   opacity: 0;
   color: var(--text-tertiary);

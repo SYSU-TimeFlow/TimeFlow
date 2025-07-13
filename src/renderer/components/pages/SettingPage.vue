@@ -1,10 +1,17 @@
 <!--
-  @component: Setting
-  @description: 设置页面组件，提供主题、字号、图标风格、通知、声音、日期时间、语言等个性化选项的配置界面。
-  用户可通过本组件自定义应用外观和行为，所有设置项统一使用Pinia进行状态管理。
-  @author: lijzh89
-  @modified: liaohr
-  @date: 2025-06-07
+ @component SettingPage.vue
+ @description: 设置页面组件，提供主题、字号、图标风格、通知、声音、日期时间、语言等个性化选项的配置界面，用户可通过本组件自定义应用外观和行为，所有设置项统一使用Pinia进行状态管理。
+ 
+ 主要功能：
+ 1. 主题模式切换(明亮/暗黑)
+ 2. 字号大小调整
+ 3. 通知开关控制
+ 4. 日期时间格式设置
+ 5. 每周起始日选择
+ 6. 农历显示开关
+ 7. 设置重置功能
+ 8. 实时设置预览
+ 9. 键盘快捷键支持
 -->
 
 <template>
@@ -35,12 +42,12 @@
 
       <!-- 模态框主体 -->
       <div class="modal-body p-6">
-        <!-- 通用小标题 -->
+        <!-- 通用设置小标题 -->
         <div class="text-secondary text-sm font-semibold mb-2 mt-2">
           General
         </div>
 
-        <!-- 主题切换（选择条，选项为亮/暗） -->
+        <!-- 主题切换选择器 - 切换明亮/暗黑模式 -->
         <div class="form-group mb-4 flex items-center justify-between">
           <label class="flex items-center">
             <!-- 月亮图标 -->
@@ -69,7 +76,7 @@
           </select>
         </div>
 
-        <!-- 字号选择 -->
+        <!-- 字号选择器 - 调整应用字体大小 -->
         <div class="form-group mb-4 flex items-center justify-between">
           <label class="flex items-center">
             <!-- 小A大A图标 -->
@@ -110,9 +117,10 @@
           </select>
         </div>
 
-        <!-- 通知开关 -->
+        <!-- 通知开关 - 控制应用通知功能 -->
         <div class="form-group mb-4 flex items-center justify-between">
           <label class="flex items-center">
+            <!-- 铃铛图标 -->
             <svg
               class="w-5 h-5 mr-2 text-yellow-500"
               fill="none"
@@ -135,12 +143,12 @@
           />
         </div>
 
-        <!-- 日期和时间小标题 -->
+        <!-- 日期和时间设置小标题 -->
         <div class="text-secondary text-sm font-semibold mb-2 mt-6">
           Date & Time
         </div>
 
-        <!-- 每周起始日 -->
+        <!-- 每周起始日选择器 - 设置日历每周的起始日 -->
         <div class="form-group mb-4 flex items-center justify-between">
           <label class="flex items-center">
             <!-- 周历图标 -->
@@ -188,9 +196,10 @@
           </select>
         </div>
 
-        <!-- 24小时制 -->
+        <!-- 24小时制开关 - 控制时间显示格式 -->
         <div class="form-group mb-4 flex items-center justify-between">
           <label class="flex items-center">
+            <!-- 时钟图标 -->
             <svg
               class="w-5 h-5 mr-2 text-orange-500"
               fill="none"
@@ -214,7 +223,7 @@
           />
         </div>
 
-        <!-- 农历开关 -->
+        <!-- 农历显示开关 - 控制是否显示农历信息 -->
         <div class="form-group mb-4 flex items-center justify-between">
           <label class="flex items-center">
             <!-- 日历图标 -->
@@ -270,14 +279,15 @@
           />
         </div>
 
-        <!-- 联系我们小标题 -->
+        <!-- 联系我们设置小标题 -->
         <div class="text-secondary text-sm font-semibold mb-2 mt-6">
           Contact Us
         </div>
 
-        <!-- 关于 -->
+        <!-- 关于信息展示 - 显示应用版本和作者信息 -->
         <div class="form-group mb-4 flex items-center justify-between">
           <label class="flex items-center">
+            <!-- 信息图标 -->
             <svg
               class="w-5 h-5 mr-2 text-gray-400"
               fill="none"
@@ -302,13 +312,13 @@
 
       <!-- 模态框底部 -->
       <div class="modal-footer p-6 pt-0">
-        <!-- 重置按钮 -->
+        <!-- 重置按钮 - 重置所有设置到默认值 -->
         <button class="modal-save-btn w-full" @click="resetSettings">
           Reset to Default
         </button>
       </div>
 
-      <!-- 自动消失的提示 -->
+      <!-- 自动消失的提示 - 显示操作反馈信息 -->
       <transition name="fade">
         <div
           v-if="showToast"
@@ -333,12 +343,15 @@ import { useUiStore } from "../../stores/ui";
 // 使用Pinia仓库
 const settingStore = useSettingStore();
 const uiStore = useUiStore();
+
+// 提示消息状态管理
 const showToast = ref(false);
 const toastMessage = ref("Settings saved!");
 const toastType = ref("success");
 
 /**
- * 处理ESC键关闭设置模态框
+ * 键盘事件处理器 - 处理ESC键关闭设置模态框
+ * @param {KeyboardEvent} event - 键盘事件对象
  */
 function handleKeyDown(event) {
   if (event.key === "Escape" && uiStore.showSettings) {
@@ -357,8 +370,7 @@ onUnmounted(() => {
 });
 
 /**
- * 重置设置到默认值
- * 显示一个提示，告知用户设置已重置
+ * 重置设置到默认值 - 显示提示信息告知用户设置已重置
  */
 function resetSettings() {
   // 使用store的方法重置设置
@@ -374,14 +386,14 @@ function resetSettings() {
 }
 
 /**
- * 立即应用主题变化，而不等待保存
+ * 立即应用主题变化 - 实时预览主题效果
  */
 function applyThemeChange() {
   settingStore.applyTheme(settingStore.themeMode);
 }
 
 /**
- * 立即应用字号变化，而不等待保存
+ * 立即应用字号变化 - 实时预览字号效果
  */
 function applyFontSizeChange() {
   settingStore.applyFontSize(settingStore.fontSize);
@@ -389,17 +401,14 @@ function applyFontSizeChange() {
 </script>
 
 <style scoped>
-/* 
-  组件特定的基础样式和动画。
-  大部分主题化（包括暗黑模式）现在由 theme.css 统一处理。
-*/
+/* 设置容器基础样式和淡入动画 */
 .settings-container {
   font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
     Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
   animation: fadeIn 0.1s ease-out;
 }
 
-/* 定义淡入动画效果 */
+/* 淡入动画效果定义 */
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -407,5 +416,16 @@ function applyFontSizeChange() {
   to {
     opacity: 1;
   }
+}
+
+/* 淡入淡出过渡动画 */
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
 }
 </style>

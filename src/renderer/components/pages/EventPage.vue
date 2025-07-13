@@ -1,25 +1,34 @@
 <!--  
- @component EventModal.vue
- @description
-  事件创建与编辑模态框。
-  此组件提供一个界面，用于创建新事件或修改现有事件的各项详情，
-  例如：事件标题、起止时间、全天设置、分类、描述内容。
+ @component EventPage.vue
+ @description: 事件创建与编辑模态框组件，负责创建新事件或修改现有事件的各项详情，提供完整的事件信息编辑功能，包括标题、时间、分类、描述等属性设置。
+ 
+ 主要功能：
+ 1. 创建新事件和编辑现有事件
+ 2. 设置事件标题、开始/结束时间
+ 3. 全天事件状态切换
+ 4. 事件分类选择和管理
+ 5. 事件描述内容编辑
+ 6. 表单验证和错误提示
+ 7. 课程表导入功能
+ 8. 键盘快捷键支持
+ 9. 动画效果和用户反馈
 -->
+
 <template>
-  <!-- 模态框容器，仅当 showEventModal 为 true 时显示 -->
+  <!-- 模态框背景遮罩 - 仅当 showEventModal 为 true 时显示 -->
   <div
     v-if="uiStore.showEventModal"
     class="fixed inset-0 bg-transparent backdrop-blur-sm flex items-center justify-center z-50"
     @click="uiStore.closeEventModal()"
   >
-    <!-- 事件模态框主体，阻止事件冒泡到父级 -->
+    <!-- 事件模态框主体 - 阻止事件冒泡到父级 -->
     <div
       class="event-modal rounded-lg shadow-lg w-full max-w-md overflow-hidden animate-fadeIn"
       @click.stop
       ref="modalRef"
       :class="{ 'animate-shake': eventStore.eventShake }"
     >
-      <!-- 模态框头部 -->
+      <!-- 模态框头部 - 显示标题和关闭按钮 -->
       <div
         class="modal-header p-4 flex justify-between items-center"
         :style="{
@@ -39,9 +48,10 @@
           <i class="fas fa-times"></i>
         </button>
       </div>
+      
       <!-- 模态框内容区域 -->
       <div class="modal-body p-4">
-        <!-- 标题输入区域 -->
+        <!-- 事件标题输入区域 -->
         <div class="form-group mb-4">
           <label class="block text-sm font-medium mb-1">Title</label>
           <input
@@ -50,6 +60,7 @@
             class="w-full"
             placeholder="Event title"
           />
+          <!-- 标题错误提示 -->
           <div
             v-if="eventStore.eventTitleError"
             class="text-red-500 text-xs mt-1"
@@ -57,8 +68,10 @@
             {{ eventStore.eventTitleError }}
           </div>
         </div>
+        
         <!-- 开始和结束时间输入区域 -->
         <div class="form-row flex space-x-4 mb-4">
+          <!-- 开始时间输入 -->
           <div class="form-group flex-1">
             <label class="block text-sm font-medium mb-1">Start</label>
             <input
@@ -67,6 +80,7 @@
               class="w-full"
             />
           </div>
+          <!-- 结束时间输入 -->
           <div class="form-group flex-1">
             <label class="block text-sm font-medium mb-1">End</label>
             <input
@@ -76,9 +90,12 @@
             />
           </div>
         </div>
+        
+        <!-- 时间验证错误提示 -->
         <div v-if="eventStore.eventTimeError" class="text-red-500 text-xs mb-2">
           {{ eventStore.eventTimeError }}
         </div>
+        
         <!-- 全天事件选择区域 -->
         <div class="form-group mb-4">
           <div class="flex items-center mb-2">
@@ -91,6 +108,7 @@
             <label for="allDay" class="text-sm">All day</label>
           </div>
         </div>
+        
         <!-- 事件分类选择区域 -->
         <div class="form-group mb-4">
           <label class="block text-sm font-medium mb-1">Category</label>
@@ -100,10 +118,10 @@
               v-for="category in eventStore.categories"
               :key="category.id"
               :class="[
-                'category-option w-8 h-8 rounded-full border-2 cursor-pointer whitespace-nowrap transition-all', // 基础类
+                'category-option w-8 h-8 rounded-full border-2 cursor-pointer whitespace-nowrap transition-all',
                 eventStore.currentEvent.categoryId === category.id
-                  ? 'border-gray-800' // 亮色模式选中
-                  : 'border-transparent', // 亮色模式未选中
+                  ? 'border-gray-800'
+                  : 'border-transparent',
               ]"
               :style="{ backgroundColor: category.color }"
               @click="
@@ -113,6 +131,7 @@
             ></button>
           </div>
         </div>
+        
         <!-- 事件描述输入区域 -->
         <div class="form-group mb-4">
           <label class="block text-sm font-medium mb-1">Description</label>
@@ -123,9 +142,10 @@
           ></textarea>
         </div>
       </div>
-      <!-- 模态框底部，包含操作按钮 -->
+      
+      <!-- 模态框底部操作区域 -->
       <div class="modal-footer p-4 flex justify-between items-center">
-        <!-- 导入课表按钮（左下角） -->
+        <!-- 导入课表按钮 - 位于左下角 -->
         <button
           @click="eventStore.importScheduleFromFile()"
           class="modal-import-btn"
@@ -133,8 +153,10 @@
         >
           Import Course
         </button>
+        
+        <!-- 右侧按钮组 -->
         <div class="flex space-x-3">
-          <!-- 删除按钮，仅在编辑事件时显示 (isNewEvent 为 false) -->
+          <!-- 删除按钮 - 仅在编辑事件时显示 -->
           <button
             v-if="!eventStore.isNewEvent"
             @click="eventStore.deleteEvent"
@@ -163,7 +185,8 @@ const uiStore = useUiStore();
 const modalRef = ref(null);
 
 /**
- * 处理ESC键关闭设置模态框
+ * 键盘事件处理器 - 处理ESC键关闭和Enter键保存
+ * @param {KeyboardEvent} event - 键盘事件对象
  */
 function handleKeyDown(event) {
   if (uiStore.showEventModal) {
@@ -186,7 +209,7 @@ onUnmounted(() => {
   document.removeEventListener("keydown", handleKeyDown);
 });
 
-// 监听 eventShake，触发 shake 动画
+// 监听 eventShake 状态变化 - 触发 shake 动画效果
 watch(
   () => eventStore.eventShake,
   (val) => {
@@ -200,14 +223,15 @@ watch(
   }
 );
 
-// 监听开始/结束时间输入，清除时间错误提示
+// 监听开始/结束时间输入 - 清除时间错误提示
 watch(
   [() => eventStore.currentEvent.start, () => eventStore.currentEvent.end],
   () => {
     if (eventStore.eventTimeError) eventStore.eventTimeError = "";
   }
 );
-// 监听标题输入，清除标题错误提示
+
+// 监听标题输入 - 清除标题错误提示
 watch(
   () => eventStore.currentEvent.title,
   () => {
@@ -217,11 +241,7 @@ watch(
 </script>
 
 <style scoped>
-/* 
-  动画定义保留在此处。
-  fadeIn 通过类 .animate-fadeIn 应用。
-  shake 通过类 .animate-shake 应用，并动态触发。
-*/
+/* 淡入动画效果定义 */
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -230,10 +250,13 @@ watch(
     opacity: 1;
   }
 }
+
+/* 应用淡入动画 */
 .animate-fadeIn {
   animation: fadeIn 0.1s ease-out;
 }
 
+/* 震动动画效果定义 */
 @keyframes shake {
   0% {
     transform: translateX(0);
@@ -254,6 +277,8 @@ watch(
     transform: translateX(0);
   }
 }
+
+/* 应用震动动画 */
 .animate-shake {
   animation: shake 0.3s;
 }

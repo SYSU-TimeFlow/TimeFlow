@@ -1,16 +1,28 @@
-<!--
-  @description 待办事项列表。
-  显示所有待办事项，包括没有截止时间和有截止时间的待办事项。
-  待办事项的开始时间始终使用1970年作为占位符，截止时间为空时也使用1970年作为占位符。
+<!-- 
+ @component ToDoView.vue
+ @description: 待办事项视图组件，负责展示和管理所有待办事项，包括没有截止时间和有截止时间的待办事项。
+ 
+ 主要功能：
+ 1. 显示待办事项列表，支持多种过滤选项
+ 2. 提供待办事项的完成状态切换
+ 3. 支持待办事项的编辑和删除
+ 4. 显示截止时间和过期提醒
+ 5. 按分类显示待办事项
+ 6. 支持暗黑模式主题切换
+ 
+ 数据说明：
+ - 待办事项的开始时间始终使用1970年作为占位符
+ - 截止时间为空时也使用1970年作为占位符
 -->
+
 <template>
-  <!-- 修改主容器类，添加todo-list-container类 -->
+  <!-- 主容器 - 提供滚动和基础布局 -->
   <div class="w-full h-full p-6 overflow-auto todo-list-container">
     <div class="todo-list max-w-3xl mx-auto">
-      <!-- 待办事项列表其余部分保持不变 -->
+      <!-- 待办事项列表主体区域 -->
       <div class="flex-1 overflow-auto p-6">
         <div class="max-w-6xl mx-auto flex flex-col items-center">
-          <!-- 过滤选项 -->
+          <!-- 过滤选项按钮组 - 提供Today、All、Active、Completed四种过滤选项 -->
           <div class="w-full mb-6 flex justify-center gap-4">
             <button
               v-for="filter in filters"
@@ -32,8 +44,9 @@
             </button>
           </div>
 
-          <!-- 待办事项列表 -->
+          <!-- 待办事项列表容器 -->
           <div class="w-full space-y-4">
+            <!-- 待办事项卡片 - 渲染每个待办事项 -->
             <div
               v-for="todo in eventStore.filteredTodos"
               :key="todo.id"
@@ -55,13 +68,13 @@
                 opacity: todo.completed ? 0.7 : 1,
               }"
             >
-              <!-- 左侧内容区域 -->
+              <!-- 左侧内容区域 - 包含完成状态、标题、分类标签和备注图标 -->
               <div
                 class="flex items-center h-full flex-grow mr-4 overflow-hidden"
               >
-                <!-- 标题行 -->
+                <!-- 标题行 - 包含所有主要信息 -->
                 <div class="flex items-center gap-2">
-                  <!-- 完成状态指示器 -->
+                  <!-- 完成状态指示器 - 可点击切换完成状态 -->
                   <div
                     class="w-5 h-5 rounded-full border flex items-center justify-center cursor-pointer relative z-10 transition-all duration-200 ease group-hover:border-blue-500 hover:ring-2 hover:ring-blue-200/30 status-indicator"
                     :class="
@@ -77,7 +90,7 @@
                     ></i>
                   </div>
 
-                  <!-- 标题 -->
+                  <!-- 待办事项标题 - 支持截断显示 -->
                   <div
                     class="font-medium truncate max-w-[200px] sm:max-w-[300px]"
                     :class="{
@@ -93,7 +106,8 @@
                   >
                     {{ todo.title }}
                   </div>
-                  <!-- 分类标签 -->
+                  
+                  <!-- 分类标签 - 显示待办事项所属分类 -->
                   <div
                     v-if="
                       eventStore.categories.find(
@@ -118,7 +132,8 @@
                       )?.name
                     }}
                   </div>
-                  <!-- 备注图标提示 -->
+                  
+                  <!-- 备注图标提示 - 有备注内容时显示 -->
                   <i
                     v-if="todo.description"
                     class="fas fa-sticky-note small-text ml-1 cursor-pointer relative transition-all duration-200 ease hover:text-blue-600 hover:scale-110"
@@ -130,7 +145,8 @@
                   ></i>
                 </div>
               </div>
-              <!-- 右侧操作区：截止时间单独渲染，删除按钮单独渲染 -->
+              
+              <!-- 右侧截止时间显示区域 - 仅在有有效截止时间时显示 -->
               <div
                 v-if="todo.end && new Date(todo.end).getFullYear() > 1970"
                 class="flex items-center gap-1 mr-4"
@@ -154,10 +170,11 @@
                   {{ formatDateForDisplay(todo.end) }}
                 </span>
               </div>
+              
+              <!-- 操作按钮区域 - 悬停时显示删除按钮 -->
               <div
                 class="flex gap-1 todo-actions opacity-0 group-hover:opacity-100 transition-opacity duration-200 relative z-10"
               >
-                <!-- 删除按钮 -->
                 <button
                   @click.stop="eventStore.deleteTodo(todo.id)"
                   class="p-2 text-red-500 rounded-lg transition"
@@ -172,7 +189,7 @@
             </div>
           </div>
 
-          <!-- 空状态提示：当没有待办事项时显示 -->
+          <!-- 空状态提示 - 当没有待办事项时显示 -->
           <div
             v-if="eventStore.filteredTodos.length === 0"
             class="text-center py-12"
@@ -201,7 +218,6 @@ const eventStore = useEventStore();
 const uiStore = useUiStore();
 const settingStore = useSettingStore();
 
-// 定义过滤器选项，并明确指定类型
 const filters: { value: FilterType; label: string }[] = [
   { value: "today", label: "Today" },
   { value: "all", label: "All" },
@@ -209,7 +225,11 @@ const filters: { value: FilterType; label: string }[] = [
   { value: "completed", label: "Completed" },
 ];
 
-// 获取不同过滤器的待办事项数量
+/**
+ * 获取不同过滤器的待办事项数量
+ * @param filterType 过滤器类型
+ * @returns 对应过滤器的待办事项数量
+ */
 function getFilterCount(filterType: FilterType) {
   switch (filterType) {
     case "today":
@@ -223,7 +243,11 @@ function getFilterCount(filterType: FilterType) {
   }
 }
 
-// 判断任务是否已过期
+/**
+ * 判断任务是否已过期
+ * @param endDate 截止时间
+ * @returns 是否过期
+ */
 function isOverdue(endDate: any): boolean {
   if (!endDate) return false;
   const end = new Date(endDate);
@@ -241,7 +265,6 @@ function isOverdue(endDate: any): boolean {
   transition: all 0.2s ease;
 }
 
-/* Dark mode下的特殊样式 */
 .dark-mode .todo-item {
   border-color: var(--border-color);
 }
@@ -250,12 +273,10 @@ function isOverdue(endDate: any): boolean {
   background-color: var(--hover-bg) !important;
 }
 
-/* 确保在dark mode下分类标签的可读性 */
 .dark-mode .todo-item .category-tag {
   color: var(--text-primary) !important;
 }
 
-/* 完成状态指示器在dark mode下的样式 */
 .dark-mode .todo-item .status-indicator {
   border-color: var(--border-color);
 }

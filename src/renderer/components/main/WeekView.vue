@@ -1,3 +1,18 @@
+<!-- 
+ @component WeekView.vue
+ @description: 周视图组件，负责展示日历的周视图，包含7天的布局显示，全天事件和时间轴事件的渲染，并且提供每个小时时段的交互功能，同时支持事件拖拽和调整大小。
+ 
+ 主要功能：
+ 1. 显示7天的日期头部布局
+ 2. 显示24小时时间轴
+ 3. 渲染全天事件和定时事件
+ 4. 支持事件拖拽和大小调整
+ 5. 显示实时时间线
+ 6. 提供时间段点击交互
+ 7. 支持待办事项的完成状态切换
+ 8. 支持重叠事件的聚合显示
+-->
+
 <template>
   <!-- 周视图容器 -->
   <div class="week-view flex-1 overflow-visible p-4 min-h-[600px]">
@@ -7,7 +22,7 @@
       <div
         class="sticky top-0 z-30 backdrop-blur-md backdrop-saturate-125 bg-white/70"
       >
-        <!-- 周视图头部，显示本周7天 -->
+        <!-- 周视图头部，显示本周7天 - 包含星期几名称和日期数字 -->
         <div class="grid grid-cols-[80px_repeat(7,1fr)] border-gray-200">
           <!-- 左侧空白，用于对齐时间轴 -->
           <div></div>
@@ -29,7 +44,8 @@
             </div>
           </div>
         </div>
-        <!-- 全天事件栏 -->
+        
+        <!-- 全天事件栏 - 仅在有全天事件时显示 -->
         <div
           v-if="
             getWeekDays(
@@ -43,11 +59,14 @@
           "
           class="grid grid-cols-[80px_repeat(7,1fr)] h-[28px] min-h-[28px] max-h-[28px]"
         >
+          <!-- 全天事件标签 -->
           <div
             class="flex items-center justify-center text-xs font-semibold text-gray-500 h-[28px]"
           >
             全天
           </div>
+          
+          <!-- 渲染每一天的全天事件 -->
           <div
             v-for="(day, idx) in getWeekDays(
               new Date(uiStore.currentDate),
@@ -56,6 +75,7 @@
             :key="'allday-' + idx"
             class="relative h-full overflow-hidden"
           >
+            <!-- 渲染全天事件组 - 按组显示，避免重叠 -->
             <template
               v-for="(group, groupIdx) in getEventGroups(
                 eventStore
@@ -96,9 +116,10 @@
           </div>
         </div>
       </div>
+      
       <!-- 周视图主体内容 -->
       <div class="flex h-full pt-3">
-        <!-- 左侧时间标签列 -->
+        <!-- 左侧时间标签列 - 显示24小时的时间标签 -->
         <div class="time-labels pr-4 w-20">
           <!-- 渲染24小时的时间标签 -->
           <div
@@ -110,9 +131,10 @@
             {{ formatHour(hour - 1, settingStore.hour24) }}
           </div>
         </div>
+        
         <!-- 事件网格区：每一列代表一天 -->
         <div class="flex-1 grid grid-cols-7 relative">
-          <!-- 实时时间线 -->
+          <!-- 实时时间线 - 仅在周视图中显示 -->
           <div
             v-if="uiStore.currentView === 'week'"
             class="current-time-line absolute left-0 right-0 pointer-events-none z-30"
@@ -121,17 +143,20 @@
             }"
             :key="currentTime.getTime()"
           >
+            <!-- 时间文本显示 -->
             <div
               class="time-text absolute -left-[75px] -top-2 w-15 text-right text-blue-500 font-medium"
               style="font-size: calc(var(--small-text-font-size) * 0.9)"
             >
               {{ uiStore.getCurrentTimeText() }}
             </div>
+            <!-- 时间线条 -->
             <div
               class="time-line absolute left-0 right-0 h-0.5 bg-blue-500 top-0"
             ></div>
           </div>
-          <!-- 小时格子背景 -->
+          
+          <!-- 小时格子背景 - 为每个小时时段提供交互功能 -->
           <div v-for="hour in 24" :key="hour" class="contents">
             <div
               v-for="(day, idx) in getWeekDays(
@@ -150,7 +175,8 @@
               "
             ></div>
           </div>
-          <!-- 周视图的每小时横线 -->
+          
+          <!-- 周视图的每小时横线 - 创建24条水平分隔线，标识每个整小时点 -->
           <div
             v-for="h_idx in 24"
             :key="`week-line-${h_idx}`"
@@ -160,7 +186,8 @@
               backgroundColor: 'var(--border-color)',
             }"
           ></div>
-          <!-- 事件渲染区域 -->
+          
+          <!-- 事件渲染区域 - 为每一天创建事件容器 -->
           <div
             v-for="(day, idx) in getWeekDays(
               new Date(uiStore.currentDate),
@@ -173,6 +200,7 @@
               left: `calc(${(100 * idx) / 7}% )`,
             }"
           >
+            <!-- 渲染当天的事件组 -->
             <template
               v-for="(group, groupIdx) in getEventGroups(
                 eventStore
@@ -181,7 +209,7 @@
               )"
               :key="groupIdx"
             >
-              <!-- 重叠事件显示+N -->
+              <!-- 重叠事件显示+N - 当多个事件重叠时显示聚合数量 -->
               <template v-if="group.length > 1">
                 <div
                   class="day-event absolute rounded-sm px-2 py-1 overflow-hidden cursor-pointer flex items-center justify-center text-2xl font-bold z-20"
@@ -211,8 +239,9 @@
                   +{{ group.length }}
                 </div>
               </template>
+              
+              <!-- 正常显示不重叠的事件 -->
               <template v-else>
-                <!-- 正常显示不重叠的事件 -->
                 <div
                   v-for="event in group"
                   :key="event.id"
@@ -245,7 +274,7 @@
                   draggable="true"
                   @dragstart="uiStore.handleDragStart($event, event)"
                 >
-                  <!-- 事件调整大小手柄 -->
+                  <!-- 顶部调整大小手柄 - 可以拖拽事件的上边框进行修改事件的开始时间 -->
                   <div
                     v-if="!event.allDay"
                     class="event-resize-handle top-handle absolute left-0 right-0 top-0 h-1.5 cursor-ns-resize z-20 hover:bg-blue-500/30"
@@ -254,6 +283,8 @@
                     "
                     @click.stop
                   ></div>
+                  
+                  <!-- 底部调整大小手柄 - 可以拖拽事件的下边框进行修改事件的截止时间 -->
                   <div
                     v-if="!event.allDay"
                     class="event-resize-handle bottom-handle absolute left-0 right-0 bottom-0 h-1.5 cursor-ns-resize z-20 hover:bg-blue-500/30"
@@ -262,8 +293,10 @@
                     "
                     @click.stop
                   ></div>
+                  
+                  <!-- 事件内容区域 -->
                   <div class="flex items-center w-full">
-                    <!-- 复选框 -->
+                    <!-- 待办事项复选框 - 对于待办事项的事件可以勾选复选框表明完成该todo事项 -->
                     <div
                       v-if="event.eventType === 'both'"
                       class="w-3 h-3 rounded-full border flex items-center justify-center cursor-pointer mr-1"
@@ -279,6 +312,8 @@
                         class="fas fa-check text-white text-[9px]"
                       ></i>
                     </div>
+                    
+                    <!-- 事件时间显示 -->
                     <div
                       class="event-time text-xs font-medium"
                       :style="{
@@ -304,6 +339,8 @@
                       }}
                     </div>
                   </div>
+                  
+                  <!-- 事件标题 -->
                   <div
                     class="event-title text-sm font-medium truncate"
                     :style="{
@@ -318,6 +355,8 @@
                   >
                     {{ event.title }}
                   </div>
+                  
+                  <!-- 事件描述 -->
                   <div
                     v-if="event.description"
                     class="event-description text-xs truncate text-gray-600"

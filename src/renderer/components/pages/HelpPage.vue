@@ -1,22 +1,29 @@
 <!--
- @component HelpModal.vue
- @description
-  快捷键帮助模态框。
-  此组件提供TimeFlow应用的所有键盘快捷键说明，帮助用户快速了解和使用应用功能。
+ @component HelpPage.vue
+ @description: 快捷键帮助页面组件，负责展示TimeFlow应用的所有键盘快捷键说明的模态框界面，帮助用户快速了解和使用应用功能。
+ 
+ 主要功能：
+ 1. 显示快捷键帮助弹窗
+ 2. 分类展示各种快捷键功能
+ 3. 提供详细的操作说明
+ 4. 支持ESC键关闭
+ 5. 背景遮罩和模糊效果
+ 6. 响应式布局设计
 -->
+
 <template>
-  <!-- 模态框容器，仅当 showHelpModal 为 true 时显示 -->
+  <!-- 模态框背景遮罩 - 仅当 showHelpModal 为 true 时显示 -->
   <div
     v-if="uiStore.showHelpModal"
     class="fixed inset-0 bg-transparent backdrop-blur-sm flex items-center justify-center z-50"
     @click="uiStore.closeHelpModal"
   >
-    <!-- 帮助模态框主体，阻止事件冒泡到父级 -->
+    <!-- 帮助模态框主体 - 阻止事件冒泡到父级 -->
     <div
       class="help-modal rounded-lg shadow-lg w-full max-w-xl overflow-hidden"
       @click.stop
     >
-      <!-- 模态框头部 -->
+      <!-- 模态框头部 - 显示标题和关闭按钮 -->
       <div class="modal-header p-4 flex justify-between items-center">
         <h3 class="text-lg font-semibold text-blue-800">
           <i class="fas fa-keyboard mr-2"></i> TimeFlow Keyboard Shortcuts
@@ -31,9 +38,9 @@
         </button>
       </div>
 
-      <!-- 模态框内容区域 -->
+      <!-- 模态框内容区域 - 可滚动的快捷键列表 -->
       <div class="modal-body p-6 max-h-[70vh] overflow-y-auto hide-scrollbar">
-        <!-- 导航部分 -->
+        <!-- 导航快捷键部分 -->
         <div class="shortcut-section mb-6">
           <h4 class="text-md font-semibold mb-3 text-gray-700 border-b pb-1">
             Navigation
@@ -60,7 +67,7 @@
           </div>
         </div>
 
-        <!-- 视图切换部分 -->
+        <!-- 视图切换快捷键部分 -->
         <div class="shortcut-section mb-6">
           <h4 class="text-md font-semibold mb-3 text-gray-700 border-b pb-1">
             View Switching
@@ -85,7 +92,7 @@
           </div>
         </div>
 
-        <!-- 模式切换部分 -->
+        <!-- 模式切换快捷键部分 -->
         <div class="shortcut-section mb-6">
           <h4 class="text-md font-semibold mb-3 text-gray-700 border-b pb-1">
             Mode Switching
@@ -112,7 +119,7 @@
               >
             </div>
           </div>
-          <!-- 命令模式说明 -->
+          <!-- 命令模式使用说明 -->
           <div class="mt-4 text-gray-600 text-sm">
             <div class="font-semibold mb-1">Command Mode Examples:</div>
             <div class="mb-1">
@@ -125,7 +132,7 @@
           </div>
         </div>
 
-        <!-- 事件操作部分 -->
+        <!-- 事件操作快捷键部分 -->
         <div class="shortcut-section mb-6">
           <h4 class="text-md font-semibold mb-3 text-gray-700 border-b pb-1">
             Event Operations
@@ -150,7 +157,7 @@
           </div>
         </div>
 
-        <!-- 其他快捷键 -->
+        <!-- 其他快捷键部分 -->
         <div class="shortcut-section">
           <h4 class="text-md font-semibold mb-3 text-gray-700 border-b pb-1">
             Others
@@ -175,7 +182,8 @@ import { useUiStore } from "../../stores/ui";
 const uiStore = useUiStore();
 
 /**
- * 处理ESC键关闭设置模态框
+ * 键盘事件处理器 - 处理ESC键关闭帮助模态框
+ * @param {KeyboardEvent} event - 键盘事件对象
  */
 function handleKeyDown(event) {
   if (event.key === "Escape" && uiStore.showHelpModal) {
@@ -195,7 +203,7 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
-/* 定义淡入动画效果 */
+/* 淡入动画效果定义 */
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -210,7 +218,7 @@ onUnmounted(() => {
   animation: fadeIn 0.2s ease-out;
 }
 
-/* 确保背景模糊效果兼容性 */
+/* 背景模糊效果兼容性处理 */
 .backdrop-blur-sm {
   backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);
@@ -233,7 +241,7 @@ kbd {
   white-space: nowrap;
 }
 
-/* 改善整体布局 */
+/* 模态框整体布局 */
 .help-modal {
   max-height: 80vh;
 }
@@ -243,6 +251,7 @@ kbd {
   line-height: 1.6;
 }
 
+/* 快捷键分组样式 */
 .shortcut-section {
   margin-bottom: 1.5rem;
 }
@@ -256,6 +265,7 @@ kbd {
   padding-bottom: 0.5rem;
 }
 
+/* 快捷键项目样式 */
 .shortcut-item {
   padding: 0.75rem 0;
   border-bottom: 1px solid #f1f5f9;
@@ -276,7 +286,7 @@ kbd {
   color: #6b7280 !important;
 }
 
-/* 暗黑模式特定样式 */
+/* 暗黑模式样式适配 */
 .dark-mode .shortcut-section h4 {
   color: var(--modal-title-color) !important;
   border-bottom: 2px solid var(--modal-border) !important;

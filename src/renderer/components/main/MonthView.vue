@@ -1,7 +1,19 @@
+<!--
+  @component  MonthView.vue 
+  @description: 月视图组件，负责展示当前月份的日期网格、事件和待办事项。
+
+  主要功能：
+  1. 日历渲染：基于当前日期生成月视图网格
+  2. 事件管理：显示、编辑、拖拽事件
+  3. 待办管理：支持待办事项的完成状态切换
+  4. 交互操作：点击日期、拖拽事件、悬停效果
+  5. 国际化：支持农历显示和时间格式配置
+-->
+
 <template>
-  <!-- 月视图容器 -->
+  <!-- 月视图主容器 - 设置基础布局和最小高度 -->
   <div class="calendar-grid flex-1 overflow-visible p-6 min-h-[800px]">
-    <!-- 固定星期头部 -->
+    <!-- 固定星期头部 - 始终显示在顶部，带毛玻璃效果 -->
     <div
       class="sticky top-0 z-30 backdrop-blur-md backdrop-saturate-125 bg-white/70 rounded-lg"
     >
@@ -15,9 +27,8 @@
         </div>
       </div>
     </div>
-    <!-- 日期格子容器 -->
+    
     <div class="grid grid-cols-7 grid-rows-6 gap-1 h-full">
-      <!-- 单个日期格子 -->
       <div
         v-for="(day, index) in getMonthDays(
           new Date(uiStore.currentDate),
@@ -25,8 +36,11 @@
         )"
         :key="index"
         :class="[
+    
           'calendar-day border border-gray-200 h-auto min-h-[120px] max-h-[180px] p-1 pb-2 relative flex flex-col transition-all duration-200 ease-in-out hover:bg-gray-50 hover:border-blue-500 hover:shadow-lg hover:shadow-blue-500/30 hover:z-[5]',
+
           day.isCurrentMonth ? '' : 'bg-gray-200',
+          // 今天的日期添加蓝色顶部边框
           day.isToday
             ? 'today relative after:absolute after:top-0 after:left-0 after:right-0 after:h-[3px] after:bg-blue-600'
             : '',
@@ -36,13 +50,14 @@
         @dragover.prevent
         @drop="uiStore.handleMonthDrop($event, day)"
       >
-        <!-- 日期头部，包含日期数字和添加事件按钮 -->
+        <!-- 日期头部区域 - 包含日期数字和农历信息 -->
         <div
           :class="[
             'day-header flex justify-between items-center p-1 rounded-t bg-inherit flex-shrink-0 mb-1',
             day.isToday ? 'bg-blue-50' : '',
           ]"
         >
+          <!-- 日期数字显示 -->
           <span
             :class="[
               'day-number text-sm',
@@ -59,7 +74,8 @@
           >
             {{ day.dayNumber }}
           </span>
-          <!-- 添加农历显示 -->
+          
+          <!-- 农历显示 -根据设置决定是否显示 -农历月份显示时使用蓝色高亮-->
           <span
             v-if="settingStore.showLunar"
             class="lunar-date text-xs block mt-0.5"
@@ -75,16 +91,17 @@
             }}
           </span>
         </div>
-        <!-- 当天事件列表容器 -->
+        
+        <!-- 当天事件列表容器 - 可滚动的事件显示区域 同时支持事件的拖动修改功能-->
         <div
           class="day-events mt-1 space-y-1 pb-2 custom-scrollbar flex-grow overflow-auto"
         >
-          <!-- 单个事件项 -->
           <div
             v-for="event in eventStore.getEventsForDay(new Date(day.date))"
             :key="event.id"
             :class="[
               'event-item text-xs p-1 rounded overflow-hidden cursor-pointer transition-all duration-150 ease-in-out hover:transform hover:-translate-y-px hover:scale-[1.01] hover:shadow-lg hover:z-[15] active:transform active:translate-y-0 active:scale-100 active:shadow-blue-500/50 relative border-l-[3px]',
+
               event.allDay ? 'all-day-event' : '',
               event.eventType === 'both' ? 'both-event flex flex-col' : '',
             ]"
@@ -100,9 +117,9 @@
             draggable="true"
             @dragstart="uiStore.handleDragStart($event, event)"
           >
-            <!-- 事件时间 -->
+            <!-- 事件时间区域 对于待办事项的添加自定义圆形复选框 勾选该复选框表明修改待办事项的完成状态 已完成的待办事项降低透明度同时显示删除线-->
             <div class="flex items-center">
-              <!-- 自定义圆形复选框 -->
+              
               <div
                 v-if="event.eventType === 'both'"
                 class="w-3 h-3 rounded-full border flex items-center justify-center cursor-pointer mr-1 transition-transform hover:scale-125"
@@ -118,7 +135,6 @@
                   class="fas fa-check text-white text-[9px]"
                 ></i>
               </div>
-              <!-- 时间显示 -->
               <div
                 class="event-time font-medium"
                 :style="{
@@ -142,7 +158,7 @@
                 }}
               </div>
             </div>
-            <!-- 事件标题 -->
+            
             <div
               class="event-title font-medium truncate mb-1"
               :style="{
@@ -168,6 +184,8 @@
 import { useUiStore } from "../../stores/ui";
 import { useEventStore } from "../../stores/event";
 import { useSettingStore } from "../../stores/setting";
+
+
 import {
   formatTime,
   formatEventTime,

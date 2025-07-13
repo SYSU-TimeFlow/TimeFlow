@@ -1,8 +1,15 @@
 <!--
-  @component: TutorialGuide
-  @description: 引导教程组件，使用聚光灯效果引导用户了解主要功能
-  @author: GitHub Copilot
-  @date: 2025-07-12
+  @component TutorialGuide.vue
+  @description: 引导教程组件，使用聚光灯效果引导用户了解主要功能，提供分步式的产品功能介绍和交互指导。
+  
+  主要功能：
+  1. 分步式引导教程展示
+  2. 聚光灯效果突出重点区域
+  3. 智能定位和自适应布局
+  4. 步骤指示器和导航控制
+  5. 响应式设计支持移动端
+  6. 可跳过和完成的教程流程
+  7. 动态元素查找和定位
 -->
 
 <template>
@@ -77,18 +84,15 @@
 <script lang="ts" setup>
 import { ref, computed, onMounted, onUnmounted, nextTick, watch } from 'vue';
 
-// Props
 const props = defineProps<{
   show: boolean;
 }>();
 
-// Emits
 const emit = defineEmits<{
   complete: [];
   skip: [];
 }>();
 
-// 响应式数据
 const showTutorial = ref(false);
 const showTooltip = ref(false);
 const currentStepIndex = ref(0);
@@ -127,7 +131,7 @@ const tutorialSteps = ref([
   }
 ]);
 
-// 当前步骤
+// 当前步骤计算属性
 const currentStep = computed(() => tutorialSteps.value[currentStepIndex.value]);
 
 // 聚光灯样式
@@ -135,7 +139,10 @@ const spotlightStyle = ref({});
 const tooltipStyle = ref({});
 const maskStyle = ref({});
 
-// 更新聚光灯位置
+/**
+ * 更新聚光灯位置和样式
+ * 根据当前步骤的选择器定位目标元素，计算聚光灯和提示框的位置
+ */
 const updateSpotlight = async () => {
   await nextTick();
   
@@ -177,7 +184,7 @@ const updateSpotlight = async () => {
   const rect = element.getBoundingClientRect();
   const padding = 4;
   
-  // 聚光灯样式
+  // 聚光灯样式计算
   const spotlightTop = rect.top - padding;
   const spotlightLeft = rect.left - padding;
   const spotlightWidth = rect.width + padding * 2;
@@ -191,7 +198,7 @@ const updateSpotlight = async () => {
     height: `${spotlightHeight}px`
   };
   
-  // 提示框位置
+  // 提示框位置计算
   let tooltipTop, tooltipLeft, transform = '';
   
   switch (step.position) {
@@ -242,7 +249,10 @@ const updateSpotlight = async () => {
   };
 };
 
-// 下一步
+/**
+ * 进入下一步
+ * 隐藏当前提示框，切换到下一步骤，更新聚光灯位置
+ */
 const nextStep = () => {
   if (currentStepIndex.value < tutorialSteps.value.length - 1) {
     showTooltip.value = false;
@@ -254,7 +264,10 @@ const nextStep = () => {
   }
 };
 
-// 上一步
+/**
+ * 返回上一步
+ * 隐藏当前提示框，切换到上一步骤，更新聚光灯位置
+ */
 const previousStep = () => {
   if (currentStepIndex.value > 0) {
     showTooltip.value = false;
@@ -266,19 +279,28 @@ const previousStep = () => {
   }
 };
 
-// 完成教程
+/**
+ * 完成教程
+ * 关闭教程界面并发射完成事件
+ */
 const completeTutorial = () => {
   showTutorial.value = false;
   emit('complete');
 };
 
-// 跳过教程
+/**
+ * 跳过教程
+ * 关闭教程界面并发射跳过事件
+ */
 const skipTutorial = () => {
   showTutorial.value = false;
   emit('skip');
 };
 
-// 开始教程
+/**
+ * 开始教程
+ * 初始化教程状态，设置聚光灯位置并显示第一步
+ */
 const startTutorial = () => {
   showTutorial.value = true;
   showTooltip.value = false;
@@ -293,7 +315,10 @@ const startTutorial = () => {
   }, 300);
 };
 
-// 监听窗口大小变化
+/**
+ * 处理窗口大小变化
+ * 重新计算聚光灯和提示框位置
+ */
 const handleResize = () => {
   if (showTutorial.value) {
     updateSpotlight();
@@ -309,6 +334,7 @@ watch(() => props.show, (newVal) => {
   }
 });
 
+// 组件挂载时添加事件监听
 onMounted(() => {
   window.addEventListener('resize', handleResize);
   if (props.show) {
@@ -316,6 +342,7 @@ onMounted(() => {
   }
 });
 
+// 组件卸载时移除事件监听
 onUnmounted(() => {
   window.removeEventListener('resize', handleResize);
 });
