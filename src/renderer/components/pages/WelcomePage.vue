@@ -1,8 +1,15 @@
 <!--
-  @component: WelcomePage
-  @description: 欢迎界面组件，包含感谢信息和彩色飘带动画效果，只在首次使用时显示
-  @author: GitHub Copilot
-  @date: 2025-07-12
+  @component WelcomePage.vue
+  @description: 欢迎界面组件，包含感谢信息和彩色飘带动画效果，只在首次使用时显示，提供应用介绍和引导教程入口。
+  
+  主要功能：
+  1. 首次使用时显示欢迎界面
+  2. 彩色飘带动画效果展示
+  3. 应用图标和品牌信息展示
+  4. 引导教程启动入口
+  5. 欢迎状态持久化存储
+  6. 响应式设计适配
+  7. 用户体验优化动画
 -->
 
 <template>
@@ -75,7 +82,10 @@ const ribbonColors = [
   '#FF9999', '#66CDAA', '#87CEEB', '#F0E68C', '#FFB6C1'
 ];
 
-// 生成飘带数据
+/**
+ * 生成飘带数据
+ * 创建40个随机配置的彩色飘带用于动画效果
+ */
 const generateRibbons = () => {
   const ribbonCount = 40;
   ribbons.value = [];
@@ -90,7 +100,11 @@ const generateRibbons = () => {
   }
 };
 
-// 获取飘带样式
+/**
+ * 获取飘带样式
+ * @param {Object} ribbon - 飘带配置对象
+ * @returns {Object} 飘带的CSS样式对象
+ */
 const getRibbonStyle = (ribbon: any) => {
   return {
     backgroundColor: ribbon.color,
@@ -100,7 +114,10 @@ const getRibbonStyle = (ribbon: any) => {
   };
 };
 
-// 开始引导教程
+/**
+ * 开始引导教程
+ * 隐藏欢迎界面并启动引导教程
+ */
 const startTutorial = async () => {
   console.log('开始引导教程');
   showWelcome.value = false;
@@ -110,7 +127,10 @@ const startTutorial = async () => {
   }, 300);
 };
 
-// 完成引导教程
+/**
+ * 完成引导教程
+ * 关闭教程并保存已显示欢迎界面的状态
+ */
 const completeTutorial = async () => {
   console.log('完成引导教程，设置状态为已显示');
   showTutorial.value = false;
@@ -118,7 +138,10 @@ const completeTutorial = async () => {
   console.log('欢迎界面状态已保存:', settingStore.hasWelcomeBeenShown);
 };
 
-// 跳过引导教程
+/**
+ * 跳过引导教程
+ * 关闭教程并保存已显示欢迎界面的状态
+ */
 const skipTutorial = async () => {
   console.log('跳过引导教程，设置状态为已显示');
   showTutorial.value = false;
@@ -126,7 +149,10 @@ const skipTutorial = async () => {
   console.log('欢迎界面状态已保存:', settingStore.hasWelcomeBeenShown);
 };
 
-// 关闭欢迎界面（如果用户点击背景）
+/**
+ * 关闭欢迎界面
+ * 用户点击背景时关闭欢迎界面并保存状态
+ */
 const closeWelcome = async () => {
   console.log('关闭欢迎界面，设置状态为已显示');
   showWelcome.value = false;
