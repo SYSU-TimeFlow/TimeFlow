@@ -1,38 +1,29 @@
 <!-- 
  @component CalendarMain.vue
- @description: 主日历组件，负责展示月、周、日视图以及相关的事件。 
+ @description: 主日历组件，负责展示月、周、日视图以及协调各个子视图的显示和数据更新函数。 
 -->
 
 <template>
-  <!-- 主日历区域容器 -->
   <main
     class="calendar-main flex-1 flex flex-col overflow-auto custom-scrollbar"
   >
-    <!-- 月视图 -->
     <MonthView v-if="uiStore.currentView === 'month'" />
 
-    <!-- 周视图 -->
     <WeekView
       v-else-if="uiStore.currentView === 'week'"
       :current-time="currentTime"
     />
 
-    <!-- 日视图 -->
     <DayView
       v-else-if="uiStore.currentView === 'day'"
       :current-time="currentTime"
     />
 
-    <!-- 代办视图 -->
     <ToDoView v-if="uiStore.currentView === 'todo'" />
   </main>
 </template>
 
 <script setup lang="ts">
-/**
- * @file CalendarMain.vue
- * @description 主日历组件，负责展示月、周、日视图以及相关的事件
- */
 import { useUiStore } from "../../stores/ui";
 import { ref, onMounted, onUnmounted, watch, nextTick } from "vue";
 import MonthView from "../../components/main/MonthView.vue";
@@ -43,18 +34,15 @@ import ToDoView from "../../components/main/ToDoView.vue";
 // 使用 Pinia 仓库
 const uiStore = useUiStore();
 
-// 用于强制更新时间线
+// 用于强制更新时间线,设置定时器更新当前时间,每10秒更新一次
 const currentTime = ref(new Date());
-
-// 设置定时器更新当前时间
 let timer: number;
 onMounted(() => {
-  // 立即更新一次
   currentTime.value = new Date();
 
   timer = window.setInterval(() => {
     currentTime.value = new Date();
-  }, 10000); // 每10秒更新一次
+  }, 10000); 
 });
 
 onUnmounted(() => {
@@ -63,17 +51,14 @@ onUnmounted(() => {
   }
 });
 
-// 监听currentTime的变化
+// 监听currentTime的变化,强制更新UI,触发重新渲染
 watch(currentTime, () => {
-  // 强制更新UI
   nextTick(() => {
-    // 触发重新渲染
   });
 });
 </script>
 
 <style scoped>
-/* 主题颜色变量 */
 .calendar-main {
   background-color: var(--bg-primary);
   color: var(--text-primary);
