@@ -1,0 +1,14 @@
+/*
+  @file index.css
+  @description 应用主样式入口，统一导入主题、字号、模态框和图标库等全局样式文件。
+  为什么这样做：
+  - 通过集中导入所有核心样式，保证页面风格一致性和可维护性。
+  - 主题、字号、模态框样式分离，便于按需调整和扩展。
+  - 引入 FontAwesome 图标库，提升界面美观和交互体验。
+  - 保持样式结构简洁，方便团队协作和后续样式优化。
+*/
+
+@import url("./theme.css");
+@import url("./font-size.css");
+@import url("./modal.css");
+@import url("@fortawesome/fontawesome-free/css/all.min.css");

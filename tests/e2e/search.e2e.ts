@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { setUpEverything, closeEverything } from './test_utils';
+import { setUpEverything, closeEverything, skipOnboarding } from './test_utils';
 
 test('search functionality', async () => {
   // 启动 Vite 开发服务器
@@ -12,6 +12,9 @@ test('search functionality', async () => {
 
     // 该测试用例的目的是测试搜索功能
     await page.goto('http://localhost:5173/#/');
+
+    await skipOnboarding(page);
+
     await page.locator('div').filter({ hasText: /^15$/ }).first().click();
     await page.getByRole('textbox', { name: 'Event title' }).click();
     await page.getByRole('textbox', { name: 'Event title' }).fill('搜索');

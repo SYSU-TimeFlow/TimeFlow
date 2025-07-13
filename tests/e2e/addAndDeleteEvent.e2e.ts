@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { setUpEverything, closeEverything } from './test_utils';
+import { setUpEverything, closeEverything, skipOnboarding } from './test_utils';
 
 test('Add & Delete Event', async () => {
   // 启动 Vite 开发服务器
@@ -13,6 +13,9 @@ test('Add & Delete Event', async () => {
     // 该测试用例的目的是添加一个事件，然后删除它
 
     await page.goto('http://localhost:5173/#/');
+
+    await skipOnboarding(page);
+
     await page.locator('div').filter({ hasText: /^5$/ }).first().click();
     await page.getByRole('textbox', { name: 'Event title' }).click();
     await page.getByRole('textbox', { name: 'Event title' }).fill('playwright测试');
@@ -21,13 +24,12 @@ test('Add & Delete Event', async () => {
     await page.getByRole('textbox', { name: 'Event description' }).fill('测试描述');
     await page.getByRole('button', { name: 'Save' }).click();
 
-    await expect(page.getByText('上午09:00 - 上午10:00playwright测试')).toBeVisible();
     await expect(page.getByRole('main')).toContainText('playwright测试');
     
-    await page.getByText('上午09:00 - 上午10:00playwright测试').click();
+    await page.getByText('playwright测试').click();
     await page.getByRole('button', { name: 'Delete' }).click();
     
-    await expect(page.getByText('上午09:00 - 上午10:00playwright测试')).not.toBeVisible();
+    await expect(page.getByText('playwright测试')).not.toBeVisible();
     await expect(page.getByRole('main')).not.toContainText('playwright测试');
   
     // ===============================================

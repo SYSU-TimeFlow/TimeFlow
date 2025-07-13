@@ -1,7 +1,0 @@
-{
-  "productName": "TimeFlow",
-  "files": ["main.js", "./dist", "preload.js", "ipcHandlers.js"],
-  "directories": {
-    "output": "./build"
-  }
-}

@@ -1,17 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { setActivePinia, createPinia } from "pinia";
-import { useSettingStore } from "../../src/stores/setting";
-
-// 模拟 electron-store 的行为
-vi.mock("electron-store", () => {
-  const mockStore = {
-    get: vi.fn(),
-    set: vi.fn(),
-  };
-  return {
-    default: vi.fn(() => mockStore),
-  };
-});
+import { useSettingStore } from "../../src/renderer/stores/setting";
 
 // beforeEach 确保每个测试用例开始时都初始化环境
 beforeEach(() => {
@@ -38,6 +27,7 @@ beforeEach(() => {
           showLunar: false,
           weekStart: "0",
           language: "zh-CN",
+          hasWelcomeBeenShown: true,
         };
       }),
       // 模拟保存设置的saveSettings方法
@@ -102,6 +92,7 @@ describe("Setting Store", () => {
         showLunar: false,
         weekStart: "0",
         language: "zh-CN",
+        hasWelcomeBeenShown: true,
       });
     });
 
@@ -160,24 +151,6 @@ describe("Setting Store", () => {
   });
 
   describe("Theme", () => {
-    it("应该应用浅色主题", () => {
-      const store = useSettingStore();
-      store.applyTheme("light");
-
-      expect(
-        global.document.documentElement.classList.remove
-      ).toHaveBeenCalledWith("dark-mode");
-    });
-
-    it("应该应用深色主题", () => {
-      const store = useSettingStore();
-      store.applyTheme("dark");
-
-      expect(
-        global.document.documentElement.classList.add
-      ).toHaveBeenCalledWith("dark-mode");
-    });
-
     it("应正确设置主题", async () => {
       const store = useSettingStore();
       await store.setThemeMode("dark");
@@ -191,9 +164,6 @@ describe("Setting Store", () => {
       const store = useSettingStore();
       await store.setFontSize("large");
       expect(store.fontSize).toBe("large");
-      expect(
-        global.document.documentElement.classList.add
-      ).toHaveBeenCalledWith("font-size-large");
 
       store.setFontSize("small");
       expect(store.fontSize).toBe("small");

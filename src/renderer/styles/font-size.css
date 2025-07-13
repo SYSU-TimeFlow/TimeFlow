@@ -1,0 +1,62 @@
+/*
+  @file font-size.css
+  @description 应用字号样式表，定义全局和多模式字体大小变量，支持响应式切换和语义化样式。
+  为什么这样做：
+  - 通过 CSS 变量统一管理所有字号，便于主题切换和个性化设置。
+  - 支持小/大字号模式，满足不同用户视觉需求和无障碍场景。
+  - 语义化变量（heading、subheading、small-text），提升代码可读性和维护性。
+  - 全局元素样式直接引用变量，保证界面一致性和易扩展。
+*/
+
+:root {
+  /* 默认字号大小 */
+  --font-size-small: 0.875rem; /* 14px */
+  --font-size-medium: 1rem; /* 16px */
+  --font-size-large: 1.125rem; /* 18px */
+  --font-size-xlarge: 1.25rem; /* 20px */
+  --font-size-xxlarge: 1.5rem; /* 24px */
+
+  /* 应用默认字号 */
+  --base-font-size: var(--font-size-medium);
+  --heading-font-size: var(--font-size-xlarge);
+  --subheading-font-size: var(--font-size-large);
+  --small-text-font-size: var(--font-size-small);
+}
+
+/* 小字号模式 */
+.font-size-small {
+  --base-font-size: var(--font-size-small);
+  --heading-font-size: var(--font-size-large);
+  --subheading-font-size: var(--font-size-medium);
+  --small-text-font-size: 0.75rem;
+}
+
+/* 大字号模式 */
+.font-size-large {
+  --base-font-size: var(--font-size-large);
+  --heading-font-size: var(--font-size-xxlarge);
+  --subheading-font-size: var(--font-size-xlarge);
+  --small-text-font-size: var(--font-size-medium);
+}
+
+/* 应用字号到全局元素 */
+body {
+  font-size: var(--base-font-size);
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-size: var(--heading-font-size);
+}
+
+.subheading {
+  font-size: var(--subheading-font-size);
+}
+
+.small-text {
+  font-size: var(--small-text-font-size);
+}

@@ -1,0 +1,154 @@
+/*
+  @file theme.css
+  @description 应用主题样式表，定义亮色和暗黑模式下的全局配色变量，支持多主题切换和视觉一致性。
+  为什么这样做：
+  - 通过 CSS 变量集中管理所有配色，便于主题切换和全局风格统一。
+  - 亮色/暗黑模式分离，适配不同用户习惯和环境，提升可访问性和美观度。
+  - 组件、按钮、模态框、文本、阴影等细节配色统一定义，减少硬编码和重复样式。
+  - 过渡动画和图标样式优化，提升交互体验和视觉流畅性。
+  - 语义化变量命名，便于团队协作和后续主题扩展。
+*/
+
+:root {
+  /* 亮色模式的变量 */
+  --bg-primary: #ffffff;
+  --bg-secondary: #f9fafb;
+  --bg-tertiary: #f3f4f6;
+  --bg-sidebar: #f1f5f9;
+  --text-primary: #111827;
+  --text-secondary: #4b5563;
+  --text-tertiary: #6b7280;
+  --border-color: #e5e7eb;
+  --hover-bg: #f3f4f6;
+  --active-bg: #e5e7eb;
+  --card-bg: #ffffff;
+  --modal-bg: #ffffff; /* 亮色模式下的模态框背景 */
+  --header-bg: #f8fafc;
+  --selected-bg: #dbeafe;
+  --event-hover-shadow: rgba(0, 0, 0, 0.12);
+  --shadow-color: rgba(0, 0, 0, 0.1);
+  --tooltip-bg: #374151;
+  --tooltip-text: #ffffff;
+  --event-font-color: #111827; /* 事件字体颜色（白天模式） */
+}
+
+/* 暗黑模式变量 */
+.dark-mode {
+  /* 基础背景色 - 参考 GitHub 深色模式 */
+  --bg-primary: #0d1117;
+  --bg-secondary: #161b22;
+  --bg-tertiary: #21262d;
+  --bg-sidebar: #161b22;
+
+  /* 文本颜色 - GitHub 风格的灰度 */
+  --text-primary: #e6edf3; /* 更亮的文本颜色 */
+  --text-secondary: #c9d1d9; /* 次要文本更亮 */
+  --text-tertiary: #8b949e; /* 第三级文本保持适中亮度 */
+
+  /* 边框和分割线 */
+  --border-color: #30363d;
+
+  /* 交互状态 */
+  --hover-bg: #1c2128;
+  --active-bg: #21262d;
+
+  /* 卡片和模态框 */
+  --card-bg: #161b22;
+  --modal-bg: #1c2128; /* 暗黑模式下的模态框背景 (比背景色稍亮的深灰) */
+  --header-bg: #0d1117;
+
+  /* 选中状态 - 蓝色主题 */
+  --selected-bg: #1f6feb;
+
+  /* 阴影效果 */
+  --event-hover-shadow: rgba(0, 0, 0, 0.5);
+  --shadow-color: rgba(0, 0, 0, 0.5);
+
+  /* 提示框 */
+  --tooltip-bg: #21262d;
+  --tooltip-text: #e6edf3; /* 更亮的提示文本 */
+
+  /* 日历相关 */
+  --date-number-color: #c9d1d9; /* 更亮的日期数字 */
+  --heading-color: #58a6ff; /* GitHub 风格的蓝色 */
+  --calendar-day-bg: #161b22;
+  --calendar-today-bg: #1f6feb33; /* 带透明度的蓝色 */
+  --calendar-weekend-bg: #161b22;
+  --calendar-day-hover-bg: #1c2128;
+  --calendar-hour-hover-bg: #1c2128;
+
+  /* 搜索框 */
+  --search-bg: #0d1117;
+  --search-border: #30363d;
+
+  /* 按钮相关 - 蓝色主题 */
+  --button-primary: #388bfd; /* GitHub 风格的蓝色 */
+  --button-primary-hover: #58a6ff; /* 悬停时更亮的蓝色 */
+  --button-secondary: #21262d;
+  --active-item-bg: #1f6feb33; /* 带透明度的蓝色 */
+  --active-item-border: #58a6ff; /* 更亮的蓝色边框 */
+
+  /* 事件文本 - 更亮的颜色 */
+  --event-title-color: #e6edf3; /* 更亮的事件标题 */
+  --event-description-color: #c9d1d9; /* 更亮的事件描述 */
+  --event-time-color: #c9d1d9; /* 更亮的时间文本 */
+  --sidebar-title-color: #e6edf3; /* 更亮的侧边栏标题 */
+  --hour-cell-hover: #1c2128;
+
+  /* 图标颜色 */
+  --icon-color: #c9d1d9; /* 默认图标颜色 */
+  --icon-color-hover: #e6edf3; /* 悬停时的图标颜色 */
+  --icon-color-active: #58a6ff; /* 激活状态的图标颜色 */
+
+  /* 模态框相关 - 增强区分度和文字对比度 */
+  --modal-bg: #1c2128; /* 比背景色稍亮的深灰 */
+  --modal-header-bg: #21262d; /* 模态框头部背景 */
+  --modal-footer-bg: #21262d; /* 模态框底部背景 */
+  --modal-border: #30363d; /* 模态框边框 */
+  --modal-text-primary-color: #e6edf3;
+  --modal-text-secondary-color: #8d8d8d; /* 次亮的模态框文本颜色 */
+  --modal-title-color: #f0f6fc; /* 最亮的模态框标题，用于重要文字 */
+  --modal-label-color: #e6edf3; /* 次亮的模态框标签，用于普通文字 */
+  --modal-input-bg: #0d1117; /* 输入框背景更深，增强对比 */
+  --modal-input-text: #f0f6fc; /* 输入框文字更亮 */
+  --modal-input-border: #30363d; /* 输入框边框 */
+  --modal-button-text: #ffffff; /* 按钮文字纯白 */
+  --modal-button-bg: #58a6ff; /* 浅蓝色主按钮 */
+  --modal-button-hover: #79b8ff; /* 浅蓝色按钮悬停 */
+  --modal-button-secondary: #21262d; /* 次要按钮背景 */
+  --modal-button-secondary-hover: #30363d; /* 次要按钮悬停 */
+  --modal-shadow: 0 16px 32px rgba(1, 4, 9, 0.85); /* 更明显的阴影 */
+
+  /* 事件字体颜色（夜间模式） */
+  --event-font-color: #e6edf3;
+}
+
+/* 覆盖各种组件的默认样式 */
+.dark-mode .bg-blue-600 {
+  background-color: var(--button-primary) !important;
+}
+
+.dark-mode .bg-blue-700,
+.dark-mode .hover\:bg-blue-700:hover {
+  background-color: var(--button-primary-hover) !important;
+}
+
+/* 确保颜色过渡平滑 */
+body,
+html,
+* {
+  transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+}
+
+/* 暗黑模式下的图标样式 */
+.dark-mode i {
+  color: var(--icon-color);
+}
+
+.dark-mode button:hover i {
+  color: var(--icon-color-hover);
+}
+
+.dark-mode button.active i {
+  color: var(--icon-color-active);
+}

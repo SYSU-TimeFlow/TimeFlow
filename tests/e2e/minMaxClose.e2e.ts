@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { setUpEverything, closeEverything } from './test_utils';
+import { setUpEverything, closeEverything, skipOnboarding } from './test_utils';
 
 test('min & max & close', async () => {
   // 启动 Vite 开发服务器
@@ -9,6 +9,10 @@ test('min & max & close', async () => {
     // ================================================
     // |以下是你可以替换的部分 - 每次录制新测试后替换这里|
     // ================================================
+
+    await page.goto('http://localhost:5173/#/');
+
+    await skipOnboarding(page);
 
     // 该测试用例的目的是测试最小化、最大化和关闭窗口的功能
     // 获取窗口大小
