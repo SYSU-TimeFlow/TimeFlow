@@ -743,6 +743,16 @@ const handleGlobalKeydown = (event: KeyboardEvent) => {
         uiStore.toggleHelpModal();
         event.preventDefault();
         break;
+      case "t":
+        // 跳转到今天
+        uiStore.goToToday();
+        event.preventDefault();
+        break;
+      case "d":
+        // 切换到黑暗模式
+        handleThemeToggle();
+        event.preventDefault();
+        break;
     }
   }
 };
@@ -850,7 +860,6 @@ watch(isCogHovered, (hovered) => {
   font-size: var(--small-text-font-size);
   background-color: var(--bg-secondary);
   border-color: var(--border-color);
-  transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
 }
 
 .search-box .mode-indicator,
