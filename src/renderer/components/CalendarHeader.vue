@@ -743,6 +743,16 @@ const handleGlobalKeydown = (event: KeyboardEvent) => {
         uiStore.toggleHelpModal();
         event.preventDefault();
         break;
+      case "t":
+        // 跳转到今天
+        uiStore.goToToday();
+        event.preventDefault();
+        break;
+      case "d":
+        // 切换到黑暗模式
+        handleThemeToggle();
+        event.preventDefault();
+        break;
     }
   }
 };

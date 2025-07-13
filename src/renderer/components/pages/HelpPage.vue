@@ -43,27 +43,31 @@
         <!-- 导航快捷键部分 -->
         <div class="shortcut-section mb-6">
           <h4 class="text-md font-semibold mb-3 text-gray-700 border-b pb-1">
-            Navigation
+        Navigation
           </h4>
           <div class="grid grid-cols-1 gap-3">
-            <div class="shortcut-item flex justify-between items-center">
-              <span class="key-combo"><kbd>h</kbd> or <kbd>←</kbd></span>
-              <span class="description text-gray-700"
-                >Previous (week/month)</span
-              >
-            </div>
-            <div class="shortcut-item flex justify-between items-center">
-              <span class="key-combo"><kbd>l</kbd> or <kbd>→</kbd></span>
-              <span class="description text-gray-700">Next (week/month)</span>
-            </div>
-            <div class="shortcut-item flex justify-between items-center">
-              <span class="key-combo"><kbd>j</kbd> or <kbd>↓</kbd></span>
-              <span class="description text-gray-700">Scroll down</span>
-            </div>
-            <div class="shortcut-item flex justify-between items-center">
-              <span class="key-combo"><kbd>k</kbd> or <kbd>↑</kbd></span>
-              <span class="description text-gray-700">Scroll up</span>
-            </div>
+        <div class="shortcut-item flex justify-between items-center">
+          <span class="key-combo"><kbd>h</kbd> or <kbd>←</kbd></span>
+          <span class="description text-gray-700"
+            >Previous (week/month)</span
+          >
+        </div>
+        <div class="shortcut-item flex justify-between items-center">
+          <span class="key-combo"><kbd>l</kbd> or <kbd>→</kbd></span>
+          <span class="description text-gray-700">Next (week/month)</span>
+        </div>
+        <div class="shortcut-item flex justify-between items-center">
+          <span class="key-combo"><kbd>j</kbd> or <kbd>↓</kbd></span>
+          <span class="description text-gray-700">Scroll down</span>
+        </div>
+        <div class="shortcut-item flex justify-between items-center">
+          <span class="key-combo"><kbd>k</kbd> or <kbd>↑</kbd></span>
+          <span class="description text-gray-700">Scroll up</span>
+        </div>
+        <div class="shortcut-item flex justify-between items-center">
+          <span class="key-combo"><kbd>t</kbd></span>
+          <span class="description text-gray-700">Jump to today</span>
+        </div>
           </div>
         </div>
 
@@ -166,6 +170,10 @@
             <div class="shortcut-item flex justify-between items-center">
               <span class="key-combo"><kbd>?</kbd></span>
               <span class="description text-gray-700">Show This Help</span>
+            </div>
+            <div class="shortcut-item flex justify-between items-center">
+              <span class="key-combo"><kbd>d</kbd></span>
+              <span class="description text-gray-700">Toggle Dark Mode</span>
             </div>
           </div>
         </div>
