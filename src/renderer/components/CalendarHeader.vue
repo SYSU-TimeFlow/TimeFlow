@@ -860,7 +860,6 @@ watch(isCogHovered, (hovered) => {
   font-size: var(--small-text-font-size);
   background-color: var(--bg-secondary);
   border-color: var(--border-color);
-  transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
 }
 
 .search-box .mode-indicator,
