@@ -613,30 +613,6 @@ export function initializeIpcHandlers(
     }
   });
 
-  // ================= 语音识别处理 ==================
-  /**
-   * 语音识别请求（模拟）。
-   */
-  ipcMain.handle("recognize-speech", async () => {
-    // 注意：Electron 主进程本身没有内置的语音识别 API。
-    // 实现此功能通常需要：
-    // 1. 在渲染器进程中使用 Web Speech API (如您之前的实现)。
-    // 2. 在主进程中使用第三方语音识别服务（如 Google Cloud Speech-to-Text, Azure 等）的 SDK。
-    // 3. 集成离线的语音识别库（如 Vosk, DeepSpeech），但这可能很复杂。
-    //
-    // 此处我们模拟一个异步的语音识别过程，2秒后返回结果。
-    // 您未来可以在这里集成真正的语音识别库。
-    console.log("主进程收到语音识别请求，开始模拟识别...");
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        console.log("模拟识别完成。");
-        resolve({
-          success: true,
-          text: "明天下午三点提醒我开会",
-        });
-      }, 2000); // 模拟2秒的识别过程
-    });
-  });
 
   // ================= 日志处理 IPC ==================
   /**
