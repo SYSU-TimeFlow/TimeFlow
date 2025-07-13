@@ -1,6 +1,16 @@
 /**
- * @description: vue.js 入口文件，负责创建应用实例和挂载路由
+ * @file main.ts
+ * @description Vue 3 应用入口文件，负责创建应用实例、挂载路由和状态管理、全局错误与警告处理，并最终挂载到 DOM。
+ * 
+ * 为什么这样做：
+ * - 通过 createApp 创建 Vue 实例，保证应用初始化流程标准化。
+ * - 挂载 Pinia 状态管理和 Vue Router，统一管理全局状态和页面路由，提升可维护性和扩展性。
+ * - 全局错误和警告处理接入日志系统，便于问题追踪和线上监控，提升健壮性和可运维性。
+ * - 样式文件统一引入，保证页面样式一致性和可扩展性。
+ * - 挂载到 #app 节点，保证与 index.html 结构解耦，便于前端框架升级和页面重构。
+ * - 关键流程均有日志记录，便于调试和行为分析。
  */
+
 import { createApp } from "vue";
 import { createPinia } from "pinia";
 import App from "./App.vue";

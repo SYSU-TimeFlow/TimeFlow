@@ -1,3 +1,14 @@
+/**
+ * @file month.ts
+ * @description 月视图功能模块，负责单月日历的点击、拖拽事件处理和交互逻辑。
+ * 
+ * 为什么这样做：
+ * - 通过 handleDayClick 实现日期选择和快速添加事件，提升用户操作效率和体验。
+ * - 拖拽事件支持待办和普通事件的区分处理，保证不同类型事件的交互一致性和数据准确性。
+ * - 拖拽时自动计算事件持续时间和时间点，避免用户手动调整，提升交互流畅度。
+ * - 所有核心操作均有注释说明，便于团队协作和后续维护。
+ */
+
 import { useEventStore } from "../../event";
 
 export const createMonthModule = (storeContext: any) => {

@@ -59,7 +59,6 @@ class SQLiteStore {
 
   /**
    * 初始化数据库表结构和触发器
-   * 为什么这样做：自动建表和触发器，保证数据结构一致性和时间戳自动更新，减少人为错误。
    */
   initializeDatabase() {
     try {
@@ -150,7 +149,6 @@ class SQLiteStore {
 
   /**
    * 初始化默认分类数据
-   * 为什么这样做：首次启动时自动填充默认分类，保证前端有内容可用，避免空白页面。
    */
   initializeDefaultCategories() {
     try {
@@ -190,7 +188,6 @@ class SQLiteStore {
 
   /**
    * 迁移数据库结构（如ID类型变更）
-   * 为什么这样做：自动处理历史结构变更，保证老用户数据不丢失，升级无缝。
    */
   migrateDatabase() {
     try {
@@ -281,7 +278,6 @@ class SQLiteStore {
 
   /**
    * 类型映射：数据库 type <-> 前端 eventType
-   * 为什么这样做：前后端类型不一致时自动转换，保证数据流畅对接。
    */
   mapTypeToEventType(type) {
     switch (type) {
@@ -318,7 +314,6 @@ class SQLiteStore {
 
   /**
    * 获取所有分类
-   * 为什么这样做：统一入口获取分类，自动类型转换，便于前端直接使用。
    */
   getCategories() {
     try {
@@ -344,7 +339,6 @@ class SQLiteStore {
 
   /**
    * 批量设置分类
-   * 为什么这样做：支持批量导入和覆盖，事务保证一致性，提升性能。
    */
   setCategories(categories) {
     if (!Array.isArray(categories)) {
@@ -383,7 +377,6 @@ class SQLiteStore {
 
   /**
    * 添加单个分类
-   * 为什么这样做：便于前端快速新增分类，返回新ID便于后续操作。
    */
   addCategory(category) {
     try {
@@ -407,7 +400,6 @@ class SQLiteStore {
 
   /**
    * 更新分类
-   * 为什么这样做：支持分类编辑，保证数据实时同步。
    */
   updateCategory(category) {
     try {
@@ -431,7 +423,6 @@ class SQLiteStore {
 
   /**
    * 删除分类
-   * 为什么这样做：支持分类删除，自动级联处理相关数据。
    */
   deleteCategory(categoryId) {
     try {
@@ -447,7 +438,6 @@ class SQLiteStore {
 
   /**
    * 获取所有事件
-   * 为什么这样做：统一入口获取事件，自动类型和字段映射，便于前端直接渲染。
    */
   getEvents() {
     try {
@@ -503,7 +493,6 @@ class SQLiteStore {
 
   /**
    * 批量设置事件
-   * 为什么这样做：支持批量导入和覆盖，事务保证一致性，提升性能。
    */
   setEvents(events) {
     if (!Array.isArray(events)) {
@@ -553,7 +542,6 @@ class SQLiteStore {
 
   /**
    * 添加单个事件
-   * 为什么这样做：便于前端快速新增事件，返回新ID便于后续操作。
    */
   addEvent(event) {
     try {
@@ -589,7 +577,6 @@ class SQLiteStore {
 
   /**
    * 更新事件
-   * 为什么这样做：支持事件编辑，保证数据实时同步。
    */
   updateEvent(event) {
     try {
@@ -624,7 +611,6 @@ class SQLiteStore {
 
   /**
    * 删除事件
-   * 为什么这样做：支持事件删除，自动处理相关依赖。
    */
   deleteEvent(eventId) {
     try {
@@ -640,7 +626,6 @@ class SQLiteStore {
 
   /**
    * 获取单项设置
-   * 为什么这样做：便于前端按需获取配置，自动解析 JSON。
    */
   getSetting(key) {
     try {
@@ -664,7 +649,6 @@ class SQLiteStore {
 
   /**
    * 设置单项配置
-   * 为什么这样做：支持前端灵活保存配置，自动序列化。
    */
   setSetting(key, value) {
     try {
@@ -684,7 +668,6 @@ class SQLiteStore {
 
   /**
    * 获取所有设置
-   * 为什么这样做：批量获取所有配置，便于前端初始化和同步。
    */
   getAllSettings() {
     try {
@@ -709,7 +692,6 @@ class SQLiteStore {
 
   /**
    * 删除单项设置
-   * 为什么这样做：支持配置项删除，提升灵活性。
    */
   deleteSetting(key) {
     try {
@@ -766,7 +748,6 @@ class SQLiteStore {
 
   /**
    * 关闭数据库连接
-   * 为什么这样做：释放资源，防止内存泄漏。
    */
   close() {
     try {
@@ -781,7 +762,6 @@ class SQLiteStore {
 
   /**
    * 备份数据库
-   * 为什么这样做：支持数据迁移和灾备，提升安全性。
    */
   backup(backupPath) {
     try {
@@ -795,7 +775,6 @@ class SQLiteStore {
 
   /**
    * 获取数据库统计信息
-   * 为什么这样做：便于前端展示和运维监控。
    */
   getStats() {
     try {
@@ -822,7 +801,6 @@ class SQLiteStore {
 
   /**
    * 清空所有数据
-   * 为什么这样做：支持一键重置，便于调试和用户自助清理。
    */
   clearAllData() {
     try {

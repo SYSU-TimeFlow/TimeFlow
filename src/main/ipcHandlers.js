@@ -29,7 +29,6 @@ export function initializeIpcHandlers(
   // ================= 应用数据（分类和事件）存储 IPC ==================
   /**
    * 加载应用数据（分类和事件）。
-   * 为什么这样做：优先从数据库获取数据，若无则自动填充默认数据，确保应用启动时有可用内容，避免空白页面。
    */
   ipcMain.handle("load-app-data", async () => {
     logger.ipc("load-app-data", "receive", { action: "loading_app_data" });
@@ -111,7 +110,6 @@ export function initializeIpcHandlers(
 
   /**
    * 保存应用数据（分类和事件）。
-   * 为什么这样做：统一入口保存数据，保证数据一致性和格式规范（如日期统一为 ISO 字符串），便于前后端协作。
    */
   ipcMain.handle("save-app-data", async (event, data) => {
     logger.ipc("save-app-data", "receive", {
@@ -157,7 +155,6 @@ export function initializeIpcHandlers(
   // ================= 设置数据存储 IPC ==================
   /**
    * 加载用户设置。
-   * 为什么这样做：优先使用用户自定义设置，若无则自动填充默认设置，保证应用界面和功能有合理初始状态。
    */
   ipcMain.handle("load-settings", async () => {
     logger.ipc("load-settings", "receive", { action: "loading_settings" });
@@ -213,7 +210,6 @@ export function initializeIpcHandlers(
 
   /**
    * 保存用户设置。
-   * 为什么这样做：集中处理设置保存，便于统一格式和错误处理，提升用户体验。
    */
   ipcMain.handle("save-settings", async (event, settings) => {
     logger.ipc("save-settings", "receive", {
@@ -242,7 +238,6 @@ export function initializeIpcHandlers(
   // ================= 监听窗口操作事件 ==================
   /**
    * 最小化窗口。
-   * 为什么这样做：通过 IPC 统一管理窗口操作，支持多窗口场景，便于扩展和维护。
    */
   ipcMain.on("window-minimize", () => {
     logger.ipc("window-minimize", "receive", { action: "minimize_window" });
@@ -257,7 +252,6 @@ export function initializeIpcHandlers(
 
   /**
    * 最大化或还原窗口。
-   * 为什么这样做：根据当前窗口状态切换，提升用户交互体验，避免窗口操作异常。
    */
   ipcMain.on("window-maximize", () => {
     logger.ipc("window-maximize", "receive", {
@@ -280,7 +274,6 @@ export function initializeIpcHandlers(
 
   /**
    * 关闭窗口。
-   * 为什么这样做：统一窗口关闭逻辑，便于资源释放和日志记录。
    */
   ipcMain.on("window-close", () => {
     logger.ipc("window-close", "receive", { action: "close_window" });
@@ -296,7 +289,6 @@ export function initializeIpcHandlers(
   // ================= 系统通知处理 ==================
   /**
    * 展示系统通知。
-   * 为什么这样做：通过主进程调用系统原生通知，提升提醒的可靠性和可见性，支持点击通知唤醒应用窗口。
    */
   ipcMain.handle("notify", (event, { title, body }) => {
     logger.ipc("notify", "receive", {
@@ -331,7 +323,6 @@ export function initializeIpcHandlers(
   // ================= 课程表导入处理 ==================
   /**
    * 导入课程表文件（docx）。
-   * 为什么这样做：支持用户批量导入课程，自动解析表格内容，提升数据录入效率和准确性。
    */
   ipcMain.handle("import-schedule", async () => {
     const win = BrowserWindow.getAllWindows()[0];
@@ -575,7 +566,6 @@ export function initializeIpcHandlers(
   // ================= 自然语言处理 ==================
   /**
    * 处理自然语言文本，解析日期和事件。
-   * 为什么这样做：支持用户用自然语言快速创建事件，降低使用门槛，提升智能化体验。
    */
   ipcMain.handle("process-natural-language", async (event, text) => {
     const win = BrowserWindow.getAllWindows()[0];
@@ -626,7 +616,6 @@ export function initializeIpcHandlers(
   // ================= 语音识别处理 ==================
   /**
    * 语音识别请求（模拟）。
-   * 为什么这样做：为后续集成语音识别功能预留接口，当前模拟异步识别，便于前端联调和体验设计。
    */
   ipcMain.handle("recognize-speech", async () => {
     // 注意：Electron 主进程本身没有内置的语音识别 API。
@@ -652,7 +641,6 @@ export function initializeIpcHandlers(
   // ================= 日志处理 IPC ==================
   /**
    * 处理渲染进程日志。
-   * 为什么这样做：集中收集前端日志，统一记录到主进程日志系统，便于问题排查和行为分析。
    */
   ipcMain.handle("send-log", async (event, logData) => {
     try {
