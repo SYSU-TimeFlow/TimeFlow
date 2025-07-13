@@ -401,11 +401,11 @@ export function initializeIpcHandlers(
           for (let rLoop = 0; rLoop < rowspan; rLoop++) {
             for (let cLoop = 0; cLoop < colspan; cLoop++) {
               if (!grid[rowIndex + rLoop]) grid[rowIndex + rLoop] = [];
-              // 修正：在网格中存储原始的 rowspan 信息
+              // 在网格中存储原始的 rowspan 信息
               grid[rowIndex + rLoop][gridColIndex + cLoop] = {
                 text: cellText,
                 isPlaceholder: rLoop > 0 || cLoop > 0,
-                // 新增：存储原始的 rowspan
+                // 存储原始的 rowspan
                 rowspan: rLoop === 0 && cLoop === 0 ? rowspan : 0,
               };
             }
@@ -449,7 +449,7 @@ export function initializeIpcHandlers(
             continue;
           }
 
-          // 修正：直接使用存储的 rowspan，不再手动计算
+          // 直接使用存储的 rowspan，不再手动计算
           const rowSpanCount = currentCell.rowspan || 1;
 
           // 标记所有被占用的单元格
@@ -460,7 +460,7 @@ export function initializeIpcHandlers(
           const startTimeInfo = timeSlotsInfo[r];
           const endTimeInfo = timeSlotsInfo[r + rowSpanCount - 1];
 
-          // 修正：通过查找第一行的表头来确定星期几
+          // 通过查找第一行的表头来确定星期几
           const dayHeaderCell = grid[0][c];
           const dayHeaderText = dayHeaderCell ? dayHeaderCell.text : "";
           const dayMap = {
@@ -487,7 +487,7 @@ export function initializeIpcHandlers(
           }
 
           if (startTimeInfo && endTimeInfo) {
-            // 新增：解析课程名称中的周数范围
+            // 解析课程名称中的周数范围
             let courseText = grid[r][c].text;
             let startWeek = 1; // 默认开始周
             let endWeek = 18; // 默认结束周 (与渲染器逻辑一致)
@@ -536,13 +536,13 @@ export function initializeIpcHandlers(
             schedule.push({
               courseName: finalCourseName,
               classRoom: classRoom,
-              courseCategory: courseCategory, // 新增：课程类别
-              teacher: teacher, // 新增：老师
+              courseCategory: courseCategory, // 课程类别
+              teacher: teacher, // 老师
               dayOfWeek: dayOfWeek,
               startTime: startTimeInfo.start,
               endTime: endTimeInfo.end,
-              startWeek: startWeek, // 新增：传递开始周
-              endWeek: endWeek, // 新增：传递结束周
+              startWeek: startWeek, // 传递开始周
+              endWeek: endWeek, // 传递结束周
             });
           }
         }

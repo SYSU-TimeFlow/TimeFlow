@@ -84,18 +84,15 @@
 <script lang="ts" setup>
 import { ref, computed, onMounted, onUnmounted, nextTick, watch } from 'vue';
 
-// Props 定义
 const props = defineProps<{
   show: boolean;
 }>();
 
-// 事件发射器定义
 const emit = defineEmits<{
   complete: [];
   skip: [];
 }>();
 
-// 响应式数据
 const showTutorial = ref(false);
 const showTooltip = ref(false);
 const currentStepIndex = ref(0);

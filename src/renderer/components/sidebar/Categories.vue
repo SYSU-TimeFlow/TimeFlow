@@ -46,7 +46,7 @@
         <span
           :class="[
             'category-color w-3 h-3 rounded-full',
-            uiStore.sidebarCollapsed ? '' : 'mr-3', // 侧边栏折叠时不显示右边距
+            uiStore.sidebarCollapsed ? '' : 'mr-3', 
           ]"
           :style="{ backgroundColor: category.color }"
           @click="eventStore.toggleCategory(category.id)"
@@ -100,7 +100,7 @@ const uiStore = useUiStore();
   color: var(--text-secondary);
   border: 1px solid transparent;
   transition: all 0.2s ease;
-  margin-right: 4px; /* 添加右边距，为箭头留出空间 */
+  margin-right: 4px; 
 }
 
 .category-item:hover {
@@ -114,7 +114,7 @@ const uiStore = useUiStore();
   color: var(--heading-color);
 }
 
-/* 编辑按钮样式 */
+
 .edit-button {
   opacity: 0;
   color: var(--text-tertiary);

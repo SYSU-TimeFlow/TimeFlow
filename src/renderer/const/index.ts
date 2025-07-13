@@ -36,7 +36,7 @@ export class Event {
 // 过滤器类型保持不变
 export type FilterType = "today" | "all" | "completed" | "active";
 
-// 新增：分类接口定义
+// 分类接口定义
 export interface Category {
   id: number;
   name: string;
