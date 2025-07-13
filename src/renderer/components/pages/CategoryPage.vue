@@ -1,23 +1,30 @@
 <!--  
- @component CategoryModal.vue
- @description
-  分类创建与编辑模态框。
-  此组件提供一个界面，用于创建新分类或修改现有分类的详情，
-  例如：分类名称和颜色。
+ @component CategoryPage.vue
+ @description: 分类管理页面组件，负责创建和编辑事件分类的模态框界面，提供分类名称设置和颜色选择功能，支持分类的增删改操作。
+ 
+ 主要功能：
+ 1. 创建新的事件分类
+ 2. 编辑现有分类信息
+ 3. 分类颜色选择和管理
+ 4. 分类删除功能
+ 5. 颜色冲突检测
+ 6. 键盘快捷键支持
+ 7. 表单验证
 -->
+
 <template>
-  <!-- 模态框容器，仅当 showCategoryModal 为 true 时显示 -->
+  <!-- 模态框背景遮罩 - 仅当 showCategoryModal 为 true 时显示 -->
   <div
     v-if="uiStore.showCategoryModal"
     class="fixed inset-0 bg-transparent backdrop-blur-sm flex items-center justify-center z-50"
     @click="uiStore.closeCategoryModal()"
   >
-    <!-- 分类模态框主体，阻止事件冒泡到父级 -->
+    <!-- 分类模态框主体 - 阻止事件冒泡到父级 -->
     <div
       class="category-modal rounded-lg shadow-lg w-full max-w-md overflow-hidden"
       @click.stop
     >
-      <!-- 模态框头部 -->
+      <!-- 模态框头部 - 显示标题和关闭按钮 -->
       <div
         class="modal-header p-4 flex justify-between items-center"
         :style="{
@@ -37,6 +44,7 @@
           <i class="fas fa-times"></i>
         </button>
       </div>
+      
       <!-- 模态框内容区域 -->
       <div class="modal-body p-4">
         <!-- 分类名称输入区域 -->
@@ -53,7 +61,7 @@
         <!-- 分类颜色选择区域 -->
         <div class="form-group mb-4">
           <label class="block text-sm font-medium mb-1">颜色</label>
-          <!-- 预设颜色选项 -->
+          <!-- 预设颜色选项网格 -->
           <div class="color-selector flex flex-wrap gap-3 mb-2">
             <button
               v-for="color in colorOptions"
@@ -75,6 +83,7 @@
               :title="eventStore.isColorUsed(color) ? '此颜色已被使用' : ''"
               class="!rounded-button whitespace-nowrap"
             >
+              <!-- 已使用颜色的禁用标识 -->
               <span
                 v-if="eventStore.isColorUsed(color)"
                 class="absolute inset-0 flex items-center justify-center pointer-events-none"
@@ -85,9 +94,10 @@
           </div>
         </div>
       </div>
-      <!-- 模态框底部，包含操作按钮 -->
+      
+      <!-- 模态框底部操作区域 -->
       <div class="modal-footer p-4 flex justify-end space-x-3">
-        <!-- 删除按钮，仅在编辑分类时显示 -->
+        <!-- 删除按钮 - 仅在编辑分类时显示 -->
         <button
           v-if="!eventStore.isNewCategory"
           @click="eventStore.deleteCategory"
@@ -95,7 +105,7 @@
         >
           删除
         </button>
-        <!-- 保存按钮 -->
+        <!-- 保存按钮 - 根据表单验证状态控制禁用状态 -->
         <button
           @click="eventStore.saveCategory"
           :disabled="!eventStore.isCategoryFormValid"
@@ -122,7 +132,8 @@ const eventStore = useEventStore();
 const uiStore = useUiStore();
 
 /**
- * 处理ESC键关闭设置模态框
+ * 键盘事件处理器 - 处理ESC键关闭和Enter键保存
+ * @param {KeyboardEvent} event - 键盘事件对象
  */
 function handleKeyDown(event) {
   if (uiStore.showCategoryModal) {
@@ -147,7 +158,7 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
-/* 定义淡入动画效果 */
+/* 淡入动画效果定义 */
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -162,14 +173,14 @@ onUnmounted(() => {
   animation: fadeIn 0.1s ease-out;
 }
 
-/* 确保背景模糊效果兼容性 */
+/* 背景模糊效果兼容性处理 */
 .backdrop-blur-sm {
   backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);
   background: rgba(0, 0, 0, 0.1);
 }
 
-/* 颜色选择器布局 */
+/* 颜色选择器网格布局 */
 .color-selector {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
