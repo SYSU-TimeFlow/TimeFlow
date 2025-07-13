@@ -1,3 +1,17 @@
+<!-- 
+ @component ToDoPage.vue
+ @description: 待办事项模态框组件，负责新建和编辑待办事项，提供完整的待办事项管理功能。
+ 
+ 主要功能：
+ 1. 新建和编辑待办事项
+ 2. 设置任务标题和描述
+ 3. 可选择设置截止时间
+ 4. 分类管理和颜色标识
+ 5. 支持键盘快捷键操作
+ 6. 错误提示和抖动动画
+ 7. 删除待办事项
+-->
+
 <!-- 编辑 todo 事项模态框 -->
 <template>
   <!-- 模态框容器，仅当 showTodoModal 为 true 时显示 -->
@@ -145,9 +159,11 @@ const eventStore = useEventStore();
 const uiStore = useUiStore();
 
 /**
- * 处理ESC键关闭设置模态框
+ * 处理键盘事件 - 支持ESC键关闭模态框和Enter键保存
+ * @param {KeyboardEvent} event - 键盘事件对象
  */
 function handleKeyDown(event) {
+  // 仅在待办事项模态框显示时处理键盘事件
   if (uiStore.showTodoModal) {
     if (event.key === "Escape") {
       uiStore.closeTodoModal();
@@ -170,9 +186,10 @@ onUnmounted(() => {
 
 // 使用本地变量跟踪是否设置截止时间
 const hasDeadline = ref(true);
+// 模态框DOM引用，用于添加抖动动画
 const modalRef = ref<HTMLElement | null>(null);
 
-// 响应式绑定 eventStore 的错误和 shake 状态
+// 监听事件错误状态，触发抖动动画
 watch(
   () => eventStore.todoError,
   (val) => {
@@ -184,6 +201,8 @@ watch(
     }
   }
 );
+
+// 监听抖动状态，触发抖动动画
 watch(
   () => eventStore.todoShake,
   (val) => {
@@ -197,7 +216,7 @@ watch(
   }
 );
 
-// 打开待办事项模态框时的处理
+// 监听模态框开关状态，初始化截止时间设置
 watch(
   () => uiStore.showTodoModal,
   (isOpen) => {
@@ -214,7 +233,7 @@ watch(
   }
 );
 
-// 监听截止时间设置变化
+// 监听截止时间设置变化，处理截止时间的设置和取消
 watch(hasDeadline, (newValue) => {
   if (!newValue) {
     // 如果取消设置截止时间，使用1970年作为占位符
@@ -231,7 +250,7 @@ watch(hasDeadline, (newValue) => {
   }
 });
 
-// 输入时清除错误提示
+// 监听标题输入变化，清除错误提示
 watch(
   () => eventStore.currentEvent.title,
   () => {
@@ -239,7 +258,10 @@ watch(
   }
 );
 
-// 保存待办事项
+/**
+ * 保存待办事项
+ * 调用 eventStore 中的 saveTodo 函数，传递截止时间设置参数
+ */
 function saveTodo() {
   // 调用 eventStore 中的 saveTodo 函数，传递 hasDeadline 参数
   // 所有处理逻辑均移至 store 内部处理
