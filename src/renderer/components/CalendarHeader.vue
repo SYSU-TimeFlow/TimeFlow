@@ -95,12 +95,17 @@
 
         <!-- 搜索框图标，根据不同模式显示不同图标 -->
         <i
-          v-if="uiStore.isSearchActive"
           class="fas absolute left-3 top-1/2 transform -translate-y-1/2 pointer-events-none"
           :class="[
-            uiStore.appMode === 'normal' ? 'fa-search' : '',
-            uiStore.appMode === 'command' ? 'fa-terminal text-blue-600' : '',
-            uiStore.appMode === 'nlp' ? 'fa-comment-dots text-purple-500' : '',
+            uiStore.isSearchActive && uiStore.appMode === 'normal'
+              ? 'fa-search'
+              : '',
+            uiStore.isSearchActive && uiStore.appMode === 'command'
+              ? 'fa-terminal text-blue-600'
+              : '',
+            uiStore.isSearchActive && uiStore.appMode === 'nlp'
+              ? 'fa-comment-dots text-purple-500'
+              : '',
           ]"
         ></i>
 
@@ -259,7 +264,7 @@
             stroke-width="2"
           />
         </svg>
-        <!-- 暗模式:月亮图标 -->
+        <!-- 暗模式：新的月亮图标 -->
         <svg
           v-else
           class="theme-moon"
@@ -345,8 +350,9 @@ const placeholderIndex = ref(0);
 const placeholderText = ref(placeholders[0]);
 let placeholderInterval: number | undefined;
 
-// ==================== 文本识别功能  ====================
-
+// ==================== 文本识别功能 (新实现) ====================
+const isSpeechModalVisible = ref(false);
+const speechStatus = ref("点击“完成”或“取消”");
 const transcriptDivRef = ref<HTMLDivElement | null>(null);
 let finalTranscript = "";
 
@@ -948,8 +954,100 @@ watch(isCogHovered, (hovered) => {
   background-color: rgba(90, 156, 255, 0.15) !important;
 }
 
+/* 新增：语音识别弹窗样式 */
+.speech-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.speech-modal-content {
+  background-color: var(--bg-primary);
+  padding: 24px;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 500px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--border-color);
+}
+
+.speech-modal-title {
+  margin: 0 0 8px 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.speech-status {
+  margin: 0 0 16px 0;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  min-height: 1.2em;
+}
+
+.speech-transcript {
+  width: 100%;
+  min-height: 100px;
+  padding: 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+  font-size: 1rem;
+  margin-bottom: 20px;
+  box-sizing: border-box;
+  resize: vertical;
+  overflow-y: auto;
+}
+.speech-transcript:focus {
+  outline: none;
+  border-color: #4a86e8;
+}
+
+.speech-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.speech-modal-actions button {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.speech-btn-cancel {
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+}
+.speech-btn-cancel:hover {
+  background-color: var(--hover-bg);
+}
+
+.speech-btn-done {
+  background-color: #4a86e8;
+  color: white;
+}
+.speech-btn-done:hover {
+  background-color: #3c78d8;
+}
+
 .theme-moon {
-  font-size: 1.25em; 
+  font-size: 1.25em; /* 可根据header字体大小调整，或直接继承 */
   vertical-align: middle;
 }
 </style>
